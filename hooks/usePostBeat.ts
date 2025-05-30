@@ -1,0 +1,28 @@
+import { useState } from 'react';
+
+export const usePostBeat = () => {
+    const [nomeProdutor, setNomeProdutor] = useState('');
+    const [tituloBeat, setTituloBeat] = useState('');
+    const [generoBeat, setGeneroBeat] = useState('');
+    const [preco, setPreco] = useState('');
+    const [tipoLicencaOpen, setTipoLicencaOpen] = useState(false);
+    const [tipoLicenca, setTipoLicenca] = useState<string | null>(null);
+    const [tipoLicencaItems, setTipoLicencaItems] = useState([
+        { label: 'Uso Exclusivo', value: 'exclusivo' },
+        { label: 'Uso Livre', value: 'livre' },
+    ]);
+    const [capa, setCapa] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
+    const [beatFile, setBeatFile] = useState<any>(null);  // Pode usar DocumentPicker para escolher arquivo
+
+    return {
+        nomeProdutor, setNomeProdutor,
+        tituloBeat, setTituloBeat,
+        generoBeat, setGeneroBeat,
+        preco, setPreco,
+        tipoLicencaOpen, setTipoLicencaOpen,
+        tipoLicenca, setTipoLicenca,
+        tipoLicencaItems, setTipoLicencaItems,
+        capa, setCapa,
+        beatFile, setBeatFile,
+    };
+};

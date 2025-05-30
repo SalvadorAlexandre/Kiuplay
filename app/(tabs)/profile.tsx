@@ -1,11 +1,12 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { useProfileViews } from '@/hooks/useProfileViews';
 import { isSelected } from '@/utils/UtilisBtnMyContent';
-import {useSelectedMyContent } from '@/hooks/useSelectedMyContent';
-import useParticipantsCheckbox  from '@/hooks/useParticipantsCheckbox';
+import { useSelectedMyContent } from '@/hooks/useSelectedMyContent';
+import useParticipantsCheckbox from '@/hooks/useParticipantsCheckbox';
 import PostFaixaScreen from '@/components/usePostFaixaScreen'
 import PostEPScreen from '@/components/usePostEPScreen'
 import PostAlbumScreen from '@/components/usePostAlbumScreen'
+import { PostBeatScreen } from '@/components/usePostBeatScreen'
 import { Ionicons } from '@expo/vector-icons';
 import {
   ScrollView,
@@ -15,7 +16,7 @@ import {
   Image,
   TouchableOpacity,
   Pressable,
-  TextInput,
+  Animated,
 } from 'react-native';
 
 
@@ -47,8 +48,40 @@ export default function ProfileScreen() {
   } = useProfileViews()
 
   const { selectedProfileMyContent, setSelectedProfileMyContent } = useSelectedMyContent() //Hook que verifica se um btn dos meus conteudos está checked
-  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  //hooks para o btn configuraçoes do perfil----------------------------------------------
+  const [scaleValueConfig] = useState(new Animated.Value(1))
+  const handlePressInConfig = () => {
+    Animated.spring(scaleValueConfig, { toValue: 0.96, useNativeDriver: true, }).start()
+  }
+  const handlePressOutConfig = () => {
+    Animated.spring(scaleValueConfig, { toValue: 1, useNativeDriver: true, }).start()
+  }
+  //---------------------------------------------------------------------------------------
+
+  //hooks para o btn configuraçoes do uploads----------------------------------------------
+  const [scaleValueUploads] = useState(new Animated.Value(1))
+  const handlePressInUploads = () => {
+    Animated.spring(scaleValueUploads, { toValue: 0.96, useNativeDriver: true, }).start()
+  }
+  const handlePressOutUploads = () => {
+    Animated.spring(scaleValueUploads, { toValue: 1, useNativeDriver: true, }).start()
+  }
+  //---------------------------------------------------------------------------------------
+
+  //hooks para o btn configuraçoes dos Insight----------------------------------------------
+  const [scaleValueInsight] = useState(new Animated.Value(1))
+  const handlePressInInsight = () => {
+    Animated.spring(scaleValueInsight, { toValue: 0.96, useNativeDriver: true, }).start()
+  }
+  const handlePressOutInsight = () => {
+    Animated.spring(scaleValueInsight, { toValue: 1, useNativeDriver: true, }).start()
+  }
+  //---------------------------------------------------------------------------------------
+
+
 
   const {
     hasParticipants,
@@ -73,12 +106,10 @@ export default function ProfileScreen() {
 
 
       {/*View da visão Geral do perfil--------------------------------------------------*/}
-      <View style={styles.profileCard}>
-
-
+      <View style={styles.profileContainer}>
         {/*Outros elementos estarao aqui dentro (elementos do perfil)*/}
 
-        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
 
           <View style={styles.imageContainer}>
             <Image // Imagem do perfil
@@ -86,7 +117,6 @@ export default function ProfileScreen() {
               style={styles.profileImage}
               resizeMode="contain"
             />
-
           </View>
 
           {/*Mostrar o nome e o arroba do utilizador*/}
@@ -96,6 +126,8 @@ export default function ProfileScreen() {
           </View>
 
         </View>
+
+
         {/* Estatísticas: seguindo, seguidores, singles, EPs, álbuns */}
         <View style={styles.statsRow}>
 
@@ -133,36 +165,88 @@ export default function ProfileScreen() {
       </View>
 
 
-      {/*View das configuracao do perfil------------*/}
-      <View style={styles.worksSection}>
-
-        <View style={styles.header}>
+      {/*View das configuracao do perfil-----------------------------------------------------------------*/}
+      <Animated.View style={[
+        styles.buttonContainer,
+        { transform: [{ scale: scaleValueConfig }] } // Aplica a animação
+      ]}>
+        <Pressable
+          onPressIn={handlePressInConfig}    // Aciona ao pressionar
+          onPressOut={handlePressOutConfig}  // Aciona ao soltar
+          onPress={() => console.log('Botão clicado')} // Exemplo de ação
+          style={styles.buttonContent} // Estilo interno
+        >
+          {/* Ícone esquerdo */}
           <Image
             source={require('@/assets/images/2/icons8_user_settings_120px.png')}
-            style={{ width: 25, height: 25, marginRight: 8 }}
+            style={styles.iconLeft}
           />
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Configurações do perfil</Text>
-          {/*Icone no canto superior directo*/}
-          <Pressable onPress={() => setExpandedProfileSettings(prev => !prev)}>
-            {/*Icone muda conforme o estado, seta para cima e para baixo*/}
-            <Ionicons
-              name={expandedProfileSettings ? 'chevron-up' : 'chevron-down'}
-              size={20}
-              color='#fff'
-              style={{ transform: [{ rotate: expandedProfileSettings ? '180' : '0deg' }] }}
-            />
-          </Pressable>
-        </View>
-        {expandedProfileSettings && (
-          <View>
-            <Text style={styles.texto}>OLA MBAPPÉ</Text>
-          </View>
-        )}
-      </View>
+
+          {/* Texto do botão */}
+          <Text style={styles.buttonText}>Configurações do perfil</Text>
+
+          {/* Ícone seta para direita */}
+          <Ionicons name="chevron-forward" size={20} color="#fff" />
+        </Pressable>
+      </Animated.View>
+      {/*View das configuracao do perfil-----------------------------------------------------------------*/}
+
+      {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
+      <Animated.View style={[
+        styles.buttonContainer,
+        { transform: [{ scale: scaleValueUploads }] } // Animação de clique
+      ]}>
+        <Pressable
+          onPressIn={handlePressInUploads}    // Aciona ao pressionar
+          onPressOut={handlePressOutUploads} // Aciona ao soltar
+          onPress={() => console.log('Botão Fazer Uploads clicado')} // Ação
+          style={styles.buttonContent} // Estilo interno
+        >
+          {/* Ícone esquerdo (ícone de upload) */}
+          <Image
+            source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')} // Troque pelo seu ícone
+            style={styles.iconLeft}
+          />
+
+          {/* Texto do botão */}
+          <Text style={styles.buttonText}>Fazer Uploads</Text>
+
+          {/* Ícone seta para direita */}
+          <Ionicons name="chevron-forward" size={20} color="#fff" />
+        </Pressable>
+      </Animated.View>
+      {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
+
+
+      {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
+      <Animated.View style={[
+        styles.buttonContainer,
+        { transform: [{ scale: scaleValueInsight }] } // Animação de clique
+      ]}>
+        <Pressable
+          onPressIn={handlePressInInsight}    // Aciona ao pressionar
+          onPressOut={handlePressOutInsight} // Aciona ao soltar
+          onPress={() => console.log('Botão Fazer Uploads clicado')} // Ação
+          style={styles.buttonContent} // Estilo interno
+        >
+          {/* Ícone esquerdo (ícone de upload) */}
+          <Image
+            source={require('@/assets/images/2/icons8_funnel_120px_1.png')} // Troque pelo seu ícone
+            style={styles.iconLeft}
+          />
+
+          {/* Texto do botão */}
+          <Text style={styles.buttonText}>Seus Insights</Text>
+
+          {/* Ícone seta para direita */}
+          <Ionicons name="chevron-forward" size={20} color="#fff" />
+        </Pressable>
+      </Animated.View>
+      {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
 
 
       {/*View criar postagem de faixa single*/}
-      <View style={styles.worksSection}>
+      <View>
         {/*Cabeçalho que sempre aparece*/}
         <View style={styles.header}>
           <Image
@@ -173,251 +257,245 @@ export default function ProfileScreen() {
             Criar um post de faixa single
           </Text>
           {/* Ícone no canto superior direito */}
-         <Pressable onPress={() => setExpandedProfilePostFaixa(prev => !prev)}>
+          <Pressable onPress={() => setExpandedProfilePostFaixa(prev => !prev)}>
             {/*Icone muda conforme o estado, seta para cima e para baixo*/}
             <Ionicons
-              name={expandedProfilePostFaixa ? 'chevron-up' : 'chevron-down'}
+              name="chevron-forward"
               size={20}
               color='#fff'
               style={{ transform: [{ rotate: expandedProfilePostFaixa ? '180' : '0deg' }] }}
             />
           </Pressable>
         </View>
-        {expandedProfilePostFaixa && (
+      </View>
+
+      {/* View criar postagem de EP */}
+      <View>
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/2/icons8_music_record_120px.png')}
+            style={{ width: 20, height: 20, marginRight: 8 }}
+          />
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>
+            Criar um post de EP
+          </Text>
+          {/* Ícone no canto superior direito */}
+          <Pressable onPress={() => setExpandedProfilePostEP(prev => !prev)}>
+            {/* Ícone muda conforme o estado, seta para cima e para baixo */}
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color="#fff"
+              style={{ transform: [{ rotate: expandedProfilePostEP ? '180' : '0deg' }] }}
+            />
+          </Pressable>
+        </View>
+
+        {/* Se a seção de postagem do EP estiver expandida */}
+        {expandedProfilePostEP && (
           <View>
-            <PostFaixaScreen />
+            <PostEPScreen />
           </View>
-          
         )}
       </View>
 
-      {/* View criar postagem de EP */ }
-  <View style={styles.worksSection}>
-    <View style={styles.header}>
-      <Image
-        source={require('@/assets/images/2/icons8_music_record_120px.png')}
-        style={{ width: 20, height: 20, marginRight: 8 }}
-      />
-      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>
-        Criar um post de EP
-      </Text>
-      {/* Ícone no canto superior direito */}
-      <Pressable onPress={() => setExpandedProfilePostEP(prev => !prev)}>
-        {/* Ícone muda conforme o estado, seta para cima e para baixo */}
-        <Ionicons
-          name={expandedProfilePostEP ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color="#fff"
-          style={{ transform: [{ rotate: expandedProfilePostEP ? '180' : '0deg' }] }}
-        />
-      </Pressable>
-    </View>
-
-    {/* Se a seção de postagem do EP estiver expandida */}
-    {expandedProfilePostEP && (
+      {/*View criar postagem de Album*/}
+      {/* View criar postagem de Álbum */}
       <View>
-        <PostEPScreen/>
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/2/icons8_music_album_120px.png')}
+            style={{ width: 25, height: 25, marginRight: 8 }}
+          />
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>
+            Criar um post de Álbum
+          </Text>
+          {/* Ícone no canto superior direito */}
+          <Pressable onPress={() => setExpandedProfilePostAlbum(prev => !prev)}>
+            {/* Ícone muda conforme o estado, seta para cima e para baixo */}
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color="#fff"
+              style={{ transform: [{ rotate: expandedProfilePostAlbum ? '180' : '0deg' }] }}
+            />
+          </Pressable>
+        </View>
+
+        {/* Se a seção de postagem do álbum estiver expandida */}
+        {expandedProfilePostAlbum && (
+          <View>
+            <PostAlbumScreen />
+          </View>
+        )}
       </View>
-    )}
-  </View>
 
-  {/*View criar postagem de Album*/ }
-  {/* View criar postagem de Álbum */ }
-  <View style={styles.worksSection}>
-    <View style={styles.header}>
-      <Image
-        source={require('@/assets/images/2/icons8_music_album_120px.png')}
-        style={{ width: 25, height: 25, marginRight: 8 }}
-      />
-      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>
-        Criar um post de Álbum
-      </Text>
-      {/* Ícone no canto superior direito */}
-      <Pressable onPress={() => setExpandedProfilePostAlbum(prev => !prev)}>
-        {/* Ícone muda conforme o estado, seta para cima e para baixo */}
-        <Ionicons
-          name={expandedProfilePostAlbum ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color="#fff"
-          style={{ transform: [{ rotate: expandedProfilePostAlbum ? '180' : '0deg' }] }}
-        />
-      </Pressable>
-    </View>
-
-    {/* Se a seção de postagem do álbum estiver expandida */}
-    {expandedProfilePostAlbum && (
+      {/*View criar postagem de Instrumentais*/}
       <View>
-        <PostAlbumScreen />
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/2/icons8_vox_player_120px.png')}
+            style={{ width: 25, height: 20, marginRight: 8 }}
+          />
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Criar um post de Beat</Text>
+          {/*Icone no canto superior directo*/}
+          <Pressable onPress={() => setExpandedProfilePostBeat(prev => !prev)}>
+            {/*Icone muda conforme o estado, seta para cima e para baixo*/}
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color='#fff'
+              style={{ transform: [{ rotate: expandedProfilePostBeat ? '180' : '0deg' }] }}
+            />
+          </Pressable>
+        </View>
+        {expandedProfilePostBeat && (
+          <View>
+            <PostBeatScreen />
+          </View>
+        )}
       </View>
-    )}
-  </View>
 
-  {/*View criar postagem de Instrumentais*/ }
-  <View style={styles.worksSection}>
-    <View style={styles.header}>
-      <Image
-        source={require('@/assets/images/2/icons8_vox_player_120px.png')}
-        style={{ width: 25, height: 20, marginRight: 8 }}
-      />
-      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Criar um post de Beat</Text>
-      {/*Icone no canto superior directo*/}
-      <Pressable onPress={() => setExpandedProfilePostBeat(prev => !prev)}>
-        {/*Icone muda conforme o estado, seta para cima e para baixo*/}
-        <Ionicons
-          name={expandedProfilePostBeat ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color='#fff'
-          style={{ transform: [{ rotate: expandedProfilePostBeat ? '180' : '0deg' }] }}
-        />
-      </Pressable>
-    </View>
-    {expandedProfilePostBeat && (
+      {/*View criar postagem de Castings*/}
       <View>
-        <Text>post album</Text>
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/2/icons8_video_camera_120px.png')}
+            style={{ width: 23, height: 20, marginRight: 8 }}
+          />
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Criar um post de video</Text>
+          {/*Icone no canto superior directo*/}
+          <Pressable onPress={() => setExpandedProfilePostCastings(prev => !prev)}>
+            {/*Icone muda conforme o estado, seta para cima e para baixo*/}
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color='#fff'
+              style={{ transform: [{ rotate: expandedProfilePostCastings ? '180' : '0deg' }] }}
+            />
+          </Pressable>
+        </View>
+        {expandedProfilePostCastings && (
+          <View>
+            <Text style={styles.texto}>OLA MBAPPÉ</Text>
+          </View>
+        )}
       </View>
-    )}
-  </View>
 
-  {/*View criar postagem de Castings*/ }
-  <View style={styles.worksSection}>
-    <View style={styles.header}>
-      <Image
-        source={require('@/assets/images/2/icons8_video_camera_120px.png')}
-        style={{ width: 23, height: 20, marginRight: 8 }}
-      />
-      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Criar um post de video</Text>
-      {/*Icone no canto superior directo*/}
-      <Pressable onPress={() => setExpandedProfilePostCastings(prev => !prev)}>
-        {/*Icone muda conforme o estado, seta para cima e para baixo*/}
-        <Ionicons
-          name={expandedProfilePostCastings ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color='#fff'
-          style={{ transform: [{ rotate: expandedProfilePostCastings ? '180' : '0deg' }] }}
-        />
-      </Pressable>
-    </View>
-    {expandedProfilePostCastings && (
+
+      {/*View dos conteudos do usuarios-----------*/}
       <View>
-        <Text style={styles.texto}>OLA MBAPPÉ</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center', paddingHorizontal: 1,
+            marginBottom: 8
+          }}>
+          <Image
+            source={require('@/assets/images/2/icons8_internet_folder_120px.png')}
+            style={{ width: 23, height: 20, marginRight: 8 }}
+          />
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Meus comteúdos</Text>
+        </View>
+        <ScrollView horizontal
+          showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+          style={{ marginBottom: 8 }}
+        >
+
+          {/*Botao para os Singles----------------*/}
+          <TouchableOpacity
+            style={[
+              styles.workButton,
+              isSelected(selectedProfileMyContent, 'single') &&
+              styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+            ]}
+            onPress={() => setSelectedProfileMyContent('single')}>
+            <Image
+              source={require('@/assets/images/3/icons8_musical_120px.png')}
+              style={{ width: 23, height: 20, marginRight: 8 }}
+            />
+            <Text style={styles.workButtonText}>Faixa single</Text>
+          </TouchableOpacity>
+
+          {/*Botao para as EPs*/}
+          <TouchableOpacity
+            style={[
+              styles.workButton,
+              isSelected(selectedProfileMyContent, 'eps') &&
+              styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+            ]}
+            onPress={() => setSelectedProfileMyContent('eps')}>
+            <Image
+              source={require('@/assets/images/3/icons8_music_record_120px.png')}
+              style={{ width: 20, height: 20, marginRight: 8 }}
+            />
+            <Text style={styles.workButtonText}>Extended Play (EPs)</Text>
+          </TouchableOpacity>
+
+          {/*Botao para os Albuns*/}
+          <TouchableOpacity
+            style={[
+              styles.workButton,
+              isSelected(selectedProfileMyContent, 'albums') &&
+              styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+            ]}
+            onPress={() => setSelectedProfileMyContent('albums')}>
+            <Image
+              source={require('@/assets/images/3/icons8_music_album_120px.png')}
+              style={{ width: 23, height: 20, marginRight: 8 }}
+            />
+            <Text style={styles.workButtonText}>Álbuns</Text>
+          </TouchableOpacity>
+
+          {/*Instrumentais comprados*/}
+          <TouchableOpacity
+            style={[
+              styles.workButton,
+              isSelected(selectedProfileMyContent, 'beats_bought') &&
+              styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+            ]}
+            onPress={() => setSelectedProfileMyContent('beats_bought')}>
+            <Image
+              source={require('@/assets/images/3/icons8_paycheque_120px.png')}
+              style={{ width: 23, height: 20, marginRight: 8 }}
+            />
+            <Text style={styles.workButtonText}>Instrumentais comprados</Text>
+          </TouchableOpacity>
+
+          {/*Instrumentais Postados*/}
+          <TouchableOpacity
+            style={[
+              styles.workButton,
+              isSelected(selectedProfileMyContent, 'beats_posted') &&
+              styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+            ]}
+            onPress={() => setSelectedProfileMyContent('beats_posted')}>
+            <Image
+              source={require('@/assets/images/3/icons8_vox_player_120px.png')}
+              style={{ width: 23, height: 20, marginRight: 8 }}
+            />
+            <Text style={styles.workButtonText}>Instrumentais postados</Text>
+          </TouchableOpacity>
+
+          {/*VideoClips*/}
+          <TouchableOpacity
+            style={[
+              styles.workButton,
+              isSelected(selectedProfileMyContent, 'videos') &&
+              styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+            ]}
+            onPress={() => setSelectedProfileMyContent('videos')}>
+            <Image
+              source={require('@/assets/images/3/icons8_video_camera_120px.png')}
+              style={{ width: 20, height: 20, marginRight: 8 }}
+            />
+            <Text style={styles.workButtonText}>Video clipes</Text>
+          </TouchableOpacity>
+
+        </ScrollView>
+        <Text style={styles.profileText}>O Conteudo sera apresentado dinamicamente</Text>
       </View>
-    )}
-  </View>
-
-
-  {/*View dos conteudos do usuarios-----------*/ }
-  <View style={styles.worksSection}>
-    <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center', paddingHorizontal: 1,
-        marginBottom: 8
-      }}>
-      <Image
-        source={require('@/assets/images/2/icons8_internet_folder_120px.png')}
-        style={{ width: 23, height: 20, marginRight: 8 }}
-      />
-      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', flex: 1 }}>Meus comteúdos</Text>
-    </View>
-    <ScrollView horizontal
-      showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-      style={{ marginBottom: 8 }}
-    >
-
-      {/*Botao para os Singles----------------*/}
-      <TouchableOpacity
-        style={[
-          styles.workButton,
-          isSelected(selectedProfileMyContent, 'single') &&
-          styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-        ]}
-        onPress={() => setSelectedProfileMyContent('single')}>
-        <Image
-          source={require('@/assets/images/3/icons8_musical_120px.png')}
-          style={{ width: 23, height: 20, marginRight: 8 }}
-        />
-        <Text style={styles.workButtonText}>Faixa single</Text>
-      </TouchableOpacity>
-
-      {/*Botao para as EPs*/}
-      <TouchableOpacity
-        style={[
-          styles.workButton,
-          isSelected(selectedProfileMyContent, 'eps') &&
-          styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-        ]}
-        onPress={() => setSelectedProfileMyContent('eps')}>
-        <Image
-          source={require('@/assets/images/3/icons8_music_record_120px.png')}
-          style={{ width: 20, height: 20, marginRight: 8 }}
-        />
-        <Text style={styles.workButtonText}>Extended Play (EPs)</Text>
-      </TouchableOpacity>
-
-      {/*Botao para os Albuns*/}
-      <TouchableOpacity
-        style={[
-          styles.workButton,
-          isSelected(selectedProfileMyContent, 'albums') &&
-          styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-        ]}
-        onPress={() => setSelectedProfileMyContent('albums')}>
-        <Image
-          source={require('@/assets/images/3/icons8_music_album_120px.png')}
-          style={{ width: 23, height: 20, marginRight: 8 }}
-        />
-        <Text style={styles.workButtonText}>Álbuns</Text>
-      </TouchableOpacity>
-
-      {/*Instrumentais comprados*/}
-      <TouchableOpacity
-        style={[
-          styles.workButton,
-          isSelected(selectedProfileMyContent, 'beats_bought') &&
-          styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-        ]}
-        onPress={() => setSelectedProfileMyContent('beats_bought')}>
-        <Image
-          source={require('@/assets/images/3/icons8_paycheque_120px.png')}
-          style={{ width: 23, height: 20, marginRight: 8 }}
-        />
-        <Text style={styles.workButtonText}>Instrumentais comprados</Text>
-      </TouchableOpacity>
-
-      {/*Instrumentais Postados*/}
-      <TouchableOpacity
-        style={[
-          styles.workButton,
-          isSelected(selectedProfileMyContent, 'beats_posted') &&
-          styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-        ]}
-        onPress={() => setSelectedProfileMyContent('beats_posted')}>
-        <Image
-          source={require('@/assets/images/3/icons8_vox_player_120px.png')}
-          style={{ width: 23, height: 20, marginRight: 8 }}
-        />
-        <Text style={styles.workButtonText}>Instrumentais postados</Text>
-      </TouchableOpacity>
-
-      {/*VideoClips*/}
-      <TouchableOpacity
-        style={[
-          styles.workButton,
-          isSelected(selectedProfileMyContent, 'videos') &&
-          styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-        ]}
-        onPress={() => setSelectedProfileMyContent('videos')}>
-        <Image
-          source={require('@/assets/images/3/icons8_video_camera_120px.png')}
-          style={{ width: 20, height: 20, marginRight: 8 }}
-        />
-        <Text style={styles.workButtonText}>Video clipes</Text>
-      </TouchableOpacity>
-
-    </ScrollView>
-    <Text style={styles.profileText}>O Conteudo sera apresentado dinamicamente</Text>
-  </View>
     </ScrollView >
 
   );
@@ -435,7 +513,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1, // Permite expansão do conteúdo
     paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
-    paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+    //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
   },
   // Estilo do conteúdo horizontal
   content: {
@@ -519,7 +597,7 @@ const styles = StyleSheet.create({
   statValue: {
     color: '#fff',             // Cor branca para maior contraste com o fundo escuro
     fontSize: 16,              // Tamanho da fonte um pouco maior para destaque
-    fontWeight: 'bold',        // Negrito para reforçar a importância visual do valor
+    //fontWeight: 'bold',        // Negrito para reforçar a importância visual do valor
   },
 
   // Estilo do rótulo (ex: “Seguidores”, “EPs”)
@@ -550,16 +628,19 @@ const styles = StyleSheet.create({
   },
 
   //Estilo da view das obras do usuario
-  worksSection: {
-    paddingHorizontal: 15,
-    backgroundColor: '#1e1e1e',
-    borderRadius: 10,
-    padding: 10,       // Adiciona espaçamento interno (por dentro da View) em todos os lados.
-    margin: 10,
-    marginTop: 3,
-    width: '100%',
-    //height: '40%',
-    alignSelf: 'center',
+  profileContainer: {
+    paddingHorizontal: 15,   // Adiciona espaçamento interno horizontal (left/right) dentro da View.
+    backgroundColor: '#1e1e1e',   // Define a cor de fundo para um tom escuro (#1e1e1e).
+    //borderRadius: 20,   // Arredonda os cantos da View com raio de 10.
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,   // Adiciona espaçamento interno (padding) uniforme em todos os lados.
+    margin: 10,   // Adiciona espaçamento externo (margin) uniforme em todos os lados.
+    //marginTop: 3,   // Adiciona um pequeno espaçamento extra no topo (3 unidades).
+    width: '100%',   // Faz a largura da View ocupar 100% do contêiner pai.
+    height: '40%',   // Comentado: Se usado, define a altura da View como 40% do contêiner pai.
+    alignSelf: 'center',   // Centraliza horizontalmente a View dentro do contêiner pai.
+    marginTop: -20
   },
 
   //Estilo dos botoes single, ep e album
@@ -630,9 +711,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',      // Coloca o Text e o ícone na mesma linha
     justifyContent: 'space-between', // Um vai para esquerda e outro para a direita
     alignItems: 'center',      // Alinha verticalmente no centro
-    paddingHorizontal: 1,
-    marginBottom: 8,
-    //flex: 1,
+    paddingHorizontal: 15,   // Adiciona espaçamento interno horizontal (left/right) dentro da View
+    padding: 10,   // Adiciona espaçamento interno (padding) uniforme em todos os lados.
+    width: '100%',   // Faz a largura da View ocupar 100% do contêiner pai.
+    alignSelf: 'center',   // Centraliza horizontalmente a View dentro do contêiner pai.
   },
   //Estilos do componente de UpLoading
   uploadArea: {
@@ -655,4 +737,34 @@ const styles = StyleSheet.create({
     //fontWeight: '500',
     marginRight: 10, // espaçamento entre texto e ícone
   },
+
+
+
+
+
+  buttonContainer: {
+    marginBottom: 5,
+    width: '100%',
+    // borderRadius: 10,
+    backgroundColor: '#1e1e1e',
+    overflow: 'hidden',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  iconLeft: {
+    width: 25,
+    height: 25,
+    marginRight: 10,
+  },
+  buttonText: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 16,
+    //fontWeight: 'bold',
+  },
+
 });
