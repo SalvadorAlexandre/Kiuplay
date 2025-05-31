@@ -4,14 +4,19 @@ import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostFaixa'; // Importa o Hook
-import { StyleSheet } from 'react-native';
+import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
+import { StyleSheet,
+    ScrollView,
+    TouchableOpacity
+} from 'react-native';
+
 
 
 /**
  * Componente responsável por renderizar a interface de
  * postagem de Faixa Single, usando o Hook usePostFaixa.
  */
-const PostFaixaScreen = () => {
+export default function PostFaixaScreen(){
     // Importa os estados e manipuladores do Hook
     const {
         hasParticipants,
@@ -27,7 +32,12 @@ const PostFaixaScreen = () => {
     } = usePostFaixa();
 
     return (
-        <View style={{ alignItems: 'flex-start', paddingVertical: 10 }}>
+        <ScrollView
+            horizontal={false} // Garante que esta rolagem seja vertical
+            style={styles.scroll} // Aplica o estilo de fundo escuro
+            contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+            showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+        >
             <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Faixa Single</Text>
             <Text style={styles.texto}>Há participações nesta faixa?</Text>
 
@@ -116,24 +126,17 @@ const PostFaixaScreen = () => {
             {/* Campos comuns*/}
             <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
             <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
-             <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
+            <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
             <TextInput style={styles.inputTextBox} placeholder="Ano de lançamento" placeholderTextColor="#FFFF" />
             <TextInput style={styles.inputTextBox} placeholder="Número da faixa" placeholderTextColor="#FFFF" />
 
-
-            {/* Botão para upload de capa */}
-            <Pressable style={styles.uploadArea}>
-                <Text style={styles.uploadText}>Carregar capa</Text>
-                <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
-            </Pressable>
-
-             {/* Botão para upload do auddio */}
-            <Pressable style={styles.uploadArea}>
+            {/* Botão para upload do auddio */}
+            <TouchableOpacity style={styles.uploadArea}>
                 <Text style={styles.uploadText}>Carregar audio</Text>
                 <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
-            </Pressable>
+            </TouchableOpacity>
 
-        </View>
+        </ScrollView>
     );
 };
 
@@ -193,6 +196,4 @@ export const styles = StyleSheet.create({
         marginRight: 10,
     },
 });
-
-export default PostFaixaScreen;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { usePostBeat } from '@/hooks/usePostBeat';
 import { 
     View,
@@ -11,7 +11,7 @@ import {
     TouchableOpacity
 } from 'react-native';
 
-export const PostBeatScreen = () => {
+export default function PostBeatScreen(){
     const {
         nomeProdutor, setNomeProdutor,
         tituloBeat, setTituloBeat,
