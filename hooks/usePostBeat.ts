@@ -11,7 +11,7 @@ export const usePostBeat = () => {
         { label: 'Uso Exclusivo', value: 'exclusivo' },
         { label: 'Uso Livre', value: 'livre' },
     ]);
-    const [capa, setCapa] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
+    const [capaBeat, setCapaBeat] = useState<any>(null);  //HOOKS PARA O QUADRO DA CAPA DO beat
     const [beatFile, setBeatFile] = useState<any>(null);  // Pode usar DocumentPicker para escolher arquivo
 
     return {
@@ -22,7 +22,7 @@ export const usePostBeat = () => {
         tipoLicencaOpen, setTipoLicencaOpen,
         tipoLicenca, setTipoLicenca,
         tipoLicencaItems, setTipoLicencaItems,
-        capa, setCapa,
+        capaBeat, setCapaBeat,
         beatFile, setBeatFile,
     };
 };

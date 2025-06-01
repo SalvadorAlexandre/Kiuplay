@@ -61,7 +61,7 @@ export default function ProfileScreen() {
       <View style={styles.profileContainer}>
         {/*Outros elementos estarao aqui dentro (elementos do perfil)*/}
 
-        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
 
           <View style={styles.imageContainer}>
             <Image // Imagem do perfil
@@ -125,7 +125,7 @@ export default function ProfileScreen() {
         <TouchableOpacity
           onPressIn={handlePressInConfig}    // Aciona ao pressionar
           onPressOut={handlePressOutConfig}  // Aciona ao soltar
-          onPress={() => console.log('Botão clicado')} // Exemplo de ação
+          onPress={() => router.push('/useProfileSettingsScreen')} // Exemplo de ação
           style={styles.buttonContent} // Estilo interno
         >
           {/* Ícone esquerdo */}
@@ -178,7 +178,7 @@ export default function ProfileScreen() {
         <TouchableOpacity
           onPressIn={handlePressInInsight}    // Aciona ao pressionar
           onPressOut={handlePressOutInsight} // Aciona ao soltar
-          onPress={() => console.log('Botão Fazer Uploads clicado')} // Ação
+          onPress={() => router.push('/useInsightsUserScreen')} // Ação
           style={styles.buttonContent} // Estilo interno
         >
           {/* Ícone esquerdo (ícone de Insight) */}

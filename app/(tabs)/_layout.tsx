@@ -1,12 +1,14 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
-import { Image, Text} from 'react-native';
+import { Tabs, Stack } from 'expo-router';
+import { Image, } from 'react-native';
 import Colors from '@/constants/Colors'; // Usaremos para definir cor do fundo
 
 export default function TabLayout() {
   // Tema fixo como 'dark'
   const scheme = 'dark';
   return (
+    //Mantem a tab padrão
+
     <Tabs
       screenOptions={{
         /*
@@ -18,7 +20,7 @@ export default function TabLayout() {
           </View>
         ),
         */
-        headerTitleStyle: {color: '#fff'},
+        headerTitleStyle: { color: '#fff' },
         tabBarShowLabel: true, // Remove texto das abas
         headerShown: true, // Mostra o cabeçalho superior
         tabBarLabelStyle: {
@@ -37,13 +39,11 @@ export default function TabLayout() {
         //Estilo do cabeçalho superior
         headerStyle: {
           backgroundColor: Colors[scheme].background,
-          borderBottomColor: Colors[scheme].background, 
+          borderBottomColor: Colors[scheme].background,
         }
 
       }}
     >
-
-      
       <Tabs.Screen
         name="VideoClipes" //Tela Castings
         options={{
@@ -67,7 +67,6 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-       
         name="profile" //Tela Perfil
         options={{
           title: 'Perfil',
@@ -84,11 +83,11 @@ export default function TabLayout() {
                 height: 30,
                 opacity: focused ? 1 : 0.5,
               }}
-              
+
             />
-           
+
           ),
-          
+
         }}
       />
 
@@ -136,6 +135,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+
   );
 }
 

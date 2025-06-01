@@ -12,7 +12,8 @@ const usePostAlbum = () => {
   const [noParticipants, setNoParticipants] = useState(true);
 
   // Estado para controlar se o DropdownPicker está aberto
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownParticipantsOpen, setDropdownParticipantsOpen] = useState(false);
+ const [numFaixasOpen, setNumFaixasOpen] = useState(false);
 
   // Número de participantes selecionados
   const [numParticipants, setNumParticipants] = useState<number | null>(null);
@@ -51,14 +52,15 @@ const usePostAlbum = () => {
   return {
     hasParticipants,
     noParticipants,
-    dropdownOpen,
+    dropdownParticipantsOpen,
     numParticipants,
     participantNames,
-    setDropdownOpen,
+    setDropdownParticipantsOpen,
     handleHasParticipants,
     handleNoParticipants,
     handleNumParticipantsChange,
     handleParticipantNameChange,
+    numFaixasOpen, setNumFaixasOpen,
   };
 };
 
