@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsa
 import { usePostBeat } from '@/hooks/usePostBeat';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router'
+import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
 import {
     StyleSheet,
     View,
@@ -28,7 +29,11 @@ export default function PostBeatScreen() {
 
     const pickBeatFile = async () => {
         let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
-        if (result.type === 'success') setBeatFile(result);
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            //Carrega o arquivo selecionado
+            const file = result.assets[0];
+            setBeatFile(file);
+        }
     };
 
     //const [capaBeat, setCapaBeat] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
@@ -104,16 +109,16 @@ export default function PostBeatScreen() {
                 //onChangeText={setNomeArtistaAlbum}
                 />
                 <TextInput
-                    value={nomeProdutor}
-                    onChangeText={setNomeProdutor}
+                    value={tituloBeat}
+                    onChangeText={setTituloBeat}
                     style={styles.inputTextBox}
                     placeholder="Título do beat"
                     placeholderTextColor="#FFFF"
                 />
 
                 <TextInput
-                    value={nomeProdutor}
-                    onChangeText={setNomeProdutor}
+                    value={generoBeat}
+                    onChangeText={setGeneroBeat}
                     style={styles.inputTextBox}
                     placeholder="Gênero do beat"
                     placeholderTextColor="#FFFF"
@@ -158,7 +163,56 @@ export default function PostBeatScreen() {
                         />
                     )}
                 />
-                <Text style={{ color: '#fff', fontSize: 16, marginBottom: 5}}>Upload do beat</Text>
+                {tipoLicenca === 'exclusivo' && (
+                    <>
+                        <TextInput
+                            style={styles.inputTextBox}
+                            //value='preco'
+                            onChangeText={setPreco}
+                            placeholder='$0,00'
+                            placeholderTextColor="FFF"
+                            keyboardType='numeric'
+                        />
+                        <Text
+                            style={{
+                                color: '#aaa',
+                                fontSize: 15,
+                                marginBottom: 10
+                            }}>
+                            O Kiuplay valoriza a exclusividade!
+                            Se você está postando um beat para vender aqui,
+                            ele não pode estar disponível em outras plataformas
+                            ou com outros compradores. Isso protege seus direitos
+                            e a confiança dos nossos artistas.🎼
+
+                        </Text>
+
+                    </>
+
+                )}
+
+                {tipoLicenca === 'livre' && (
+                    <Text
+                        style={{
+                            color: '#aaa',
+                            fontSize: 15,
+                            marginBottom: 10
+                        }}>
+                        Este beat será disponibilizado para uso não exclusivo.
+                        Outros artistas poderão adquiri-lo sem custos e utilizá-lo.🎵
+                    </Text>
+                )}
+                {beatFile && <Text
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                    style={{
+                        color: '#fff',
+                        fontSize: 16,
+                        marginBottom: 5,
+                        maxWidth: '100%'
+                    }}>
+                    Upload: {beatFile.name}
+                </Text>}
                 <TouchableOpacity
                     style={{
                         flexDirection: 'row',
@@ -174,9 +228,8 @@ export default function PostBeatScreen() {
                     }}
                     onPress={pickBeatFile}
                 >
-                    <Text style={{ color: '#fff', fontSize: 16}}>Selecionar arquivo</Text>
+                    <Text style={{ color: '#fff', fontSize: 16 }}>Selecionar arquivo</Text>
                 </TouchableOpacity>
-                {beatFile && <Text>Selecionado: {beatFile.name}</Text>}
 
                 <TouchableOpacity
                     style={{
