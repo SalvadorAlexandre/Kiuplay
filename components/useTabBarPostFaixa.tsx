@@ -1,12 +1,14 @@
 // Importa os componentes necessários do React Native
 import {
     View,
-    TouchableOpacity,
+    Pressable,
     StyleSheet,
     Text,
     TextInput,
+    TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
 
 // Importa o ícone de seta para a esquerda da biblioteca Lucide (ícones modernos compatíveis com React Native)
 //import { ArrowLeft } from 'lucide-react-native';
@@ -15,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 // Componente funcional chamado BackTabBar
-export default function TopTabBarLibrary() {
+export default function TopTabBarFaixaSingle() {
     // Inicializa o roteador para navegar entre as telas
     const router = useRouter();
 
@@ -23,30 +25,25 @@ export default function TopTabBarLibrary() {
     return (
         <View style={styles.container}>
 
-            <Text style={styles.title}>Musicas</Text>
-
-            {/* Botão de notificações de novas musicas postados de utilizadores que voce segue*/}
-            <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.button}>
-                {/* Ícone de notificações*/}
-                <Ionicons
-                    name='notifications-outline'
-                    size={26}
-                    color='#fff'
-                />
-            </TouchableOpacity>
-
             {/* Botão de pesquisa*/}
             <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.button}>
                 {/* Ícone de notificações*/}
                 <Ionicons
-                    name='search-outline'
-                    size={26}
+                    name='arrow-back'
+                    size={24}
                     color='#fff'
                 />
+            </TouchableOpacity>
+
+            <Text style={styles.title}>Postar Single</Text>
+
+
+            <TouchableOpacity
+                style={styles.buttonSave}>
+                <Ionicons name="save" size={20} color="#fff" />
+                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Salvar</Text>
             </TouchableOpacity>
 
         </View>
@@ -59,20 +56,35 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#191919',      // Cor de fundo escura
         paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
+        // paddingHorizontal: 10,           // Espaçamento lateral (esquerda e direita)
         borderBottomWidth: 1,            // Borda inferior com 1 pixel
         borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
         flexDirection: 'row',            // Organiza os itens em linha (horizontal)
         //alignItems: 'center',            // Alinha verticalmente ao centro
+        marginBottom: 20,
+    },
+    button: {
+        //backgroundColor: '#333',
     },
     // Estilo do botão (área clicável)
-    button: {
-        padding: 6,  // Espaçamento interno do botão
+    buttonSave: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#1565C0',
+        paddingVertical: 5,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#555',
+        alignSelf: 'flex-start',
+        //marginBottom: 12,
+        //padding: 6,  // Espaçamento interno do botão
     },
     title: {
         color: '#fff',
-        fontSize: 20,
-        //marginBottom: 8,
+        fontSize: 18,
+        marginLeft: 14,
         flex: 1,
         //textAlign: 'center',
     },

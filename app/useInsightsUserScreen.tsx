@@ -1,5 +1,6 @@
 import React from 'react'
 import { Stack } from 'expo-router';
+import TopTabBarInsights from '@/components/useTabBarInsights'
 import {
   View,
   ScrollView,
@@ -9,11 +10,7 @@ import {
 
 
 export default function InsightsUserScreen() {
-
-
-
   return (
-
     <>
       <Stack.Screen
         options={{
@@ -21,17 +18,21 @@ export default function InsightsUserScreen() {
           headerStyle: { backgroundColor: '#191919', },
           headerTintColor: '#fff',
           //headerTitleStyle: { fontWeight: 'bold' },
+          headerShown: false,
         }}
       />
+      <View style={{ flex: 1, backgroundColor: '#191919' }}>
 
-      <ScrollView
-        horizontal={false} // Garante que esta rolagem seja vertical
-        style={styles.scroll} // Aplica o estilo de fundo escuro
-        contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-        showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-      >
+        <TopTabBarInsights />
+        <ScrollView
+          horizontal={false} // Garante que esta rolagem seja vertical
+          style={styles.scroll} // Aplica o estilo de fundo escuro
+          contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+          showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+        >
 
-      </ScrollView>
+        </ScrollView>
+      </View>
     </>
 
 
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
   // Estilo do container do conteúdo vertical
   container: {
     flexGrow: 1, // Permite expansão do conteúdo
-    paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
-    //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+    //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
+    paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
   },
 })

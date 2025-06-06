@@ -10,19 +10,23 @@ import {
 export default function BeatStoreScreen() {
   return (
     // ScrollView pai com rolagem **vertical**
-    <ScrollView 
-      horizontal={false} // Garante que esta rolagem seja vertical
-      style={styles.scroll} // Aplica o estilo de fundo escuro
-      contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-      showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-    >
+
+    <View style={{ flex: 1, backgroundColor: '#191919' }}>
+      {/* Topo fixo */}
       <TopTabBarBeatStore />
+      <ScrollView
+        horizontal={false} // Garante que esta rolagem seja vertical
+        style={styles.scroll} // Aplica o estilo de fundo escuro
+        contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+        showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+      >
+        {/* Conteúdo da tela */}
+        <Text style={{ color: '#fff', margin: 20 }}>Conteúdo aqui...</Text>
+        {/* Pode colocar seus blocos, listas, etc */}
+      </ScrollView>
 
+    </View>
 
-
-
-
-    </ScrollView>
   );
 }
 
@@ -36,7 +40,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1, // Permite expansão do conteúdo
     //paddingVertical: 40,
-   // paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   },
   // Estilo do conteúdo horizontal
   content: {

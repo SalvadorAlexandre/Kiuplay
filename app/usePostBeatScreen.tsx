@@ -4,6 +4,7 @@ import { usePostBeat } from '@/hooks/usePostBeat';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
+import TopTabBarBeat from '@/components/useTabBarPostBeat'
 import {
     StyleSheet,
     View,
@@ -55,6 +56,7 @@ export default function PostBeatScreen() {
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     //headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false,
                 }}
             />
 
@@ -64,7 +66,7 @@ export default function PostBeatScreen() {
                 contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                 showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
             >
-
+                <TopTabBarBeat />
                 <View style={{
                     width: "100%",
                     marginBottom: 10,
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
     // Estilo do container do conteúdo vertical
     container: {
         flexGrow: 1, // Permite expansão do conteúdo
-        paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
+        //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
         paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
     },
     texto: {

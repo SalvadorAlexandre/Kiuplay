@@ -1,5 +1,6 @@
 import React from 'react'
 import { Stack } from 'expo-router';
+import TopTabBarMonetization from '@/components/useTabBarMonetization'
 import {
     View,
     ScrollView,
@@ -19,54 +20,59 @@ export default function MonetizationScreen() {
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     //headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false,
                 }}
             />
-           
-            <ScrollView
-                horizontal={false} // Garante que esta rolagem seja vertical
-                style={styles.scroll} // Aplica o estilo de fundo escuro
-                contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            >
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    {/* Ícone do paypal*/}
-                    <Image
-                        source={require('@/assets/images/4/icons8_paypal_120px_3.png')} // Troque pelo seu ícone
-                        style={styles.iconPaypal}
-                    />
-                    <Text style={{
-                        color: '#fff',            // Cor do texto
-                        fontSize: 16,            // Tamanho da fonte
-                        fontWeight: '600',       // Peso da fonte
-                        textAlign: 'center',     // Alinha o texto horizontalmente dentro da área
-                    }}>
-                        Kiuplay Monetization
-                    </Text>
-                    <Text
-                        style={styles.userHandle}>
-                        Vincule sua conta Paypal para
-                        vender e comprar Instrumentais
-                        de uso exclusivo de estilos variados
-                        no Kiuplay!
-                    </Text>
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#1565C0',
-                            paddingVertical: 10,
-                            paddingHorizontal: 16,
-                            borderRadius: 20,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                            //alignSelf: 'flex-start',
-                            marginTop: 15,
+            <View style={{ flex: 1, backgroundColor: '#191919' }}>
+                <TopTabBarMonetization />
+                <ScrollView
+                    horizontal={false} // Garante que esta rolagem seja vertical
+                    style={styles.scroll} // Aplica o estilo de fundo escuro
+                    contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+                    showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+                >   
+                    <View style={{ justifyContent: 'center', alignItems: 'center',  padding: 20,}}>
+                        {/* Ícone do paypal*/}
+                        <Image
+                            source={require('@/assets/images/4/icons8_paypal_120px_3.png')} // Troque pelo seu ícone
+                            style={styles.iconPaypal}
+                        />
+                        <Text style={{
+                            color: '#fff',            // Cor do texto
+                            fontSize: 16,            // Tamanho da fonte
+                            fontWeight: '600',       // Peso da fonte
+                            textAlign: 'center',     // Alinha o texto horizontalmente dentro da área
                         }}>
-                        <Text style={{ color: '#fff', fontSize: 16}}>Adicionar conta Paypal</Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
+                            Kiuplay Monetization
+                        </Text>
+                        <Text
+                            style={styles.userHandle}>
+                            Vincule sua conta Paypal para
+                            vender e comprar Instrumentais
+                            de uso exclusivo de estilos variados
+                            no Kiuplay!
+                        </Text>
+                        <TouchableOpacity
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: '#1565C0',
+                                paddingVertical: 10,
+                                paddingHorizontal: 16,
+                                borderRadius: 20,
+                                borderWidth: 1,
+                                borderColor: '#555',
+                                //alignSelf: 'flex-start',
+                                marginTop: 15,
+                            }}>
+                            <Text style={{ color: '#fff', fontSize: 16 }}>Adicionar conta Paypal</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+
+            </View>
+
 
         </>
 
@@ -79,13 +85,13 @@ const styles = StyleSheet.create({
     scroll: {
         flex: 1, // Faz com que o componente ocupe todo o espaço disponível dentro do contêiner flex
         backgroundColor: '#191919', // Fundo preto (modo dark)
-        paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+        //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
     },
     // Estilo do container do conteúdo vertical
     container: {
         flexGrow: 1, // Permite expansão do conteúdo
-        paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
-        //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+        // paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
+        paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
     },
     profileContainer: {
         paddingHorizontal: 15,   // Adiciona espaçamento interno horizontal (left/right) dentro da View.

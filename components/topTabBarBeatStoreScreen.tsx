@@ -1,7 +1,7 @@
 // Importa os componentes necessários do React Native
 import {
     View,
-    Pressable,
+    TouchableOpacity,
     StyleSheet,
     Text,
     TextInput,
@@ -26,7 +26,7 @@ export default function TopTabBarBeatStore() {
             <Text style={styles.title}>Loja</Text>
 
             {/* Botão de notificações de novos beats postados de utilizadores que voce segue*/}
-            <Pressable
+            <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.button}>
                 {/* Ícone de notificações*/}
@@ -35,10 +35,10 @@ export default function TopTabBarBeatStore() {
                     size={26}
                     color='#fff'
                 />
-            </Pressable>
+            </TouchableOpacity>
 
             {/* Botão de pesquisa*/}
-            <Pressable
+            <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.button}>
                 {/* Ícone de notificações*/}
@@ -47,7 +47,7 @@ export default function TopTabBarBeatStore() {
                     size={26}
                     color='#fff'
                 />
-            </Pressable>
+            </TouchableOpacity>
 
         </View>
     );

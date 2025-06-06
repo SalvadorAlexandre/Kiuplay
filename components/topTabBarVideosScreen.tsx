@@ -1,7 +1,7 @@
 // Importa os componentes necessários do React Native
 import {
     View,
-    Pressable,
+    TouchableOpacity,
     StyleSheet,
     Text,
     TextInput,
@@ -26,7 +26,7 @@ export default function TopTabBarVideos() {
             <Text style={styles.title}>Videos</Text>
 
             {/* Botão de notificações de novos videos postados*/}
-            <Pressable
+            <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.button}>
                 {/* Ícone de notificações*/}
@@ -35,10 +35,10 @@ export default function TopTabBarVideos() {
                     size={26}
                     color='#fff'
                 />
-            </Pressable>
+            </TouchableOpacity>
 
             {/* Botão de pesquisa*/}
-            <Pressable
+            <TouchableOpacity
                 onPress={() => router.back()}
                 style={styles.button}>
                 {/* Ícone de notificações*/}
@@ -47,7 +47,7 @@ export default function TopTabBarVideos() {
                     size={26}
                     color='#fff'
                 />
-            </Pressable>
+            </TouchableOpacity>
 
         </View>
     );

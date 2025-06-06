@@ -7,6 +7,7 @@ import {
     Text,
     Image,
 } from 'react-native'
+import TopTabBarSettings from '@/components/useTopTabBarSettings'
 
 export default function ProfileSettingsScreen() {
 
@@ -17,29 +18,35 @@ export default function ProfileSettingsScreen() {
                     title: 'Profile Settings',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                   // headerTitleStyle: { fontWeight: 'bold' },
+                    // headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false,
                 }}
             />
 
-            <ScrollView
-                horizontal={false} // Garante que esta rolagem seja vertical
-                style={styles.scroll} // Aplica o estilo de fundo escuro
-                contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            >
-                <View style={styles.profileContainer}>
-                    <View style={{ flexDirection: 'row', }}>
-                        <Image
-                            source={require('@/assets/images/4/icons8_info_120px.png')}
-                            style={styles.iconLeft}
-                        />
-                        <Text style={styles.userHandle}>
-                            Os dados de transação bancaria são necessários, e serão utilizados pelo Kiuplay
-                            para te possibilitar comprar e vender instrumentais de uso exclusivo!
-                        </Text>
+            <View style={{ flex: 1, backgroundColor: '#191919' }}>
+                <TopTabBarSettings />
+                <ScrollView
+                    horizontal={false} // Garante que esta rolagem seja vertical
+                    style={styles.scroll} // Aplica o estilo de fundo escuro
+                    contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+                    showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+                >
+                    <View style={styles.profileContainer}>
+                        <View style={{ flexDirection: 'row', }}>
+                            <Image
+                                source={require('@/assets/images/4/icons8_info_120px.png')}
+                                style={styles.iconLeft}
+                            />
+                            <Text style={styles.userHandle}>
+                                Os dados de transação bancaria são necessários, e serão utilizados pelo Kiuplay
+                                para te possibilitar comprar e vender instrumentais de uso exclusivo!
+                            </Text>
+                        </View>
                     </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
+
+            </View>
+
 
         </>
 

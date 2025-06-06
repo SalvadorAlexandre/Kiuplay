@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostEP'; // Importa o Hook
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
+import TopTabBarEP from '@/components/useTabBarPostEP'
 import {
     View,
     Text,
@@ -75,26 +76,7 @@ export default function PostEPScreen() {
                 contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                 showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
             >
-
-                <View style={{ marginBottom: 20, marginTop: -20, }}>
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#333',
-                            paddingVertical: 10,
-                            paddingHorizontal: 16,
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                            alignSelf: 'flex-start',
-                            //marginBottom: 12,
-                        }}>
-                        <Ionicons name="save" size={20} color="#fff" />
-                        <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Salvar</Text>
-                    </TouchableOpacity>
-                </View>
+                <TopTabBarEP />
 
                 <View style={{
                     width: "100%",
@@ -358,7 +340,7 @@ export const styles = StyleSheet.create({
     },
     container: {
         flexGrow: 1,
-        paddingVertical: 40,
+        //paddingVertical: 40,
         paddingHorizontal: 20,
     },
     frame: {

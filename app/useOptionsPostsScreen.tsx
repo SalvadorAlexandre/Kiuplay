@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
-
+import TopTabBarOptionsPosts from '@/components/useTabBarOptionsPosts'
 import {
     ScrollView,
     View,
@@ -75,170 +75,176 @@ export default function OptionsListPostScreen() {
                     headerStyle: { backgroundColor: '#191919', },
                     headerTintColor: '#fff',
                     headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false,
                 }}
             />
-            <ScrollView
-                horizontal={false} // Garante que esta rolagem seja vertical
-                style={styles.scroll} // Aplica o estilo de fundo escuro
-                contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            >
+            <View style={{ flex: 1, backgroundColor: '#191919' }}>
+                <TopTabBarOptionsPosts />
+                <ScrollView
+                    horizontal={false} // Garante que esta rolagem seja vertical
+                    style={styles.scroll} // Aplica o estilo de fundo escuro
+                    contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+                    showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+                >
 
-                <View style={{
-                    //backgroundColor: '#fff',
-                    marginBottom: 10,
-                    marginTop: -20,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: "100%", // Defina o tamanho desejado para a View
-                    height: 300, // Defina a altura desejada para a View
-                    overflow: 'hidden', // Garante que a imagem não ultrapasse a View
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
+                    <View style={{
+                        //backgroundColor: '#fff',
+                        marginBottom: 10,
+                       // marginTop: -20,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: "100%", // Defina o tamanho desejado para a View
+                        height: 300, // Defina a altura desejada para a View
+                        overflow: 'hidden', // Garante que a imagem não ultrapasse a View
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
 
-                }}>
-                    <Image
-                        source={require('@/assets/images/4/essential-10.png')}
-                        style={{ width: '100%', height: '100%' }} // Preenche toda a View
-                        resizeMode="cover" // Ajusta a imagem para cobrir toda a área
-                    />
-                </View>
-
-
-                {/*View do botão postar Single-----------------------------------------------------------------*/}
-                <Animated.View style={[
-                    styles.buttonContainer,
-                    { transform: [{ scale: scaleValuePostSingle }] } // Animação de clique
-                ]}>
-                    <TouchableOpacity
-                        onPressIn={handlePressInPostSingle}    // Aciona ao pressionar
-                        onPressOut={handlePressOutPostSingle} // Aciona ao soltar 
-                        onPress={() => router.push('/usePostFaixaScreen')} // Ação
-                        style={styles.buttonContent} // Estilo interno
-                    >
-                        {/* Ícone esquerdo (ícone de upload) */}
+                    }}>
                         <Image
-                            source={require('@/assets/images/2/icons8_musical_120px.png')} // Troque pelo seu ícone
-                            style={styles.iconLeft}
+                            source={require('@/assets/images/4/essential-10.png')}
+                            style={{ width: '100%', height: '100%' }} // Preenche toda a View
+                            resizeMode="cover" // Ajusta a imagem para cobrir toda a área
                         />
-
-                        {/* Texto do botão */}
-                        <Text style={styles.buttonText}>Criar post de faixa single</Text>
-
-                        {/* Ícone seta para direita */}
-                        <Ionicons name="chevron-forward" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </Animated.View>
-                {/*-----------------------------------------------------------------------------------------------*/}
+                    </View>
 
 
-                {/*View do botão postar EP-----------------------------------------------------------------*/}
-                <Animated.View style={[
-                    styles.buttonContainer,
-                    { transform: [{ scale: scaleValuePostEP }] } // Animação de clique
-                ]}>
-                    <TouchableOpacity
-                        onPressIn={handlePressInPostEP}    // Aciona ao pressionar
-                        onPressOut={handlePressOutPostEP} // Aciona ao soltar 
-                        onPress={() => router.push('/usePostEPScreen')} // Ação
-                        style={styles.buttonContent} // Estilo interno
-                    >
-                        {/* Ícone esquerdo (ícone de upload) */}
-                        <Image
-                            source={require('@/assets/images/2/icons8_music_record_120px.png')} // Troque pelo seu ícone
-                            style={styles.iconLeft}
-                        />
+                    {/*View do botão postar Single-----------------------------------------------------------------*/}
+                    <Animated.View style={[
+                        styles.buttonContainer,
+                        { transform: [{ scale: scaleValuePostSingle }] } // Animação de clique
+                    ]}>
+                        <TouchableOpacity
+                            onPressIn={handlePressInPostSingle}    // Aciona ao pressionar
+                            onPressOut={handlePressOutPostSingle} // Aciona ao soltar 
+                            onPress={() => router.push('/usePostFaixaScreen')} // Ação
+                            style={styles.buttonContent} // Estilo interno
+                        >
+                            {/* Ícone esquerdo (ícone de upload) */}
+                            <Image
+                                source={require('@/assets/images/2/icons8_musical_120px.png')} // Troque pelo seu ícone
+                                style={styles.iconLeft}
+                            />
 
-                        {/* Texto do botão */}
-                        <Text style={styles.buttonText}>Criar post de Extended Play (EP)</Text>
+                            {/* Texto do botão */}
+                            <Text style={styles.buttonText}>Criar post de faixa single</Text>
 
-                        {/* Ícone seta para direita */}
-                        <Ionicons name="chevron-forward" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </Animated.View>
-                {/*---------------------------------------------------------------------------------------------*/}
-
-
-                {/*View do botão postar Album-----------------------------------------------------------------*/}
-                <Animated.View style={[
-                    styles.buttonContainer,
-                    { transform: [{ scale: scaleValuePostAlbum }] } // Animação de clique
-                ]}>
-                    <TouchableOpacity
-                        onPressIn={handlePressInPostAlbum}    // Aciona ao pressionar
-                        onPressOut={handlePressOutPostAlbum} // Aciona ao soltar 
-                        onPress={() => router.push('/usePostAlbumScreen')} // Ação
-                        style={styles.buttonContent} // Estilo interno
-                    >
-                        {/* Ícone esquerdo (ícone de upload) */}
-                        <Image
-                            source={require('@/assets/images/2/icons8_music_album_120px.png')} // Troque pelo seu ícone
-                            style={styles.iconLeft}
-                        />
-
-                        {/* Texto do botão */}
-                        <Text style={styles.buttonText}>Criar post de Album</Text>
-
-                        {/* Ícone seta para direita */}
-                        <Ionicons name="chevron-forward" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </Animated.View>
-                {/*----------------------------------------------------------------------------------*/}
-
-                {/*View do botão postar beat-----------------------------------------------------------------*/}
-                <Animated.View style={[
-                    styles.buttonContainer,
-                    { transform: [{ scale: scaleValuePostBeat }] } // Animação de clique
-                ]}>
-                    <TouchableOpacity
-                        onPressIn={handlePressInPostBeat}    // Aciona ao pressionar
-                        onPressOut={handlePressOutPostBeat} // Aciona ao soltar 
-                        onPress={() => router.push('/usePostBeatScreen')} // Ação
-                        style={styles.buttonContent} // Estilo interno
-                    >
-                        {/* Ícone esquerdo (ícone de upload) */}
-                        <Image
-                            source={require('@/assets/images/2/icons8_vox_player_120px.png')} // Troque pelo seu ícone
-                            style={styles.iconLeft}
-                        />
-
-                        {/* Texto do botão */}
-                        <Text style={styles.buttonText}>Criar post de Beat</Text>
-
-                        {/* Ícone seta para direita */}
-                        <Ionicons name="chevron-forward" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </Animated.View>
-                {/*----------------------------------------------------------------------------------------------*/}
-
-                {/*View do botão postar video-----------------------------------------------------------------*/}
-                <Animated.View style={[
-                    styles.buttonContainer,
-                    { transform: [{ scale: scaleValuePostVideo }] } // Animação de clique
-                ]}>
-                    <TouchableOpacity
-                        onPressIn={handlePressInPostVideo}    // Aciona ao pressionar
-                        onPressOut={handlePressOutPostVideo} // Aciona ao soltar 
-                        onPress={() => router.push('/usePostVideoScreen')} // Ação
-                        style={styles.buttonContent} // Estilo interno
-                    >
-                        {/* Ícone esquerdo (ícone de upload) */}
-                        <Image
-                            source={require('@/assets/images/2/icons8_video_camera_120px.png')} // Troque pelo seu ícone
-                            style={styles.iconLeft}
-                        />
-
-                        {/* Texto do botão */}
-                        <Text style={styles.buttonText}>Criar post de VideoClip</Text>
-
-                        {/* Ícone seta para direita */}
-                        <Ionicons name="chevron-forward" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </Animated.View>
-                {/*----------------------------------------------------------------------------------------------*/}
+                            {/* Ícone seta para direita */}
+                            <Ionicons name="chevron-forward" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </Animated.View>
+                    {/*-----------------------------------------------------------------------------------------------*/}
 
 
-            </ScrollView>
+                    {/*View do botão postar EP-----------------------------------------------------------------*/}
+                    <Animated.View style={[
+                        styles.buttonContainer,
+                        { transform: [{ scale: scaleValuePostEP }] } // Animação de clique
+                    ]}>
+                        <TouchableOpacity
+                            onPressIn={handlePressInPostEP}    // Aciona ao pressionar
+                            onPressOut={handlePressOutPostEP} // Aciona ao soltar 
+                            onPress={() => router.push('/usePostEPScreen')} // Ação
+                            style={styles.buttonContent} // Estilo interno
+                        >
+                            {/* Ícone esquerdo (ícone de upload) */}
+                            <Image
+                                source={require('@/assets/images/2/icons8_music_record_120px.png')} // Troque pelo seu ícone
+                                style={styles.iconLeft}
+                            />
+
+                            {/* Texto do botão */}
+                            <Text style={styles.buttonText}>Criar post de Extended Play (EP)</Text>
+
+                            {/* Ícone seta para direita */}
+                            <Ionicons name="chevron-forward" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </Animated.View>
+                    {/*---------------------------------------------------------------------------------------------*/}
+
+
+                    {/*View do botão postar Album-----------------------------------------------------------------*/}
+                    <Animated.View style={[
+                        styles.buttonContainer,
+                        { transform: [{ scale: scaleValuePostAlbum }] } // Animação de clique
+                    ]}>
+                        <TouchableOpacity
+                            onPressIn={handlePressInPostAlbum}    // Aciona ao pressionar
+                            onPressOut={handlePressOutPostAlbum} // Aciona ao soltar 
+                            onPress={() => router.push('/usePostAlbumScreen')} // Ação
+                            style={styles.buttonContent} // Estilo interno
+                        >
+                            {/* Ícone esquerdo (ícone de upload) */}
+                            <Image
+                                source={require('@/assets/images/2/icons8_music_album_120px.png')} // Troque pelo seu ícone
+                                style={styles.iconLeft}
+                            />
+
+                            {/* Texto do botão */}
+                            <Text style={styles.buttonText}>Criar post de Album</Text>
+
+                            {/* Ícone seta para direita */}
+                            <Ionicons name="chevron-forward" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </Animated.View>
+                    {/*----------------------------------------------------------------------------------*/}
+
+                    {/*View do botão postar beat-----------------------------------------------------------------*/}
+                    <Animated.View style={[
+                        styles.buttonContainer,
+                        { transform: [{ scale: scaleValuePostBeat }] } // Animação de clique
+                    ]}>
+                        <TouchableOpacity
+                            onPressIn={handlePressInPostBeat}    // Aciona ao pressionar
+                            onPressOut={handlePressOutPostBeat} // Aciona ao soltar 
+                            onPress={() => router.push('/usePostBeatScreen')} // Ação
+                            style={styles.buttonContent} // Estilo interno
+                        >
+                            {/* Ícone esquerdo (ícone de upload) */}
+                            <Image
+                                source={require('@/assets/images/2/icons8_vox_player_120px.png')} // Troque pelo seu ícone
+                                style={styles.iconLeft}
+                            />
+
+                            {/* Texto do botão */}
+                            <Text style={styles.buttonText}>Criar post de Beat</Text>
+
+                            {/* Ícone seta para direita */}
+                            <Ionicons name="chevron-forward" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </Animated.View>
+                    {/*----------------------------------------------------------------------------------------------*/}
+
+                    {/*View do botão postar video-----------------------------------------------------------------*/}
+                    <Animated.View style={[
+                        styles.buttonContainer,
+                        { transform: [{ scale: scaleValuePostVideo }] } // Animação de clique
+                    ]}>
+                        <TouchableOpacity
+                            onPressIn={handlePressInPostVideo}    // Aciona ao pressionar
+                            onPressOut={handlePressOutPostVideo} // Aciona ao soltar 
+                            onPress={() => router.push('/usePostVideoScreen')} // Ação
+                            style={styles.buttonContent} // Estilo interno
+                        >
+                            {/* Ícone esquerdo (ícone de upload) */}
+                            <Image
+                                source={require('@/assets/images/2/icons8_video_camera_120px.png')} // Troque pelo seu ícone
+                                style={styles.iconLeft}
+                            />
+
+                            {/* Texto do botão */}
+                            <Text style={styles.buttonText}>Criar post de VideoClip</Text>
+
+                            {/* Ícone seta para direita */}
+                            <Ionicons name="chevron-forward" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </Animated.View>
+                    {/*----------------------------------------------------------------------------------------------*/}
+
+
+                </ScrollView>
+
+            </View>
+
         </>
 
     )
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
     // Estilo do container do conteúdo vertical
     container: {
         flexGrow: 1, // Permite expansão do conteúdo
-        paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
+        //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
         //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
     },
     buttonContainer: {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Stack } from 'expo-router';
+import TopTabBarVideo from '@/components/useTabBarPostVideo'
 import {
     View,
     ScrollView,
@@ -15,10 +16,11 @@ export default function PostVideoScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Profile Settings',
-                    headerStyle: { backgroundColor: '#191919',},
+                    title: 'Postar video',
+                    headerStyle: { backgroundColor: '#191919', },
                     headerTintColor: '#fff',
-                   // headerTitleStyle: { fontWeight: 'bold' },
+                    // headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false,
                 }}
             />
 
@@ -28,6 +30,7 @@ export default function PostVideoScreen() {
                 contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                 showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
             >
+                <TopTabBarVideo />
 
             </ScrollView>
         </>
@@ -45,7 +48,7 @@ const styles = StyleSheet.create({
     // Estilo do container do conteúdo vertical
     container: {
         flexGrow: 1, // Permite expansão do conteúdo
-        paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
-        //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+        //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
+        paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
     },
 })

@@ -1,7 +1,7 @@
 // Importa os componentes necessários do React Native
 import {
   View,
-  Pressable,
+  TouchableOpacity,
   StyleSheet,
   Text,
 } from 'react-native';
@@ -23,7 +23,7 @@ export default function TopTabBarProfile() {
     <View style={styles.container}>
       <Text style={styles.title}>Perfil</Text>
       {/* Botão de notificações de monetização*/}
-      <Pressable
+      <TouchableOpacity
         onPress={() => router.back()}
         style={styles.button}>
         {/* Ícone de notificações*/}
@@ -32,7 +32,7 @@ export default function TopTabBarProfile() {
           size={26}
           color='#fff'
         />
-      </Pressable>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   // Estilo do botão (área clicável)
   button: {
-    padding: 6,  // Espaçamento interno do botão
+    //padding: 6,  // Espaçamento interno do botão
   },
   title: {
     color: '#fff',

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostFaixa'; // Importa o Hook
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
+import TopTabBarFaixaSingle from '@/components/useTabBarPostFaixa';
 import {
     StyleSheet,
     ScrollView,
@@ -51,7 +52,8 @@ export default function PostFaixaScreen() {
                     title: 'Postar Single',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                   // headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false, // Mostra o cabeçalho superior
+                    // headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
             <ScrollView
@@ -60,25 +62,8 @@ export default function PostFaixaScreen() {
                 contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                 showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
             >
-                <View style={{ marginBottom: 20, marginTop: -20,}}>
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#333',
-                            paddingVertical: 10,
-                            paddingHorizontal: 16,
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                            alignSelf: 'flex-start',
-                            //marginBottom: 12,
-                        }}>
-                        <Ionicons name="save" size={20} color="#fff" />
-                        <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Salvar</Text>
-                    </TouchableOpacity>
-                </View>
+                <TopTabBarFaixaSingle />
+                
 
                 <View style={{
                     width: "100%",
@@ -188,7 +173,7 @@ export default function PostFaixaScreen() {
 
                         {/* Campos de nomes dos participantes */}
                         {numParticipants !== null && participantNames.map((name, index) => (
-                            
+
                             <TextInput
                                 key={index}
                                 style={styles.inputTextBox}
@@ -202,7 +187,7 @@ export default function PostFaixaScreen() {
                 )}
 
                 {/* Campos comuns*/}
-      
+
                 <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
                 <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
                 <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
@@ -228,7 +213,7 @@ export const styles = StyleSheet.create({
     },
     container: {
         flexGrow: 1,
-        paddingVertical: 40,
+        //paddingVertical: 40,
         paddingHorizontal: 20,
     },
     frame: {
