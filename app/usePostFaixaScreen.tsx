@@ -51,7 +51,7 @@ export default function PostFaixaScreen() {
                     title: 'Postar Single',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                    headerTitleStyle: { fontWeight: 'bold' },
+                   // headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
             <ScrollView
@@ -188,6 +188,7 @@ export default function PostFaixaScreen() {
 
                         {/* Campos de nomes dos participantes */}
                         {numParticipants !== null && participantNames.map((name, index) => (
+                            
                             <TextInput
                                 key={index}
                                 style={styles.inputTextBox}
@@ -201,6 +202,7 @@ export default function PostFaixaScreen() {
                 )}
 
                 {/* Campos comuns*/}
+      
                 <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
                 <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
                 <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />

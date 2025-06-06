@@ -18,7 +18,7 @@ export default function PostVideoScreen() {
                     title: 'Profile Settings',
                     headerStyle: { backgroundColor: '#191919',},
                     headerTintColor: '#fff',
-                    headerTitleStyle: { fontWeight: 'bold' },
+                   // headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
 

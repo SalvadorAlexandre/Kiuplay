@@ -1,5 +1,11 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet
+} from 'react-native';
 
 export default function LibraryScreen() {
   return (
@@ -8,25 +14,9 @@ export default function LibraryScreen() {
       horizontal={false} // Garante que esta rolagem seja vertical
       style={styles.scroll} // Aplica o estilo de fundo escuro
       contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+      showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
     >
-      {/* ScrollView filho com rolagem **horizontal** */}
-      <ScrollView horizontal>
-        <View style={styles.content}>
-          {/* Blocos de conteúdo que rolam horizontalmente */}
-          <Text style={styles.box}>Conteúdo com rolagem</Text>
-          <Text style={styles.box}>Mais conteúdo</Text>
-          <Text style={styles.box}>Continue rolando...</Text>
-          {/* Pode adicionar mais <Text> aqui para continuar a rolagem horizontal */}
-        </View>
-      </ScrollView>
-
-      <View style={styles.content}>
-        {/* Blocos de conteúdo que rolam verticalmente */}
-        <Text style={styles.box}>Conteúdo com rolagem</Text>
-        <Text style={styles.box}>Mais conteúdo</Text>
-        <Text style={styles.box}>Continue rolando...</Text>
-        {/* Pode adicionar mais <Text> aqui para continuar a rolagem horizontal */}
-      </View>
+      <TopTabBarLibrary />
     </ScrollView>
   );
 }
@@ -40,8 +30,8 @@ const styles = StyleSheet.create({
   // Estilo do container do conteúdo vertical
   container: {
     flexGrow: 1, // Permite expansão do conteúdo
-    paddingVertical: 40,
-    paddingHorizontal: 20,
+    //paddingVertical: 40,
+    //paddingHorizontal: 20,
   },
   // Estilo do conteúdo horizontal
   content: {
@@ -59,31 +49,3 @@ const styles = StyleSheet.create({
     lineHeight: 200, // Centraliza verticalmente o texto
   },
 });
-
-
-
-
-/*
-import { View, Text, StyleSheet } from 'react-native';
-
-export default function LibraryScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Library</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-});
-*/
-

@@ -22,7 +22,7 @@ export default function TabLayout() {
         */
         headerTitleStyle: { color: '#fff' },
         tabBarShowLabel: true, // Remove texto das abas
-        headerShown: true, // Mostra o cabeçalho superior
+        headerShown: false, // Mostra o cabeçalho superior
         tabBarLabelStyle: {
           fontSize: 12,
           color: '#fff'
@@ -45,7 +45,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="VideoClipes" //Tela Castings
+        name="VideoClipes" //Tela videos
         options={{
           title: 'Videos',
           tabBarLabel: 'Clipes',

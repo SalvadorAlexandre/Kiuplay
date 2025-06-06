@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { isSelected } from '@/utils/UtilisBtnMyContent';
 import { useSelectedMyContent } from '@/hooks/useSelectedMyContent';
 import { Ionicons } from '@expo/vector-icons';
-import { router,} from 'expo-router';
+import { router, } from 'expo-router';
+import TopTabBarProfile from '@/components/topTabBarProfileScreen';
 import {
   ScrollView,
   View,
@@ -48,8 +49,19 @@ export default function ProfileScreen() {
   }
   //---------------------------------------------------------------------------------------
 
+  //hooks para o btn Monetization----------------------------------------------
+  const [scaleValueMonetization] = useState(new Animated.Value(1))
+  const handlePressInMonetization = () => {
+    Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true, }).start()
+  }
+  const handlePressOutMonetization = () => {
+    Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true, }).start()
+  }
+  //---------------------------------------------------------------------------------------
+
   return (
 
+    
     // ScrollView pai com rolagem **vertical**
     <ScrollView
       horizontal={false} // Garante que esta rolagem seja vertical
@@ -57,11 +69,12 @@ export default function ProfileScreen() {
       contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
       showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
     >
+      <TopTabBarProfile />
       {/*View da visão Geral do perfil--------------------------------------------------*/}
       <View style={styles.profileContainer}>
         {/*Outros elementos estarao aqui dentro (elementos do perfil)*/}
 
-        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
           <View style={styles.imageContainer}>
             <Image // Imagem do perfil
@@ -143,6 +156,32 @@ export default function ProfileScreen() {
       </Animated.View>
       {/*View das configuracao do perfil-----------------------------------------------------------------*/}
 
+      {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
+      <Animated.View style={[
+        styles.buttonContainer,
+        { transform: [{ scale: scaleValueMonetization }] } // Animação de clique
+      ]}>
+        <TouchableOpacity
+          onPressIn={handlePressInMonetization}    // Aciona ao pressionar
+          onPressOut={handlePressOutMonetization} // Aciona ao soltar
+          onPress={() => router.push('/useMonetizationScreen')} // Ação
+          style={styles.buttonContent} // Estilo interno
+        >
+          {/* Ícone esquerdo (ícone de monetização*/}
+          <Image
+            source={require('@/assets/images/2/icons8_euro_money_120px.png')} // Troque pelo seu ícone
+            style={styles.iconLeft}
+          />
+
+          {/* Texto do botão */}
+          <Text style={styles.buttonText}>Kiuplay Monetization</Text>
+
+          {/* Ícone seta para direita */}
+          <Ionicons name="chevron-forward" size={20} color="#fff" />
+        </TouchableOpacity>
+      </Animated.View>
+      {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
+
       {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
       <Animated.View style={[
         styles.buttonContainer,
@@ -201,16 +240,17 @@ export default function ProfileScreen() {
         <View style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'center', paddingHorizontal: 1,
+          alignItems: 'center',
+          //paddingHorizontal: 1,
           marginTop: 20,
           //marginBottom: 10,
           //marginLeft: 20,
         }}>
-
         </View>
+        <Text style={{color: '#fff', marginBottom: 5, fontSize: 17, marginLeft: 5}}>Meus Posts</Text>
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-          style={{ marginBottom: 8, }}
+          style={{ marginBottom: 8, marginLeft: 1,}}
         >
           {/*Botao para os Singles----------------*/}
           <TouchableOpacity
@@ -340,7 +380,7 @@ const styles = StyleSheet.create({
   // Estilo do container do conteúdo vertical
   container: {
     flexGrow: 1, // Permite expansão do conteúdo
-    paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
+    //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
     //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
   },
   // Estilo do conteúdo horizontal
@@ -448,13 +488,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,   // Adiciona espaçamento interno horizontal (left/right) dentro da View.
     backgroundColor: '#1e1e1e',   // Define a cor de fundo para um tom escuro (#1e1e1e).
     //borderRadius: 20,   // Arredonda os cantos da View com raio de 10.
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,   // Adiciona espaçamento interno (padding) uniforme em todos os lados.
+    //borderTopLeftRadius: 20,
+    //borderTopRightRadius: 20,
+    padding: 30,   // Adiciona espaçamento interno (padding) uniforme em todos os lados.
     margin: 10,   // Adiciona espaçamento externo (margin) uniforme em todos os lados.
     //marginTop: 3,   // Adiciona um pequeno espaçamento extra no topo (3 unidades).
     width: '100%',   // Faz a largura da View ocupar 100% do contêiner pai.
-    // height: '100%',   // Comentado: Se usado, define a altura da View como 40% do contêiner pai.
+    //height: '100%',   // Comentado: Se usado, define a altura da View como 40% do contêiner pai.
     alignSelf: 'center',   // Centraliza horizontalmente a View dentro do contêiner pai.
     marginTop: -20
   },
@@ -476,7 +516,7 @@ const styles = StyleSheet.create({
   },
   //Estilo que sera aplicado aos btn da seção meus conteudos quando forem checked
   workButtonSelected: {
-    backgroundColor: '#444',
+    backgroundColor: '#1565C0',
     //borderColor: '#00ff99',
   },
 
@@ -493,7 +533,7 @@ const styles = StyleSheet.create({
     color: '#fff',     // texto branco
     fontSize: 16,      // tamanho da fonte
   },
-  
+
   buttonContainer: {
     marginBottom: 5,
     width: '100%',

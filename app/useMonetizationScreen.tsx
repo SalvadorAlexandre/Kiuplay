@@ -6,38 +6,65 @@ import {
     StyleSheet,
     Text,
     Image,
+    TouchableOpacity,
 } from 'react-native'
 
-export default function ProfileSettingsScreen() {
+export default function MonetizationScreen() {
 
     return (
         <>
             <Stack.Screen
                 options={{
-                    title: 'Profile Settings',
+                    title: 'Monetization panel',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                   // headerTitleStyle: { fontWeight: 'bold' },
+                    //headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
-
+           
             <ScrollView
                 horizontal={false} // Garante que esta rolagem seja vertical
                 style={styles.scroll} // Aplica o estilo de fundo escuro
                 contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                 showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
             >
-                <View style={styles.profileContainer}>
-                    <View style={{ flexDirection: 'row', }}>
-                        <Image
-                            source={require('@/assets/images/4/icons8_info_120px.png')}
-                            style={styles.iconLeft}
-                        />
-                        <Text style={styles.userHandle}>
-                            Os dados de transação bancaria são necessários, e serão utilizados pelo Kiuplay
-                            para te possibilitar comprar e vender instrumentais de uso exclusivo!
-                        </Text>
-                    </View>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    {/* Ícone do paypal*/}
+                    <Image
+                        source={require('@/assets/images/4/icons8_paypal_120px_3.png')} // Troque pelo seu ícone
+                        style={styles.iconPaypal}
+                    />
+                    <Text style={{
+                        color: '#fff',            // Cor do texto
+                        fontSize: 16,            // Tamanho da fonte
+                        fontWeight: '600',       // Peso da fonte
+                        textAlign: 'center',     // Alinha o texto horizontalmente dentro da área
+                    }}>
+                        Kiuplay Monetization
+                    </Text>
+                    <Text
+                        style={styles.userHandle}>
+                        Vincule sua conta Paypal para
+                        vender e comprar Instrumentais
+                        de uso exclusivo de estilos variados
+                        no Kiuplay!
+                    </Text>
+                    <TouchableOpacity
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#1565C0',
+                            paddingVertical: 10,
+                            paddingHorizontal: 16,
+                            borderRadius: 20,
+                            borderWidth: 1,
+                            borderColor: '#555',
+                            //alignSelf: 'flex-start',
+                            marginTop: 15,
+                        }}>
+                        <Text style={{ color: '#fff', fontSize: 16}}>Adicionar conta Paypal</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
 
@@ -74,16 +101,15 @@ const styles = StyleSheet.create({
         alignSelf: 'center',   // Centraliza horizontalmente a View dentro do contêiner pai.
         marginTop: -20
     },
-    iconLeft: {
-        width: 40,
-        height: 40,
-        marginRight: 10,
+    iconPaypal: {
+        width: 70,
+        height: 70,
     },
     userHandle: {
         color: '#aaa',
         fontSize: 16,
         marginTop: 2,
         //marginLeft: 15,
-        //textAlign: 'center',
+        textAlign: 'center',
     },
 })

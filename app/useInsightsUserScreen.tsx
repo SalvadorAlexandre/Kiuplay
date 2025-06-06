@@ -20,7 +20,7 @@ export default function InsightsUserScreen() {
           title: 'Seus Insights',
           headerStyle: { backgroundColor: '#191919', },
           headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
+          //headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
 

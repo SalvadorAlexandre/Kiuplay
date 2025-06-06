@@ -54,7 +54,7 @@ export default function PostBeatScreen() {
                     title: 'Postar beat',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                    headerTitleStyle: { fontWeight: 'bold' },
+                    //headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
 

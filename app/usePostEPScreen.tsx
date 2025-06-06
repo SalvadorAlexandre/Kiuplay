@@ -62,10 +62,11 @@ export default function PostEPScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Postar Extended Play EP',
+                    title: 'Postar EP',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                    headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: false, // Mostra o cabeçalho superior
+                    //headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
             <ScrollView
