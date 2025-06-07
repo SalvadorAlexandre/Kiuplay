@@ -15,7 +15,7 @@ export type TypeMusic =
 export const useSelectedMusic = () => {
   // Estado que guarda o tipo de conteúdo selecionado no momento
   const [selectedLibraryContent, setSelectedLibraryContent] =
-    useState<TypeMusic>('local'); // Por padrão, inicia com "single"
+    useState<TypeMusic>('local'); // Por padrão, inicia com "local"
 
   // Retorna o valor atual e a função para atualizá-lo
   return {
