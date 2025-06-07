@@ -23,16 +23,18 @@ export default function PostVideoScreen() {
                     headerShown: false,
                 }}
             />
-
-            <ScrollView
-                horizontal={false} // Garante que esta rolagem seja vertical
-                style={styles.scroll} // Aplica o estilo de fundo escuro
-                contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            >
+            <View style={{ flex: 1, backgroundColor: '#191919'}}>
                 <TopTabBarVideo />
+                <ScrollView
+                    horizontal={false} // Garante que esta rolagem seja vertical
+                    style={styles.scroll} // Aplica o estilo de fundo escuro
+                    contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+                    showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+                >
+                </ScrollView>
 
-            </ScrollView>
+            </View>
+
         </>
 
 
@@ -49,6 +51,6 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1, // Permite expansão do conteúdo
         //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
-        paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+        //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
     },
 })

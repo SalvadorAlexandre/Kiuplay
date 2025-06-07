@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { isSelected } from '@/utils/UtilisBtnMyContent';
-import { useSelectedMyContent } from '@/hooks/useSelectedMyContent';
+import { useSelectedMyContent, MyPostsType} from '@/hooks/useSelectedMyContent';
 import { Ionicons } from '@expo/vector-icons';
 import { router, } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
@@ -17,7 +16,18 @@ import {
 
 export default function ProfileScreen() {
 
-  const { selectedProfileMyContent, setSelectedProfileMyContent } = useSelectedMyContent() //Hook que verifica se um btn dos meus conteudos está checked
+  /**
+   * Função auxiliar que verifica se um tipo de conteúdo está atualmente selecionado.
+   * @param current - Conteúdo atualmente selecionado.
+   * @param type - Tipo a ser verificado.
+   * @returns true se for o mesmo tipo, false caso contrário.
+   */
+  const isSelected = (current: MyPostsType, type: MyPostsType): boolean => {
+    return current === type;
+  };
+
+  //Hook que verifica se um btn dos meus conteudos está checked
+  const { selectedProfileMyContent, setSelectedProfileMyContent } = useSelectedMyContent()
 
   //hooks para o btn configuraçoes do perfil----------------------------------------------
   const [scaleValueConfig] = useState(new Animated.Value(1))

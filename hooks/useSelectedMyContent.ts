@@ -11,9 +11,8 @@ export type MyPostsType =
   | 'albums'        // Álbuns completos
   | 'beats_bought'  // Beats comprados
   | 'beats_posted'  // Beats postados pelo usuário
-  | 'videos';     // Vídeos de casting (shorts)
+  | 'videos';     // Vídeos clipes
 
-  
 /**
  * Hook personalizado responsável por armazenar e alterar
  * qual tipo de conteúdo está atualmente selecionado pelo usuário.

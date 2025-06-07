@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     },
     button: {
         //backgroundColor: '#333',
+        marginLeft: 15,
     },
     // Estilo do botão (área clicável)
     buttonSave: {
@@ -78,6 +79,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#555',
         alignSelf: 'flex-start',
+        marginRight: 15,
         //marginBottom: 12,
         //padding: 6,  // Espaçamento interno do botão
     },

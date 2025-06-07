@@ -70,264 +70,267 @@ export default function PostEPScreen() {
                     //headerTitleStyle: { fontWeight: 'bold' },
                 }}
             />
-            <ScrollView
-                horizontal={false} // Garante que esta rolagem seja vertical
-                style={styles.scroll} // Aplica o estilo de fundo escuro
-                contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            >
+            <View style={{ flex: 1, backgroundColor: '#191919' }}>
                 <TopTabBarEP />
-
-                <View style={{
-                    width: "100%",
-                    marginBottom: 10,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    // backgroundColor: '#fff'
-                }}>
-                    {/*Quadro onde a capa é carregada a capa do album* ------------------------------------------------------------------------------*/}
-                    <TouchableOpacity
-                        style={{
-                            width: 150,           // Largura do quadrado
-                            height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
-                            borderRadius: 10,     // Cantos arredondados
-                            backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
-                            justifyContent: 'center',  // Centraliza conteúdo verticalmente
-                            alignItems: 'center',      // Centraliza conteúdo horizontalmente
-                            marginBottom: 10,      // Espaçamento abaixo
-                            overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
-                        }}
-                        onPress={pickImageEP}      // Função para abrir o seletor de imagem
-                    >
-                        {capaEP ? (
-                            <Image
-                                source={{ uri: capaEP.uri }}
-                                style={{ width: '100%', height: '100%' }}
-                            />
-                        ) : (
-                            <Ionicons name="camera" size={40} color="#fff" />
-                        )}
-                    </TouchableOpacity>
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>Extended Play de Saag Weelli Boy</Text>
-                    <Text style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>Rap • Pegasus • 2025 </Text>
-                </View>
-
-                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Informações do EP</Text>
-
-                <TextInput
-                    style={styles.inputTextBox}
-                    placeholder="Nome do Artista"
-                    placeholderTextColor="#FFFF"
-
-                //value={nomeArtistaAlbum}
-                //onChangeText={setNomeArtistaAlbum}
-                />
-
-                <TextInput
-                    style={styles.inputTextBox}
-                    placeholder="Título do EP"
-                    placeholderTextColor="#FFFF"
-
-                //value={tituloAlbum}
-                //onChangeText={setTitutloAlbum}
-                //editable={!!nomeArtistaAlbum}
-                />
-
-                <TextInput
-                    style={styles.inputTextBox}
-                    placeholder="Gênero principal"
-                    placeholderTextColor="#FFFF"
-
-                //value={generoAlbum}
-                //onChangeText={setGeneroAlbum}
-                //editable={!!tituloAlbum}
-                />
-
-                {/* dropdownpiker que permite escolher o número de faixas a postar de 8 a 30* */}
-                <DropDownPicker<number>
-                    //  disabled={!generoAlbum}
-                    open={numFaixasOpen}
-                    value={numFaixas}
-                    items={numFaixasItems}
-                    setOpen={setNumFaixasOpen}
-                    setValue={setNumFaixas}  // Correção principal: adicionar setValue para gerenciar a seleção
-                    setItems={setNumFaixasItems}
-
-                    placeholder="Seleciona o número de faixas"
-                    style={{
-                        backgroundColor: '#2a2a2a',
-                        marginBottom: 10,
-                        borderWidth: 1,
-                        borderColor: '#555',
-                    }}
-                    textStyle={{ color: '#fff' }}
-                    placeholderStyle={{ color: '#ccc' }}
-                    dropDownContainerStyle={{
-                        backgroundColor: '#2a2a2a',
-                        borderColor: '#fff',
-                        borderWidth: 1,
-                    }}
-                    TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                    ArrowDownIconComponent={() => (
-                        <Ionicons
-                            name='chevron-down'
-                            size={20}
-                            color='#fff'
-                            style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
-                        />
-                    )}
-                    ArrowUpIconComponent={() => (
-                        <Ionicons
-                            name='chevron-up'
-                            size={20}
-                            color='#fff'
-                            style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
-                        />
-                    )}
-
-                />
-
-                <TextInput
-                    style={styles.inputTextBox}
-                    placeholder="Ano de lançamento"
-                    placeholderTextColor="#FFFF"
-
-                // value={anoLancamentoAlbum}
-                // onChangeText={setAnoLancamentoAlbum}
-                // editable={!!numFaixas}
-                />
-
-                <TextInput
-                    style={styles.inputTextBox}
-                    placeholder="Número do EP"
-                    placeholderTextColor="#FFFF"
-
-                // value={numeroAlbum}
-                // onChangeText={setNumeroAlbum}
-                // editable={!!anoLancamentoAlbum}
-                />
-
-                {/*Aqui vem o botao salvar, Equanto o utilizador nao salvar os componentes abaixo comtinuarao desable podes fazer isso companheiro*/}
-                <TouchableOpacity style={styles.uploadArea}>
-                    <Text style={styles.uploadText}>Salvar dados do EP</Text>
-                </TouchableOpacity>
-
-                <View
-                    style={{
-                        flexDirection: 'row',      // Coloca o Text e o ícone na mesma linha
-                        // justifyContent: 'space-between', // Um vai para esquerda e outro para a direita
-                        alignItems: 'center',      // Alinha verticalmente no centro
-                        // paddingHorizontal: 1,
-                        //marginBottom: 8,
-                        flex: 1
-                    }}
+                <ScrollView
+                    horizontal={false} // Garante que esta rolagem seja vertical
+                    style={styles.scroll} // Aplica o estilo de fundo escuro
+                    contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+                    showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', }}>Faixa Single</Text>
-                    {/*QUANDO O UTILIZADOR ESCOLHER O NUMERO DE FAIXAS A POSTAR ESSE TESTO SERA EXIBIDO* */}
-                    {numFaixas !== null && (
-                        <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>(Faixas a postar: {numFaixas}...postadas: {postedFaixa})</Text>
-                    )}
-                </View>
 
-                <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>Há participações nesta faixa?</Text>
 
-                {/* Checkbox Sim / Não */}
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Checkbox.Item
-                        label="Sim"
-                        status={hasParticipants ? 'checked' : 'unchecked'}
-                        onPress={handleHasParticipants}
-                        labelStyle={{ color: '#fff', fontSize: 14 }}
-                        style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
-                        position='leading'
-                    />
-                    <Checkbox.Item
-                        label="Não"
-                        status={noParticipants ? 'checked' : 'unchecked'}
-                        onPress={handleNoParticipants}
-                        labelStyle={{ color: '#fff', fontSize: 14 }}
-                        style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
-                        position='leading'
-                    />
-                </View>
-
-                {/* Campos se houver participantes */}
-                {hasParticipants && (
-                    <View style={{ width: '100%' }}>
-                        <DropDownPicker
-                            open={dropdownOpen}
-                            value={numParticipants}
-                            items={Array.from({ length: 20 }, (_, i) => ({
-                                label: `${i + 1} participante${i + 1 > 1 ? 's' : ''}`,
-                                value: i + 1,
-                            }))}
-                            setOpen={setDropdownOpen}
-                            setValue={(callback) => {
-                                const value = callback(numParticipants);
-                                handleNumParticipantsChange(value as number);
-                            }}
-                            placeholder="Quantos participantes?"
+                    <View style={{
+                        width: "100%",
+                        marginBottom: 10,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        // backgroundColor: '#fff'
+                    }}>
+                        {/*Quadro onde a capa é carregada a capa do album* ------------------------------------------------------------------------------*/}
+                        <TouchableOpacity
                             style={{
-                                backgroundColor: '#2a2a2a',
-                                marginBottom: 10,
-                                borderWidth: 1,
-                                borderColor: '#555',
+                                width: 150,           // Largura do quadrado
+                                height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
+                                borderRadius: 10,     // Cantos arredondados
+                                backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
+                                justifyContent: 'center',  // Centraliza conteúdo verticalmente
+                                alignItems: 'center',      // Centraliza conteúdo horizontalmente
+                                marginBottom: 10,      // Espaçamento abaixo
+                                overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
                             }}
-                            textStyle={{ color: '#fff' }}
-                            placeholderStyle={{ color: '#ccc' }}
-                            dropDownContainerStyle={{
-                                backgroundColor: '#2a2a2a',
-                                borderColor: '#fff',
-                                borderWidth: 1,
-                            }}
-                            TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                            ArrowDownIconComponent={() => (
-                                <Ionicons
-                                    name='chevron-down'
-                                    size={20}
-                                    color='#fff'
-                                    style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
+                            onPress={pickImageEP}      // Função para abrir o seletor de imagem
+                        >
+                            {capaEP ? (
+                                <Image
+                                    source={{ uri: capaEP.uri }}
+                                    style={{ width: '100%', height: '100%' }}
                                 />
+                            ) : (
+                                <Ionicons name="camera" size={40} color="#fff" />
                             )}
-                            ArrowUpIconComponent={() => (
-                                <Ionicons
-                                    name='chevron-up'
-                                    size={20}
-                                    color='#fff'
-                                    style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
-                                />
-                            )}
-                        />
-
-                        {/* Campos de nomes dos participantes */}
-                        {numParticipants !== null && participantNames.map((name, index) => (
-                            <TextInput
-                                key={index}
-                                style={styles.inputTextBox}
-                                value={name}
-                                onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                placeholder={`Nome do participante ${index + 1}`}
-                                placeholderTextColor="#FFFF"
-                            />
-                        ))}
+                        </TouchableOpacity>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>Extended Play de Saag Weelli Boy</Text>
+                        <Text style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>Rap • Pegasus • 2025 </Text>
                     </View>
-                )}
 
-                {/* Campos comuns*/}
-                <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
-                <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
-                <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
-                <TextInput style={styles.inputTextBox} placeholder="Ano de lançamento" placeholderTextColor="#FFFF" />
-                <TextInput style={styles.inputTextBox} placeholder="Número da faixa" placeholderTextColor="#FFFF" />
+                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Informações do EP</Text>
+
+                    <TextInput
+                        style={styles.inputTextBox}
+                        placeholder="Nome do Artista"
+                        placeholderTextColor="#FFFF"
+
+                    //value={nomeArtistaAlbum}
+                    //onChangeText={setNomeArtistaAlbum}
+                    />
+
+                    <TextInput
+                        style={styles.inputTextBox}
+                        placeholder="Título do EP"
+                        placeholderTextColor="#FFFF"
+
+                    //value={tituloAlbum}
+                    //onChangeText={setTitutloAlbum}
+                    //editable={!!nomeArtistaAlbum}
+                    />
+
+                    <TextInput
+                        style={styles.inputTextBox}
+                        placeholder="Gênero principal"
+                        placeholderTextColor="#FFFF"
+
+                    //value={generoAlbum}
+                    //onChangeText={setGeneroAlbum}
+                    //editable={!!tituloAlbum}
+                    />
+
+                    {/* dropdownpiker que permite escolher o número de faixas a postar de 8 a 30* */}
+                    <DropDownPicker<number>
+                        //  disabled={!generoAlbum}
+                        open={numFaixasOpen}
+                        value={numFaixas}
+                        items={numFaixasItems}
+                        setOpen={setNumFaixasOpen}
+                        setValue={setNumFaixas}  // Correção principal: adicionar setValue para gerenciar a seleção
+                        setItems={setNumFaixasItems}
+
+                        placeholder="Seleciona o número de faixas"
+                        style={{
+                            backgroundColor: '#2a2a2a',
+                            marginBottom: 10,
+                            borderWidth: 1,
+                            borderColor: '#555',
+                        }}
+                        textStyle={{ color: '#fff' }}
+                        placeholderStyle={{ color: '#ccc' }}
+                        dropDownContainerStyle={{
+                            backgroundColor: '#2a2a2a',
+                            borderColor: '#fff',
+                            borderWidth: 1,
+                        }}
+                        TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                        ArrowDownIconComponent={() => (
+                            <Ionicons
+                                name='chevron-down'
+                                size={20}
+                                color='#fff'
+                                style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
+                            />
+                        )}
+                        ArrowUpIconComponent={() => (
+                            <Ionicons
+                                name='chevron-up'
+                                size={20}
+                                color='#fff'
+                                style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
+                            />
+                        )}
+
+                    />
+
+                    <TextInput
+                        style={styles.inputTextBox}
+                        placeholder="Ano de lançamento"
+                        placeholderTextColor="#FFFF"
+
+                    // value={anoLancamentoAlbum}
+                    // onChangeText={setAnoLancamentoAlbum}
+                    // editable={!!numFaixas}
+                    />
+
+                    <TextInput
+                        style={styles.inputTextBox}
+                        placeholder="Número do EP"
+                        placeholderTextColor="#FFFF"
+
+                    // value={numeroAlbum}
+                    // onChangeText={setNumeroAlbum}
+                    // editable={!!anoLancamentoAlbum}
+                    />
+
+                    {/*Aqui vem o botao salvar, Equanto o utilizador nao salvar os componentes abaixo comtinuarao desable podes fazer isso companheiro*/}
+                    <TouchableOpacity style={styles.uploadArea}>
+                        <Text style={styles.uploadText}>Salvar dados do EP</Text>
+                    </TouchableOpacity>
+
+                    <View
+                        style={{
+                            flexDirection: 'row',      // Coloca o Text e o ícone na mesma linha
+                            // justifyContent: 'space-between', // Um vai para esquerda e outro para a direita
+                            alignItems: 'center',      // Alinha verticalmente no centro
+                            // paddingHorizontal: 1,
+                            //marginBottom: 8,
+                            flex: 1
+                        }}
+                    >
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', }}>Faixa Single</Text>
+                        {/*QUANDO O UTILIZADOR ESCOLHER O NUMERO DE FAIXAS A POSTAR ESSE TESTO SERA EXIBIDO* */}
+                        {numFaixas !== null && (
+                            <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>(Faixas a postar: {numFaixas}...postadas: {postedFaixa})</Text>
+                        )}
+                    </View>
+
+                    <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>Há participações nesta faixa?</Text>
+
+                    {/* Checkbox Sim / Não */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Checkbox.Item
+                            label="Sim"
+                            status={hasParticipants ? 'checked' : 'unchecked'}
+                            onPress={handleHasParticipants}
+                            labelStyle={{ color: '#fff', fontSize: 14 }}
+                            style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
+                            position='leading'
+                        />
+                        <Checkbox.Item
+                            label="Não"
+                            status={noParticipants ? 'checked' : 'unchecked'}
+                            onPress={handleNoParticipants}
+                            labelStyle={{ color: '#fff', fontSize: 14 }}
+                            style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
+                            position='leading'
+                        />
+                    </View>
+
+                    {/* Campos se houver participantes */}
+                    {hasParticipants && (
+                        <View style={{ width: '100%' }}>
+                            <DropDownPicker
+                                open={dropdownOpen}
+                                value={numParticipants}
+                                items={Array.from({ length: 20 }, (_, i) => ({
+                                    label: `${i + 1} participante${i + 1 > 1 ? 's' : ''}`,
+                                    value: i + 1,
+                                }))}
+                                setOpen={setDropdownOpen}
+                                setValue={(callback) => {
+                                    const value = callback(numParticipants);
+                                    handleNumParticipantsChange(value as number);
+                                }}
+                                placeholder="Quantos participantes?"
+                                style={{
+                                    backgroundColor: '#2a2a2a',
+                                    marginBottom: 10,
+                                    borderWidth: 1,
+                                    borderColor: '#555',
+                                }}
+                                textStyle={{ color: '#fff' }}
+                                placeholderStyle={{ color: '#ccc' }}
+                                dropDownContainerStyle={{
+                                    backgroundColor: '#2a2a2a',
+                                    borderColor: '#fff',
+                                    borderWidth: 1,
+                                }}
+                                TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                                ArrowDownIconComponent={() => (
+                                    <Ionicons
+                                        name='chevron-down'
+                                        size={20}
+                                        color='#fff'
+                                        style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
+                                    />
+                                )}
+                                ArrowUpIconComponent={() => (
+                                    <Ionicons
+                                        name='chevron-up'
+                                        size={20}
+                                        color='#fff'
+                                        style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
+                                    />
+                                )}
+                            />
+
+                            {/* Campos de nomes dos participantes */}
+                            {numParticipants !== null && participantNames.map((name, index) => (
+                                <TextInput
+                                    key={index}
+                                    style={styles.inputTextBox}
+                                    value={name}
+                                    onChangeText={(text) => handleParticipantNameChange(index, text)}
+                                    placeholder={`Nome do participante ${index + 1}`}
+                                    placeholderTextColor="#FFFF"
+                                />
+                            ))}
+                        </View>
+                    )}
+
+                    {/* Campos comuns*/}
+                    <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder="Ano de lançamento" placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder="Número da faixa" placeholderTextColor="#FFFF" />
 
 
 
-                {/* Botão para upload do auddio */}
-                <TouchableOpacity style={styles.uploadArea}>
-                    <Text style={styles.uploadText}>Carregar audio</Text>
-                    <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
-                </TouchableOpacity>
-            </ScrollView>
+                    {/* Botão para upload do auddio */}
+                    <TouchableOpacity style={styles.uploadArea}>
+                        <Text style={styles.uploadText}>Carregar audio</Text>
+                        <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
+                    </TouchableOpacity>
+                </ScrollView>
+            </View>
         </>
 
     );
