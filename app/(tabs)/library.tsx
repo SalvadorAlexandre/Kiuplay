@@ -2,7 +2,6 @@ import React from 'react';
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
-import { Ionicons } from '@expo/vector-icons';
 import {
   ScrollView,
   View,
@@ -15,12 +14,14 @@ import {
 const SubTabBar = ({
   tabs,
   group,
+  isSelectedSubTab,
+  selectSubTab,
 }: {
   tabs: TypeSubTab[];
   group: 'local' | 'cloud';
+  isSelectedSubTab: (group: 'local' | 'cloud', tab: TypeSubTab) => boolean;
+  selectSubTab: (group: 'local' | 'cloud', tab: TypeSubTab) => void;
 }) => {
-  const { isSelectedSubTab, selectSubTab, getSelectedSubTab } = useSubTabSelectorLibrary();
-
   return (
     <View style={{ flexDirection: 'row' }}>
       {tabs.map((tab) => (
@@ -50,6 +51,12 @@ const SubTabBar = ({
 export default function LibraryScreen() {
   const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
 
+  const {
+    isSelectedSubTab,
+    selectSubTab,
+    getSelectedSubTab,
+  } = useSubTabSelectorLibrary();
+
   const isSelected = (current: TypeMusic, type: TypeMusic): boolean => {
     return current === type;
   };
@@ -61,18 +68,28 @@ export default function LibraryScreen() {
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
       <TopTabBarLibrary />
 
-      <View style={{ flex: 1, marginTop: 10 }}>
+      <View style={{ marginTop: 10 }}>
         {selectedLibraryContent === 'local' && (
           <View>
             <Text style={styles.title}>Curtir músicas em offline!</Text>
-            <SubTabBar tabs={localTabs} group="local" />
+            <SubTabBar
+              tabs={localTabs}
+              group="local"
+              isSelectedSubTab={isSelectedSubTab}
+              selectSubTab={selectSubTab}
+            />
           </View>
         )}
 
         {selectedLibraryContent === 'cloud' && (
           <View>
-            <Text style={styles.title}>Curtir músicas em online!</Text>
-            <SubTabBar tabs={cloudTabs} group="cloud" />
+            <Text style={styles.title}>Ouvir músicas na cloud!</Text>
+            <SubTabBar
+              tabs={cloudTabs}
+              group="cloud"
+              isSelectedSubTab={isSelectedSubTab}
+              selectSubTab={selectSubTab}
+            />
           </View>
         )}
       </View>
@@ -82,7 +99,23 @@ export default function LibraryScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {/* Conteúdo baseado nas abas */}
+        <Text style={{ color: '#fff', margin: 20 }}>Conteúdo aqui...</Text>
+
+        {selectedLibraryContent === 'local' && (
+          <>
+            {getSelectedSubTab('local') === 'tudo' && <Text style={styles.text}>Mostrando tudo</Text>}
+            {getSelectedSubTab('local') === 'pastas' && <Text style={styles.text}>Mostrando pastas</Text>}
+            {getSelectedSubTab('local') === 'downloads' && <Text style={styles.text}>Mostrando downloads</Text>}
+          </>
+        )}
+
+        {selectedLibraryContent === 'cloud' && (
+          <>
+            {getSelectedSubTab('cloud') === 'feeds' && <Text style={styles.text}>Mostrando feeds</Text>}
+            {getSelectedSubTab('cloud') === 'curtidas' && <Text style={styles.text}>Mostrando curtidas</Text>}
+            {getSelectedSubTab('cloud') === 'seguindo' && <Text style={styles.text}>Mostrando seguindo</Text>}
+          </>
+        )}
       </ScrollView>
 
       <View style={styles.floatingBox}>
@@ -164,5 +197,10 @@ const styles = StyleSheet.create({
   },
   workButtonSelected: {
     backgroundColor: '#7F7F7F',
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    margin: 20,
   },
 });
