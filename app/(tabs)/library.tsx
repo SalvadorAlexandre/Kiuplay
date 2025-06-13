@@ -2,6 +2,8 @@ import React from 'react';
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
+import SelectLocalMusic from '@/hooks/audioLocalHooks/useLocalMusicManager'
+import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList'
 import {
   ScrollView,
   View,
@@ -9,6 +11,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  FlatList,
 } from 'react-native';
 
 const SubTabBar = ({
@@ -57,6 +60,8 @@ export default function LibraryScreen() {
     getSelectedSubTab,
   } = useSubTabSelectorLibrary();
 
+  const { selectedMusics, handleSelectMusics } = SelectLocalMusic()
+
   const isSelected = (current: TypeMusic, type: TypeMusic): boolean => {
     return current === type;
   };
@@ -70,7 +75,7 @@ export default function LibraryScreen() {
 
       <View style={{ marginTop: 10 }}>
         {selectedLibraryContent === 'local' && (
-          <View>
+          <View style={{paddingVertical: 15,}}>
             <Text style={styles.title}>Curtir músicas em offline!</Text>
             <SubTabBar
               tabs={localTabs}
@@ -99,11 +104,14 @@ export default function LibraryScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={{ color: '#fff', margin: 20 }}>Conteúdo aqui...</Text>
-
         {selectedLibraryContent === 'local' && (
           <>
-            {getSelectedSubTab('local') === 'tudo' && <Text style={styles.text}>Mostrando tudo</Text>}
+            {getSelectedSubTab('local') === 'tudo' &&
+              <View>
+                <LocalMusicScreen />
+                
+              </View>
+            }
             {getSelectedSubTab('local') === 'pastas' && <Text style={styles.text}>Mostrando pastas</Text>}
             {getSelectedSubTab('local') === 'downloads' && <Text style={styles.text}>Mostrando downloads</Text>}
           </>
