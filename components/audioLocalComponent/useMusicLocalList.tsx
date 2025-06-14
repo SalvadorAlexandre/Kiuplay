@@ -1,41 +1,43 @@
+// app/local/index.tsx ou onde estiver LocalMusicScreen
 import React from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
     StyleSheet,
-    ScrollView
+    ScrollView,
 } from 'react-native';
-import useLocalMusic from '@/hooks/audioLocalHooks/useLocalMusicManager' // caminho correto onde você salvou o hook
+import useLocalMusic from '@/hooks/audioPlayerHooks/useLocalMusicManager';
+import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
 
 export default function LocalMusicScreen() {
     const { selectedMusics, handleSelectMusics } = useLocalMusic();
+    const { setUri } = useAudioPlayerContext(); // ⬅️ usando contexto global
+
+    const handlePlayMusic = (uri: string) => {
+        setUri(uri); // ⬅️ define a URI globalmente
+    };
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                onPress={handleSelectMusics}
-                style={styles.button}
-            >
+            <TouchableOpacity onPress={handleSelectMusics} style={styles.button}>
                 <Text style={styles.buttonText}>Selecionar músicas</Text>
             </TouchableOpacity>
 
-            <ScrollView>
+            <ScrollView style={{ flex: 1 }}>
                 {selectedMusics.length === 0 ? (
                     <Text style={styles.empty}>Nenhuma música selecionada</Text>
                 ) : (
                     selectedMusics.map((music, index) => (
                         <View key={index} style={styles.musicItemContainer}>
-                            <View style={styles.musicInfo}>
-                                < TouchableOpacity>
-                                    <Text numberOfLines={1} style={styles.musicName}>{music.name}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.musicSize}>
-                                    {music.size ? `${(music.size / (1024 * 1024)).toFixed(2)} MB` : 'Tamanho desconhecido'}
+                            <TouchableOpacity onPress={() => handlePlayMusic(music.uri)}>
+                                <Text numberOfLines={1} style={styles.musicName}>
+                                    {music.name}
                                 </Text>
-
-                            </View>
-                            {/* <View style={styles.divider} />*/}
+                            </TouchableOpacity>
+                            <Text style={styles.musicSize}>
+                                {music.size ? `${(music.size / (1024 * 1024)).toFixed(2)} MB` : 'Tamanho desconhecido'}
+                            </Text>
                         </View>
                     ))
                 )}
@@ -46,72 +48,38 @@ export default function LocalMusicScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        //padding: 20,
         flex: 1,
-        margin: 10,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 10,
+        // backgroundColor: '#000',
+        padding: 10,
     },
     button: {
-        backgroundColor: '#1565C0',
-        padding: 10,
+        backgroundColor: '#1e90ff',
+        padding: 12,
         borderRadius: 10,
         marginBottom: 20,
     },
     buttonText: {
         color: 'white',
         textAlign: 'center',
+        fontWeight: 'bold',
     },
     empty: {
-        color: '#ccc',
+        color: '#888',
         textAlign: 'center',
+        marginTop: 20,
     },
-    musicItem: {
-        color: '#fff',
-        marginBottom: 5,
-    },
-
-
-
     musicItemContainer: {
-        borderRadius: 10,
-        backgroundColor: '#1e1e1e',
+        backgroundColor: '#222',
         padding: 10,
         marginBottom: 10,
-        paddingHorizontal: 20,
-        // paddingVertical: 12,
-
-    },
-    musicInfo: {
-        //flexDirection: 'row',
-        justifyContent: 'space-between',
-        //alignItems: 'center',
+        borderRadius: 8,
     },
     musicName: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '500',
-        flex: 1,
-        marginRight: 10,
-
+        color: 'white',
+        fontWeight: 'bold',
     },
     musicSize: {
-        color: '#888',
-        fontSize: 14,
-        marginTop: 6,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#333',
-        marginTop: 10,
-        marginBottom: 10,
+        color: '#aaa',
+        fontSize: 12,
     },
 });
-
-
-
-

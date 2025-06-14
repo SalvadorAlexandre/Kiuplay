@@ -2,7 +2,6 @@ import React from 'react';
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
-import SelectLocalMusic from '@/hooks/audioLocalHooks/useLocalMusicManager'
 import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList'
 import {
   ScrollView,
@@ -11,7 +10,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  FlatList,
 } from 'react-native';
 
 const SubTabBar = ({
@@ -52,6 +50,8 @@ const SubTabBar = ({
 };
 
 export default function LibraryScreen() {
+
+
   const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
 
   const {
@@ -59,8 +59,6 @@ export default function LibraryScreen() {
     selectSubTab,
     getSelectedSubTab,
   } = useSubTabSelectorLibrary();
-
-  const { selectedMusics, handleSelectMusics } = SelectLocalMusic()
 
   const isSelected = (current: TypeMusic, type: TypeMusic): boolean => {
     return current === type;
@@ -175,7 +173,7 @@ const styles = StyleSheet.create({
   },
   floatingBox: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 80,
     right: 20,
     backgroundColor: '#1e1e1e',
     borderRadius: 20,
