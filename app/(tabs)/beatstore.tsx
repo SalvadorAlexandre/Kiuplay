@@ -75,7 +75,7 @@ export default function BeatStoreScreen() {
             {/* Lista de artistas seguidos */}
           </View>
         )}
-
+        <View style={{ height: 110, }}></View>
       </ScrollView>
 
       <TouchableOpacity

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSelectedMyContent, MyPostsType} from '@/hooks/useSelectedMyContent';
+import { useSelectedMyContent, MyPostsType } from '@/hooks/useSelectedMyContent';
 import { Ionicons } from '@expo/vector-icons';
 import { router, } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
@@ -376,6 +376,7 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
+        <View style={{ height: 110, }}></View>
       </ScrollView >
     </View>
 

@@ -73,7 +73,7 @@ export default function LibraryScreen() {
 
       <View style={{ marginTop: 10 }}>
         {selectedLibraryContent === 'local' && (
-          <View style={{paddingVertical: 15,}}>
+          <View style={{ paddingVertical: 15, }}>
             <Text style={styles.title}>Curtir músicas em offline!</Text>
             <SubTabBar
               tabs={localTabs}
@@ -107,7 +107,6 @@ export default function LibraryScreen() {
             {getSelectedSubTab('local') === 'tudo' &&
               <View>
                 <LocalMusicScreen />
-                
               </View>
             }
             {getSelectedSubTab('local') === 'pastas' && <Text style={styles.text}>Mostrando pastas</Text>}
@@ -122,6 +121,7 @@ export default function LibraryScreen() {
             {getSelectedSubTab('cloud') === 'seguindo' && <Text style={styles.text}>Mostrando seguindo</Text>}
           </>
         )}
+        <View style={{height: 110,}}></View>
       </ScrollView>
 
       <View style={styles.floatingBox}>

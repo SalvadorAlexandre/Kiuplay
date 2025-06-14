@@ -22,6 +22,7 @@ export default function ProfileScreen() {
         {/* Conteúdo da tela */}
         <Text style={{ color: '#fff', margin: 20 }}>Conteúdo aqui...</Text>
         {/* Pode colocar seus blocos, listas, etc */}
+        <View style={{ height: 110, }}></View>
       </ScrollView>
     </View>
 
