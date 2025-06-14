@@ -1,151 +1,151 @@
+//app/(tabs)/_layout.tsx
 import React from 'react';
 import { Tabs, Stack } from 'expo-router';
 import { Image, } from 'react-native';
 import Colors from '@/constants/Colors'; // Usaremos para definir cor do fundo
 import Player from '@/components/globalPlayer/audioPlayerBar'
-
+import { AudioPlayerProvider, useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
 
 
 export default function TabLayout() {
   // Tema fixo como 'dark'
   const scheme = 'dark';
   return (
-    //Mantem a tab padrão
     <>
+      <AudioPlayerProvider>
 
-
-      <Tabs
-        screenOptions={{
-          /*
-          headerLeft: () => ( // define o icone na tab superior
-            <View style = {{marginLeft: 15}}>
-              <Image source={require('@/assets/images/kiuplay_icon_1024.png')} 
-              style = {{width: 70, height: 60}}
-              />
-            </View>
-          ),
-          */
-          headerTitleStyle: { color: '#fff' },
-          tabBarShowLabel: true, // Remove texto das abas
-          headerShown: false, // Mostra o cabeçalho superior
-          tabBarLabelStyle: {
-            fontSize: 12,
-            color: '#fff'
-          },
-
-          //Estilo do cabeçalho inferior
-          tabBarStyle: {
-            backgroundColor: Colors[scheme].background, // Fundo escuro
-            borderTopColor: Colors[scheme].background, // Linha de topo da tab bar
-            height: 60,
-            paddingBottom: 5,
-          },
-          tabBarLabelPosition: 'below-icon',
-          //Estilo do cabeçalho superior
-          headerStyle: {
-            backgroundColor: Colors[scheme].background,
-            borderBottomColor: Colors[scheme].background,
-          }
-
-        }}
-      >
-
-        <Tabs.Screen
-          name="VideoClipes" //Tela videos
-          options={{
-            title: 'Videos',
-            tabBarLabel: 'Clipes',
-            tabBarIcon: ({ focused }) => (
-              <Image
-                source={
-                  focused
-                    ? require('@/assets/images/1/icons8_video_playlist_120px.png') // Ícone quando ativo
-                    : require('@/assets/images/1/icons8_video_playlist_120px_2.png') // Ícone quando inativo
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  opacity: focused ? 1 : 0.5,
-                }}
-              />
+        <Tabs
+          screenOptions={{
+            /*
+            headerLeft: () => ( // define o icone na tab superior
+              <View style = {{marginLeft: 15}}>
+                <Image source={require('@/assets/images/kiuplay_icon_1024.png')} 
+                style = {{width: 70, height: 60}}
+                />
+              </View>
             ),
-          }}
-        />
+            */
+            headerTitleStyle: { color: '#fff' },
+            tabBarShowLabel: true, // Remove texto das abas
+            headerShown: false, // Mostra o cabeçalho superior
+            tabBarLabelStyle: {
+              fontSize: 12,
+              color: '#fff'
+            },
 
-        <Tabs.Screen
-          name="profile" //Tela Perfil
-          options={{
-            title: 'Perfil',
-            tabBarLabel: 'Perfil',
-            tabBarIcon: ({ focused }) => (
-              <Image
-                source={
-                  focused
-                    ? require('@/assets/images/1/icon_profile_white_120px.png') // Ícone quando ativo
-                    : require('@/assets/images/1/icon_profile_dark_120px.png')  // Ícone quando inativo
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  opacity: focused ? 1 : 0.5,
-                }}
-
-              />
-
-            ),
+            //Estilo do cabeçalho inferior
+            tabBarStyle: {
+              backgroundColor: Colors[scheme].background, // Fundo escuro
+              borderTopColor: Colors[scheme].background, // Linha de topo da tab bar
+              height: 60,
+              paddingBottom: 5,
+            },
+            tabBarLabelPosition: 'below-icon',
+            //Estilo do cabeçalho superior
+            headerStyle: {
+              backgroundColor: Colors[scheme].background,
+              borderBottomColor: Colors[scheme].background,
+            }
 
           }}
-        />
+        >
 
-        <Tabs.Screen
-          name="beatstore" //Tela loja de beats
-          options={{
-            title: 'Loja de beats',
-            tabBarLabel: 'Loja de beats',
-            tabBarIcon: ({ focused }) => (
-              <Image
-                source={
-                  focused
-                    ? require('@/assets/images/1/icon_beatstore_white_120px.png')  // Ícone quando ativo
-                    : require('@/assets/images/1/icon_beatstore_dark_120px.png')   // Ícone quando inativo
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  opacity: focused ? 1 : 0.5,
-                }}
-              />
-            ),
-          }}
-        />
+          <Tabs.Screen
+            name="VideoClipes" //Tela videos
+            options={{
+              title: 'Videos',
+              tabBarLabel: 'Clipes',
+              tabBarIcon: ({ focused }) => (
+                <Image
+                  source={
+                    focused
+                      ? require('@/assets/images/1/icons8_video_playlist_120px.png') // Ícone quando ativo
+                      : require('@/assets/images/1/icons8_video_playlist_120px_2.png') // Ícone quando inativo
+                  }
+                  style={{
+                    width: 30,
+                    height: 30,
+                    opacity: focused ? 1 : 0.5,
+                  }}
+                />
+              ),
+            }}
+          />
 
-        <Tabs.Screen
-          name="library" // Tela Musicas
-          options={{
-            title: 'Músicas',
-            tabBarLabel: 'Músicas',
-            tabBarIcon: ({ focused }) => (
-              <Image
-                source={
-                  focused
-                    ? require('@/assets/images/1/icon_library_white_120px.png') // Ícone quando ativo
-                    : require('@/assets/images/1/icon_library_dark_120px.png') // Ícone quando inativo
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  opacity: focused ? 1 : 0.5,
-                }}
-              />
-            ),
-          }}
-        />
-      </Tabs>
+          <Tabs.Screen
+            name="profile" //Tela Perfil
+            options={{
+              title: 'Perfil',
+              tabBarLabel: 'Perfil',
+              tabBarIcon: ({ focused }) => (
+                <Image
+                  source={
+                    focused
+                      ? require('@/assets/images/1/icon_profile_white_120px.png') // Ícone quando ativo
+                      : require('@/assets/images/1/icon_profile_dark_120px.png')  // Ícone quando inativo
+                  }
+                  style={{
+                    width: 30,
+                    height: 30,
+                    opacity: focused ? 1 : 0.5,
+                  }}
 
-      <Player />
+                />
+
+              ),
+
+            }}
+          />
+
+          <Tabs.Screen
+            name="beatstore" //Tela loja de beats
+            options={{
+              title: 'Loja de beats',
+              tabBarLabel: 'Loja de beats',
+              tabBarIcon: ({ focused }) => (
+                <Image
+                  source={
+                    focused
+                      ? require('@/assets/images/1/icon_beatstore_white_120px.png')  // Ícone quando ativo
+                      : require('@/assets/images/1/icon_beatstore_dark_120px.png')   // Ícone quando inativo
+                  }
+                  style={{
+                    width: 30,
+                    height: 30,
+                    opacity: focused ? 1 : 0.5,
+                  }}
+                />
+              ),
+            }}
+          />
+
+          <Tabs.Screen
+            name="library" // Tela Musicas
+            options={{
+              title: 'Músicas',
+              tabBarLabel: 'Músicas',
+              tabBarIcon: ({ focused }) => (
+                <Image
+                  source={
+                    focused
+                      ? require('@/assets/images/1/icon_library_white_120px.png') // Ícone quando ativo
+                      : require('@/assets/images/1/icon_library_dark_120px.png') // Ícone quando inativo
+                  }
+                  style={{
+                    width: 30,
+                    height: 30,
+                    opacity: focused ? 1 : 0.5,
+                  }}
+                />
+              ),
+            }}
+          />
+        </Tabs>
+
+        <Player />
+      </AudioPlayerProvider>
+
     </>
-
-
   );
 }
 
