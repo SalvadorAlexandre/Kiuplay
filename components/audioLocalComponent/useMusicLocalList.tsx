@@ -1,4 +1,5 @@
-// app/local/index.tsx ou onde estiver LocalMusicScreen
+//components/audioLocalComponente/useMusicLocalList.tsx
+// components/audioLocalComponente/useMusicLocalList.tsx
 import React from 'react';
 import {
     View,
@@ -6,55 +7,77 @@ import {
     TouchableOpacity,
     StyleSheet,
     ScrollView,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
+
 import useLocalMusic from '@/hooks/audioPlayerHooks/useLocalMusicManager';
 import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
 
 export default function LocalMusicScreen() {
     const { selectedMusics, handleSelectMusics } = useLocalMusic();
-    const { setUri } = useAudioPlayerContext(); // ⬅️ usando contexto global
 
-    const handlePlayMusic = (uri: string) => {
-        setUri(uri); // ⬅️ define a URI globalmente
+    const {
+        setPlaylist,
+        setCurrentIndex,
+        setIsExpanded,
+    } = useAudioPlayerContext();
+
+    const handlePlayMusic = (index: number) => {
+        setPlaylist(selectedMusics);
+        setCurrentIndex(index);
+        setIsExpanded(true);
     };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
             <TouchableOpacity onPress={handleSelectMusics} style={styles.button}>
                 <Text style={styles.buttonText}>Selecionar músicas</Text>
             </TouchableOpacity>
 
-            <ScrollView style={{ flex: 1 }}>
+            <ScrollView
+                style={styles.scrollContainer}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                showsVerticalScrollIndicator={false}
+            >
                 {selectedMusics.length === 0 ? (
                     <Text style={styles.empty}>Nenhuma música selecionada</Text>
                 ) : (
                     selectedMusics.map((music, index) => (
-                        <View key={index} style={styles.musicItemContainer}>
-                            <TouchableOpacity onPress={() => handlePlayMusic(music.uri)}>
-                                <Text numberOfLines={1} style={styles.musicName}>
-                                    {music.name}
-                                </Text>
-                            </TouchableOpacity>
-                            <Text style={styles.musicSize}>
-                                {music.size ? `${(music.size / (1024 * 1024)).toFixed(2)} MB` : 'Tamanho desconhecido'}
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.musicItemContainer}
+                            onPress={() => handlePlayMusic(index)}
+                            activeOpacity={0.7}
+                        >
+                            <Text numberOfLines={1} style={styles.musicName}>
+                                {music.name}
                             </Text>
-                        </View>
+                            <Text style={styles.musicSize}>
+                                {music.size
+                                    ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
+                                    : 'Tamanho desconhecido'}
+                            </Text>
+                        </TouchableOpacity>
                     ))
                 )}
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#000',
-        padding: 10,
+        padding: 12,
+        backgroundColor: '#111',
     },
     button: {
         backgroundColor: '#1e90ff',
-        padding: 12,
+        paddingVertical: 12,
         borderRadius: 10,
         marginBottom: 20,
     },
@@ -62,24 +85,33 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
         fontWeight: 'bold',
+        fontSize: 16,
+    },
+    scrollContainer: {
+        flex: 1,
     },
     empty: {
         color: '#888',
         textAlign: 'center',
         marginTop: 20,
+        fontSize: 16,
     },
     musicItemContainer: {
-        backgroundColor: '#222',
-        padding: 10,
+        backgroundColor: '#1f1f1f',
+        padding: 14,
         marginBottom: 10,
         borderRadius: 8,
+        borderColor: '#333',
+        borderWidth: 1,
     },
     musicName: {
         color: 'white',
-        fontWeight: 'bold',
+        fontWeight: '600',
+        fontSize: 16,
     },
     musicSize: {
         color: '#aaa',
-        fontSize: 12,
+        fontSize: 13,
+        marginTop: 4,
     },
 });

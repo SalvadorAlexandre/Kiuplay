@@ -1,190 +1,110 @@
 // components/globalPlayer/audioPlayerBar.tsx
-import React, { useEffect, useRef, useState } from 'react';
+// components/globalPlayer/audioPlayerBar.tsx
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Pressable,
 } from 'react-native';
-import { Audio } from 'expo-av';
-import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
-import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
+import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
+import { useAudioPlayer } from '@/hooks/audioPlayerHooks/useAudioPlayer';
 
 const { height } = Dimensions.get('window');
 
-const Player = () => {
-  const { uri, isExpanded, setIsExpanded } = useAudioPlayerContext();
-  const soundRef = useRef<Audio.Sound | null>(null);
+export default function Player() {
+  const {
+    currentTrack,
+    isExpanded,
+    setIsExpanded,
+    playNext,
+    playPrevious,
+  } = useAudioPlayerContext();
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [position, setPosition] = useState(0);
-  const [duration, setDuration] = useState(1);
+  const {
+    loadAndPlay,
+    togglePlayPause,
+    isPlaying,
+    status,
+  } = useAudioPlayer();
 
-  let interval: any;
-
-  // 🔁 Você pode adaptar isso depois com base na sua lógica de playlist
-  const hasNextTrack = false; // se true, deve avançar para próxima faixa
-
+  // Reproduz o áudio sempre que a faixa muda
   useEffect(() => {
-    if (!uri) return;
-
-    const loadSound = async () => {
-      try {
-        if (soundRef.current) {
-          await soundRef.current.unloadAsync();
-        }
-
-        const { sound } = await Audio.Sound.createAsync(
-          { uri },
-          { shouldPlay: true },
-          async (status) => {
-            if (status.isLoaded) {
-              setIsLoaded(true);
-              setDuration(status.durationMillis ?? 1);
-              setPosition(status.positionMillis ?? 0);
-
-              // 🔁 Ao finalizar
-              if (status.didJustFinish && !status.isLooping) {
-                if (!hasNextTrack) {
-                  setPosition(0);
-                  setIsPlaying(false);
-                }
-              }
-            }
-          }
-        );
-
-        soundRef.current = sound;
-        setIsPlaying(true);
-      } catch (error) {
-        console.error('Erro ao carregar o som:', error);
-      }
-    };
-
-    loadSound();
-
-    return () => {
-      soundRef.current?.unloadAsync();
-      clearInterval(interval);
-    };
-  }, [uri]);
-
-  useEffect(() => {
-    if (!isPlaying || !soundRef.current) return;
-
-    interval = setInterval(async () => {
-      const status = await soundRef.current?.getStatusAsync();
-      if (status?.isLoaded) {
-        setPosition(status.positionMillis ?? 0);
-        setDuration(status.durationMillis ?? 1);
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [isPlaying]);
-
-  const togglePlayPause = async () => {
-    if (!soundRef.current) return;
-
-    const status = await soundRef.current.getStatusAsync();
-    if (!status.isLoaded) return;
-
-    if (status.isPlaying) {
-      await soundRef.current.pauseAsync();
-      setIsPlaying(false);
-    } else {
-      await soundRef.current.playAsync();
-      setIsPlaying(true);
+    if (currentTrack?.uri) {
+      loadAndPlay(currentTrack.uri);
     }
-  };
+  }, [currentTrack?.uri]);
 
-  const stop = async () => {
-    if (soundRef.current) {
-      await soundRef.current.stopAsync();
-      setIsPlaying(false);
-      setPosition(0);
-    }
-  };
-
-  const handleSeek = async (value: number) => {
-    if (soundRef.current) {
-      await soundRef.current.setPositionAsync(value);
-      setPosition(value);
-    }
-  };
-
-  const handlePrevious = () => {
-    console.log('Voltar para a faixa anterior');
-  };
-
-  const handleNext = () => {
-    console.log('Avançar para a próxima faixa');
-  };
-
-  if (!uri || !isLoaded) return null;
+  // Oculta o player se não houver faixa
+  if (!currentTrack || !status?.isLoaded) return null;
 
   return (
-    <Pressable
-      onPress={() => {
-        if (!isExpanded) setIsExpanded(true);
-      }}
-      style={[
-        styles.container,
-        isExpanded ? styles.expanded : styles.minimized,
-      ]}
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={() => setIsExpanded(!isExpanded)}
+      style={[styles.container, isExpanded ? styles.expanded : styles.minimized]}
     >
-      <View style={styles.header}>
-        {isExpanded && (
-          <Pressable onPress={() => setIsExpanded(false)}>
+      {isExpanded ? (
+        <View style={{ flex: 1, paddingHorizontal: 16 }}>
+          <TouchableOpacity onPress={() => setIsExpanded(false)}>
             <Text style={styles.close}>Fechar</Text>
-          </Pressable>
-        )}
-        <Text style={styles.title} numberOfLines={1}>
-          {isExpanded ? 'Tocando agora (Expandido)' : 'Tocando agora'}
-        </Text>
-        <Text style={styles.status}>{isPlaying ? 'Reproduzindo' : 'Pausado'}</Text>
-      </View>
+          </TouchableOpacity>
 
-      {/* Barra de progresso */}
-      {isExpanded && (
-        <Slider
-          style={{ width: '100%', height: 40 }}
-          minimumValue={0}
-          maximumValue={duration}
-          value={position}
-          minimumTrackTintColor="#1E90FF"
-          maximumTrackTintColor="#ccc"
-          thumbTintColor="#1E90FF"
-          onSlidingComplete={handleSeek}
-        />
+          <View style={styles.header}>
+            <Text style={styles.title} numberOfLines={1}>
+              {currentTrack.name}
+            </Text>
+            <Text style={styles.status}>{isPlaying ? 'Reproduzindo' : 'Pausado'}</Text>
+          </View>
+
+          <View style={styles.controls}>
+            <TouchableOpacity onPress={playPrevious} style={styles.controlButton}>
+              <Ionicons name="play-skip-back" size={35} color="#ccc" />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={togglePlayPause} style={styles.controlButton}>
+              <Ionicons
+                name={isPlaying ? 'pause-circle' : 'play-circle'}
+                size={50}
+                color="#ccc"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={playNext} style={styles.controlButton}>
+              <Ionicons name="play-skip-forward" size={35} color="#ccc" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.minimized}>
+          <Text style={[styles.title, { flex: 1 }]} numberOfLines={1}>
+            {currentTrack.name}
+          </Text>
+
+          <View style={styles.controls}>
+            <TouchableOpacity onPress={playPrevious} style={styles.controlButton}>
+              <Ionicons name="play-skip-back" size={28} color="#ccc" />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={togglePlayPause} style={styles.controlButton}>
+              <Ionicons
+                name={isPlaying ? 'pause-circle' : 'play-circle'}
+                size={38}
+                color="#ccc"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={playNext} style={styles.controlButton}>
+              <Ionicons name="play-skip-forward" size={28} color="#ccc" />
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
-
-      <View style={styles.controls}>
-        <TouchableOpacity onPress={handlePrevious} style={styles.controlButton}>
-          <Ionicons name="play-skip-back" size={35} color="#ccc" />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={togglePlayPause} style={styles.controlButton}>
-          <Ionicons
-            name={isPlaying ? 'pause-circle' : 'play-circle'}
-            size={50}
-            color="#ccc"
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleNext} style={styles.controlButton}>
-          <Ionicons name="play-skip-forward" size={35} color="#ccc" />
-        </TouchableOpacity>
-      </View>
-    </Pressable>
+    </TouchableOpacity>
   );
-};
-
-export default Player;
+}
 
 const styles = StyleSheet.create({
   container: {
