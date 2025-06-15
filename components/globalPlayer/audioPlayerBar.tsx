@@ -23,9 +23,11 @@ const Player = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(1);
-  const [isRepeat, setIsRepeat] = useState(false); // 🔁 estado do repeat
 
   let interval: any;
+
+  // 🔁 Você pode adaptar isso depois com base na sua lógica de playlist
+  const hasNextTrack = false; // se true, deve avançar para próxima faixa
 
   useEffect(() => {
     if (!uri) return;
@@ -38,29 +40,26 @@ const Player = () => {
 
         const { sound } = await Audio.Sound.createAsync(
           { uri },
-          { shouldPlay: true }
+          { shouldPlay: true },
+          async (status) => {
+            if (status.isLoaded) {
+              setIsLoaded(true);
+              setDuration(status.durationMillis ?? 1);
+              setPosition(status.positionMillis ?? 0);
+
+              // 🔁 Ao finalizar
+              if (status.didJustFinish && !status.isLooping) {
+                if (!hasNextTrack) {
+                  setPosition(0);
+                  setIsPlaying(false);
+                }
+              }
+            }
+          }
         );
 
         soundRef.current = sound;
         setIsPlaying(true);
-        setIsLoaded(true);
-
-        sound.setOnPlaybackStatusUpdate(async (status) => {
-          if (!status.isLoaded) return;
-
-          setPosition(status.positionMillis ?? 0);
-          setDuration(status.durationMillis ?? 1);
-
-          if (status.didJustFinish) {
-            if (isRepeat && soundRef.current) {
-              await soundRef.current.setPositionAsync(0);
-              await soundRef.current.playAsync(); // 🔁 reinicia
-            } else {
-              setPosition(0);
-              setIsPlaying(false); // 🔇 para sem tocar de novo
-            }
-          }
-        });
       } catch (error) {
         console.error('Erro ao carregar o som:', error);
       }
@@ -118,10 +117,6 @@ const Player = () => {
     }
   };
 
-  const handleRepeat = () => {
-    setIsRepeat((prev) => !prev); // alterna o estado de repeat
-  };
-
   const handlePrevious = () => {
     console.log('Voltar para a faixa anterior');
   };
@@ -137,7 +132,10 @@ const Player = () => {
       onPress={() => {
         if (!isExpanded) setIsExpanded(true);
       }}
-      style={[styles.container, isExpanded ? styles.expanded : styles.minimized]}
+      style={[
+        styles.container,
+        isExpanded ? styles.expanded : styles.minimized,
+      ]}
     >
       <View style={styles.header}>
         {isExpanded && (
@@ -150,11 +148,6 @@ const Player = () => {
         </Text>
         <Text style={styles.status}>{isPlaying ? 'Reproduzindo' : 'Pausado'}</Text>
       </View>
-
-      {/* Botão de repetir com cor dinâmica */}
-      <TouchableOpacity onPress={handleRepeat} style={styles.controlButton}>
-        <Ionicons name="repeat" size={35} color={isRepeat ? '#1E90FF' : '#ccc'} />
-      </TouchableOpacity>
 
       {/* Barra de progresso */}
       {isExpanded && (
@@ -170,7 +163,6 @@ const Player = () => {
         />
       )}
 
-      {/* Controles */}
       <View style={styles.controls}>
         <TouchableOpacity onPress={handlePrevious} style={styles.controlButton}>
           <Ionicons name="play-skip-back" size={35} color="#ccc" />
@@ -252,7 +244,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
-
 
 
 {/*
