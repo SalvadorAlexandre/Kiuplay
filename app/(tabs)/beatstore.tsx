@@ -15,12 +15,33 @@ export default function BeatStoreScreen() {
   const { activeTab, handleTabChange, } = useBeatStoreTabs() // Estado para controlar as tabs
 
   return (
-    // ScrollView pai com rolagem **vertical**
 
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
       {/* Topo fixo */}
       <TopTabBarBeatStore />
 
+      <View style={{ marginTop: 10 }}>
+        {activeTab === 'feeds' && (
+          <View>
+            <Text style={styles.title}>Feeds</Text>
+            {/* Lista de feeds, por exemplo */}
+          </View>
+        )}
+
+        {activeTab === 'curtidas' && (
+          <View>
+            <Text style={styles.title}>Músicas Curtidas</Text>
+            {/* Lista de músicas curtidas */}
+          </View>
+        )}
+
+        {activeTab === 'seguindo' && (
+          <View>
+            <Text style={styles.title}>Artistas Seguindo</Text>
+            {/* Lista de artistas seguidos */}
+          </View>
+        )}
+      </View>
 
       <View style={styles.tabsContainer}>
         {['feeds', 'curtidas', 'seguindo'].map((tab) => (
@@ -108,7 +129,7 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 80,
+    bottom: 110,
     right: 25,
     width: 60,
     height: 60,
@@ -154,5 +175,13 @@ const styles = StyleSheet.create({
   contentText: {
     color: '#fff',
     fontSize: 16,
+  },
+  title: {
+    color: '#fff',
+    marginTop: -20,
+    marginLeft: 15,
+    marginBottom: 10,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });

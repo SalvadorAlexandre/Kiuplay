@@ -1,249 +1,228 @@
 // components/globalPlayer/audioPlayerBar.tsx
-// components/globalPlayer/audioPlayerBar.tsx
-import React, { useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Image,
   Dimensions,
+  TextInput,
+  Animated,
+  Easing,
 } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
-import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
-import { useAudioPlayer } from '@/hooks/audioPlayerHooks/useAudioPlayer';
+import Slider from '@react-native-community/slider';
 
-const { height } = Dimensions.get('window');
+export default function AudioPlayerBar() {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const animation = useRef(new Animated.Value(0)).current; // 0 = minimizado, 1 = expandido
+  const [progress, setProgress] = useState(0);
 
-export default function Player() {
-  const {
-    currentTrack,
-    isExpanded,
-    setIsExpanded,
-    playNext,
-    playPrevious,
-  } = useAudioPlayerContext();
+  const { height } = Dimensions.get('window');
 
-  const {
-    loadAndPlay,
-    togglePlayPause,
-    isPlaying,
-    status,
-  } = useAudioPlayer();
+  const toggleExpanded = () => {
+    Animated.timing(animation, {
+      toValue: isExpanded ? 0 : 1,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start();
 
-  // Reproduz o áudio sempre que a faixa muda
-  useEffect(() => {
-    if (currentTrack?.uri) {
-      loadAndPlay(currentTrack.uri);
-    }
-  }, [currentTrack?.uri]);
+    setIsExpanded(!isExpanded);
+  };
 
-  // Oculta o player se não houver faixa
-  if (!currentTrack || !status?.isLoaded) return null;
+  // Animações interpoladas
+  const animatedHeight = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [100, height * 0.8], // limite a 70% da altura da tela
+  });
+
+  const animatedOpacity = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
+  const animatedPadding = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [8, 40],
+  });
 
   return (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={() => setIsExpanded(!isExpanded)}
-      style={[styles.container, isExpanded ? styles.expanded : styles.minimized]}
-    >
-      {isExpanded ? (
-        <View style={{ flex: 1, paddingHorizontal: 16 }}>
-          <TouchableOpacity onPress={() => setIsExpanded(false)}>
-            <Text style={styles.close}>Fechar</Text>
+    <Animated.View style={[styles.container, { height: animatedHeight, paddingTop: animatedPadding }]}>
+
+      <View style={{ flex: 1 }}></View>
+
+      <View style={styles.trackInfo}>
+        <Text style={styles.trackTitle} numberOfLines={1}>
+          Saag Weelli Boy (ft Xuxu Bower & Fred Perry)
+        </Text>
+      </View>
+
+      <View style={{ alignItems: 'center' }}>
+        <View style={styles.controls}>
+          <Text style={styles.timeText}>0:00</Text>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="repeat" size={20} color="#fff" />
           </TouchableOpacity>
 
-          <View style={styles.header}>
-            <Text style={styles.title} numberOfLines={1}>
-              {currentTrack.name}
-            </Text>
-            <Text style={styles.status}>{isPlaying ? 'Reproduzindo' : 'Pausado'}</Text>
-          </View>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="play-back" size={24} color="#fff" />
+          </TouchableOpacity>
 
-          <View style={styles.controls}>
-            <TouchableOpacity onPress={playPrevious} style={styles.controlButton}>
-              <Ionicons name="play-skip-back" size={35} color="#ccc" />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="play" size={32} color="#fff" />
+          </TouchableOpacity>
 
-            <TouchableOpacity onPress={togglePlayPause} style={styles.controlButton}>
-              <Ionicons
-                name={isPlaying ? 'pause-circle' : 'play-circle'}
-                size={50}
-                color="#ccc"
-              />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="play-forward" size={24} color="#fff" />
+          </TouchableOpacity>
 
-            <TouchableOpacity onPress={playNext} style={styles.controlButton}>
-              <Ionicons name="play-skip-forward" size={35} color="#ccc" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={toggleExpanded}>
+            <Ionicons name={isExpanded ? 'chevron-down' : 'chevron-up'} size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.timeText}>3:45</Text>
         </View>
-      ) : (
-        <View style={styles.minimized}>
-          <Text style={[styles.title, { flex: 1 }]} numberOfLines={1}>
-            {currentTrack.name}
-          </Text>
+      </View>
 
-          <View style={styles.controls}>
-            <TouchableOpacity onPress={playPrevious} style={styles.controlButton}>
-              <Ionicons name="play-skip-back" size={28} color="#ccc" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={togglePlayPause} style={styles.controlButton}>
-              <Ionicons
-                name={isPlaying ? 'pause-circle' : 'play-circle'}
-                size={38}
-                color="#ccc"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={playNext} style={styles.controlButton}>
-              <Ionicons name="play-skip-forward" size={28} color="#ccc" />
-            </TouchableOpacity>
-          </View>
+      {/* Conteúdo extra animado */}
+      <Animated.View style={[styles.extraContent, { opacity: animatedOpacity }]}>
+        <View style={styles.trackbarContainer}>
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={100}
+            value={progress}
+            onValueChange={(val) => setProgress(val)}
+            minimumTrackTintColor="#1E90FF"
+            maximumTrackTintColor="#444"
+            thumbTintColor="#fff"
+          />
         </View>
-      )}
-    </TouchableOpacity>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, gap: 10 }}>
+          <Image
+            source={require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png')}
+            style={styles.profileImage}
+          />
+          <Text style={styles.artistName}>Saag Weelli Boy</Text>
+          <TouchableOpacity style={styles.followButton} onPress={() => { }}>
+            <Text style={styles.followButtonText}>Seguir</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ width: '100%' }}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Adicionar comentario..."
+            placeholderTextColor="#888"
+          />
+        </View>
+
+        <View style={styles.actionButtons}>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="download-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="heart-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="share-social-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { }}>
+            <Ionicons name="list" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    backgroundColor: '#2D2F31',
-    borderTopColor: '#333',
+    bottom: 60,
+    left: 10,
+    right: 10,
+    backgroundColor: '#111',
+    paddingHorizontal: 10,
     borderTopWidth: 1,
-    zIndex: 999,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
+    borderTopColor: '#222',
+    borderRadius: 12,
+    zIndex: 99,
+    elevation: 10,
+    overflow: 'hidden',
   },
-  minimized: {
-    bottom: 59,
-    height: 60,
-    flexDirection: 'row',
+  trackInfo: {
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: 10,
   },
-  expanded: {
-    top: 0,
-    bottom: 0,
-    height: height,
-    paddingTop: 60,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
+  trackTitle: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  status: {
-    color: '#ccc',
     fontSize: 14,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  close: {
-    color: '#999',
-    fontSize: 16,
-    marginBottom: 8,
   },
   controls: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 1,
-    gap: 25,
+    gap: 30,
+    marginBottom: 2,
+    justifyContent: 'center',
   },
-  controlButton: {
-    padding: 10,
+  extraContent: {
+    marginTop: 20,
+    paddingHorizontal: 10,
+  },
+  trackbarContainer: {
+    width: '100%',
+    paddingHorizontal: 8,
+    marginTop: -20,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
+  },
+  timeText: {
+    color: '#aaa',
+    fontSize: 12,
+  },
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 25,
+  },
+  artistName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  followButton: {
+    backgroundColor: '#1E90FF',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+  followButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  commentInput: {
+    marginBottom: 20,
+    backgroundColor: '#222',
+    color: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 14,
+    width: '100%',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginBottom: 30,
   },
 });
-
-
-{/*
-    import React, { useEffect } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useAudioPlayer } from '@/hooks/audioPlayerHooks/useAudioPlayer';
-import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
-
-const Player = () => {
-    const { uri } = useAudioPlayerContext();
-    const { loadAndPlay, togglePlayPause, stop, isPlaying, status } = useAudioPlayer();
-
-    useEffect(() => {
-        if (uri) loadAndPlay(uri);
-    }, [uri]);
-
-    // Oculta o player se nada estiver carregado
-    if (!uri || !status?.isLoaded) return null;
-
-    return (
-        <View style={styles.container}>
-            <View style={styles.left}>
-                <Text numberOfLines={1} style={styles.title}>Tocando agora</Text>
-                <Text style={styles.status}>{isPlaying ? 'Reproduzindo' : 'Pausado'}</Text>
-            </View>
-
-            <View style={styles.right}>
-                <Pressable onPress={togglePlayPause} style={styles.controlButton}>
-                    <Text style={styles.controlText}>{isPlaying ? '⏸' : '▶'}</Text>
-                </Pressable>
-                <Pressable onPress={stop} style={styles.controlButton}>
-                    <Text style={styles.controlText}>⏹</Text>
-                </Pressable>
-            </View>
-        </View>
-    );
-};
-
-export default Player;
-
-const styles = StyleSheet.create({
-    container: {
-        position: 'absolute',     // fixar na tela
-        bottom: 59,               // altura da Tab Bar (ajuste conforme o tamanho real)
-        left: 0,
-        right: 0,
-        height: 70,
-        backgroundColor: '#1a1a1a',
-        borderTopColor: '#333',
-        borderTopWidth: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        zIndex: 10,               // garantir que fique acima do conteúdo
-    },
-    left: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    title: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
-    status: {
-        color: '#ccc',
-        fontSize: 12,
-        marginTop: 2,
-    },
-    right: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    controlButton: {
-        marginLeft: 12,
-    },
-    controlText: {
-        fontSize: 22,
-        color: '#fff',
-    },
-});*/}

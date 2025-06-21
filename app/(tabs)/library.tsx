@@ -28,17 +28,16 @@ const SubTabBar = ({
       {tabs.map((tab) => (
         <TouchableOpacity
           key={tab}
-          style={{ marginHorizontal: 20 }}
+          style={[
+            styles.tabButton,
+            isSelectedSubTab(group, tab) && styles.activeTabButton,
+          ]}
           onPress={() => selectSubTab(group, tab)}
         >
           <Text
             style={[
-              { color: '#fff', fontSize: 18 },
-              isSelectedSubTab(group, tab) && {
-                borderBottomWidth: 2,
-                borderBottomColor: '#1565C0',
-                color: '#1565C0',
-              },
+              styles.tabText,
+              isSelectedSubTab(group, tab) && styles.activeTabText,
             ]}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -85,7 +84,7 @@ export default function LibraryScreen() {
         )}
 
         {selectedLibraryContent === 'cloud' && (
-          <View>
+          <View style={{ paddingVertical: 15, }}>
             <Text style={styles.title}>Ouvir músicas na cloud!</Text>
             <SubTabBar
               tabs={cloudTabs}
@@ -121,7 +120,7 @@ export default function LibraryScreen() {
             {getSelectedSubTab('cloud') === 'seguindo' && <Text style={styles.text}>Mostrando seguindo</Text>}
           </>
         )}
-        <View style={{height: 110,}}></View>
+        <View style={{ height: 110, }}></View>
       </ScrollView>
 
       <View style={styles.floatingBox}>
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
   },
   floatingBox: {
     position: 'absolute',
-    bottom: 80,
+    bottom: 110,
     right: 20,
     backgroundColor: '#1e1e1e',
     borderRadius: 20,
@@ -208,5 +207,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     margin: 20,
+  },
+  tabButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#333',
+    marginHorizontal: 10,
+  },
+  activeTabButton: {
+    backgroundColor: '#1565C0',
+  },
+  tabText: {
+    color: '#aaa',
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#fff',
   },
 });

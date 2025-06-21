@@ -1,32 +1,79 @@
-//components/audioLocalComponente/useMusicLocalList.tsx
-// components/audioLocalComponente/useMusicLocalList.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
     StyleSheet,
-    ScrollView,
+    FlatList,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
 
-import useLocalMusic from '@/hooks/audioPlayerHooks/useLocalMusicManager';
-import { useAudioPlayerContext } from '@/contexts/AudioPlayerContext';
+// Interface para tipagem da música
+interface Music {
+    uri: string | number;
+    name: string;
+    size?: number;
+}
 
+interface MusicItemProps {
+    music: Music;
+    isCurrent: boolean;
+    onPress: () => void;
+    index: number;
+}
+
+// Componente para exibir uma música na lista
+const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
+    <TouchableOpacity
+        key={String(music.uri)}
+        style={[
+            styles.musicItemContainer,
+            isCurrent && styles.currentMusicItem,
+        ]}
+        onPress={onPress}
+        activeOpacity={0.7}
+        testID={`music-item-${index}`}
+    >
+        <Text numberOfLines={1} style={styles.musicName}>
+            {isCurrent ? '▶ ' : ''}{music.name}
+        </Text>
+        <Text style={styles.musicSize}>
+            {music.size
+                ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
+                : 'Tamanho desconhecido'}
+        </Text>
+    </TouchableOpacity>
+);
+
+// Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
-    const { selectedMusics, handleSelectMusics } = useLocalMusic();
+    const [selectedMusics, setSelectedMusics] = useState<Music[]>([]);
+    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
-    const {
-        setPlaylist,
-        setCurrentIndex,
-        setIsExpanded,
-    } = useAudioPlayerContext();
+    const mockMusicList: Music[] = [
+        { uri: 'track1.mp3', name: 'Música 1', size: 4000000 },
+        { uri: 'track2.mp3', name: 'Música 2', size: 3000000 },
+        { uri: 'track3.mp3', name: 'Música 3', size: 5000000 },
+    ];
+
+    const handleSelectMusics = () => {
+        // Simula seleção de músicas
+        setSelectedMusics(mockMusicList);
+    };
 
     const handlePlayMusic = (index: number) => {
-        setPlaylist(selectedMusics);
+        const music = selectedMusics[index];
+        if (!music) return;
+
+        if (currentIndex === index) {
+            console.log(`Música ${music.name} já está tocando.`);
+            return;
+        }
+
         setCurrentIndex(index);
-        setIsExpanded(true);
+        console.log(`Tocando agora: ${music.name} (${music.uri})`);
+        // Aqui você pode integrar com o AVPlayback ou outro player local
     };
 
     return (
@@ -34,46 +81,41 @@ export default function LocalMusicScreen() {
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-            <TouchableOpacity onPress={handleSelectMusics} style={styles.button}>
+            <TouchableOpacity
+                onPress={handleSelectMusics}
+                style={styles.button}
+                testID="select-music-button"
+            >
                 <Text style={styles.buttonText}>Selecionar músicas</Text>
             </TouchableOpacity>
 
-            <ScrollView
-                style={styles.scrollContainer}
-                contentContainerStyle={{ paddingBottom: 100 }}
-                showsVerticalScrollIndicator={false}
-            >
-                {selectedMusics.length === 0 ? (
-                    <Text style={styles.empty}>Nenhuma música selecionada</Text>
-                ) : (
-                    selectedMusics.map((music, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={styles.musicItemContainer}
+            {selectedMusics.length === 0 ? (
+                <Text style={styles.empty}>Nenhuma música selecionada</Text>
+            ) : (
+                <FlatList
+                    data={selectedMusics}
+                    keyExtractor={item => String(item.uri)}
+                    renderItem={({ item, index }) => (
+                        <MusicItem
+                            music={item}
+                            index={index}
+                            isCurrent={index === currentIndex}
                             onPress={() => handlePlayMusic(index)}
-                            activeOpacity={0.7}
-                        >
-                            <Text numberOfLines={1} style={styles.musicName}>
-                                {music.name}
-                            </Text>
-                            <Text style={styles.musicSize}>
-                                {music.size
-                                    ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
-                                    : 'Tamanho desconhecido'}
-                            </Text>
-                        </TouchableOpacity>
-                    ))
-                )}
-            </ScrollView>
+                        />
+                    )}
+                    contentContainerStyle={{ paddingBottom: 100 }}
+                    showsVerticalScrollIndicator={false}
+                />
+            )}
         </KeyboardAvoidingView>
     );
 }
 
+// Estilos visuais
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 12,
-        backgroundColor: '#111',
     },
     button: {
         backgroundColor: '#1e90ff',
@@ -86,9 +128,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
         fontSize: 16,
-    },
-    scrollContainer: {
-        flex: 1,
     },
     empty: {
         color: '#888',
@@ -103,6 +142,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderColor: '#333',
         borderWidth: 1,
+    },
+    currentMusicItem: {
+        borderColor: '#1e90ff',
+        backgroundColor: '#2a2a2a',
     },
     musicName: {
         color: 'white',
