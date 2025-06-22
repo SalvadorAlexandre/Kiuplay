@@ -186,8 +186,8 @@ export default function AudioPlayerBar() {
 
     
         <View style={{ alignItems: 'center',  width: '100%', marginBottom: 18,}}>
-        <Image source={require('@/assets/images/Default_Profile_Icon/unknown_track.png')}
-          //source={coverImage}
+        <Image //source={require('@/assets/images/Default_Profile_Icon/unknown_track.png')}
+          source={coverImage}
           style={{
             width: '100%',
             height: 350,
