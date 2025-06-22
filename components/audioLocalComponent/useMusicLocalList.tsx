@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react'; // Adicionado useEffect
 import {
     View,
     Text,
@@ -8,25 +8,31 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import { v4 as uuidv4 } from 'uuid'; // Importe uuid para gerar IDs únicos
 
-// Interface para tipagem da música
-interface Music {
-    uri: string | number;
-    name: string;
-    size?: number;
-}
+// Importe Track e as thunks do seu playerSlice
+import {
+    Track,
+    setPlaylistAndPlayThunk,
+    playTrackThunk,
+} from '@/src/redux/playerSlice'; // Ajuste o caminho conforme seu projeto
+import { useAppDispatch, useAppSelector } from '@/src/redux/hooks'; // Seus hooks personalizados para Redux
+import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader'; // Seu hook para selecionar arquivos
+
+// Remova a interface 'Music' local, vamos usar 'Track' de playerSlice.ts
 
 interface MusicItemProps {
-    music: Music;
+    music: Track; // Agora usa a interface Track
     isCurrent: boolean;
-    onPress: () => void;
+    onPress: () => void; 
     index: number;
 }
 
 // Componente para exibir uma música na lista
 const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
     <TouchableOpacity
-        key={String(music.uri)}
+        // key deve usar o ID único da Track
+       // key={music.id} // Usamos music.id aqui
         style={[
             styles.musicItemContainer,
             isCurrent && styles.currentMusicItem,
@@ -36,7 +42,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
         testID={`music-item-${index}`}
     >
         <Text numberOfLines={1} style={styles.musicName}>
-            {isCurrent ? '▶ ' : ''}{music.name}
+            {isCurrent ? '▶ ' : ''}{music.title} {/* Exibe o título da Track */}
         </Text>
         <Text style={styles.musicSize}>
             {music.size
@@ -48,32 +54,56 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
 
 // Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
-    const [selectedMusics, setSelectedMusics] = useState<Music[]>([]);
-    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+    const dispatch = useAppDispatch(); // Hook para despachar ações
+    const {
+        currentTrack,
+        currentIndex: reduxCurrentIndex, // Renomeado para evitar conflito com currentIndex local
+        playlist,
+    } = useAppSelector((state) => state.player); // Pega o estado do player do Redux
 
-    const mockMusicList: Music[] = [
-        { uri: 'track1.mp3', name: 'Música 1', size: 4000000 },
-        { uri: 'track2.mp3', name: 'Música 2', size: 3000000 },
-        { uri: 'track3.mp3', name: 'Música 3', size: 5000000 },
-    ];
+    const { musics: selectedLocalFiles, pickMusics } = useLocalMusicPicker();
 
-    const handleSelectMusics = () => {
-        // Simula seleção de músicas
-        setSelectedMusics(mockMusicList);
+    // Use selectedLocalFiles como a fonte de dados principal, sem mockMusicList
+    // const mockMusicList: Music[] = [...]; // Remover mockMusicList
+
+    // Função para lidar com a seleção e reprodução de músicas
+    const handleSelectAndPlayMusics = async () => {
+        // Dispara o picker para o usuário selecionar os arquivos
+        await pickMusics();
+
+        // No useEffect, vamos detectar quando selectedLocalFiles muda para processá-los
+        // Não chame setPlaylistAndPlayThunk diretamente aqui, pois pickMusics é assíncrono
+        // e selectedLocalFiles só será atualizado APÓS o picker ser fechado.
     };
 
-    const handlePlayMusic = (index: number) => {
-        const music = selectedMusics[index];
-        if (!music) return;
+    // UseEffect para lidar com a mudança de 'selectedLocalFiles' após o picker
+    useEffect(() => {
+        if (selectedLocalFiles && selectedLocalFiles.length > 0) {
+            // Mapeie os dados do picker para o formato Track completo
+            const newPlaylist: Track[] = selectedLocalFiles.map((file) => ({
+                id: uuidv4(), // Gere um ID único para cada arquivo
+                uri: String(file.uri), // Garanta que uri é string, mesmo se o picker retornar number
+                name: file.name, // O nome original do arquivo
+                title: file.name.split('.').slice(0, -1).join('.') || 'Título Desconhecido', // Tenta usar o nome do arquivo como título
+                artist: 'Artista Desconhecido', // Placeholder
+                cover: 'https://via.placeholder.com/150', // Placeholder de capa
+                size: file.size,
+                mimeType: file.mimeType,
+                duration: undefined, // Duração pode ser desconhecida para arquivos locais inicialmente
+            }));
 
-        if (currentIndex === index) {
-            console.log(`Música ${music.name} já está tocando.`);
-            return;
+            // Despache a thunk para definir a playlist e começar a tocar a primeira música
+            dispatch(setPlaylistAndPlayThunk({
+                newPlaylist: newPlaylist,
+                startIndex: 0,
+                shouldPlay: true,
+            }));
         }
+    }, [selectedLocalFiles, dispatch]); // Dependências: reage quando selectedLocalFiles muda
 
-        setCurrentIndex(index);
-        console.log(`Tocando agora: ${music.name} (${music.uri})`);
-        // Aqui você pode integrar com o AVPlayback ou outro player local
+    const handlePlaySpecificMusic = (index: number) => {
+        // Dispara a thunk para tocar uma música específica da playlist do Redux
+        dispatch(playTrackThunk(index));
     };
 
     return (
@@ -82,25 +112,27 @@ export default function LocalMusicScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
             <TouchableOpacity
-                onPress={handleSelectMusics}
+                onPress={handleSelectAndPlayMusics} // Chamada para abrir o picker
                 style={styles.button}
                 testID="select-music-button"
             >
                 <Text style={styles.buttonText}>Selecionar músicas</Text>
             </TouchableOpacity>
 
-            {selectedMusics.length === 0 ? (
-                <Text style={styles.empty}>Nenhuma música selecionada</Text>
+            {playlist.length === 0 ? ( // Verifica a playlist do Redux
+                <Text style={styles.empty}>Nenhuma música na playlist. Selecione para começar!</Text>
             ) : (
                 <FlatList
-                    data={selectedMusics}
-                    keyExtractor={item => String(item.uri)}
+                    data={playlist} // Usa a playlist do Redux
+                    // keyExtractor deve usar o `id` da Track
+                    keyExtractor={(item) => item.id}
                     renderItem={({ item, index }) => (
                         <MusicItem
                             music={item}
                             index={index}
-                            isCurrent={index === currentIndex}
-                            onPress={() => handlePlayMusic(index)}
+                            // Compara o currentIndex do Redux para destacar a música atual
+                            isCurrent={index === reduxCurrentIndex}
+                            onPress={() => handlePlaySpecificMusic(index)}
                         />
                     )}
                     contentContainerStyle={{ paddingBottom: 100 }}
@@ -111,7 +143,7 @@ export default function LocalMusicScreen() {
     );
 }
 
-// Estilos visuais
+// Estilos visuais (inalterados)
 const styles = StyleSheet.create({
     container: {
         flex: 1,
