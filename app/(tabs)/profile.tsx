@@ -11,7 +11,7 @@ import {
   Image,
   TouchableOpacity,
   Animated,
-  KeyboardAvoidingView,
+ // KeyboardAvoidingView,
 } from 'react-native';
 
 

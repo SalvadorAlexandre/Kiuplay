@@ -20,11 +20,10 @@ import { useAppDispatch, useAppSelector } from '@/src/redux/hooks'; // Seus hook
 import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader'; // Seu hook para selecionar arquivos
 
 // Remova a interface 'Music' local, vamos usar 'Track' de playerSlice.ts
-
 interface MusicItemProps {
     music: Track; // Agora usa a interface Track
     isCurrent: boolean;
-    onPress: () => void; 
+    onPress: () => void;
     index: number;
 }
 
@@ -32,7 +31,7 @@ interface MusicItemProps {
 const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
     <TouchableOpacity
         // key deve usar o ID único da Track
-       // key={music.id} // Usamos music.id aqui
+        // key={music.id} // Usamos music.id aqui
         style={[
             styles.musicItemContainer,
             isCurrent && styles.currentMusicItem,
@@ -56,13 +55,15 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
 export default function LocalMusicScreen() {
     const dispatch = useAppDispatch(); // Hook para despachar ações
     const {
-        currentTrack,
+       // currentTrack,
         currentIndex: reduxCurrentIndex, // Renomeado para evitar conflito com currentIndex local
         playlist,
     } = useAppSelector((state) => state.player); // Pega o estado do player do Redux
 
     const { musics: selectedLocalFiles, pickMusics } = useLocalMusicPicker();
 
+    // Define a imagem da capa (fallback para uma imagem padrão se não houver)
+   // const coverImage = currentTrack?.cover ? { uri: currentTrack.cover } : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     // Use selectedLocalFiles como a fonte de dados principal, sem mockMusicList
     // const mockMusicList: Music[] = [...]; // Remover mockMusicList
 

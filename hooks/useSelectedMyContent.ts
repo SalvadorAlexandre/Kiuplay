@@ -19,8 +19,7 @@ export type MyPostsType =
  */
 export const useSelectedMyContent = () => {
   // Estado que guarda o tipo de conteúdo selecionado no momento
-  const [selectedProfileMyContent, setSelectedProfileMyContent] =
-    useState<MyPostsType>('single'); // Por padrão, inicia com "single"
+  const [selectedProfileMyContent, setSelectedProfileMyContent] = useState<MyPostsType>('single'); // Por padrão, inicia com "single"
 
   // Retorna o valor atual e a função para atualizá-lo
   return {
