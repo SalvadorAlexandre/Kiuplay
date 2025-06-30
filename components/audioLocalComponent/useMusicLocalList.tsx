@@ -108,10 +108,7 @@ export default function LocalMusicScreen() {
     };
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+        <View style ={{flex: 1}}>
             <TouchableOpacity
                 onPress={handleSelectAndPlayMusics} // Chamada para abrir o picker
                 style={styles.button}
@@ -136,11 +133,11 @@ export default function LocalMusicScreen() {
                             onPress={() => handlePlaySpecificMusic(index)}
                         />
                     )}
-                    contentContainerStyle={{ paddingBottom: 100 }}
+                    contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 13,}}
                     showsVerticalScrollIndicator={false}
                 />
             )}
-        </KeyboardAvoidingView>
+        </View>
     );
 }
 

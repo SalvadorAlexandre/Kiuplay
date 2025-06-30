@@ -11,7 +11,7 @@ import {
   Image,
   TouchableOpacity,
   Animated,
- // KeyboardAvoidingView,
+  // KeyboardAvoidingView,
 } from 'react-native';
 
 
@@ -76,309 +76,309 @@ export default function ProfileScreen() {
 
       <TopTabBarProfile />
 
-        <ScrollView
-          horizontal={false} // Garante que esta rolagem seja vertical
-          style={styles.scroll} // Aplica o estilo de fundo escuro
-          contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-          showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-        >
+      <ScrollView
+        horizontal={false} // Garante que esta rolagem seja vertical
+        style={styles.scroll} // Aplica o estilo de fundo escuro
+        contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
+        showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+      >
 
-          {/*View da visão Geral do perfil--------------------------------------------------*/}
-          <View style={styles.profileContainer}>
-            {/*Outros elementos estarao aqui dentro (elementos do perfil)*/}
+        {/*View da visão Geral do perfil--------------------------------------------------*/}
+        <View style={styles.profileContainer}>
+          {/*Outros elementos estarao aqui dentro (elementos do perfil)*/}
 
-            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
-              <View style={styles.imageContainer}>
-                <Image // Imagem do perfil
-                  source={require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')} // imagem padrão
-                  style={styles.profileImage}
-                  resizeMode="contain"
-                />
-              </View>
-
-              {/*Mostrar o nome e o arroba do utilizador*/}
-              <View>
-                <Text style={styles.userName}>Saag Weelli Boy</Text>
-                <Text style={styles.userHandle}>@saag_swb_oficial</Text>
-              </View>
-
+            <View style={styles.imageContainer}>
+              <Image // Imagem do perfil
+                source={require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')} // imagem padrão
+                style={styles.profileImage}
+                resizeMode="contain"
+              />
             </View>
 
-
-            {/* Estatísticas: seguindo, seguidores, singles, EPs, álbuns */}
-            <View style={styles.statsRow}>
-
-              {/*Mostrar o numero de pessoas que segue*/}
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>120</Text>
-                <Text style={styles.statLabel}>Seguindo</Text>
-              </View>
-
-              {/*Mostrar o numero de seguidores*/}
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>450</Text>
-                <Text style={styles.statLabel}>Seguidores</Text>
-              </View>
-
-              {/*Mostrar o numero de singles publicados*/}
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>8</Text>
-                <Text style={styles.statLabel}>Singles</Text>
-              </View>
-
-              {/*Mostrar o numero de EP`s publicadas*/}
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>2</Text>
-                <Text style={styles.statLabel}>EPs</Text>
-              </View>
-
-              {/*Mostrar o numero de Albuns publicados-----*/}
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>1</Text>
-                <Text style={styles.statLabel}>Álbuns</Text>
-              </View>
+            {/*Mostrar o nome e o arroba do utilizador*/}
+            <View>
+              <Text style={styles.userName}>Saag Weelli Boy</Text>
+              <Text style={styles.userHandle}>@saag_swb_oficial</Text>
             </View>
 
           </View>
 
 
-          {/*View das configuracao do perfil-----------------------------------------------------------------*/}
-          <Animated.View style={[
-            styles.buttonContainer,
-            { transform: [{ scale: scaleValueConfig }] } // Aplica a animação
-          ]}>
-            <TouchableOpacity
-              onPressIn={handlePressInConfig}    // Aciona ao pressionar
-              onPressOut={handlePressOutConfig}  // Aciona ao soltar
-              onPress={() => router.push('/useProfileSettingsScreen')} // Exemplo de ação
-              style={styles.buttonContent} // Estilo interno
-            >
-              {/* Ícone esquerdo */}
-              <Image
-                source={require('@/assets/images/2/icons8_user_settings_120px.png')}
-                style={styles.iconLeft}
-              />
+          {/* Estatísticas: seguindo, seguidores, singles, EPs, álbuns */}
+          <View style={styles.statsRow}>
 
-              {/* Texto do botão */}
-              <Text style={styles.buttonText}>Configurações do perfil</Text>
-
-              {/* Ícone seta para direita */}
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </TouchableOpacity>
-          </Animated.View>
-          {/*View das configuracao do perfil-----------------------------------------------------------------*/}
-
-          {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
-          <Animated.View style={[
-            styles.buttonContainer,
-            { transform: [{ scale: scaleValueMonetization }] } // Animação de clique
-          ]}>
-            <TouchableOpacity
-              onPressIn={handlePressInMonetization}    // Aciona ao pressionar
-              onPressOut={handlePressOutMonetization} // Aciona ao soltar
-              onPress={() => router.push('/useMonetizationScreen')} // Ação
-              style={styles.buttonContent} // Estilo interno
-            >
-              {/* Ícone esquerdo (ícone de monetização*/}
-              <Image
-                source={require('@/assets/images/2/icons8_euro_money_120px.png')} // Troque pelo seu ícone
-                style={styles.iconLeft}
-              />
-
-              {/* Texto do botão */}
-              <Text style={styles.buttonText}>Kiuplay Monetization</Text>
-
-              {/* Ícone seta para direita */}
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </TouchableOpacity>
-          </Animated.View>
-          {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
-
-          {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
-          <Animated.View style={[
-            styles.buttonContainer,
-            { transform: [{ scale: scaleValueUploads }] } // Animação de clique
-          ]}>
-            <TouchableOpacity
-              onPressIn={handlePressInUploads}    // Aciona ao pressionar
-              onPressOut={handlePressOutUploads} // Aciona ao soltar 
-              onPress={() => router.push('/useOptionsPostsScreen')} // Ação
-              style={styles.buttonContent} // Estilo interno
-            >
-              {/* Ícone esquerdo (ícone de upload) */}
-              <Image
-                source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')} // Troque pelo seu ícone
-                style={styles.iconLeft}
-              />
-
-              {/* Texto do botão */}
-              <Text style={styles.buttonText}>Fazer Uploads</Text>
-
-              {/* Ícone seta para direita */}
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </TouchableOpacity>
-          </Animated.View>
-          {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
-
-
-          {/*View do botão Fazer Insight-----------------------------------------------------------------*/}
-          <Animated.View style={[
-            styles.buttonContainer,
-            { transform: [{ scale: scaleValueInsight }] } // Animação de clique
-          ]}>
-            <TouchableOpacity
-              onPressIn={handlePressInInsight}    // Aciona ao pressionar
-              onPressOut={handlePressOutInsight} // Aciona ao soltar
-              onPress={() => router.push('/useInsightsUserScreen')} // Ação
-              style={styles.buttonContent} // Estilo interno
-            >
-              {/* Ícone esquerdo (ícone de Insight) */}
-              <Image
-                source={require('@/assets/images/2/icons8_funnel_120px_1.png')} // Troque pelo seu ícone
-                style={styles.iconLeft}
-              />
-
-              {/* Texto do botão */}
-              <Text style={styles.buttonText}>Seus Insights</Text>
-
-              {/* Ícone seta para direita */}
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </TouchableOpacity>
-          </Animated.View>
-          {/*View do botão Fazer Insight-----------------------------------------------------------------*/}
-
-          {/*View dos conteudos do usuarios-----------*/}
-          <View>
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              //paddingHorizontal: 1,
-              marginTop: 20,
-              //marginBottom: 10,
-              //marginLeft: 20,
-            }}>
+            {/*Mostrar o numero de pessoas que segue*/}
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>120</Text>
+              <Text style={styles.statLabel}>Seguindo</Text>
             </View>
-            <Text style={{ color: '#fff', marginBottom: 5, fontSize: 17, marginLeft: 5 }}>Meus Posts</Text>
-            <ScrollView horizontal
-              showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-              style={{ marginBottom: 8, marginLeft: 1, }}
-            >
-              {/*Botao para os Singles----------------*/}
-              <TouchableOpacity
-                style={[
-                  styles.workButton,
-                  isSelected(selectedProfileMyContent, 'single') &&
-                  styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-                ]}
-                onPress={() => setSelectedProfileMyContent('single')}>
-                <Image
-                  source={require('@/assets/images/3/icons8_musical_120px.png')}
-                  style={{ width: 23, height: 20, marginRight: 8 }}
-                />
-                <Text style={styles.workButtonText}>Faixa single</Text>
-              </TouchableOpacity>
 
-              {/*Botao para as EPs*/}
-              <TouchableOpacity
-                style={[
-                  styles.workButton,
-                  isSelected(selectedProfileMyContent, 'eps') &&
-                  styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-                ]}
-                onPress={() => setSelectedProfileMyContent('eps')}>
-                <Image
-                  source={require('@/assets/images/3/icons8_music_record_120px.png')}
-                  style={{ width: 20, height: 20, marginRight: 8 }}
-                />
-                <Text style={styles.workButtonText}>Extended Play (EPs)</Text>
-              </TouchableOpacity>
+            {/*Mostrar o numero de seguidores*/}
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>450</Text>
+              <Text style={styles.statLabel}>Seguidores</Text>
+            </View>
 
-              {/*Botao para os Albuns*/}
-              <TouchableOpacity
-                style={[
-                  styles.workButton,
-                  isSelected(selectedProfileMyContent, 'albums') &&
-                  styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-                ]}
-                onPress={() => setSelectedProfileMyContent('albums')}>
-                <Image
-                  source={require('@/assets/images/3/icons8_music_album_120px.png')}
-                  style={{ width: 23, height: 20, marginRight: 8 }}
-                />
-                <Text style={styles.workButtonText}>Álbuns</Text>
-              </TouchableOpacity>
+            {/*Mostrar o numero de singles publicados*/}
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>8</Text>
+              <Text style={styles.statLabel}>Singles</Text>
+            </View>
 
-              {/*Instrumentais comprados*/}
-              <TouchableOpacity
-                style={[
-                  styles.workButton,
-                  isSelected(selectedProfileMyContent, 'beats_bought') &&
-                  styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-                ]}
-                onPress={() => setSelectedProfileMyContent('beats_bought')}>
-                <Image
-                  source={require('@/assets/images/3/icons8_paycheque_120px.png')}
-                  style={{ width: 23, height: 20, marginRight: 8 }}
-                />
-                <Text style={styles.workButtonText}>Instrumentais comprados</Text>
-              </TouchableOpacity>
+            {/*Mostrar o numero de EP`s publicadas*/}
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>2</Text>
+              <Text style={styles.statLabel}>EPs</Text>
+            </View>
 
-              {/*Instrumentais Postados*/}
-              <TouchableOpacity
-                style={[
-                  styles.workButton,
-                  isSelected(selectedProfileMyContent, 'beats_posted') &&
-                  styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-                ]}
-                onPress={() => setSelectedProfileMyContent('beats_posted')}>
-                <Image
-                  source={require('@/assets/images/3/icons8_vox_player_120px.png')}
-                  style={{ width: 23, height: 20, marginRight: 8 }}
-                />
-                <Text style={styles.workButtonText}>Instrumentais postados</Text>
-              </TouchableOpacity>
-
-              {/*VideoClips*/}
-              <TouchableOpacity
-                style={[
-                  styles.workButton,
-                  isSelected(selectedProfileMyContent, 'videos') &&
-                  styles.workButtonSelected //Aplica o outro estilo quando estiver checked
-                ]}
-                onPress={() => setSelectedProfileMyContent('videos')}>
-                <Image
-                  source={require('@/assets/images/3/icons8_video_camera_120px.png')}
-                  style={{ width: 20, height: 20, marginRight: 8 }}
-                />
-                <Text style={styles.workButtonText}>Video clipes</Text>
-              </TouchableOpacity>
-            </ScrollView>
-
-            <View style={{ flex: 1, marginTop: 10 }}>
-              {selectedProfileMyContent === 'single' && (
-                <Text style={styles.texto}>🔊 Mostrando faixas single</Text> // Aqui você poderia mapear uma lista de faixas
-              )}
-              {selectedProfileMyContent === 'eps' && (
-                <Text style={styles.texto}>🎧 Mostrando Extended Plays</Text> // Lista de EPs
-              )}
-              {selectedProfileMyContent === 'albums' && (
-                <Text style={styles.texto}>💿 Mostrando Álbuns</Text> // Lista de álbuns
-              )}
-              {selectedProfileMyContent === 'beats_bought' && (
-                <Text style={styles.texto}>🎶 Mostrando Instrumentais comprados </Text> // Lista de beats comprados
-              )}
-              {selectedProfileMyContent === 'beats_posted' && (
-                <Text style={styles.texto}>🎹 Mostrando Instrumentais postados</Text> // Lista de beats postados
-              )}
-              {selectedProfileMyContent === 'videos' && (
-                <Text style={styles.texto}>🎬 Mostrando VideoClips</Text> // Lista de vídeos
-              )}
+            {/*Mostrar o numero de Albuns publicados-----*/}
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>1</Text>
+              <Text style={styles.statLabel}>Álbuns</Text>
             </View>
           </View>
-          <View style={{ height: 110, }}></View>
-        </ScrollView >
+
+        </View>
+
+
+        {/*View das configuracao do perfil-----------------------------------------------------------------*/}
+        <Animated.View style={[
+          styles.buttonContainer,
+          { transform: [{ scale: scaleValueConfig }] } // Aplica a animação
+        ]}>
+          <TouchableOpacity
+            onPressIn={handlePressInConfig}    // Aciona ao pressionar
+            onPressOut={handlePressOutConfig}  // Aciona ao soltar
+            onPress={() => router.push('/useProfileSettingsScreen')} // Exemplo de ação
+            style={styles.buttonContent} // Estilo interno
+          >
+            {/* Ícone esquerdo */}
+            <Image
+              source={require('@/assets/images/2/icons8_user_settings_120px.png')}
+              style={styles.iconLeft}
+            />
+
+            {/* Texto do botão */}
+            <Text style={styles.buttonText}>Configurações do perfil</Text>
+
+            {/* Ícone seta para direita */}
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+        {/*View das configuracao do perfil-----------------------------------------------------------------*/}
+
+        {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
+        <Animated.View style={[
+          styles.buttonContainer,
+          { transform: [{ scale: scaleValueMonetization }] } // Animação de clique
+        ]}>
+          <TouchableOpacity
+            onPressIn={handlePressInMonetization}    // Aciona ao pressionar
+            onPressOut={handlePressOutMonetization} // Aciona ao soltar
+            onPress={() => router.push('/useMonetizationScreen')} // Ação
+            style={styles.buttonContent} // Estilo interno
+          >
+            {/* Ícone esquerdo (ícone de monetização*/}
+            <Image
+              source={require('@/assets/images/2/icons8_euro_money_120px.png')} // Troque pelo seu ícone
+              style={styles.iconLeft}
+            />
+
+            {/* Texto do botão */}
+            <Text style={styles.buttonText}>Kiuplay Monetization</Text>
+
+            {/* Ícone seta para direita */}
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+        {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
+
+        {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
+        <Animated.View style={[
+          styles.buttonContainer,
+          { transform: [{ scale: scaleValueUploads }] } // Animação de clique
+        ]}>
+          <TouchableOpacity
+            onPressIn={handlePressInUploads}    // Aciona ao pressionar
+            onPressOut={handlePressOutUploads} // Aciona ao soltar 
+            onPress={() => router.push('/useOptionsPostsScreen')} // Ação
+            style={styles.buttonContent} // Estilo interno
+          >
+            {/* Ícone esquerdo (ícone de upload) */}
+            <Image
+              source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')} // Troque pelo seu ícone
+              style={styles.iconLeft}
+            />
+
+            {/* Texto do botão */}
+            <Text style={styles.buttonText}>Fazer Uploads</Text>
+
+            {/* Ícone seta para direita */}
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+        {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
+
+
+        {/*View do botão Fazer Insight-----------------------------------------------------------------*/}
+        <Animated.View style={[
+          styles.buttonContainer,
+          { transform: [{ scale: scaleValueInsight }] } // Animação de clique
+        ]}>
+          <TouchableOpacity
+            onPressIn={handlePressInInsight}    // Aciona ao pressionar
+            onPressOut={handlePressOutInsight} // Aciona ao soltar
+            onPress={() => router.push('/useInsightsUserScreen')} // Ação
+            style={styles.buttonContent} // Estilo interno
+          >
+            {/* Ícone esquerdo (ícone de Insight) */}
+            <Image
+              source={require('@/assets/images/2/icons8_funnel_120px_1.png')} // Troque pelo seu ícone
+              style={styles.iconLeft}
+            />
+
+            {/* Texto do botão */}
+            <Text style={styles.buttonText}>Seus Insights</Text>
+
+            {/* Ícone seta para direita */}
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+        {/*View do botão Fazer Insight-----------------------------------------------------------------*/}
+
+        {/*View dos conteudos do usuarios-----------*/}
+        <View>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            //paddingHorizontal: 1,
+            marginTop: 20,
+            //marginBottom: 10,
+            //marginLeft: 20,
+          }}>
+          </View>
+          <Text style={{ color: '#fff', marginBottom: 5, fontSize: 17, marginLeft: 5 }}>Meus Posts</Text>
+          <ScrollView horizontal
+            showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+            style={{ marginBottom: 8, marginLeft: 1, }}
+          >
+            {/*Botao para os Singles----------------*/}
+            <TouchableOpacity
+              style={[
+                styles.workButton,
+                isSelected(selectedProfileMyContent, 'single') &&
+                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+              ]}
+              onPress={() => setSelectedProfileMyContent('single')}>
+              <Image
+                source={require('@/assets/images/3/icons8_musical_120px.png')}
+                style={{ width: 23, height: 20, marginRight: 8 }}
+              />
+              <Text style={styles.workButtonText}>Faixa single</Text>
+            </TouchableOpacity>
+
+            {/*Botao para as EPs*/}
+            <TouchableOpacity
+              style={[
+                styles.workButton,
+                isSelected(selectedProfileMyContent, 'eps') &&
+                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+              ]}
+              onPress={() => setSelectedProfileMyContent('eps')}>
+              <Image
+                source={require('@/assets/images/3/icons8_music_record_120px.png')}
+                style={{ width: 20, height: 20, marginRight: 8 }}
+              />
+              <Text style={styles.workButtonText}>Extended Play (EPs)</Text>
+            </TouchableOpacity>
+
+            {/*Botao para os Albuns*/}
+            <TouchableOpacity
+              style={[
+                styles.workButton,
+                isSelected(selectedProfileMyContent, 'albums') &&
+                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+              ]}
+              onPress={() => setSelectedProfileMyContent('albums')}>
+              <Image
+                source={require('@/assets/images/3/icons8_music_album_120px.png')}
+                style={{ width: 23, height: 20, marginRight: 8 }}
+              />
+              <Text style={styles.workButtonText}>Álbuns</Text>
+            </TouchableOpacity>
+
+            {/*Instrumentais comprados*/}
+            <TouchableOpacity
+              style={[
+                styles.workButton,
+                isSelected(selectedProfileMyContent, 'beats_bought') &&
+                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+              ]}
+              onPress={() => setSelectedProfileMyContent('beats_bought')}>
+              <Image
+                source={require('@/assets/images/3/icons8_paycheque_120px.png')}
+                style={{ width: 23, height: 20, marginRight: 8 }}
+              />
+              <Text style={styles.workButtonText}>Instrumentais comprados</Text>
+            </TouchableOpacity>
+
+            {/*Instrumentais Postados*/}
+            <TouchableOpacity
+              style={[
+                styles.workButton,
+                isSelected(selectedProfileMyContent, 'beats_posted') &&
+                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+              ]}
+              onPress={() => setSelectedProfileMyContent('beats_posted')}>
+              <Image
+                source={require('@/assets/images/3/icons8_vox_player_120px.png')}
+                style={{ width: 23, height: 20, marginRight: 8 }}
+              />
+              <Text style={styles.workButtonText}>Instrumentais postados</Text>
+            </TouchableOpacity>
+
+            {/*VideoClips*/}
+            <TouchableOpacity
+              style={[
+                styles.workButton,
+                isSelected(selectedProfileMyContent, 'videos') &&
+                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+              ]}
+              onPress={() => setSelectedProfileMyContent('videos')}>
+              <Image
+                source={require('@/assets/images/3/icons8_video_camera_120px.png')}
+                style={{ width: 20, height: 20, marginRight: 8 }}
+              />
+              <Text style={styles.workButtonText}>Video clipes</Text>
+            </TouchableOpacity>
+          </ScrollView>
+
+          <View style={{ flex: 1, marginTop: 10 }}>
+            {selectedProfileMyContent === 'single' && (
+              <Text style={styles.texto}>🔊 Mostrando faixas single</Text> // Aqui você poderia mapear uma lista de faixas
+            )}
+            {selectedProfileMyContent === 'eps' && (
+              <Text style={styles.texto}>🎧 Mostrando Extended Plays</Text> // Lista de EPs
+            )}
+            {selectedProfileMyContent === 'albums' && (
+              <Text style={styles.texto}>💿 Mostrando Álbuns</Text> // Lista de álbuns
+            )}
+            {selectedProfileMyContent === 'beats_bought' && (
+              <Text style={styles.texto}>🎶 Mostrando Instrumentais comprados </Text> // Lista de beats comprados
+            )}
+            {selectedProfileMyContent === 'beats_posted' && (
+              <Text style={styles.texto}>🎹 Mostrando Instrumentais postados</Text> // Lista de beats postados
+            )}
+            {selectedProfileMyContent === 'videos' && (
+              <Text style={styles.texto}>🎬 Mostrando VideoClips</Text> // Lista de vídeos
+            )}
+          </View>
+        </View>
+        <View style={{ height: 110, }}></View>
+      </ScrollView >
     </View>
 
   );

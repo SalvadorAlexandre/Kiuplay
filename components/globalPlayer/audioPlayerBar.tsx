@@ -212,12 +212,12 @@ export default function AudioPlayerBar() {
 
   const animatedCommentInputWidth = commentInputWidth.interpolate({
     inputRange: [0.85, 1],
-    outputRange: ['85%', '100%'],
+    outputRange: ['90%', '100%'],
   });
   // Animações interpoladas (mantidas como no seu código original)
   const animatedHeight = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [100, height - 59], 
+    outputRange: [100, height - 58],
   });
 
   const animatedOpacity = animation.interpolate({
@@ -306,7 +306,7 @@ export default function AudioPlayerBar() {
             <Ionicons
               name="repeat"
               size={20}
-              color={isRepeat ? '#1E90FF' : '#fff'} // Azul quando ativado
+              color={isRepeat ? '#1E90FF' : '#fff'}
             />
           </TouchableOpacity>
 
@@ -493,13 +493,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderTopWidth: 1,
     borderTopColor: '#222',
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    //borderBottomLeftRadius: 12,
+    //borderBottomRightRadius: 12,
     //borderRadius: 12,
     zIndex: 99,
     elevation: 10,
     overflow: 'hidden',
     marginBottom: -2,
+    //borderColor: '#1E90FF',
   },
   trackInfo: {
     alignItems: 'center',

@@ -10,7 +10,7 @@ export default function TabLayout() {
   const scheme = 'dark';
   return (
     <>
-      <AudioPlayerBar/>
+
       <Tabs
         screenOptions={{
           /*
@@ -137,9 +137,9 @@ export default function TabLayout() {
             ),
           }}
         />
-      
-      </Tabs>
 
+      </Tabs>
+      <AudioPlayerBar />
     </>
   );
 }
