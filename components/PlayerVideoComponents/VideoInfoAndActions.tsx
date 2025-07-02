@@ -1,5 +1,5 @@
 // components/PlayerVideoComponents/VideoInfoAndActions.tsx
-import React from 'react'; // Não precisamos mais de useState aqui
+import React, { useState } from 'react'; // Não precisamos mais de useState aqui
 import {
     View,
     Text,
@@ -7,8 +7,10 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
+    TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BottomHalfModal from '@/components/commentScreens/BottomHalfModal'; // Ajuste o caminho se necessário
 
 export interface VideoInfoAndActionsProps {
     title: string;
@@ -35,6 +37,24 @@ const VideoInfoAndActions = ({
 }: VideoInfoAndActionsProps) => {
     // Agora as funções de toggle apenas chamam as props, passando o ID do vídeo
     // Não há mais estado interno (useState) aqui para liked, disliked, isFavorited
+
+    const [isCommentModalVisible, setCommentModalVisible] = useState(false);
+    const [commentText, setCommentText] = useState('');
+
+    const handleOpenCommentModal = () => {
+        setCommentModalVisible(true);
+    };
+
+    const handleCloseCommentModal = () => {
+        setCommentModalVisible(false);
+    };
+
+    const handleSubmitComment = () => {
+        console.log("Comentário enviado:", commentText);
+        // Lógica para enviar o comentário (ex: API call)
+        setCommentText(''); // Limpa o campo
+        handleCloseCommentModal(); // Fecha o modal após enviar
+    };
 
     return (
         <View style={styles.infoContainer}>
@@ -94,7 +114,7 @@ const VideoInfoAndActions = ({
                             }
                             style={[
                                 styles.iconButton,
-                                { tintColor: disliked ? '#fff' : '#fff'},
+                                { tintColor: disliked ? '#fff' : '#fff' },
                             ]}
                         />
                         <Text style={styles.actionButtonText}>2</Text>
@@ -123,7 +143,7 @@ const VideoInfoAndActions = ({
                     </TouchableOpacity>
 
                     {/* Comment Button */}
-                    <TouchableOpacity style={styles.actionButton} onPress={() => { /* Comment logic */ }}>
+                    <TouchableOpacity style={styles.actionButton} onPress={handleOpenCommentModal}>
                         <Image
                             source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')}
                             style={styles.iconButton}
@@ -144,6 +164,31 @@ const VideoInfoAndActions = ({
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+            {/* O Modal é renderizado aqui */}
+            <BottomHalfModal
+                isVisible={isCommentModalVisible}
+                onClose={handleCloseCommentModal}
+                heightPercentage={0.7} // Este modal ocupará 70% da altura da tela
+            >
+                <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>Adicionar Comentário</Text>
+                    <TextInput
+                        style={styles.commentInput}
+                        placeholder="Digite seu comentário aqui..."
+                        placeholderTextColor="#888"
+                        multiline
+                        value={commentText}
+                        onChangeText={setCommentText}
+                    />
+                    <TouchableOpacity
+                        style={styles.submitButton}
+                        onPress={handleSubmitComment}
+                        disabled={commentText.trim().length === 0} // Desabilita se o comentário estiver vazio
+                    >
+                        <Text style={styles.submitButtonText}>Enviar Comentário</Text>
+                    </TouchableOpacity>
+                </View>
+            </BottomHalfModal>
         </View>
     );
 };
@@ -224,6 +269,51 @@ const styles = StyleSheet.create({
     actionButtonText: {
         color: '#fff',
         fontSize: 12,
+    },
+
+
+    modalContent: {
+        flex: 1, // Faz o conteúdo ocupar o espaço disponível no modal
+        width: '100%',
+        paddingHorizontal: 10,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: '#333',
+    },
+    commentInput: {
+        width: '100%',
+        height: 120,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 15,
+        fontSize: 16,
+        textAlignVertical: 'top', // Para o texto começar no topo em multiline
+        marginBottom: 20,
+        backgroundColor: '#f9f9f9',
+        color: '#333',
+    },
+    submitButton: {
+        backgroundColor: '#28a745', // Verde para o botão de enviar
+        paddingVertical: 12,
+        paddingHorizontal: 30,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    submitButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 

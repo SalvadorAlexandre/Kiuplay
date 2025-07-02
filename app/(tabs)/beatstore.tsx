@@ -1,3 +1,4 @@
+//app/(tabs)/beatstore.tsx
 import React from 'react';
 import TopTabBarBeatStore from '@/components/topTabBarBeatStoreScreen';
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs'

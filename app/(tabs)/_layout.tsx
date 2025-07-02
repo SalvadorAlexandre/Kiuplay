@@ -10,7 +10,7 @@ export default function TabLayout() {
   const scheme = 'dark';
   return (
     <>
-
+      <AudioPlayerBar />
       <Tabs
         screenOptions={{
           /*
@@ -51,7 +51,7 @@ export default function TabLayout() {
           name="VideoClipes" //Tela videos
           options={{
             title: 'Videos',
-            tabBarLabel: 'Clipes',
+            tabBarLabel: 'Videos',
             tabBarIcon: ({ focused }) => (
               <Image
                 source={
@@ -93,6 +93,29 @@ export default function TabLayout() {
 
           }}
         />
+
+        <Tabs.Screen
+          name="chat" // Tela chat
+          options={{
+            title: 'chat',
+            tabBarLabel: 'Kiuplay Chat',
+            tabBarIcon: ({ focused }) => (
+              <Image
+                source={
+                  focused
+                    ? require('@/assets/images/1/icons8_messaging_120px_1.png') // Ícone quando ativo
+                    : require('@/assets/images/1/icons8_messaging_120px.png') // Ícone quando inativo
+                }
+                style={{
+                  width: 30,
+                  height: 30,
+                  opacity: focused ? 1 : 0.5,
+                }}
+              />
+            ),
+          }}
+        />
+
 
         <Tabs.Screen
           name="beatstore" //Tela loja de beats
@@ -139,7 +162,7 @@ export default function TabLayout() {
         />
 
       </Tabs>
-      <AudioPlayerBar />
+
     </>
   );
 }
