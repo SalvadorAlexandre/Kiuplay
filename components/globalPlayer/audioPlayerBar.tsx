@@ -28,6 +28,7 @@ import {
   updatePlaybackStatus,
   setError,
   toggleExpanded,
+  setSeeking,
   setPlaylistAndPlayThunk,
 } from '@/src/redux/playerSlice';
 import { getAudioManager } from '@/src/utils/audioManager';
@@ -46,6 +47,7 @@ export default function AudioPlayerBar() {
     durationMillis,
     isExpanded,
     isLoading,
+    isSeeking,
     error,
   } = useAppSelector((state) => state.player);
 
@@ -94,11 +96,8 @@ export default function AudioPlayerBar() {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  if (!currentTrack) return null;
 
-  const coverImage = currentTrack.cover
-    ? { uri: currentTrack.cover }
-    : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+  
 
   // Animations
   const animatedHeight = animation.interpolate({
@@ -109,6 +108,14 @@ export default function AudioPlayerBar() {
     inputRange: [0, 1],
     outputRange: [0, 1],
   });
+
+  const [sliderValue, setSliderValue] = useState(positionMillis) //ESTADO DO SLIDER
+  //SINCRONIZACAO DO SLIDER
+  useEffect(() => {
+    if (!isSeeking && sliderValue !== positionMillis) {
+      setSliderValue(positionMillis)
+    }
+  }, [positionMillis, isSeeking, sliderValue])
 
   const progress = durationMillis > 0 ? positionMillis / durationMillis : 0;
 
@@ -140,8 +147,14 @@ export default function AudioPlayerBar() {
   }, [commentText]);
   const animatedCommentInputWidth = commentInputWidth.interpolate({
     inputRange: [0.85, 1],
-    outputRange: ['90%', '100%'],
+    outputRange: ['85%', '100%'],
   });
+
+  if (!currentTrack) return null;
+
+  const coverImage = currentTrack.cover
+    ? { uri: currentTrack.cover }
+    : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
 
   return (
     <Animated.View style={[styles.container, { height: animatedHeight }]}>
@@ -154,7 +167,7 @@ export default function AudioPlayerBar() {
             onPress={handleToggleExpanded}
           >
             <View style={styles.minimizedLeft}>
-              <Image source={coverImage} style={styles.minimizedCover} />
+              <Image source={require('@/assets/images/Default_Profile_Icon/unknown_track.png')} style={styles.minimizedCover} />
               <View style={{ marginLeft: 8, flexShrink: 1 }}>
                 <Text style={styles.trackTitle} numberOfLines={1}>{currentTrack.title}</Text>
                 <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
@@ -201,20 +214,24 @@ export default function AudioPlayerBar() {
           </TouchableOpacity>
         </View>
 
-        <Image source={coverImage} style={styles.expandedCover} />
+        <Image source={require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png')} style={styles.expandedCover} />
         <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
         <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
 
         <Slider
           style={styles.slider}
           minimumValue={0}
-          maximumValue={durationMillis || 1}
-          value={positionMillis}
-          onSlidingComplete={handleSeekTo}
+          maximumValue={durationMillis > 0 ? durationMillis : 1} // usar a duração real
+          value={isSeeking ? sliderValue : positionMillis} // Usa sliderValue durante a busca, senão positionMillis
+          onValueChange={setSliderValue} // Atualiza o estado local durante o arraste
+          onSlidingStart={() => dispatch(setSeeking(true))} // Avisa o Redux que começou a buscar
+          onSlidingComplete={handleSeekTo} // Despacha a busca com o valor final
           minimumTrackTintColor="#1E90FF"
-          maximumTrackTintColor="#555"
+          maximumTrackTintColor="#444"
           thumbTintColor="#fff"
+          disabled={isLoading || durationMillis === 0} // Desabilita o slider se estiver carregando ou não tiver duração
         />
+        
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
           <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
@@ -242,7 +259,7 @@ export default function AudioPlayerBar() {
       </Animated.View>
 
       <KeyboardAvoidingView
-        style={{ padding: 14, marginTop: 10 }}
+        style={{ padding: 10, marginTop: 10, alignItems: 'center' }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={{
@@ -376,8 +393,8 @@ const styles = StyleSheet.create({
   },
   expandedCover: {
     marginTop: 29,
-    width: 260,
-    height: 260,
+    width: '95%',
+    height: 277,
     borderRadius: 12,
     backgroundColor: '#222',
   },
@@ -419,7 +436,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 8,
+    padding: 18,
   },
   errorText: {
     color: '#fff',
@@ -443,7 +460,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   commentInput: {
-    paddingVertical: 8,
+    paddingVertical: 9,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#fff',
@@ -456,11 +473,13 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 6,
     backgroundColor: '#1E90FF',
-    marginLeft: 5,
-    borderRadius: 90,
-    width: 40,
-    height: 40,
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+    borderRadius: 100,
+    width: 45,
+    height: 45,
+    
   },
   iconSendComment: {
     width: 25,

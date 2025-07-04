@@ -19,7 +19,7 @@ export const createAudioManagerMiddleware = (): Middleware => {
       audioManager.setPlaybackStatusUpdateCallback((status) => {
         store.dispatch(updatePlaybackStatus(status));
 
-        if (status.isLoaded && status.didJustFinish && !audioManager.getIsSeeking()) {
+        if (status.isLoaded && status.didJustFinish) {
           console.log('Música terminou. Despachando playNextThunk.');
           (store.dispatch as AppDispatch)(playNextThunk());
         }

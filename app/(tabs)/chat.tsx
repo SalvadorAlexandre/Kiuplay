@@ -1,184 +1,353 @@
-//app/(tabs)/beatstore.tsx
-import React from 'react';
+// app/(tabs)/chat.tsx
+import React, { useState } from "react";
 import {
-    ScrollView,
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    Image,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import useChatTabs from '@/hooks/useChatTabs'
-import TopTabBarChat from '@/components/topTabBarChatScreen'
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import useChatTabs from "@/hooks/useChatTabs";
+import TopTabBarChat from "@/components/topTabBarChatScreen";
+import ChatListItem from "@/components/ChatComponents/ChatListItem"
+import UserDiscoveryItem from "@/components/ChatComponents/UserDiscoveryItem"
+import FriendRequestItem from "@/components/ChatComponents/FriendRequestItem"
+import GroupItem from "@/components/ChatComponents/GroupItem"
 
 export default function ChatScreen() {
+  const { activeTab, handleTabChange } = useChatTabs();
 
-    //const { activeTab, handleTabChange, } = useBeatStoreTabs() // Estado para controlar as tabs
-    const { activeTab, handleTabChange, } = useChatTabs() // Estado para controlar as tabs
+  const [message, setMessage] = useState("") //Hook para armazenar a mensagem
+  const handleSendMessage = () => {
+    if (message.trim() === "") return
+    alert(`Mensagem enviada: ${message}`)
+    setMessage("")
+  }
 
-    return (
+  //DADOS FICTICIOS PARA A TAB TODAS
+  const mockConversations = [
+    {
+      id: "1",
+      name: "Maria",
+      avatar: undefined,
+      lastMessage: "Oi, tudo bem?",
+      timestamp: "14:30",
+      unreadCount: 2,
+    },
+    {
+      id: "2",
+      name: "João",
+      avatar: "https://i.pravatar.cc/100",
+      lastMessage: "Enviei o beat.",
+      timestamp: "Ontem",
+      unreadCount: 0,
+    },
+  ];
+  //DADOS FICTICIOS PARA A TAB USUARIOS
+  const mockUsers = [
+    {
+      id: "1",
+      name: "Ana Souza",
+      avatar: undefined,
+      bio: "Produtora de beats",
+      isFollowing: false,
+    },
+    {
+      id: "2",
+      name: "DJ BeatMaster",
+      avatar: "https://i.pravatar.cc/150?img=5",
+      bio: "Artista independente",
+      isFollowing: true,
+    },
+  ];
+  //DADOS FICTICIOS PARA A TAB PEDIDOS
+  const mockRequests = [
+    {
+      id: "1",
+      name: "Marcos Vinicius",
+      avatar: undefined,
+      bio: "Produtor de beats",
+    },
+    {
+      id: "2",
+      name: "DJ Flow",
+      avatar: "https://i.pravatar.cc/150?img=12",
+      bio: "Cantor e compositor",
+    },
+  ];
 
-        <View style={{ backgroundColor: '#191919', }}>
-            {/* Topo fixo */}
-            <TopTabBarChat />
-            <View style={{ marginBottom: 10, paddingHorizontal: 10 }}>
-                <Text style={{ color: '#fff', fontSize: 16 }}>Tire o máximo proveito do KiuplayChat para interagires e colaborares com Produtores e Artistas da comuidade Kiuplay!</Text>
-            </View>
+  //DADOS FICTICIOS PARA A TAB GRUPOS
+  const mockGroups = [
+    {
+      id: "g1",
+      name: "Kiuplay Producers",
+      avatar: undefined,
+      description: "23 membros",
+    },
+    {
+      id: "g2",
+      name: "Rappers Angola",
+      avatar: "https://i.pravatar.cc/150?img=15",
+      description: "8 membros",
+    },
+  ];
 
-            <ScrollView
-                horizontal // Garante que esta rolagem seja vertical
-                //style={{ backgroundColor: '#', }} // Aplica o estilo de fundo escuro
-                //contentContainerStyle={styles.scroll} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-                contentContainerStyle={styles.actionButtonsContent}
-            >
-                <View style={styles.actionButtonsContainer}>
-                    {['todas', 'naolidas', 'usuarios', 'pedidos', 'grupos'].map((tab) => (
-                        <TouchableOpacity
-                            key={tab}
-                            onPress={() => handleTabChange(tab as 'todas' | 'naolidas' | 'usuarios' | 'pedidos' | 'grupos')}
-                            style={[
-                                styles.tabButton,
-                                activeTab === tab && styles.activeTabButton,
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    activeTab === tab && styles.activeTabText,
-                                ]}
-                            >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                    <TouchableOpacity style={styles.tabButtonMakeGroup}>
-                        <Text style={styles.tabTextMakeGroup}>+ Criar grupo</Text>
-                    </TouchableOpacity>
 
-                </View>
-            </ScrollView>
+  return (
+    <View style={styles.container}>
+      {/* Topo fixo */}
+      <TopTabBarChat />
 
-            <ScrollView
-                horizontal={false} // Garante que esta rolagem seja vertical
-                style={styles.scroll} // Aplica o estilo de fundo escuro
-                contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            >
-                {/* Conteúdo da tela */}
-                <Text style={{ color: '#fff', margin: 20 }}>Conteúdo aqui...</Text>
-                {/* Pode colocar seus blocos, listas, etc */}
-
-                {activeTab === 'todas' && (
-                    <View>
-                        <Text style={{ color: '#fff', margin: 20 }}>todas</Text>
-                        {/* Lista de feeds, por exemplo */}
-                    </View>
-                )}
-
-                {activeTab === 'naolidas' && (
-                    <View>
-                        <Text style={{ color: '#fff', margin: 20 }}>Não lidas</Text>
-                        {/* Lista de músicas curtidas */}
-                    </View>
-                )}
-
-                {activeTab === 'usuarios' && (
-                    <View>
-                        <Text style={{ color: '#fff', margin: 20 }}>Descobrir usuários</Text>
-                        {/* Lista de artistas seguidos */}
-                    </View>
-                )}
-
-                {activeTab === 'pedidos' && (
-                    <View>
-                        <Text style={{ color: '#fff', margin: 20 }}>Pedidos</Text>
-                        {/* Lista de artistas seguidos */}
-                    </View>
-                )}
-
-                {activeTab === 'grupos' && (
-                    <View>
-                        <Text style={{ color: '#fff', margin: 20 }}>Grupos</Text>
-                        {/* Lista de artistas seguidos */}
-                    </View>
-                )}
-                <View style={{ height: 110, }}></View>
-            </ScrollView>
-
+      {/* Cabeçalho e tabs */}
+      <View style={styles.header}>
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.descriptionText}>
+            Tire o máximo proveito do KiuplayChat para interagir e colaborar com
+            Produtores e Artistas da comunidade Kiuplay!
+          </Text>
         </View>
 
-    );
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsContent}
+        >
+          {["todas", "naolidas", "usuarios", "pedidos", "grupos"].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() =>
+                handleTabChange(
+                  tab as
+                  | "todas"
+                  | "naolidas"
+                  | "usuarios"
+                  | "pedidos"
+                  | "grupos"
+                )
+              }
+              style={[
+                styles.tabButton,
+                activeTab === tab && styles.tabButtonActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.tabTextActive,
+                ]}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={styles.tabButtonCreate}>
+            <Text style={styles.tabTextCreate}>Criar grupo</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
+      {/* Conteúdo ocupando o resto */}
+      <ScrollView
+        style={styles.contentScroll}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {activeTab === "todas" && (
+          <>
+            {mockConversations.map((item) => (
+              <ChatListItem
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                avatar={item.avatar}
+                lastMessage={item.lastMessage}
+                timestamp={item.timestamp}
+                unreadCount={item.unreadCount}
+                onPress={(id) => {
+                  // Aqui você vai navegar para a tela de chat individual
+                  console.log("Abrir conversa com", id);
+                }}
+              />
+            ))}
+          </>
+        )}
+        {activeTab === "naolidas" && (
+          <Text style={styles.sectionText}>Mensagens não lidas</Text>
+        )}
+        {activeTab === "usuarios" && (
+          <>
+            {mockUsers.map((user) => (
+              <UserDiscoveryItem
+                key={user.id}
+                id={user.id}
+                name={user.name}
+                avatar={user.avatar}
+                bio={user.bio}
+                isFollowing={user.isFollowing}
+                onFollowPress={(id) => {
+                  console.log("Seguir/cancelar seguir:", id);
+                }}
+                onProfilePress={(id) => {
+                  console.log("Abrir perfil do usuário:", id);
+                }}
+              />
+            ))}
+          </>
+        )}
+        {activeTab === "pedidos" && (
+          <>
+            {mockRequests.map((req) => (
+              <FriendRequestItem
+                key={req.id}
+                id={req.id}
+                name={req.name}
+                avatar={req.avatar}
+                bio={req.bio}
+                onAccept={(id) => {
+                  console.log("Aceitou o pedido:", id);
+                }}
+                onReject={(id) => {
+                  console.log("Rejeitou o pedido:", id);
+                }}
+                onProfilePress={(id) => {
+                  console.log("Abriu perfil:", id);
+                }}
+              />
+            ))}
+          </>
+        )}
+        {activeTab === "grupos" && (
+          <>
+            {mockGroups.map((group) => (
+              <GroupItem
+                key={group.id}
+                id={group.id}
+                name={group.name}
+                avatar={group.avatar}
+                description={group.description}
+                onPress={(id) => {
+                  console.log("Entrou no chat do grupo:", id);
+                }}
+              />
+            ))}
+          </>
+        )}
+        <View style={{ height: 100 }} />
+      </ScrollView>
+
+      {/*TextInput fixo para as SMS*/}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={80}
+      >
+        <View style={styles.messageInputContainer}>
+          <TextInput
+            style={styles.messageInput}
+            placeholder="Escreva uma mensagem..."
+            placeholderTextColor="#888"
+            value={message}
+            onChangeText={setMessage}
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
+            <Ionicons name="send" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    // Estilo do scroll vertical (pai)
-    scroll: {
-        flex: 1,
-        backgroundColor: '#191919', // Fundo preto (modo dark)
-    },
-    container: {
-        flexGrow: 1, // Permite expansão do conteúdo
-        //paddingVertical: 40,
-        // paddingHorizontal: 20,
-    },
-    containerTop: {
-        backgroundColor: '#191919',      // Cor de fundo escura
-        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-        borderBottomWidth: 1,            // Borda inferior com 1 pixel
-        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
-        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
-        //alignItems: 'center',            // Alinha verticalmente ao centro
-    },
-    // Estilo do botão (área clicável)
-    buttonTop: {
-        //padding: 6,  // Espaçamento interno do botão
-    },
-    actionButtonsContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        //gap: 3,
-    },
-    tabsContainer: {
-        flexDirection: 'row',
-        paddingVertical: 5,
-        marginLeft: 10,
-
-        //backgroundColor: '#1e1e1e',
-        //justifyContent: 'space-around',
-    },
-    tabButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        backgroundColor: '#333',
-        marginHorizontal: 10,
-    },
-    tabButtonMakeGroup: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        backgroundColor: '#1565C0',
-        marginHorizontal: 10,
-    },
-    tabTextMakeGroup: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    activeTabButton: {
-        backgroundColor: '#1565C0',
-    },
-    tabText: {
-        color: '#aaa',
-        fontWeight: 'bold',
-    },
-    activeTabText: {
-        color: '#fff',
-    },
-    actionButtonsContent: {
-        // paddingRight: 20,
-        alignItems: 'center',
-    },
+  container: {
+    flex: 1, // essencial para ocupar toda a tela
+    backgroundColor: "#191919",
+  },
+  header: {
+    flexShrink: 0, // cabeçalho não ocupa espaço do flex
+  },
+  descriptionContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  descriptionText: {
+    color: "#ccc",
+    fontSize: 14,
+  },
+  tabsContent: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  tabButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: "#333",
+    marginRight: 8,
+  },
+  tabButtonActive: {
+    backgroundColor: "#1565C0",
+  },
+  tabText: {
+    color: "#aaa",
+    fontWeight: "600",
+  },
+  tabTextActive: {
+    color: "#fff",
+  },
+  tabButtonCreate: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: "#28a745",
+    marginLeft: 8,
+  },
+  tabTextCreate: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  contentScroll: {
+    flex: 1, // ESSENCIAL: ocupa o espaço restante
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  sectionText: {
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  messageInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#222",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#333",
+  },
+  messageInput: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#333",
+    borderRadius: 20,
+  },
+  sendButton: {
+    marginLeft: 8,
+    backgroundColor: "#1565C0",
+    alignItems: 'center',
+    justifyContent: 'center',
+    //padding: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 100,
+  },
 });

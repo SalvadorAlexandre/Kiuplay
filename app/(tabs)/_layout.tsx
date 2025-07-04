@@ -98,7 +98,7 @@ export default function TabLayout() {
           name="chat" // Tela chat
           options={{
             title: 'chat',
-            tabBarLabel: 'Kiuplay Chat',
+            tabBarLabel: 'Chat',
             tabBarIcon: ({ focused }) => (
               <Image
                 source={

@@ -57,7 +57,7 @@ const VideoItem = ({ id, title, artist, thumbnail, duration = '0:00' }: VideoIte
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row', // Alinha os itens lado a lado (thumbnail à esquerda, info à direita)
-        marginBottom: 15,
+        //marginBottom: 3,
         backgroundColor: '#1a1a1a',
         borderRadius: 8,
         overflow: 'hidden', // Garante que a borda arredondada se aplique

@@ -133,14 +133,6 @@ const VideoInfoAndActions = ({
                         <Text style={styles.actionButtonText}>14K</Text>
                     </TouchableOpacity>
 
-                    {/* Download Button */}
-                    <TouchableOpacity style={styles.actionButton} onPress={() => { /* Download logic */ }}>
-                        <Image
-                            source={require('@/assets/images/audioPlayerBar/icons8_download_120px_2.png')}
-                            style={styles.iconButton}
-                        />
-                        <Text style={styles.actionButtonText}>Baixar</Text>
-                    </TouchableOpacity>
 
                     {/* Comment Button */}
                     <TouchableOpacity style={styles.actionButton} onPress={handleOpenCommentModal}>
@@ -156,6 +148,16 @@ const VideoInfoAndActions = ({
                         <Ionicons name="share-social-outline" size={23} color="#fff" />
                         <Text style={styles.actionButtonText}>Compart.</Text>
                     </TouchableOpacity>
+
+                    {/* Download Button */}
+                    <TouchableOpacity style={styles.actionButton} onPress={() => { /* Download logic */ }}>
+                        <Image
+                            source={require('@/assets/images/audioPlayerBar/icons8_download_120px_2.png')}
+                            style={styles.iconButton}
+                        />
+                        <Text style={styles.actionButtonText}>Baixar</Text>
+                    </TouchableOpacity>
+
 
                     {/* Add to Playlist Button */}
                     <TouchableOpacity style={styles.actionButton} onPress={() => { /* Add to playlist logic */ }}>
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
         gap: 20,
     },
     actionButton: {
-        flexDirection: 'column',
+        flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
         borderRadius: 20,
