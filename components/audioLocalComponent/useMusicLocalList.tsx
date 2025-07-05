@@ -5,16 +5,15 @@ import {
     TouchableOpacity,
     StyleSheet,
     FlatList,
-    KeyboardAvoidingView,
-    Platform,
 } from 'react-native';
 import { v4 as uuidv4 } from 'uuid'; // Importe uuid para gerar IDs únicos
-
+import { parseBlob } from 'music-metadata';
 // Importe Track e as thunks do seu playerSlice
 import {
     Track,
     setPlaylistAndPlayThunk,
     playTrackThunk,
+    setCoverImage,
 } from '@/src/redux/playerSlice'; // Ajuste o caminho conforme seu projeto
 import { useAppDispatch, useAppSelector } from '@/src/redux/hooks'; // Seus hooks personalizados para Redux
 import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader'; // Seu hook para selecionar arquivos
@@ -53,9 +52,10 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
 
 // Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
+    //let coverUri: string
     const dispatch = useAppDispatch(); // Hook para despachar ações
     const {
-       // currentTrack,
+        // currentTrack,
         currentIndex: reduxCurrentIndex, // Renomeado para evitar conflito com currentIndex local
         playlist,
     } = useAppSelector((state) => state.player); // Pega o estado do player do Redux
@@ -63,7 +63,7 @@ export default function LocalMusicScreen() {
     const { musics: selectedLocalFiles, pickMusics } = useLocalMusicPicker();
 
     // Define a imagem da capa (fallback para uma imagem padrão se não houver)
-   // const coverImage = currentTrack?.cover ? { uri: currentTrack.cover } : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+    // const coverImage = currentTrack?.cover ? { uri: currentTrack.cover } : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     // Use selectedLocalFiles como a fonte de dados principal, sem mockMusicList
     // const mockMusicList: Music[] = [...]; // Remover mockMusicList
 
@@ -80,27 +80,62 @@ export default function LocalMusicScreen() {
     // UseEffect para lidar com a mudança de 'selectedLocalFiles' após o picker
     useEffect(() => {
         if (selectedLocalFiles && selectedLocalFiles.length > 0) {
-            // Mapeie os dados do picker para o formato Track completo
-            const newPlaylist: Track[] = selectedLocalFiles.map((file) => ({
-                id: uuidv4(), // Gere um ID único para cada arquivo
-                uri: String(file.uri), // Garanta que uri é string, mesmo se o picker retornar number
-                name: file.name, // O nome original do arquivo
-                title: file.name.split('.').slice(0, -1).join('.') || 'Título Desconhecido', // Tenta usar o nome do arquivo como título
-                artist: 'Artista Desconhecido', // Placeholder
-                cover: 'https://via.placeholder.com/150', // Placeholder de capa
-                size: file.size,
-                mimeType: file.mimeType,
-                duration: undefined, // Duração pode ser desconhecida para arquivos locais inicialmente
-            }));
+            const processFiles = async () => {
+                const processedTracks: Track[] = [];
 
-            // Despache a thunk para definir a playlist e começar a tocar a primeira música
-            dispatch(setPlaylistAndPlayThunk({
-                newPlaylist: newPlaylist,
-                startIndex: 0,
-                shouldPlay: true,
-            }));
+                for (const file of selectedLocalFiles) {
+                    const response = await fetch(file.uri);
+                    const blob = await response.blob();
+                    const metadata = await parseBlob(blob);
+
+                    const title = metadata.common.title || file.name.split('.').slice(0, -1).join('.') || 'Título Desconhecido';
+                    const artist = metadata.common.artist || 'Artista Desconhecido';
+
+                    // Inicializa coverUri indefinido
+                    let coverUri: string | undefined = undefined;
+
+                    // Log para depuração
+                    console.log("Metadata picture:", metadata.common.picture);
+
+                    // Se tiver capa embutida
+                    if (metadata.common.picture && metadata.common.picture.length > 0) {
+                        const picture = metadata.common.picture[0];
+                        const coverBlob = new Blob([picture.data], { type: picture.format });
+                        coverUri = URL.createObjectURL(coverBlob);
+                        console.log("Cover URI:", coverUri);
+                    }
+
+                    processedTracks.push({
+                        id: uuidv4(),
+                        uri: String(file.uri),
+                        name: file.name,
+                        title,
+                        artist,
+                        cover: coverUri ?? 'https://via.placeholder.com/150', // Fallback correto
+                        size: file.size,
+                        mimeType: file.mimeType,
+                        duration: metadata.format.duration
+                            ? Math.round(metadata.format.duration * 1000)
+                            : undefined,
+                    });
+                }
+
+                // Atualiza a capa global
+                dispatch(setCoverImage(processedTracks[0]?.cover ?? 'https://via.placeholder.com/150'));
+
+                // Atualiza playlist
+                dispatch(
+                    setPlaylistAndPlayThunk({
+                        newPlaylist: processedTracks,
+                        startIndex: 0,
+                        shouldPlay: true,
+                    })
+                );
+            };
+
+            processFiles();
         }
-    }, [selectedLocalFiles, dispatch]); // Dependências: reage quando selectedLocalFiles muda
+    }, [selectedLocalFiles, dispatch]);;// Dependências: reage quando selectedLocalFiles muda
 
     const handlePlaySpecificMusic = (index: number) => {
         // Dispara a thunk para tocar uma música específica da playlist do Redux
@@ -108,7 +143,7 @@ export default function LocalMusicScreen() {
     };
 
     return (
-        <View style ={{flex: 1,  paddingHorizontal: 13,}}>
+        <View style={{ flex: 1, paddingHorizontal: 13, }}>
             <TouchableOpacity
                 onPress={handleSelectAndPlayMusics} // Chamada para abrir o picker
                 style={styles.button}
@@ -133,7 +168,7 @@ export default function LocalMusicScreen() {
                             onPress={() => handlePlaySpecificMusic(index)}
                         />
                     )}
-                    contentContainerStyle={{ paddingBottom: 100,}}
+                    contentContainerStyle={{ paddingBottom: 100, }}
                     showsVerticalScrollIndicator={false}
                 />
             )}

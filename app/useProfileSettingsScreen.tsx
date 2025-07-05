@@ -15,9 +15,9 @@ export default function ProfileSettingsScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Profile Settings',
-                    headerStyle: { backgroundColor: '#191919' },
-                    headerTintColor: '#fff',
+                    //title: 'Profile Settings',
+                    //headerStyle: { backgroundColor: '#191919' },
+                    //headerTintColor: '#fff',
                     // headerTitleStyle: { fontWeight: 'bold' },
                     headerShown: false,
                 }}
@@ -32,16 +32,17 @@ export default function ProfileSettingsScreen() {
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
                     <View style={styles.profileContainer}>
-                        <View style={{ flexDirection: 'row', }}>
-                            <Image
-                                source={require('@/assets/images/4/icons8_info_120px.png')}
-                                style={styles.iconLeft}
-                            />
-                            <Text style={styles.userHandle}>
-                                Os dados de transação bancaria são necessários, e serão utilizados pelo Kiuplay
-                                para te possibilitar comprar e vender instrumentais de uso exclusivo!
-                            </Text>
-                        </View>
+
+                    </View>
+                    <View style={{ flexDirection: 'row', }}>
+                        <Image
+                            source={require('@/assets/images/4/icons8_info_120px.png')}
+                            style={styles.iconLeft}
+                        />
+                        <Text style={styles.userHandle}>
+                            Os dados de transação bancaria são necessários, e serão utilizados pelo Kiuplay
+                            para te possibilitar comprar e vender instrumentais de uso exclusivo!
+                        </Text>
                     </View>
                 </ScrollView>
 

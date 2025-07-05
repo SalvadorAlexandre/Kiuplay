@@ -56,16 +56,10 @@ export default function FriendRequestItem({
 
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.acceptButton]}
-          onPress={() => onAccept(id)}
-        >
-          <Ionicons name="checkmark" size={18} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.rejectButton]}
+          style={[styles.button]}
           onPress={() => onReject(id)}
         >
-          <Ionicons name="close" size={18} color="#fff" />
+          <Text style={{color: '#fff', fontSize: 16}}>Remover</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -77,9 +71,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    paddingHorizontal: 6,
+    //borderBottomWidth: 1,
+    //borderBottomColor: "#333",
   },
   profileArea: {
     flexDirection: "row",
@@ -112,6 +106,9 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 16,
     marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   acceptButton: {
     backgroundColor: "#28a745",

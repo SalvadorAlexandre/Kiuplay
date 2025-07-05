@@ -28,8 +28,13 @@ export default function ChatListItem({
   unreadCount = 0,
   onPress,
 }: ChatListItemProps) {
+
+
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(id)}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => onPress(id)}
+      >
       <Image
         source={
           avatar
@@ -69,9 +74,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    paddingHorizontal: 6,
+    //borderBottomWidth: 1,
+    //borderBottomColor: "#333",
   },
   avatar: {
     width: 48,

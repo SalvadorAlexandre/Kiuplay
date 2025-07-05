@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 export interface UserDiscoveryItemProps {
   id: string;
@@ -72,9 +71,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    paddingHorizontal: 6,
+    //borderBottomWidth: 1,
+    //borderBottomColor: "#333",
   },
   avatar: {
     width: 48,

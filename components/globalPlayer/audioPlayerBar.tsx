@@ -51,8 +51,14 @@ export default function AudioPlayerBar() {
     error,
   } = useAppSelector((state) => state.player);
 
+  const coverImageGlobal = useAppSelector(state => state.player.coverImage);
+
   const animation = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const { height } = Dimensions.get('window');
+  const animatedBottom = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [60, 0], // Minimizado = 60, Expandido = 0
+  });
 
   useEffect(() => {
     const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
@@ -96,13 +102,10 @@ export default function AudioPlayerBar() {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-
-  
-
   // Animations
   const animatedHeight = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [70, height - 58],
+    outputRange: [68, height], // height total da tela
   });
   const animatedOpacity = animation.interpolate({
     inputRange: [0, 1],
@@ -152,12 +155,20 @@ export default function AudioPlayerBar() {
 
   if (!currentTrack) return null;
 
-  const coverImage = currentTrack.cover
-    ? { uri: currentTrack.cover }
+  const coverImage = coverImageGlobal
+    ? { uri: coverImageGlobal }
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
 
   return (
-    <Animated.View style={[styles.container, { height: animatedHeight }]}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          height: animatedHeight,
+          bottom: isExpanded ? 0 : 60, // só altera o bottom
+        },
+      ]}
+    >
       {/* MODO MINIMIZADO */}
       {!isExpanded && (
         <>
@@ -167,7 +178,7 @@ export default function AudioPlayerBar() {
             onPress={handleToggleExpanded}
           >
             <View style={styles.minimizedLeft}>
-              <Image source={require('@/assets/images/Default_Profile_Icon/unknown_track.png')} style={styles.minimizedCover} />
+              <Image source={coverImage} style={styles.minimizedCover} />
               <View style={{ marginLeft: 8, flexShrink: 1 }}>
                 <Text style={styles.trackTitle} numberOfLines={1}>{currentTrack.title}</Text>
                 <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
@@ -197,24 +208,30 @@ export default function AudioPlayerBar() {
 
       {/* MODO EXPANDIDO */}
       <Animated.View style={[styles.expandedContent, { opacity: animatedOpacity }]}>
-        <View style={styles.expandedHeader}>
+        <View style={[styles.expandedHeader, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+          {/* Bloco da imagem e nome */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Image
               source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
               style={styles.profileImage}
             />
-            <Text style={styles.artistMaiName} numberOfLines={1}>{currentTrack.artist}</Text>
+            <Text style={styles.artistMainName} numberOfLines={1}>
+              {currentTrack.artist}
+            </Text>
           </View>
-          <TouchableOpacity style={styles.followButton} onPress={() => { }}>
-            <Text style={styles.followButtonText}>Seguir</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleToggleExpanded}>
-            <Ionicons name="chevron-down" size={28} color="#fff" />
-          </TouchableOpacity>
+          {/* Bloco com botão Seguir + ícone */}
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity style={styles.followButton} onPress={() => { }}>
+              <Text style={styles.followButtonText}>Seguir</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
+              <Ionicons name="chevron-down" size={28} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <Image source={require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png')} style={styles.expandedCover} />
+        <Image source={coverImage} style={styles.expandedCover} />
         <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
         <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
 
@@ -231,7 +248,7 @@ export default function AudioPlayerBar() {
           thumbTintColor="#fff"
           disabled={isLoading || durationMillis === 0} // Desabilita o slider se estiver carregando ou não tiver duração
         />
-        
+
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
           <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
@@ -325,6 +342,7 @@ export default function AudioPlayerBar() {
         <TouchableOpacity onPress={() => { }}>
           <Ionicons name="list" size={24} color="#fff" />
         </TouchableOpacity>
+
       </View>
       {/* Exibir erro se houver */}
       {
@@ -337,6 +355,7 @@ export default function AudioPlayerBar() {
           </View>
         )
       }
+
     </Animated.View >
   );
 }
@@ -344,14 +363,15 @@ export default function AudioPlayerBar() {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 60,
+    //bottom: 60,
     width: '100%',
     backgroundColor: '#111',
     borderTopWidth: 1,
     borderTopColor: '#222',
     zIndex: 99,
     elevation: 10,
-    overflow: 'hidden',
+    //overflow: 'hidden',
+    flex: 1,
   },
   minimizedBar: {
     flexDirection: 'row',
@@ -420,9 +440,10 @@ const styles = StyleSheet.create({
     color: '#ccc',
     fontSize: 12,
   },
-  artistMaiName: {
+  artistMainName: {
     color: '#fff',
     fontSize: 16,
+    flex: 1,
   },
   controls: {
     flexDirection: 'row',
@@ -479,7 +500,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     width: 45,
     height: 45,
-    
+
   },
   iconSendComment: {
     width: 25,
@@ -492,6 +513,7 @@ const styles = StyleSheet.create({
     // marginRight: 10,
   },
   actionButtons: {
+    //flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',

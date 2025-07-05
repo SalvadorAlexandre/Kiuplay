@@ -45,6 +45,7 @@ export interface PlayerState {
   isExpanded: boolean;
   isRepeat: boolean;
   isSeeking: boolean;
+  coverImage: string | null;
 }
 
 const initialState: PlayerState = {
@@ -59,6 +60,7 @@ const initialState: PlayerState = {
   isExpanded: false,
   isRepeat: false,
   isSeeking: false,
+  coverImage: null,
 };
 
 interface SetPlaylistAndPlayPayload {
@@ -348,6 +350,10 @@ const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
+    //Para lidar com a capa da currentTrack
+    setCoverImage: (state, action: PayloadAction<string | null>) => {
+      state.coverImage = action.payload;
+    },
     // Ação síncrona para definir a playlist e o índice (usado por thunks)
     _setPlaylist: (state, action: PayloadAction<SetPlaylistAndPlayPayload>) => {
       state.playlist = action.payload.newPlaylist;
@@ -514,6 +520,7 @@ const playerSlice = createSlice({
       .addCase(setVolumeThunk.rejected, (state, action) => {
         state.error = action.payload || 'Erro ao definir o volume.';
       });
+
   },
 });
 
@@ -529,6 +536,7 @@ export const {
   toggleExpanded,
   toggleRepeat,
   resetPlayerState,
+  setCoverImage,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

@@ -9,6 +9,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import useChatTabs from "@/hooks/useChatTabs";
@@ -17,16 +18,12 @@ import ChatListItem from "@/components/ChatComponents/ChatListItem"
 import UserDiscoveryItem from "@/components/ChatComponents/UserDiscoveryItem"
 import FriendRequestItem from "@/components/ChatComponents/FriendRequestItem"
 import GroupItem from "@/components/ChatComponents/GroupItem"
+import { useRouter } from 'expo-router'
+
 
 export default function ChatScreen() {
-  const { activeTab, handleTabChange } = useChatTabs();
-
-  const [message, setMessage] = useState("") //Hook para armazenar a mensagem
-  const handleSendMessage = () => {
-    if (message.trim() === "") return
-    alert(`Mensagem enviada: ${message}`)
-    setMessage("")
-  }
+  const { activeTab, handleTabChange } = useChatTabs(); //Hook para controlar tabs ativas e inativas
+  const [expanded, setExpanded] = useState(false); //Hook para controlar conteudo expandido
 
   //DADOS FICTICIOS PARA A TAB TODAS
   const mockConversations = [
@@ -96,6 +93,7 @@ export default function ChatScreen() {
     },
   ];
 
+  const router = useRouter()
 
   return (
     <View style={styles.container}>
@@ -169,7 +167,12 @@ export default function ChatScreen() {
                 unreadCount={item.unreadCount}
                 onPress={(id) => {
                   // Aqui você vai navegar para a tela de chat individual
+                  router.push({
+                    pathname: "/ChatDetail/[id]",
+                    params: { id },
+                  })
                   console.log("Abrir conversa com", id);
+
                 }}
               />
             ))}
@@ -192,6 +195,10 @@ export default function ChatScreen() {
                   console.log("Seguir/cancelar seguir:", id);
                 }}
                 onProfilePress={(id) => {
+                  router.push({
+                    pathname: "/UserProfile/[id]",
+                    params: { id },
+                  });
                   console.log("Abrir perfil do usuário:", id);
                 }}
               />
@@ -200,6 +207,36 @@ export default function ChatScreen() {
         )}
         {activeTab === "pedidos" && (
           <>
+            <View style={styles.discoveryContainer}>
+              {/* Linha de topo */}
+              <View style={styles.headerRow}>
+                <Image
+                  source={require("@/assets/images/4/icons8_info_120px.png")}
+                  style={styles.iconLeft}
+                />
+                <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+                  <Ionicons
+                    name={expanded ? "chevron-up" : "chevron-down"}
+                    size={24}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              {/* Conteúdo expansível */}
+              {expanded && (
+                <View style={styles.expandedContent}>
+                  <Text style={styles.userHandle}>
+                    A opção (aguardar que eu responda pedidos) está ativada! Significa
+                    que ninguém poderá te enviar mensagens sem aceitares antes o
+                    pedido. Acesse as definições para mudar...
+                  </Text>
+                  <TouchableOpacity style={styles.ButtonChange}>
+                    <Text style={styles.tabTextCreate}>Mudar</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
             {mockRequests.map((req) => (
               <FriendRequestItem
                 key={req.id}
@@ -214,6 +251,10 @@ export default function ChatScreen() {
                   console.log("Rejeitou o pedido:", id);
                 }}
                 onProfilePress={(id) => {
+                  router.push({
+                    pathname: "/FriendRequest/[id]",
+                    params: { id },
+                  });
                   console.log("Abriu perfil:", id);
                 }}
               />
@@ -230,6 +271,10 @@ export default function ChatScreen() {
                 avatar={group.avatar}
                 description={group.description}
                 onPress={(id) => {
+                  router.push({
+                    pathname: "/GroupChat/[id]",
+                    params: { id },
+                  });
                   console.log("Entrou no chat do grupo:", id);
                 }}
               />
@@ -238,25 +283,6 @@ export default function ChatScreen() {
         )}
         <View style={{ height: 100 }} />
       </ScrollView>
-
-      {/*TextInput fixo para as SMS*/}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={80}
-      >
-        <View style={styles.messageInputContainer}>
-          <TextInput
-            style={styles.messageInput}
-            placeholder="Escreva uma mensagem..."
-            placeholderTextColor="#888"
-            value={message}
-            onChangeText={setMessage}
-          />
-          <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
-            <Ionicons name="send" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -306,10 +332,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#28a745",
     marginLeft: 8,
   },
-  tabTextCreate: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
+
   contentScroll: {
     flex: 1, // ESSENCIAL: ocupa o espaço restante
   },
@@ -322,32 +345,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 12,
   },
-  messageInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  discoveryContainer: {
     backgroundColor: "#222",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#333",
+    borderRadius: 8,
+    padding: 12,
+    marginVertical: 8,
+    marginTop: -10,
   },
-  messageInput: {
-    flex: 1,
-    color: "#fff",
-    fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#333",
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  iconLeft: {
+    width: 24,
+    height: 24,
+    //tintColor: "#fff",
+  },
+  expandedContent: {
+    marginTop: 8,
+  },
+  userHandle: {
+    color: "#ccc",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  ButtonChange: {
+    borderColor: '#1E90FF',
+    backgroundColor: '#1E90FF33',
+    borderWidth: 1,
     borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    alignSelf: "flex-start",
   },
-  sendButton: {
-    marginLeft: 8,
-    backgroundColor: "#1565C0",
-    alignItems: 'center',
-    justifyContent: 'center',
-    //padding: 10,
-    width: 50,
-    height: 50,
-    borderRadius: 100,
+  tabTextCreate: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
