@@ -7,29 +7,24 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Dimensions,
-  Animated,
-  Easing,
   ActivityIndicator,
   Platform,
+  Animated,
   KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 
-// Importando o hook correto
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import {
   togglePlayPauseThunk,
   playNextThunk,
   playPreviousThunk,
   seekToThunk,
-  toggleRepeat,
   updatePlaybackStatus,
   setError,
   toggleExpanded,
   setSeeking,
-  setPlaylistAndPlayThunk,
 } from '@/src/redux/playerSlice';
 import { getAudioManager } from '@/src/utils/audioManager';
 import { AVPlaybackStatus } from 'expo-av';
@@ -39,7 +34,6 @@ const audioManager = getAudioManager();
 export default function AudioPlayerBar() {
   const dispatch = useAppDispatch();
 
-  // Seletores tipados
   const {
     currentTrack,
     isPlaying,
@@ -53,13 +47,6 @@ export default function AudioPlayerBar() {
 
   const coverImageGlobal = useAppSelector(state => state.player.coverImage);
 
-  const animation = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
-  const { height } = Dimensions.get('window');
-  const animatedBottom = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [60, 0], // Minimizado = 60, Expandido = 0
-  });
-
   useEffect(() => {
     const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
       dispatch(updatePlaybackStatus(status));
@@ -72,15 +59,6 @@ export default function AudioPlayerBar() {
       audioManager.setPlaybackStatusUpdateCallback(null);
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    Animated.timing(animation, {
-      toValue: isExpanded ? 1 : 0,
-      duration: 300,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start();
-  }, [isExpanded]);
 
   const handleTogglePlayPause = useCallback(() => {
     dispatch(togglePlayPauseThunk());
@@ -102,34 +80,21 @@ export default function AudioPlayerBar() {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  // Animations
-  const animatedHeight = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [68, height], // height total da tela
-  });
-  const animatedOpacity = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-
-  const [sliderValue, setSliderValue] = useState(positionMillis) //ESTADO DO SLIDER
-  //SINCRONIZACAO DO SLIDER
+  const [sliderValue, setSliderValue] = useState(positionMillis);
   useEffect(() => {
     if (!isSeeking && sliderValue !== positionMillis) {
-      setSliderValue(positionMillis)
+      setSliderValue(positionMillis);
     }
-  }, [positionMillis, isSeeking, sliderValue])
+  }, [positionMillis, isSeeking, sliderValue]);
 
   const progress = durationMillis > 0 ? positionMillis / durationMillis : 0;
 
-  //HOOK PARA O BTN FAVORITO/CURTIR
-  const [isFavorited, setIsFavorited] = useState(false) //Estado para o btn favorito
+  const [isFavorited, setIsFavorited] = useState(false);
   const toggleFavorite = () => {
-    setIsFavorited(!isFavorited)
-  }
-  //ANIMACAO DO INPUTTEXT COMMENT/HOOKS
-  const [commentText, setCommentText] = useState(''); // Estado para armazenar o texto do comentário
-  //Animacao do btn enviar comentario
+    setIsFavorited(!isFavorited);
+  };
+
+  const [commentText, setCommentText] = useState('');
   const sendButtonScale = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(sendButtonScale, {
@@ -139,7 +104,6 @@ export default function AudioPlayerBar() {
     }).start();
   }, [commentText]);
 
-  //Animacao do textinput do comentario
   const commentInputWidth = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     Animated.timing(commentInputWidth, {
@@ -148,6 +112,7 @@ export default function AudioPlayerBar() {
       useNativeDriver: false,
     }).start();
   }, [commentText]);
+
   const animatedCommentInputWidth = commentInputWidth.interpolate({
     inputRange: [0.85, 1],
     outputRange: ['85%', '100%'],
@@ -160,16 +125,30 @@ export default function AudioPlayerBar() {
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
 
   return (
-    <Animated.View
+    <View
       style={[
         styles.container,
         {
-          height: animatedHeight,
-          bottom: isExpanded ? 0 : 60, // só altera o bottom
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          backgroundColor: '#111',
+          ...(isExpanded
+            ? {
+              top: 0,
+              bottom: 0,
+              height: '100%',
+              width: '100%',
+            }
+            : {
+              bottom: 60,
+              height: 68,
+            }),
         },
       ]}
     >
-      {/* MODO MINIMIZADO */}
+
+      {/*MODO MINIMIZADO*/}
       {!isExpanded && (
         <>
           <TouchableOpacity
@@ -196,155 +175,155 @@ export default function AudioPlayerBar() {
               )}
             </TouchableOpacity>
           </TouchableOpacity>
-
-          {/* Barra de progresso fixa na borda */}
           <View style={styles.progressContainer}>
             <View
               style={[styles.progressBar, { width: `${progress * 100}%` }]}
             />
           </View>
         </>
-      )}
-
-      {/* MODO EXPANDIDO */}
-      <Animated.View style={[styles.expandedContent, { opacity: animatedOpacity }]}>
-        <View style={[styles.expandedHeader, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
-          {/* Bloco da imagem e nome */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Image
-              source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
-              style={styles.profileImage}
-            />
-            <Text style={styles.artistMainName} numberOfLines={1}>
-              {currentTrack.artist}
-            </Text>
-          </View>
-
-          {/* Bloco com botão Seguir + ícone */}
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity style={styles.followButton} onPress={() => { }}>
-              <Text style={styles.followButtonText}>Seguir</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
-              <Ionicons name="chevron-down" size={28} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <Image source={coverImage} style={styles.expandedCover} />
-        <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
-        <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
-
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={durationMillis > 0 ? durationMillis : 1} // usar a duração real
-          value={isSeeking ? sliderValue : positionMillis} // Usa sliderValue durante a busca, senão positionMillis
-          onValueChange={setSliderValue} // Atualiza o estado local durante o arraste
-          onSlidingStart={() => dispatch(setSeeking(true))} // Avisa o Redux que começou a buscar
-          onSlidingComplete={handleSeekTo} // Despacha a busca com o valor final
-          minimumTrackTintColor="#1E90FF"
-          maximumTrackTintColor="#444"
-          thumbTintColor="#fff"
-          disabled={isLoading || durationMillis === 0} // Desabilita o slider se estiver carregando ou não tiver duração
-        />
-
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
-          <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
-        </View>
-
-        <View style={styles.controls}>
-          <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
-            <Ionicons name="play-skip-back" size={28} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleTogglePlayPause}>
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Ionicons
-                name={isPlaying ? 'pause-circle' : 'play-circle'}
-                size={48}
-                color="#fff"
-              />
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
-            <Ionicons name="play-skip-forward" size={28} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-
-      <KeyboardAvoidingView
-        style={{ padding: 10, marginTop: 10, alignItems: 'center' }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={{
-          width: '100%',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 12,
-        }}>
-          <Animated.View style={{ width: animatedCommentInputWidth }}>
-            <TextInput
-              style={[styles.commentInput, { width: '100%' }]}
-              placeholder="Adicionar comentário..."
-              placeholderTextColor="#888"
-              value={commentText}
-              onChangeText={setCommentText}
-            />
-          </Animated.View>
-          {commentText.length > 0 && (
-            <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
-              <TouchableOpacity style={styles.sendButton}>
-                {/* Ícone */}
+      )
+      }
+       
+       {/*MODO MAXIMIZADO*/}
+      {
+        isExpanded && (
+          <View style={styles.expandedContent}>
+            <View style={styles.expandedHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <Image
-                  source={require('@/assets/images/audioPlayerBar/icons8_email_send_120px.png')}
-                  style={styles.iconSend}
+                  source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
+                  style={styles.profileImage}
+                />
+                <Text style={styles.artistMainName} numberOfLines={1}>
+                  {currentTrack.artist}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity style={styles.followButton} onPress={() => { }}>
+                  <Text style={styles.followButtonText}>Seguir</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
+                  <Ionicons name="chevron-down" size={28} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <Image
+              source={coverImage}
+              style={styles.expandedCover}
+              resizeMode="cover"
+            />
+            <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
+            <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
+
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={durationMillis > 0 ? durationMillis : 1}
+              value={isSeeking ? sliderValue : positionMillis}
+              onValueChange={setSliderValue}
+              onSlidingStart={() => dispatch(setSeeking(true))}
+              onSlidingComplete={handleSeekTo}
+              minimumTrackTintColor="#1E90FF"
+              maximumTrackTintColor="#444"
+              thumbTintColor="#fff"
+              disabled={isLoading || durationMillis === 0}
+            />
+
+            <View style={styles.timeContainer}>
+              <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
+              <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
+            </View>
+
+            <View style={styles.controls}>
+              <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
+                <Ionicons name="play-skip-back" size={28} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleTogglePlayPause}>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Ionicons
+                    name={isPlaying ? 'pause-circle' : 'play-circle'}
+                    size={48}
+                    color="#fff"
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
+                <Ionicons name="play-skip-forward" size={28} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+              style={{
+                marginTop: 16,
+                width: '100%',
+                paddingHorizontal: 10,
+                alignItems: 'center',
+              }}
+            >
+              <View style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: 12,
+              }}>
+                <Animated.View style={{ width: animatedCommentInputWidth }}>
+                  <TextInput
+                    style={[styles.commentInput, { width: '100%' }]}
+                    placeholder="Adicionar comentário..."
+                    placeholderTextColor="#888"
+                    value={commentText}
+                    onChangeText={setCommentText}
+                  />
+                </Animated.View>
+                {commentText.length > 0 && (
+                  <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
+                    <TouchableOpacity style={styles.sendButton}>
+                      <Image
+                        source={require('@/assets/images/audioPlayerBar/icons8_email_send_120px.png')}
+                        style={styles.iconSend}
+                      />
+                    </TouchableOpacity>
+                  </Animated.View>
+                )}
+              </View>
+            </KeyboardAvoidingView>
+
+            <View style={styles.actionButtons}>
+              <TouchableOpacity onPress={() => { }}>
+                <Image
+                  source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
+                  style={styles.iconSendComment}
                 />
               </TouchableOpacity>
-            </Animated.View>
-          )}
-        </View>
-      </KeyboardAvoidingView>
+              <TouchableOpacity onPress={toggleFavorite}>
+                <Ionicons
+                  name={isFavorited ? "heart" : "heart-outline"}
+                  size={24}
+                  color={isFavorited ? "#FF3D00" : "#fff"}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { }}>
+                <Image
+                  source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')}
+                  style={styles.iconSendComment}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { }}>
+                <Ionicons name="share-social-outline" size={24} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { }}>
+                <Ionicons name="list" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )
+      }
 
-      <View style={styles.actionButtons}>
-        <TouchableOpacity onPress={() => { }}>
-          {/**  <Ionicons name="download-outline" size={24} color="#fff" />*/}
-          {/* Ícone */}
-          <Image
-            source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')} // Troque pelo seu ícone
-            style={styles.iconSendComment}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={toggleFavorite}>
-          <Ionicons
-            name={
-              isFavorited ? "heart" : "heart-outline"}
-            size={24} color={isFavorited ? "#FF3D00" : "#fff"
-            }
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => { }}>
-          {/** <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />*/}
-          <Image
-            source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')} // Troque pelo seu ícone
-            style={styles.iconSendComment}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => { }}>
-          <Ionicons name="share-social-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => { }}>
-          <Ionicons name="list" size={24} color="#fff" />
-        </TouchableOpacity>
-
-      </View>
-      {/* Exibir erro se houver */}
       {
         error && (
           <View style={styles.errorContainer}>
@@ -355,8 +334,7 @@ export default function AudioPlayerBar() {
           </View>
         )
       }
-
-    </Animated.View >
+    </View >
   );
 }
 
@@ -371,7 +349,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
     elevation: 10,
     //overflow: 'hidden',
-    flex: 1,
+    //flex: 1,
   },
   minimizedBar: {
     flexDirection: 'row',
@@ -391,7 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressContainer: {
-    height: 3,
+    height: 1,
     backgroundColor: '#333',
     width: '100%',
   },
@@ -412,9 +390,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   expandedCover: {
-    marginTop: 29,
     width: '95%',
-    height: 277,
+    aspectRatio: 1, // sempre quadrada
     borderRadius: 12,
     backgroundColor: '#222',
   },

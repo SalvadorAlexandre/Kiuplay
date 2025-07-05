@@ -1,7 +1,7 @@
 //app/(tabs)/_layout.tsx
 import React from 'react';
-import { Tabs, Stack } from 'expo-router';
-import { Image, } from 'react-native';
+import { Tabs, } from 'expo-router';
+import { Image, View } from 'react-native';
 import Colors from '@/constants/Colors'; // Usaremos para definir cor do fundo
 import AudioPlayerBar from '@/components/globalPlayer/audioPlayerBar';
 
@@ -11,6 +11,7 @@ export default function TabLayout() {
   return (
     <>
       <AudioPlayerBar />
+
       <Tabs
         screenOptions={{
           /*

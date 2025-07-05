@@ -3,12 +3,9 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -142,7 +139,10 @@ export default function ChatScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.tabButtonCreate}>
+          <TouchableOpacity
+          style={styles.tabButtonCreate}
+          onPress={() => router.push("/createGroup/CreateGroup")}
+          >
             <Text style={styles.tabTextCreate}>Criar grupo</Text>
           </TouchableOpacity>
         </ScrollView>
