@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     backgroundColor: '#1565C0', // Azul vibrante
-    borderRadius: 30,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 10, // Sombra no Android

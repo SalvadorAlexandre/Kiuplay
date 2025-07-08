@@ -139,12 +139,6 @@ export default function ChatScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity
-          style={styles.tabButtonCreate}
-          onPress={() => router.push("/createGroup/CreateGroup")}
-          >
-            <Text style={styles.tabTextCreate}>Criar grupo</Text>
-          </TouchableOpacity>
         </ScrollView>
       </View>
 
@@ -232,7 +226,7 @@ export default function ChatScreen() {
                     pedido. Acesse as definições para mudar...
                   </Text>
                   <TouchableOpacity style={styles.ButtonChange}>
-                    <Text style={styles.tabTextCreate}>Mudar</Text>
+                    <Text style={styles.TextChange}>Mudar</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -283,6 +277,16 @@ export default function ChatScreen() {
         )}
         <View style={{ height: 100 }} />
       </ScrollView>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => router.push("/createGroup/CreateGroup")}
+      >
+        <Image
+          source={require('@/assets/images/4/icons8_people_120px.png')}
+          style={{ width: 40, height: 40, tintColor: '#fff' }}
+        />
+      </TouchableOpacity>
+
     </View>
   );
 }
@@ -291,6 +295,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1, // essencial para ocupar toda a tela
     backgroundColor: "#191919",
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 110,
+    right: 25,
+    width: 60,
+    height: 60,
+    backgroundColor: '#1565C0', // Azul vibrante
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 10, // Sombra no Android
+    shadowColor: '#000', // Sombra no iOS
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   header: {
     flexShrink: 0, // cabeçalho não ocupa espaço do flex
@@ -325,14 +345,6 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: "#fff",
   },
-  tabButtonCreate: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    backgroundColor: "#28a745",
-    marginLeft: 8,
-  },
-
   contentScroll: {
     flex: 1, // ESSENCIAL: ocupa o espaço restante
   },
@@ -379,7 +391,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     alignSelf: "flex-start",
   },
-  tabTextCreate: {
+  TextChange: {
     color: "#fff",
     fontWeight: "bold",
   },

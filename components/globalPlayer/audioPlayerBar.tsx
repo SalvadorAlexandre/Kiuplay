@@ -45,7 +45,7 @@ export default function AudioPlayerBar() {
     error,
   } = useAppSelector((state) => state.player);
 
-  const coverImageGlobal = useAppSelector(state => state.player.coverImage);
+  //const coverImageGlobal = useAppSelector(state => state.player.coverImage);
 
   useEffect(() => {
     const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
@@ -120,8 +120,8 @@ export default function AudioPlayerBar() {
 
   if (!currentTrack) return null;
 
-  const coverImage = coverImageGlobal
-    ? { uri: coverImageGlobal }
+  const coverImage = currentTrack.cover
+    ? { uri: currentTrack.cover }
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
 
   return (

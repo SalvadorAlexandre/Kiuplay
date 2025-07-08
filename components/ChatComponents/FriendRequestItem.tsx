@@ -59,7 +59,7 @@ export default function FriendRequestItem({
           style={[styles.button]}
           onPress={() => onReject(id)}
         >
-          <Text style={{color: '#fff', fontSize: 16}}>Remover</Text>
+          <Text style={{color: '#ff6666', fontSize: 16}}>Remover</Text>
         </TouchableOpacity>
       </View>
     </View>

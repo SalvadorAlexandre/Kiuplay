@@ -45,7 +45,6 @@ export default function FriendRequestDetail() {
           }
           style={styles.avatar}
         />
-
         <Text style={styles.name}>{request.name}</Text>
         <Text style={styles.bio}>{request.bio}</Text>
 

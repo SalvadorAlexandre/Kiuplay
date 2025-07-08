@@ -1,3 +1,4 @@
+//components/sudioLocalComponent/useMusicLocalLis.tsx
 import React, { useEffect } from 'react'; // Adicionado useEffect
 import {
     View,
@@ -13,7 +14,7 @@ import {
     Track,
     setPlaylistAndPlayThunk,
     playTrackThunk,
-    setCoverImage,
+    //setCoverImage,
 } from '@/src/redux/playerSlice'; // Ajuste o caminho conforme seu projeto
 import { useAppDispatch, useAppSelector } from '@/src/redux/hooks'; // Seus hooks personalizados para Redux
 import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader'; // Seu hook para selecionar arquivos
@@ -121,7 +122,7 @@ export default function LocalMusicScreen() {
                 }
 
                 // Atualiza a capa global
-                dispatch(setCoverImage(processedTracks[0]?.cover ?? 'https://via.placeholder.com/150'));
+                //dispatch(setCoverImage(processedTracks[0]?.cover ?? 'https://via.placeholder.com/150'));
 
                 // Atualiza playlist
                 dispatch(

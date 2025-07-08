@@ -1,13 +1,37 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    Image,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, Stack } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
+
 
 export default function CreateGroupScreen() {
+    const [imageUri, setImageUri] = useState<string | null>(null);
     const [groupName, setGroupName] = useState("");
     const [description, setDescription] = useState("");
 
     const router = useRouter();
+
+    const handlePickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.7,
+            allowsEditing: true,
+            aspect: [1, 1],
+        });
+
+        if (!result.canceled && result.assets.length > 0) {
+            setImageUri(result.assets[0].uri);
+        }
+    };
 
     const handleCreateGroup = () => {
         if (!groupName.trim()) {
@@ -34,7 +58,21 @@ export default function CreateGroupScreen() {
                 }}
             />
             <View style={styles.container}>
-                <Text style={styles.title}>Criar Novo Grupo</Text>
+
+                <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
+                    {imageUri ? (
+                        <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+                    ) : (
+                        <Ionicons name="camera" size={40} color="#aaa" />
+                    )}
+                </TouchableOpacity>
+
+
+                <View style={styles.nameContainer}>
+                    <Text style={styles.livePreview}>
+                        <Text style={styles.nameGroup}>{groupName}</Text>
+                    </Text>
+                </View>
 
                 <TextInput
                     style={styles.input}
@@ -68,11 +106,18 @@ const styles = StyleSheet.create({
         backgroundColor: "#191919",
         padding: 20,
     },
-    title: {
+    nameGroup: {
         color: "#fff",
-        fontSize: 22,
+        fontSize: 19,
         fontWeight: "bold",
         marginBottom: 20,
+    },
+    nameContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "row",
+        marginBottom: 20,
+        width: '100%',
     },
     input: {
         backgroundColor: "#333",
@@ -94,5 +139,25 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         marginLeft: 8,
+    },
+    imagePicker: {
+        alignSelf: "center",
+        backgroundColor: "#333",
+        borderRadius: 100,
+        width: 100,
+        height: 100,
+        marginBottom: 5,
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+    },
+    imagePreview: {
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+    },
+    livePreview: {
+        color: "#aaa",
+        marginBottom: 8,
     },
 });
