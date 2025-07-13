@@ -204,10 +204,13 @@ export default function ChatScreen() {
             <View style={styles.discoveryContainer}>
               {/* Linha de topo */}
               <View style={styles.headerRow}>
-                <Image
-                  source={require("@/assets/images/4/icons8_info_120px.png")}
-                  style={styles.iconLeft}
-                />
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Image
+                    source={require("@/assets/images/4/icons8_info_120px.png")}
+                    style={styles.iconLeft}
+                  />
+                  <Text style={{ fontSize: 16, color: "#fff", marginLeft: 10,}}>Informação de Privacidade</Text>
+                </View>
                 <TouchableOpacity onPress={() => setExpanded(!expanded)}>
                   <Ionicons
                     name={expanded ? "chevron-up" : "chevron-down"}
@@ -225,7 +228,10 @@ export default function ChatScreen() {
                     que ninguém poderá te enviar mensagens sem aceitares antes o
                     pedido. Acesse as definições para mudar...
                   </Text>
-                  <TouchableOpacity style={styles.ButtonChange}>
+                  <TouchableOpacity
+                    onPress={() => router.push('/useProfileSettingsScreen')}
+                    style={styles.ButtonChange}
+                  >
                     <Text style={styles.TextChange}>Mudar</Text>
                   </TouchableOpacity>
                 </View>
@@ -366,7 +372,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     alignItems: "center",
   },
   iconLeft: {

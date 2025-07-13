@@ -68,10 +68,9 @@ export default function CreateGroupScreen() {
                 </TouchableOpacity>
 
 
-                <View style={styles.nameContainer}>
-                    <Text style={styles.livePreview}>
-                        <Text style={styles.nameGroup}>{groupName}</Text>
-                    </Text>
+                <View style={styles.infoContainer}>
+                    <Text style={styles.nameGroup}>{groupName}</Text>
+                    <Text style={styles.descriptionGroup}>{description}</Text>
                 </View>
 
                 <TextInput
@@ -90,7 +89,23 @@ export default function CreateGroupScreen() {
                     onChangeText={setDescription}
                     multiline
                 />
+                {/* Botões extras de gestão */}
+                <View style={styles.optionsContainer}>
+                    <TouchableOpacity style={styles.optionButton}>
+                        <Text style={styles.optionText}>Gerir permissões</Text>
+                        <Ionicons name="chevron-forward" size={20} color="#aaa" />
+                    </TouchableOpacity>
 
+                    <TouchableOpacity style={styles.optionButton}>
+                        <Text style={styles.optionText}>Gerir administradores</Text>
+                        <Ionicons name="chevron-forward" size={20} color="#aaa" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.optionButton}>
+                        <Text style={styles.optionText}>Convidar membros</Text>
+                        <Ionicons name="chevron-forward" size={20} color="#aaa" />
+                    </TouchableOpacity>
+                </View>
                 <TouchableOpacity style={styles.createButton} onPress={handleCreateGroup}>
                     <Ionicons name="add-circle-outline" size={20} color="#fff" />
                     <Text style={styles.createButtonText}>Criar Grupo</Text>
@@ -110,13 +125,19 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 19,
         fontWeight: "bold",
-        marginBottom: 20,
+        //marginBottom: 20,
     },
-    nameContainer: {
+    descriptionGroup: {
+        color: "#aaa",
+        fontSize: 16,
+        textAlign: "center",
+        marginBottom: 24,
+    },
+    infoContainer: {
         alignItems: "center",
         justifyContent: "center",
-        flexDirection: "row",
-        marginBottom: 20,
+        //flexDirection: "row",
+        //marginBottom: 20,
         width: '100%',
     },
     input: {
@@ -159,5 +180,24 @@ const styles = StyleSheet.create({
     livePreview: {
         color: "#aaa",
         marginBottom: 8,
+    },
+    optionsContainer: {
+        marginTop: 24,
+        marginBottom: 24,
+        //borderTopWidth: 1,
+        borderTopColor: "#333",
+        paddingTop: 12,
+    },
+    optionButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: "#222",
+    },
+    optionText: {
+        color: "#fff",
+        fontSize: 16,
     },
 });

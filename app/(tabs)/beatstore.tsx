@@ -2,6 +2,7 @@
 import React from 'react';
 import TopTabBarBeatStore from '@/components/topTabBarBeatStoreScreen';
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs'
+import { useRouter } from 'expo-router';
 import {
   ScrollView,
   View,
@@ -12,6 +13,8 @@ import {
 } from 'react-native';
 
 export default function BeatStoreScreen() {
+
+  const router = useRouter()
 
   const { activeTab, handleTabChange, } = useBeatStoreTabs() // Estado para controlar as tabs
 
@@ -103,6 +106,7 @@ export default function BeatStoreScreen() {
       <TouchableOpacity
         style={styles.floatingButton}
         onPress={() => {
+          router.push("/useSearchBeatScreen")
           console.log('Botão da Beat Store pressionado!');
         }}
       >
