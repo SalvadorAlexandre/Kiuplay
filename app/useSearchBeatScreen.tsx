@@ -1,13 +1,14 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router"; // Adicionado useRouter aqui
 import BeatPulse from "@/components/beatsPulse/useBeatPulse";
 import { useMetronome } from "@/hooks/BpmManager/useMetronome";
 import { useTapTempo } from "@/hooks/BpmManager/useTapTime"; // Mantido conforme sua instrução
@@ -37,6 +38,17 @@ export default function FindBeatByAcapella() {
     setCurrentBeat(beatIndex);
   }, []);
 
+  // NOVO: Hook para navegação
+  const router = useRouter();
+
+  // NOVO: Função para lidar com o clique no botão "Buscar Instrumental"
+  const handleSearchInstrumentals = () => {
+    router.push({
+      pathname: '/useInstrumentalsScreen', // Rota para a sua nova tela de instrumentais
+      params: { bpm: bpm.toString() }, // Passa o BPM atual como parâmetro
+    });
+  };
+
   /* ――― Hook do metrônomo (Tone.js) ――― */
   useMetronome({
     bpm,
@@ -57,6 +69,64 @@ export default function FindBeatByAcapella() {
     setIsPlaying((p) => !p); // Apenas alterna o estado de play/pause
   };
 
+  /* ――― Lógica de Animação dos Textos de Instrução ――― */
+  const animatedOpacity = useRef(new Animated.Value(1)).current;
+  const [currentInstructionText, setCurrentInstructionText] = useState(0);
+
+  const texts = [
+    {
+      title: "Acelere a busca por instrumentais compatíveis!",
+      body: "",
+    },
+    {
+      title: "",
+      body: "Para obter instrumentais compatíveis com o ritmo da tua voz a capela é necessário encaixar o ritmo dos pulsos ao ritmo da tua voz a capela. Ajuste o valor do BPM até sentir que o ritmo dos pulsos se encaixa ao ritmo da tua voz a capela.",
+    },
+    {
+      title: "Comece a cantar!",
+      body: "",
+    }
+  ];
+
+  useEffect(() => {
+    let interval: number = 0; // Tipo corrigido para number
+
+    if (!isPlaying) {
+      // Quando o metrônomo está parado, anima entre os dois primeiros textos
+      interval = setInterval(() => {
+        Animated.timing(animatedOpacity, {
+          toValue: 0,
+          duration: 500, // Tempo de fade out
+          useNativeDriver: true,
+        }).start(() => {
+          setCurrentInstructionText((prevIndex) => (prevIndex === 0 ? 1 : 0));
+          Animated.timing(animatedOpacity, {
+            toValue: 1,
+            duration: 500, // Tempo de fade in
+            useNativeDriver: true,
+          }).start();
+        });
+      }, 5000);
+    } else {
+      // Quando o metrônomo está tocando, exibe "Comece a cantar!"
+      clearInterval(interval);
+      Animated.timing(animatedOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentInstructionText(2);
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+      });
+    }
+
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
   /* ――― UI ――― */
   return (
     <>
@@ -70,7 +140,7 @@ export default function FindBeatByAcapella() {
 
       <LinearGradient colors={["#2F3C97", "#191C40"]} style={styles.gradient}>
         {/* BLOCO BPM + bolinhas */}
-        <View style={{alignItems: "center",}}>
+        <View style={{ alignItems: "center", }}>
           <View style={styles.bpmBox}>
             {/* Valor BPM e botões de ajuste */}
             <View style={styles.bpmControlRow}>
@@ -134,28 +204,38 @@ export default function FindBeatByAcapella() {
           </View>
         </View>
 
-        <View style={{alignItems: "center", }}>
-          
+        <View style={{ alignItems: "center" }}>
           {/* Botão Play / Stop do metrônomo */}
           <TouchableOpacity
-            style={[
-              styles.playBtn,
-              isPlaying && { backgroundColor: "#FF5252" },
-            ]}
+            style={[styles.playBtn, isPlaying && { backgroundColor: "#FF5252" }]}
             onPress={handlePlayStop}
           >
             <Ionicons name={isPlaying ? "stop" : "play"} size={32} color="#fff" />
           </TouchableOpacity>
+
+          {/* NOVO BOTÃO: Buscar instrumental */}
+          <TouchableOpacity
+            style={styles.searchInstrumentalBtn} // Novo estilo para o botão
+            onPress={handleSearchInstrumentals} // Função para navegar
+          >
+            <Ionicons name="search" size={24} color="#fff" />
+            <Text style={styles.searchInstrumentalText}>Buscar Instrumental</Text>
+          </TouchableOpacity>
         </View>
-        <View style={{paddingVertical: 10, paddingHorizontal: 5,}}>
-          <Text style={styles.tapText}>Acelere a busca por instrumentais compativeis!</Text>
-          <Text style={styles.bpmLabel}>
-            Para obter instrumentais compativeis com o ritmo da tua voz acapela
-            é necessário encaixar o ritmo dos pulsos ao ritmo da tua voz a capela.
-            Ajuste o valor do BPM até sentir que o ritmo dos púlsos se encaixa
-            ao ritmo da tua voz a capela.
-          </Text>
-        </View>
+
+        {/* Textos de Instrução Animados */}
+        <Animated.View style={[styles.instructionBox, { opacity: animatedOpacity }]}>
+          {texts[currentInstructionText].title ? (
+            <Text style={styles.instructionTitle}>
+              {texts[currentInstructionText].title}
+            </Text>
+          ) : null}
+          {texts[currentInstructionText].body ? (
+            <Text style={styles.instructionBody}>
+              {texts[currentInstructionText].body}
+            </Text>
+          ) : null}
+        </Animated.View>
       </LinearGradient>
     </>
   );
@@ -172,7 +252,7 @@ const styles = StyleSheet.create({
 
   bpmBox: {
     alignItems: "center",
-    width: "90%",
+    width: "95%",
     marginBottom: 10,
     padding: 20,
     borderRadius: 20,
@@ -187,7 +267,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    //backgroundColor: 'rgba(255,255,255,0.1)',
     marginHorizontal: 10,
   },
   bpmValue: {
@@ -295,6 +375,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  //---------------------------------------------
+  instructionBox: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginHorizontal: 15, // Adicionado para dar um respiro nas laterais
+    marginTop: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.2)', // Fundo para o box de instrução
+    alignItems: 'center',
+  },
+  instructionTitle: {
+    color: 'rgb(255, 115, 0)',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5, // Espaçamento entre título e corpo
+  },
+  instructionBody: {
+    color: "#ccc",
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+
+  // NOVO ESTILO: Botão "Buscar Instrumental"
+  searchInstrumentalBtn: {
+    flexDirection: "row", // Ícone e texto lado a lado
+    alignItems: "center",
+    backgroundColor: "#1E90FF", // Cor que se destaque
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+    marginTop: 20, // Espaço entre o botão play/pause e este
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  searchInstrumentalText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
 });
-
-
