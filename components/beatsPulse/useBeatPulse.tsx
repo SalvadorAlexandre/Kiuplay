@@ -10,9 +10,9 @@ type Props = {
 };
 
 export default function BeatPulse({
-  bpm, // Mantido caso queira usar para algo como velocidade da animação no futuro
+  //bpm, // Mantido caso queira usar para algo como velocidade da animação no futuro
   active,
-  index, // Mantido caso queira usar para algo como atraso de animação individual
+  //index, // Mantido caso queira usar para algo como atraso de animação individual
   size = 18,
   color = "#1E90FF",
 }: Props) {
