@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/src/redux/store';
 
 export interface VideoInfoAndActionsProps {
   title: string;
@@ -42,7 +44,7 @@ const VideoInfoAndActions = ({
   isFavorited,
   likeCount = '12.1K',
   dislikeCount = '2',
-  favoriteCount = '14K',
+  //favoriteCount,
   viewsCount = '8 mil visualizações',
   uploadTime = 'há 3 semanas',
   commentCount = '30', // Valor padrão, ajuste se tiver um real
@@ -52,6 +54,10 @@ const VideoInfoAndActions = ({
   onToggleFavorite,
 }: VideoInfoAndActionsProps) => {
   const router = useRouter();
+
+  const favoriteVideos = useSelector((state: RootState) => state.favorites.videos);
+  const countFavorites = (id: string) =>
+    favoriteVideos.filter((v) => v.videoId === id).length;
 
   return (
     <View style={styles.infoContainer}>
@@ -137,7 +143,7 @@ const VideoInfoAndActions = ({
               size={23}
               color={isFavorited ? "#FF3D00" : "#fff"}
             />
-            <Text style={styles.actionButtonText}>{favoriteCount}</Text>
+            <Text style={styles.actionButtonText}>{countFavorites(videoId).toString()}</Text>
           </TouchableOpacity>
 
           {/* Comment Button - AGORA PASSA OS NOVOS PARÂMETROS */}
@@ -145,13 +151,14 @@ const VideoInfoAndActions = ({
             style={styles.actionButton}
             onPress={() =>
               router.push({
-                pathname: '/commentScreens/[videoId]',
+                pathname: '/commentScreens/videos/[videoId]',
                 params: {
                   videoId,
                   // NOVOS PARÂMETROS SENDO PASSADOS
                   commentCount: String(commentCount), // Certifique-se de que é string
                   videoThumbnailUrl: videoThumbnailUrl || '', // Passe a URL ou string vazia
                   videoTitle: title,
+                  videoArtist: artist,
                 },
               })
             }
@@ -187,7 +194,7 @@ const VideoInfoAndActions = ({
             <Text style={styles.actionButtonText}>Baixar</Text>
           </TouchableOpacity>
 
-          {/* Add to Playlist Button */}
+          {/* Playlist posted videos Button */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => { /* Implementar lógica de adicionar à playlist */ }}

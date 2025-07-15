@@ -1,4 +1,4 @@
-// app/commentScreens/videoComments/[videoId].tsx
+// app/commentScreens/musicComments/[musicId].tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -12,10 +12,10 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router"; // Não precisamos de useRouter aqui se o Stack.Screen já gerencia o back
+import { Stack, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-/* ─── Mock Data ────────────────────────────────────────── */
+/* ─── Mock Data para Comentários de Música ────────────────────────── */
 interface Comment {
   id: string;
   user: { name: string; avatar: number | string | null };
@@ -27,39 +27,40 @@ const generateMockComments = (count: number): Comment[] => {
   return Array.from({ length: count }).map((_, i) => ({
     id: String(i + 1),
     user: {
-      name: `User ${i + 1}`,
-      avatar: require("@/assets/images/Default_Profile_Icon/unknown_artist.png"),
+      name: `Músico Fã ${i + 1}`,
+      avatar: require("@/assets/images/Default_Profile_Icon/unknown_artist.png"), // Usar um avatar padrão
     },
-    text: `Comentário genérico para testar rolagem da FlatList. Este é o comentário número ${i + 1}.`,
+    text: `Adorei essa música! Comentário de teste número ${i + 1}.`,
     timestamp: `${i + 2} min atrás`,
   }));
 };
-/* ─────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────── */
 
-export default function VideoCommentsScreen() {
-  // RECEBENDO OS NOVOS PARÂMETROS
-  const { videoId, commentCount, videoThumbnailUrl, videoTitle} = useLocalSearchParams<{
-    videoId: string;
-    commentCount?: string; // Expo Router passa tudo como string
-    videoThumbnailUrl?: string; // Expo Router passa tudo como string
-    videoTitle?: string;
+export default function MusicCommentsScreen() {
+  // Recebendo os parâmetros específicos da música
+  const { musicId, musicTitle, artistName, albumArtUrl, commentCount } = useLocalSearchParams<{
+    musicId: string;
+    musicTitle?: string;
+    artistName?: string;
+    albumArtUrl?: string; // URL da capa do álbum
+    commentCount?: string; // Contagem de comentários (pode ser um placeholder)
   }>();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Placeholder for user's avatar (replace with actual user data)
-  const userAvatarUrl: string | null = null; // e.g., useAppSelector(s => s.auth.user?.avatarUrl);
+  // Substitua com o avatar do usuário logado
+  const userAvatarUrl: string | null = null; 
 
   useEffect(() => {
     setIsLoading(true);
-    // Simule a busca de comentários. Você usaria o videoId para buscar os comentários reais.
+    // Simula o carregamento de comentários da API
     setTimeout(() => {
-      setComments(generateMockComments(30)); // Carrega comentários mockados
+      setComments(generateMockComments(25)); // Gera 25 comentários de exemplo
       setIsLoading(false);
     }, 1000);
-  }, [videoId]);
+  }, [musicId]); // Recarrega se o ID da música mudar
 
   function handleSend() {
     const txt = input.trim();
@@ -82,7 +83,6 @@ export default function VideoCommentsScreen() {
       ...prev,
     ]);
     setInput('');
-    // Lógica para enviar o comentário ao backend
   }
 
   const renderCommentItem = ({ item }: { item: Comment }) => (
@@ -119,31 +119,33 @@ export default function VideoCommentsScreen() {
       />
 
       <View style={styles.container}>
-        {/* Nova seção para a thumbnail e o número de comentários */}
+        {/* Seção de informações do cabeçalho da música */}
         <View style={styles.headerInfo}>
-          {videoThumbnailUrl ? (
+          {albumArtUrl ? (
             <Image
-              source={{ uri: videoThumbnailUrl }}
+              source={{ uri: albumArtUrl }}
               style={styles.thumbnail}
-              accessibilityLabel="Thumbnail do vídeo"
+              accessibilityLabel="Capa do álbum"
             />
           ) : (
-            // Fallback se não houver thumbnail
             <View style={styles.thumbnailPlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#555" />
+              <Ionicons name="musical-notes-outline" size={40} color="#555" />
             </View>
           )}
           <View style={styles.headerTextContainer}>
-            {videoTitle && ( // <--- NOVO: Exibindo o título do vídeo se estiver disponível
-              <Text style={styles.commentCountText} numberOfLines={1}>
-                {videoTitle}
+            {musicTitle && (
+              <Text style={styles.musicTitleInComments} numberOfLines={1}>
+                {musicTitle}
               </Text>
             )}
-            <Text style={styles.videoTitleInComments}>
+            {artistName && (
+              <Text style={styles.artistNameInComments} numberOfLines={1}>
+                {artistName}
+              </Text>
+            )}
+            <Text style={styles.commentCountText}>
               {commentCount ? `${commentCount} Comentários` : 'Comentários'}
             </Text>
-            {/* Opcional: Adicionar título do vídeo aqui também */}
-            {/* <Text style={styles.videoTitleInComments}>{videoTitle}</Text> */}
           </View>
         </View>
 
@@ -162,15 +164,13 @@ export default function VideoCommentsScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={() => (
                 <Text style={styles.emptyCommentsText}>
-                    Nenhum comentário ainda. Seja o primeiro a comentar!
+                    Nenhum comentário para esta música ainda. Seja o primeiro!
                 </Text>
             )}
           />
         )}
 
-       
-
-        {/* Fixed input bar at the bottom */}
+        {/* Barra de input fixa na parte inferior */}
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
@@ -184,7 +184,7 @@ export default function VideoCommentsScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Escreva um comentário..."
+            placeholder="Adicionar um comentário público..."
             placeholderTextColor="#888"
             value={input}
             onChangeText={setInput}
@@ -226,24 +226,23 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
   },
-  // NOVOS ESTILOS PARA O CABEÇALHO DE INFORMAÇÕES
   headerInfo: {
     flexDirection: 'row',
-    //alignItems: 'center',
-    padding: 8,
+    alignItems: 'center',
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
-    backgroundColor: '#222', // Fundo para destacar
+    backgroundColor: '#222',
   },
   thumbnail: {
-    width: 100,
+    width: 60,
     height: 60,
     borderRadius: 8,
     marginRight: 12,
-    backgroundColor: '#444', // Fallback color while loading
+    backgroundColor: '#444',
   },
   thumbnailPlaceholder: {
-    width: 100,
+    width: 60,
     height: 60,
     borderRadius: 8,
     marginRight: 12,
@@ -254,21 +253,24 @@ const styles = StyleSheet.create({
   headerTextContainer: {
     flex: 1,
   },
-  commentCountText: {
+  musicTitleInComments: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  videoTitleInComments: {
+  artistNameInComments: {
     color: '#b3b3b3',
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: 12,
+    marginTop: 2, // Espaçamento entre o título e o artista
   },
-  // FIM DOS NOVOS ESTILOS
-
+  commentCountText: {
+    color: '#aaa',
+    fontSize: 12,
+    marginTop: 4, // Espaçamento abaixo do artista/título
+  },
   flatListContentContainer: {
     paddingTop: 80,
-    paddingBottom: 30,
+    paddingBottom: 30, // Garante que o último comentário não fique sob a barra de input
   },
   emptyCommentsText: {
     color: '#b3b3b3',
@@ -343,10 +345,8 @@ const styles = StyleSheet.create({
   },
   sendBtn: {
     marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 11,
+    padding: 10,
     borderRadius: 20,
     backgroundColor:"#2a2a2a",
   },
-  
 });

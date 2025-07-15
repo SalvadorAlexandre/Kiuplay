@@ -13,6 +13,11 @@ import TopTabBarVideos from '@/components/topTabBarVideosScreen';
 import VideoItem from '@/components/PlayerVideoComponents/VideoItem'; // Verifique o caminho correto, ajustei para 'ItemPlayerVideo'
 import VideoPlayerCore from '@/components/PlayerVideoComponents/VideoPlayerCore'; // Verifique o caminho correto, ajustei para 'VideoPlayerCore'
 import VideoInfoAndActions from '@/components/PlayerVideoComponents/VideoInfoAndActions'; // Verifique o caminho correto, ajustei para 'VideoInfoAndActions'
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/src/redux/store';
+import { addFavoriteVideo, removeFavoriteVideo } from '@/src/redux/favoritesSlice';
+
+
 
 // --- Definição da interface para os dados de cada vídeo ---
 export interface VideoData {
@@ -33,7 +38,7 @@ interface VideoActionStates {
 }
 // --- Fim da definição da interface ---
 
-// Dados de exemplo (mockados) para os vídeos
+// Dados de exemplo (mockados) para os vídeos()
 const MOCKED_VIDEO_DATA: VideoData[] = [
     { id: '1', title: 'Minha Música Perfeita', artist: 'Artista A', thumbnail: 'https://i.ytimg.com/vi/M7lc1UVf-VE/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
     { id: '2', title: 'Ritmo da Cidade Noturna', artist: 'Banda B', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
@@ -50,6 +55,9 @@ type TabName = 'feeds' | 'curtidas' | 'seguindo';
 export default function VideoClipesScreen() {
     const [currentPlayingVideo, setCurrentPlayingVideo] = useState<VideoData | null>(MOCKED_VIDEO_DATA.length > 0 ? MOCKED_VIDEO_DATA[0] : null);
     const [activeTab, setActiveTab] = useState<TabName>('feeds');
+
+    const dispatch = useDispatch();
+    const favoriteVideos = useSelector((state: RootState) => state.favorites.videos);
 
     // **Novo estado para armazenar as ações de cada vídeo**
     const [videoActionStates, setVideoActionStates] = useState<VideoActionStates>(() => {
@@ -210,11 +218,35 @@ export default function VideoClipesScreen() {
                 )}
 
                 {activeTab === 'curtidas' && (
-                    <View style={styles.tabContentTextContainer}>
-                        <Text style={styles.tabContentText}>Músicas Curtidas</Text>
-                    </View>
+                    <FlatList
+                        data={favoriteVideos}
+                        keyExtractor={(item) => item.videoId}
+                        ListEmptyComponent={() => (
+                            <View style={styles.tabContentTextContainer}>
+                                <Text style={styles.tabContentText}>Nenhum vídeo curtido ainda</Text>
+                            </View>
+                        )}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity onPress={() => handleVideoPress({
+                                id: item.videoId,
+                                title: item.title,
+                                artist: item.artist,
+                                thumbnail: item.videoThumbnailUrl,
+                                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', // Ajuste se tiver URL real
+                            })}>
+                                <VideoItem
+                                    id={item.videoId}
+                                    title={item.title}
+                                    artist={item.artist}
+                                    thumbnail={item.videoThumbnailUrl}
+                                />
+                            </TouchableOpacity>
+                        )}
+                        contentContainerStyle={styles.flatListContentContainer}
+                        showsVerticalScrollIndicator={false}
+                        scrollEnabled={false}
+                    />
                 )}
-
                 {activeTab === 'seguindo' && (
                     <View style={styles.tabContentTextContainer}>
                         <Text style={styles.tabContentText}>Artistas Seguindo</Text>

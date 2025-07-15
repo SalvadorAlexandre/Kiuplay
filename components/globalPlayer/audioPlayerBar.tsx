@@ -1,19 +1,16 @@
 // component/globalPlayer/audioPlayerBar.tsx
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Image,
   ActivityIndicator,
-  Platform,
-  Animated,
-  KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { useRouter } from 'expo-router';
 
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import {
@@ -33,7 +30,7 @@ const audioManager = getAudioManager();
 
 export default function AudioPlayerBar() {
   const dispatch = useAppDispatch();
-
+  const router = useRouter()
   const {
     currentTrack,
     isPlaying,
@@ -45,7 +42,21 @@ export default function AudioPlayerBar() {
     error,
   } = useAppSelector((state) => state.player);
 
-  //const coverImageGlobal = useAppSelector(state => state.player.coverImage);
+  const handleOpenComments = useCallback(() => { // <--- ADICIONADO
+    if (currentTrack) { // <--- ADICIONADO: Verifica se há uma música tocando
+      router.push({
+        pathname: '/commentScreens/musics/[musicId]', // <--- ADICIONADO: Caminho da nova tela de comentários de música
+        params: {
+          musicId: currentTrack.id, // <--- ADICIONADO: ID da música
+          musicTitle: currentTrack.title, // <--- ADICIONADO: Título da música
+          artistName: currentTrack.artist, // <--- ADICIONADO: Nome do artista
+          albumArtUrl: currentTrack.cover || '', // <--- ADICIONADO: URL da capa do álbum (ou string vazia)
+          commentCount: '30', // <--- ADICIONADO: Placeholder para a contagem de comentários (se não tiver o valor real)
+        },
+      });
+    }
+  }, [router, currentTrack]); // <--- ADICIONADO: Dependências para o useCallback
+
 
   useEffect(() => {
     const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
@@ -94,37 +105,13 @@ export default function AudioPlayerBar() {
     setIsFavorited(!isFavorited);
   };
 
-  const [commentText, setCommentText] = useState('');
-  const sendButtonScale = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(sendButtonScale, {
-      toValue: commentText.length > 0 ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }, [commentText]);
-
-  const commentInputWidth = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    Animated.timing(commentInputWidth, {
-      toValue: commentText.length > 0 ? 0.85 : 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-  }, [commentText]);
-
-  const animatedCommentInputWidth = commentInputWidth.interpolate({
-    inputRange: [0.85, 1],
-    outputRange: ['85%', '100%'],
-  });
-
   if (!currentTrack) return null;
 
   const coverImage = currentTrack.cover
     ? { uri: currentTrack.cover }
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
   /* logo depois de pegar currentTrack */
-  
+
   const artistAvatarSrc =
     currentTrack.artistAvatar        // ex.: https://…/avatar.jpg
       ? { uri: currentTrack.artistAvatar }
@@ -258,49 +245,13 @@ export default function AudioPlayerBar() {
               </TouchableOpacity>
             </View>
 
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-              style={{
-                marginTop: 16,
-                width: '100%',
-                paddingHorizontal: 10,
-                alignItems: 'center',
-              }}
-            >
-              <View style={{
-                width: '100%',
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 12,
-              }}>
-                <Animated.View style={{ width: animatedCommentInputWidth }}>
-                  <TextInput
-                    style={[styles.commentInput, { width: '100%' }]}
-                    placeholder="Adicionar comentário..."
-                    placeholderTextColor="#888"
-                    value={commentText}
-                    onChangeText={setCommentText}
-                  />
-                </Animated.View>
-                {commentText.length > 0 && (
-                  <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
-                    <TouchableOpacity style={styles.sendButton}>
-                      <Image
-                        source={require('@/assets/images/audioPlayerBar/icons8_email_send_120px.png')}
-                        style={styles.iconSend}
-                      />
-                    </TouchableOpacity>
-                  </Animated.View>
-                )}
-              </View>
-            </KeyboardAvoidingView>
+            
 
             <View style={styles.actionButtons}>
               <TouchableOpacity onPress={() => { }}>
                 <Image
                   source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
-                  style={styles.iconSendComment}
+                  style={styles.iconActions}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={toggleFavorite}>
@@ -310,10 +261,10 @@ export default function AudioPlayerBar() {
                   color={isFavorited ? "#FF3D00" : "#fff"}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { }}>
+              <TouchableOpacity onPress={handleOpenComments}>
                 <Image
                   source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')}
-                  style={styles.iconSendComment}
+                  style={styles.iconActions}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => { }}>
@@ -337,7 +288,7 @@ export default function AudioPlayerBar() {
           </View>
         )
       }
-    </View >
+    </View>
   );
 }
 
@@ -391,6 +342,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
     marginTop: 10,
+    marginBottom: 10,
   },
   expandedCover: {
     width: '95%',
@@ -470,28 +422,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     color: '#fff',
   },
-  sendButton: {
-    padding: 10,
-    marginRight: 6,
-    backgroundColor: '#1E90FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
-    borderRadius: 100,
-    width: 45,
-    height: 45,
-
-  },
-  iconSendComment: {
+  iconActions: {
     width: 25,
     height: 25,
     // marginRight: 10,
   },
-  iconSend: {
-    width: 22,
-    height: 22,
-    // marginRight: 10,
-  },
+ 
   actionButtons: {
     //flex: 1,
     flexDirection: 'row',

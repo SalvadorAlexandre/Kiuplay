@@ -13,6 +13,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 // IMPORTAÇÕES DO REDUX
 import { Provider } from 'react-redux';
 import { store } from '@/src/redux/store'; // Ajuste o caminho conforme onde você colocou a pasta src/redux
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor } from '@/src/redux/store';
 import { Audio } from 'expo-av'; // Para configurar o modo de áudio globalmente
 import { getAudioManager } from '@/src/utils/audioManager'; // Para descarregar o áudio ao sair
 
@@ -70,13 +72,13 @@ export default function RootLayout() {
     return null;
   }
 
-  return (
-    // <AudioPlayerProvider> {/* REMOVA ESTA LINHA */}
-    <Provider store={store}> {/* <<-- SUBSTITUA POR ISTO */}
+ return (
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
       <RootLayoutNav />
-    </Provider>
-    // </AudioPlayerProvider> {/* REMOVA ESTA LINHA */}
-  );
+    </PersistGate>
+  </Provider>
+);
 }
 
 function RootLayoutNav() {
