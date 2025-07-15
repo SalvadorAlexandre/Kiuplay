@@ -20,6 +20,7 @@ export interface Track {
   artist: string;
   name: string;
   cover: string; // URL ou URI para a imagem da capa
+  artistAvatar?: string;
   // Adicione outras propriedades relevantes, como duration, album, etc.
   duration?: number;
   size?: number;

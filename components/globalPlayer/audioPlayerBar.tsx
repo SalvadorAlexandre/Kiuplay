@@ -123,6 +123,12 @@ export default function AudioPlayerBar() {
   const coverImage = currentTrack.cover
     ? { uri: currentTrack.cover }
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+  /* logo depois de pegar currentTrack */
+  
+  const artistAvatarSrc =
+    currentTrack.artistAvatar        // ex.: https://…/avatar.jpg
+      ? { uri: currentTrack.artistAvatar }
+      : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
   return (
     <View
@@ -183,17 +189,14 @@ export default function AudioPlayerBar() {
         </>
       )
       }
-       
-       {/*MODO MAXIMIZADO*/}
+
+      {/*MODO MAXIMIZADO*/}
       {
         isExpanded && (
           <View style={styles.expandedContent}>
             <View style={styles.expandedHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Image
-                  source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
-                  style={styles.profileImage}
-                />
+                <Image source={artistAvatarSrc} style={styles.profileImage} />
                 <Text style={styles.artistMainName} numberOfLines={1}>
                   {currentTrack.artist}
                 </Text>
