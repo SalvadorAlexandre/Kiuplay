@@ -5,17 +5,19 @@ import { combineReducers } from 'redux';
 import favoritesReducer from './favoritesSlice';
 import playerReducer from './playerSlice';
 import usersReducer from './userSlice';
+import followedArtistsReducer from './followedArtistsSlice'; // <-- IMPORTANTE: Novo import
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['favorites'], // Persistir apenas favoritos
+  whitelist: ['favorites', 'followedArtists'], // Persistir apenas favoritos
 };
 
 const rootReducer = combineReducers({
   player: playerReducer,
   users: usersReducer,
   favorites: favoritesReducer,
+  followedArtists: followedArtistsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

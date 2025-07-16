@@ -1,5 +1,5 @@
 // app/(tabs)/VideoClipes.tsx
-import React, { useState, useEffect } from 'react'; // Importe useEffect
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -8,46 +8,48 @@ import {
     TouchableOpacity,
     Dimensions,
     ScrollView,
+    Image // Importe Image para renderizar profileImageUrl na aba "seguindo"
 } from 'react-native';
 import TopTabBarVideos from '@/components/topTabBarVideosScreen';
-import VideoItem from '@/components/PlayerVideoComponents/VideoItem'; // Verifique o caminho correto, ajustei para 'ItemPlayerVideo'
-import VideoPlayerCore from '@/components/PlayerVideoComponents/VideoPlayerCore'; // Verifique o caminho correto, ajustei para 'VideoPlayerCore'
-import VideoInfoAndActions from '@/components/PlayerVideoComponents/VideoInfoAndActions'; // Verifique o caminho correto, ajustei para 'VideoInfoAndActions'
+import VideoItem from '@/components/PlayerVideoComponents/VideoItem';
+import VideoPlayerCore from '@/components/PlayerVideoComponents/VideoPlayerCore';
+import VideoInfoAndActions from '@/components/PlayerVideoComponents/VideoInfoAndActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 import { addFavoriteVideo, removeFavoriteVideo } from '@/src/redux/favoritesSlice';
-
-
+import { FollowedArtist, addFollowedArtist, removeFollowedArtist } from '@/src/redux/followedArtistsSlice'; // <-- IMPORTANTE: Novas importações
 
 // --- Definição da interface para os dados de cada vídeo ---
 export interface VideoData {
     id: string;
     title: string;
     artist: string;
+    artistId: string; // <-- NOVO: ID do artista
+    artistProfileImageUrl?: string; // <-- NOVO: URL da imagem de perfil do artista
     thumbnail: string;
     videoUrl: string;
 }
 
-// Interface para armazenar os estados dos botões de cada vídeo
+// Interface para armazenar os estados dos botões de LIKE/DISLIKE de cada vídeo
 interface VideoActionStates {
     [videoId: string]: {
         liked: boolean;
         disliked: boolean;
-        isFavorited: boolean;
     };
 }
 // --- Fim da definição da interface ---
 
-// Dados de exemplo (mockados) para os vídeos()
+// Dados de exemplo (mockados) para os vídeos
+// ADICIONE artistId e artistProfileImageUrl aos seus dados mockados!
 const MOCKED_VIDEO_DATA: VideoData[] = [
-    { id: '1', title: 'Minha Música Perfeita', artist: 'Artista A', thumbnail: 'https://i.ytimg.com/vi/M7lc1UVf-VE/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-    { id: '2', title: 'Ritmo da Cidade Noturna', artist: 'Banda B', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-    { id: '3', title: 'Noite Estrelada de Verão', artist: 'Cantor C', thumbnail: 'https://i.ytimg.com/vi/3y7Kq2l_k6w/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4' },
-    { id: '4', title: 'Sons da Natureza Selvagem', artist: 'Grupo D', thumbnail: 'https://i.ytimg.com/vi/F-glUq_jWv0/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4' },
-    { id: '5', title: 'Caminhos da Descoberta', artist: 'Artista E', thumbnail: 'https://i.ytimg.com/vi/2N7TfX6f4oM/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/a.mp4' },
-    { id: '6', title: 'Amanhecer Dourado', artist: 'Solista F', thumbnail: 'https://i.ytimg.com/vi/eJk8e8e8e8e/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/b.mp4' },
-    { id: '7', title: 'Energia Vibrante', artist: 'DJ G', thumbnail: 'https://i.ytimg.com/vi/xM6uD7n1BfQ/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4' },
-    { id: '8', title: 'Reflexões Profundas', artist: 'Poeta H', thumbnail: 'https://i.ytimg.com/vi/wA5wA5wA5wA/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4' },
+    { id: '1', title: 'Minha Música Perfeita', artist: 'Artista A', artistId: 'artist1', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=1', thumbnail: 'https://i.ytimg.com/vi/M7lc1UVf-VE/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+    { id: '2', title: 'Ritmo da Cidade Noturna', artist: 'Banda B', artistId: 'artist2', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=2', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+    { id: '3', title: 'Noite Estrelada de Verão', artist: 'Cantor C', artistId: 'artist3', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=3', thumbnail: 'https://i.ytimg.com/vi/3y7Kq2l_k6w/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4' },
+    { id: '4', title: 'Sons da Natureza Selvagem', artist: 'Grupo D', artistId: 'artist4', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=4', thumbnail: 'https://i.ytimg.com/vi/F-glUq_jWv0/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4' },
+    { id: '5', title: 'Caminhos da Descoberta', artist: 'Artista E', artistId: 'artist5', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=5', thumbnail: 'https://i.ytimg.com/vi/2N7TfX6f4oM/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/a.mp4' },
+    { id: '6', title: 'Amanhecer Dourado', artist: 'Solista F', artistId: 'artist6', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=6', thumbnail: 'https://i.ytimg.com/vi/eJk8e8e8e8e/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/b.mp4' },
+    { id: '7', title: 'Energia Vibrante', artist: 'DJ G', artistId: 'artist7', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=7', thumbnail: 'https://i.ytimg.com/vi/xM6uD7n1BfQ/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4' },
+    { id: '8', title: 'Reflexões Profundas', artist: 'Poeta H', artistId: 'artist8', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=8', thumbnail: 'https://i.ytimg.com/vi/wA5wA5wA5wA/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4' },
 ];
 
 type TabName = 'feeds' | 'curtidas' | 'seguindo';
@@ -58,13 +60,13 @@ export default function VideoClipesScreen() {
 
     const dispatch = useDispatch();
     const favoriteVideos = useSelector((state: RootState) => state.favorites.videos);
+    const followedArtists = useSelector((state: RootState) => state.followedArtists.artists); // <-- NOVO: Pega artistas seguidos do Redux
 
-    // **Novo estado para armazenar as ações de cada vídeo**
+    // Estado para armazenar apenas as ações de like/dislike de cada vídeo
     const [videoActionStates, setVideoActionStates] = useState<VideoActionStates>(() => {
-        // Inicializa o estado para todos os vídeos com false
         const initialState: VideoActionStates = {};
         MOCKED_VIDEO_DATA.forEach(video => {
-            initialState[video.id] = { liked: false, disliked: false, isFavorited: false };
+            initialState[video.id] = { liked: false, disliked: false };
         });
         return initialState;
     });
@@ -75,25 +77,21 @@ export default function VideoClipesScreen() {
 
     const handleVideoPress = (item: VideoData) => {
         setCurrentPlayingVideo(item);
-        // Não é necessário resetar o estado aqui, pois ele já está salvo em videoActionStates
     };
 
     const handleTabChange = (tab: TabName) => {
         setActiveTab(tab);
     };
 
-    // **Funções para alternar os estados dos botões, que serão passadas para o filho**
     const handleToggleLike = (videoId: string) => {
         setVideoActionStates(prevStates => {
             const currentLiked = prevStates[videoId]?.liked || false;
-            const currentDisliked = prevStates[videoId]?.disliked || false;
-
             return {
                 ...prevStates,
                 [videoId]: {
-                    ...prevStates[videoId], // Mantém outros estados do vídeo se existirem
+                    ...prevStates[videoId],
                     liked: !currentLiked,
-                    disliked: currentLiked ? currentDisliked : false, // Desativa dislike se like for ativado
+                    disliked: currentLiked ? (prevStates[videoId]?.disliked || false) : false,
                 },
             };
         });
@@ -102,31 +100,39 @@ export default function VideoClipesScreen() {
     const handleToggleDislike = (videoId: string) => {
         setVideoActionStates(prevStates => {
             const currentDisliked = prevStates[videoId]?.disliked || false;
-            const currentLiked = prevStates[videoId]?.liked || false;
-
             return {
                 ...prevStates,
                 [videoId]: {
-                    ...prevStates[videoId], // Mantém outros estados do vídeo se existirem
+                    ...prevStates[videoId],
                     disliked: !currentDisliked,
-                    liked: currentDisliked ? currentLiked : false, // Desativa like se dislike for ativado
+                    liked: currentDisliked ? (prevStates[videoId]?.liked || false) : false,
                 },
             };
         });
     };
 
     const handleToggleFavorite = (videoId: string) => {
-        setVideoActionStates(prevStates => ({
-            ...prevStates,
-            [videoId]: {
-                ...prevStates[videoId], // Mantém outros estados do vídeo se existirem
-                isFavorited: !((prevStates[videoId]?.isFavorited) || false), // Alterna o estado de favorito
-            },
-        }));
+        const videoToToggle = MOCKED_VIDEO_DATA.find(v => v.id === videoId);
+        if (!videoToToggle) {
+            console.warn(`Vídeo com ID ${videoId} não encontrado para favoritar/desfavoritar.`);
+            return;
+        }
+
+        const isCurrentlyFavorited = favoriteVideos.some(fav => fav.videoId === videoId);
+
+        if (isCurrentlyFavorited) {
+            dispatch(removeFavoriteVideo(videoId));
+        } else {
+            dispatch(addFavoriteVideo({
+                videoId: videoToToggle.id,
+                title: videoToToggle.title,
+                artist: videoToToggle.artist,
+                videoThumbnailUrl: videoToToggle.thumbnail,
+            }));
+        }
     };
 
-    // Garante que o estado inicial de currentPlayingVideo seja refletido
-    // no videoActionStates caso a lista MOCKED_VIDEO_DATA seja vazia inicialmente
+    // Garante que o currentPlayingVideo tenha um valor inicial se a lista de dados não for vazia
     useEffect(() => {
         if (!currentPlayingVideo && MOCKED_VIDEO_DATA.length > 0) {
             setCurrentPlayingVideo(MOCKED_VIDEO_DATA[0]);
@@ -184,21 +190,22 @@ export default function VideoClipesScreen() {
                         keyExtractor={(item) => item.id}
                         ListHeaderComponent={() => (
                             <VideoInfoAndActions
-                                // Importante: usar o ID do vídeo atual como key garante que
-                                // o componente seja re-montado (e re-renderizado com as props corretas)
-                                // quando o vídeo muda, mas sem resetar o estado global.
                                 key={currentPlayingVideo.id}
                                 title={currentPlayingVideo.title}
                                 artist={currentPlayingVideo.artist}
-                                videoId={currentPlayingVideo.id} // Passa o ID do vídeo
-                                // Passa os estados específicos para o currentPlayingVideo
+                                videoId={currentPlayingVideo.id}
                                 liked={videoActionStates[currentPlayingVideo.id]?.liked || false}
                                 disliked={videoActionStates[currentPlayingVideo.id]?.disliked || false}
-                                isFavorited={videoActionStates[currentPlayingVideo.id]?.isFavorited || false}
-                                // Passa as funções de callback
+                                isFavorited={favoriteVideos.some(fav => fav.videoId === currentPlayingVideo.id)}
+                                // <-- NOVAS PROPS para isArtistFollowed e artistId
+                                isArtistFollowed={followedArtists.some(artist => artist.id === currentPlayingVideo.artistId)}
+                                artistId={currentPlayingVideo.artistId}
+                                artistProfileImageUrl={currentPlayingVideo.artistProfileImageUrl}
+                                // FIM NOVAS PROPS
                                 onToggleLike={handleToggleLike}
                                 onToggleDislike={handleToggleDislike}
                                 onToggleFavorite={handleToggleFavorite}
+                                videoThumbnailUrl={currentPlayingVideo.thumbnail}
                             />
                         )}
                         renderItem={({ item }) => (
@@ -217,13 +224,14 @@ export default function VideoClipesScreen() {
                     />
                 )}
 
+                {/* Conteúdo da tab 'curtidas' (agora exibe os favoritos do Redux) */}
                 {activeTab === 'curtidas' && (
                     <FlatList
                         data={favoriteVideos}
                         keyExtractor={(item) => item.videoId}
                         ListEmptyComponent={() => (
                             <View style={styles.tabContentTextContainer}>
-                                <Text style={styles.tabContentText}>Nenhum vídeo curtido ainda</Text>
+                                <Text style={styles.tabContentText}>Nenhum vídeo favorito ainda.</Text>
                             </View>
                         )}
                         renderItem={({ item }) => (
@@ -232,7 +240,12 @@ export default function VideoClipesScreen() {
                                 title: item.title,
                                 artist: item.artist,
                                 thumbnail: item.videoThumbnailUrl,
-                                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', // Ajuste se tiver URL real
+                                // ATENÇÃO: Se o vídeo favorito não tem a URL do vídeo original,
+                                // você pode ter que buscá-la novamente ou incluí-la no FavoritedVideo
+                                // Para este exemplo, estou mantendo a URL mockada.
+                                videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                                artistId: MOCKED_VIDEO_DATA.find(v => v.id === item.videoId)?.artistId || '', // Tentar encontrar o artistId
+                                artistProfileImageUrl: MOCKED_VIDEO_DATA.find(v => v.id === item.videoId)?.artistProfileImageUrl || '', // Tentar encontrar a profileImageUrl
                             })}>
                                 <VideoItem
                                     id={item.videoId}
@@ -247,10 +260,36 @@ export default function VideoClipesScreen() {
                         scrollEnabled={false}
                     />
                 )}
+                {/* Conteúdo da tab 'seguindo' (AGORA EXIBE OS ARTISTAS SEGUIDOS DO REDUX) */}
                 {activeTab === 'seguindo' && (
-                    <View style={styles.tabContentTextContainer}>
-                        <Text style={styles.tabContentText}>Artistas Seguindo</Text>
-                    </View>
+                    <FlatList
+                        data={followedArtists} // <-- EXIBE ARTISTAS SEGUIDOS
+                        keyExtractor={(item) => item.id}
+                        ListEmptyComponent={() => (
+                            <View style={styles.tabContentTextContainer}>
+                                <Text style={styles.tabContentText}>Você não está seguindo nenhum artista.</Text>
+                            </View>
+                        )}
+                        renderItem={({ item }) => (
+                            <View style={styles.followedArtistItem}>
+                                <Image
+                                    source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
+                                    style={styles.followedArtistProfileImage}
+                                />
+                                <Text style={styles.followedArtistName}>{item.name}</Text>
+                                {/* Poderia adicionar um botão de "Deixar de Seguir" aqui também */}
+                                <TouchableOpacity
+                                    style={styles.unfollowButton}
+                                    onPress={() => dispatch(removeFollowedArtist(item.id))}
+                                >
+                                    <Text style={styles.unfollowButtonText}>Deixar de Seguir</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        contentContainerStyle={styles.flatListContentContainer}
+                        showsVerticalScrollIndicator={false}
+                        scrollEnabled={false}
+                    />
                 )}
             </ScrollView>
         </View>
@@ -312,5 +351,37 @@ const styles = StyleSheet.create({
     tabContentText: {
         color: '#fff',
         fontSize: 16,
-    }
+    },
+    // NOVOS ESTILOS PARA A ABA "SEGUINDO"
+    followedArtistItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+    },
+    followedArtistProfileImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginRight: 10,
+        backgroundColor: '#555',
+    },
+    followedArtistName: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        flex: 1, // Para ocupar o espaço restante
+    },
+    unfollowButton: {
+        backgroundColor: '#FF3D00', // Vermelho para "Deixar de Seguir"
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 15,
+    },
+    unfollowButtonText: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: 'bold',
+    },
 });
