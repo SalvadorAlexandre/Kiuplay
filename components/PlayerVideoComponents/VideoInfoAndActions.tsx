@@ -7,6 +7,8 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
+    Alert, // Importar Alert para exibir mensagens ao usuário
+    Platform, // Importar Platform para checar o ambiente
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -30,6 +32,7 @@ export interface VideoInfoAndActionsProps {
     uploadTime?: string;
     commentCount?: number | string;
     videoThumbnailUrl?: string;
+    videoUrl: string; // <-- IMPORTANTE: Adicionar videoUrl aqui
 
     isArtistFollowed: boolean
     artistId: string
@@ -57,6 +60,7 @@ const VideoInfoAndActions = ({
     uploadTime = 'há 3 semanas',
     commentCount = '30',
     videoThumbnailUrl,
+    videoUrl, // <-- Receber videoUrl
 
     isArtistFollowed,
     artistId,
@@ -108,6 +112,67 @@ const VideoInfoAndActions = ({
             },
         })
     }
+
+    // --- NOVA LÓGICA PARA O BOTÃO PLAYLIST ---
+    const handlePlaylistPress = () => {
+        router.push({
+            pathname: '/playlistScreens/playlistVideo/[playlistVideo]', // Rota da nova tela
+            params: {
+                artistId,
+                artistName: artist,
+                artistProfileImageUrl: artistProfileImageUrl || '', // Passar URL ou string vazia
+                videoId: videoId,
+            },
+        });
+    };
+
+    // --- NOVA LÓGICA PARA O BOTÃO DOWNLOAD ---
+    const handleDownloadPress = async () => {
+        if (!videoUrl) {
+            Alert.alert('Erro', 'URL do vídeo não disponível para download.');
+            return;
+        }
+
+        if (Platform.OS === 'web') {
+            try {
+                // Tentativa de usar Fetch para obter o blob do vídeo
+                // Isso é útil para lidar com CORS ou para obter o nome do arquivo dinamicamente
+                const response = await fetch(videoUrl);
+                if (!response.ok) {
+                    throw new Error(`Erro ao baixar o vídeo: ${response.statusText}`);
+                }
+                const blob = await response.blob();
+
+                // Cria um URL para o blob
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Cria um link temporário no DOM e simula um clique
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                // Sugere um nome de arquivo, você pode torná-lo mais dinâmico
+                a.download = `${title.replace(/[^a-z0-9]/gi, '_')}_${artist.replace(/[^a-z0-9]/gi, '_')}.mp4`;
+                document.body.appendChild(a); // Necessário para Firefox
+                a.click();
+                document.body.removeChild(a); // Remove o link
+                URL.revokeObjectURL(blobUrl); // Libera o objeto URL
+
+                Alert.alert('Download Iniciado', 'Seu download deve começar em breve.');
+
+            } catch (error) {
+                console.error('Erro ao tentar baixar o vídeo via fetch:', error);
+                // Fallback para a abordagem de link direto se fetch falhar ou por segurança
+                Alert.alert('Erro no Download', 'Não foi possível baixar o vídeo diretamente. Tentando abordagem alternativa.');
+                // Fallback para download direto do link (pode abrir em nova aba dependendo do navegador/servidor)
+                window.open(videoUrl, '_blank');
+            }
+        } else {
+            // Lógica para download em ambientes nativos (iOS/Android)
+            // Isso exigiria uma biblioteca como `expo-file-system` e permissões
+            Alert.alert('Download Indisponível', 'O download direto de vídeos para o sistema de arquivos não é totalmente suportado em ambientes nativos via Expo Go sem bibliotecas adicionais e permissões.');
+            console.log('Implementar lógica de download nativo com expo-file-system para iOS/Android');
+        }
+    };
+    // --- FIM NOVA LÓGICA ---
 
     return (
         <View style={styles.infoContainer}>
@@ -231,7 +296,7 @@ const VideoInfoAndActions = ({
                     {/* Download Button */}
                     <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() => { /* Implementar lógica de download */ }}
+                        onPress={handleDownloadPress} // <-- CHAMAR A NOVA FUNÇÃO AQUI
                         accessibilityLabel="Baixar vídeo"
                     >
                         <Image
@@ -241,11 +306,11 @@ const VideoInfoAndActions = ({
                         <Text style={styles.actionButtonText}>Baixar</Text>
                     </TouchableOpacity>
 
-                    {/* Playlist posted videos Button */}
+                    {/* Playlist of the all posted videos Button */}
                     <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() => { /* Implementar lógica de adicionar à playlist */ }}
-                        accessibilityLabel="Adicionar à playlist"
+                        onPress={handlePlaylistPress}
+                        accessibilityLabel="Ver playlist do artista"
                     >
                         <Ionicons name="list" size={23} color="#fff" />
                         <Text style={styles.actionButtonText}>Playlist</Text>
@@ -260,7 +325,7 @@ const styles = StyleSheet.create({
     infoContainer: {
         paddingHorizontal: 15,
         paddingVertical: 10,
-        backgroundColor: '#000',
+        backgroundColor: '#191919',
     },
     artistRow: {
         flexDirection: 'row',

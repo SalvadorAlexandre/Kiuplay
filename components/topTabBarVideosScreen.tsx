@@ -1,35 +1,49 @@
-// Importa os componentes necessários do React Native
+// components/topTabBarVideosScreen.tsx
 import {
     View,
     TouchableOpacity,
     StyleSheet,
     Text,
-    TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-// Importa o ícone de seta para a esquerda da biblioteca Lucide (ícones modernos compatíveis com React Native)
-//import { ArrowLeft } from 'lucide-react-native';
-
-// Importa o hook useRouter do expo-router para permitir navegação programática
 import { useRouter } from 'expo-router';
 
-// Componente funcional chamado BackTabBar
-export default function TopTabBarVideos() {
-    // Inicializa o roteador para navegar entre as telas
+// Definindo a interface para as props do componente TopTabBarVideos
+interface TopTabBarVideosProps {
+    // Adicionando a prop 'activeTab' que será recebida do componente pai (VideoClipesScreen)
+    activeTab: 'feeds' | 'curtidas' | 'seguindo';
+}
+
+// O componente agora aceita 'activeTab' como uma prop
+export default function TopTabBarVideos({ activeTab }: TopTabBarVideosProps) {
     const router = useRouter();
 
-    // JSX que define a estrutura visual da TabBar de voltar
+    // Função para navegar para a tela de notificações
+    const handleNotificationsPress = () => {
+        // Rota para a tela de notificações (confirmando o caminho que você usa)
+        router.push('/notificationsScreens/videoNotifications/notifications');
+    };
+
+    // Função para navegar para a tela de pesquisa
+    const handleSearchPress = () => {
+        // Passando a aba ativa como um parâmetro para a tela de pesquisa
+        router.push({
+            pathname: '/searchScreens/videoSearch/search', // Rota para a tela de pesquisa (confirmando o caminho que você usa)
+            params: { activeTab: activeTab }, // <--- AQUI A MUDANÇA: Passando a aba ativa
+        });
+    };
+
     return (
         <View style={styles.container}>
 
-            <Text style={styles.title}>Videos</Text>
+            <Text style={styles.title}>Vídeos</Text> {/* Título para a barra */}
 
-            {/* Botão de notificações de novos videos postados*/}
+            {/* Botão de notificações de novos videos postados */}
             <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.button}>
-                {/* Ícone de notificações*/}
+                onPress={handleNotificationsPress}
+                style={styles.button}
+                accessibilityLabel="Ver novas notificações de vídeos"
+            >
                 <Ionicons
                     name='notifications-outline'
                     size={26}
@@ -37,11 +51,12 @@ export default function TopTabBarVideos() {
                 />
             </TouchableOpacity>
 
-            {/* Botão de pesquisa*/}
+            {/* Botão de pesquisa */}
             <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.button}>
-                {/* Ícone de notificações*/}
+                onPress={handleSearchPress}
+                style={styles.button}
+                accessibilityLabel="Abrir tela de pesquisa"
+            >
                 <Ionicons
                     name='search-outline'
                     size={26}
@@ -55,25 +70,23 @@ export default function TopTabBarVideos() {
 
 // Define os estilos usados no componente
 const styles = StyleSheet.create({
-    // Estilo da barra que envolve o botão
     container: {
-        backgroundColor: '#191919',      // Cor de fundo escura
-        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-        borderBottomWidth: 1,            // Borda inferior com 1 pixel
-        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
-        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
-        //alignItems: 'center',            // Alinha verticalmente ao centro
+        backgroundColor: '#191919',
+        paddingVertical: 20,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderColor: '#191919',
+        flexDirection: 'row',
+        alignItems: 'center', // Alinha verticalmente ao centro
     },
-    // Estilo do botão (área clicável)
     button: {
-        padding: 6,  // Espaçamento interno do botão
+        padding: 6,
+        marginLeft: 10, // Espaçamento entre os botões
     },
     title: {
         color: '#fff',
         fontSize: 20,
-        //marginBottom: 8,
-        flex: 1,
-        //textAlign: 'center',
+        fontWeight: 'bold', // Título com mais destaque
+        flex: 1, // Ocupa o espaço restante e empurra os botões para a direita
     },
 });

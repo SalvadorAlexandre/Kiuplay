@@ -1,4 +1,4 @@
-// app/(tabs)/VideoClipes.tsx
+// app/(tabs)/videoClipes.tsx
 import React, { useState, useEffect } from 'react';
 import {
     View,
@@ -41,7 +41,7 @@ interface VideoActionStates {
 
 // Dados de exemplo (mockados) para os vídeos
 // ADICIONE artistId e artistProfileImageUrl aos seus dados mockados!
-const MOCKED_VIDEO_DATA: VideoData[] = [
+export const MOCKED_VIDEO_DATA: VideoData[] = [
     { id: '1', title: 'Minha Música Perfeita', artist: 'Artista A', artistId: 'artist1', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=1', thumbnail: 'https://i.ytimg.com/vi/M7lc1UVf-VE/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
     { id: '2', title: 'Ritmo da Cidade Noturna', artist: 'Banda B', artistId: 'artist2', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=2', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
     { id: '3', title: 'Noite Estrelada de Verão', artist: 'Cantor C', artistId: 'artist3', artistProfileImageUrl: 'https://i.pravatar.cc/150?img=3', thumbnail: 'https://i.ytimg.com/vi/3y7Kq2l_k6w/hqdefault.jpg', videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4' },
@@ -143,7 +143,7 @@ export default function VideoClipesScreen() {
     return (
         <View style={styles.container}>
             {/* Topo fixo: TopTabBarVideos */}
-            <TopTabBarVideos />
+            <TopTabBarVideos activeTab={activeTab} />
 
             {/* Video Player fixo na parte superior */}
             {currentPlayingVideo ? (
@@ -201,6 +201,7 @@ export default function VideoClipesScreen() {
                                 isArtistFollowed={followedArtists.some(artist => artist.id === currentPlayingVideo.artistId)}
                                 artistId={currentPlayingVideo.artistId}
                                 artistProfileImageUrl={currentPlayingVideo.artistProfileImageUrl}
+                                videoUrl={currentPlayingVideo.videoUrl} // <-- PASSANDO A VIDEOURL AQUI
                                 // FIM NOVAS PROPS
                                 onToggleLike={handleToggleLike}
                                 onToggleDislike={handleToggleDislike}

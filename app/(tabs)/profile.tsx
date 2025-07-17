@@ -151,7 +151,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInConfig}    // Aciona ao pressionar
             onPressOut={handlePressOutConfig}  // Aciona ao soltar
-            onPress={() => router.push('/useProfileSettingsScreen')} // Exemplo de ação
+            onPress={() => router.push('/profileScreens/useProfileSettingsScreen')} // Exemplo de ação
             style={styles.buttonContent} // Estilo interno
           >
             {/* Ícone esquerdo */}
@@ -177,7 +177,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInMonetization}    // Aciona ao pressionar
             onPressOut={handlePressOutMonetization} // Aciona ao soltar
-            onPress={() => router.push('/useMonetizationScreen')} // Ação
+            onPress={() => router.push('/profileScreens/useMonetizationScreen')} // Ação
             style={styles.buttonContent} // Estilo interno
           >
             {/* Ícone esquerdo (ícone de monetização*/}
@@ -203,7 +203,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInUploads}    // Aciona ao pressionar
             onPressOut={handlePressOutUploads} // Aciona ao soltar 
-            onPress={() => router.push('/useOptionsPostsScreen')} // Ação
+            onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} // Ação
             style={styles.buttonContent} // Estilo interno
           >
             {/* Ícone esquerdo (ícone de upload) */}
@@ -230,7 +230,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInInsight}    // Aciona ao pressionar
             onPressOut={handlePressOutInsight} // Aciona ao soltar
-            onPress={() => router.push('/useInsightsUserScreen')} // Ação
+            onPress={() => router.push('/profileScreens/useInsightsUserScreen')} // Ação
             style={styles.buttonContent} // Estilo interno
           >
             {/* Ícone esquerdo (ícone de Insight) */}

@@ -102,7 +102,7 @@ const ShareVideoScreen = () => {
         options={{
           headerShown: true,
           title: 'Partilhar Vídeo',
-          headerTitleAlign: 'center', // Centraliza o título do cabeçalho
+          //headerTitleAlign: 'center', // Centraliza o título do cabeçalho
           headerStyle: { backgroundColor: '#1E1E1E' },
           headerTintColor: '#fff',
         }}
@@ -177,7 +177,7 @@ const ShareVideoScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#191919',
     padding: 15,
   },
   videoInfoCard: {
@@ -193,6 +193,7 @@ const styles = StyleSheet.create({
     height: 45,
     borderRadius: 4,
     marginRight: 10,
+    backgroundColor: '#333',
   },
   videoThumbnailPlaceholder: {
     width: 80,
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a1a1a',
+    //backgroundColor: '#1a1a1a',
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
@@ -273,6 +274,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 10,
+    backgroundColor: '#333',
   },
   userName: {
     flex: 1,

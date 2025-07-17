@@ -49,7 +49,7 @@ export default function TabLayout() {
       >
 
         <Tabs.Screen
-          name="VideoClipes" //Tela videos
+          name="videoClipes" //Tela videos
           options={{
             title: 'Videos',
             tabBarLabel: 'Videos',
