@@ -1,5 +1,5 @@
-//components/sudioLocalComponent/useMusicLocalLis.tsx
-import React, { useEffect } from 'react'; // Adicionado useEffect
+// components/audioLocalComponent/useMusicLocalList.tsx
+import React, { useEffect } from 'react';
 import {
     View,
     Text,
@@ -7,21 +7,21 @@ import {
     StyleSheet,
     FlatList,
 } from 'react-native';
-import { v4 as uuidv4 } from 'uuid'; // Importe uuid para gerar IDs únicos
+import { v4 as uuidv4 } from 'uuid';
 import { parseBlob } from 'music-metadata';
+
 // Importe Track e as thunks do seu playerSlice
 import {
-    Track,
+    Track, // ADIÇÃO: Importa a interface Track
     setPlaylistAndPlayThunk,
     playTrackThunk,
-    //setCoverImage,
-} from '@/src/redux/playerSlice'; // Ajuste o caminho conforme seu projeto
-import { useAppDispatch, useAppSelector } from '@/src/redux/hooks'; // Seus hooks personalizados para Redux
-import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader'; // Seu hook para selecionar arquivos
+} from '@/src/redux/playerSlice';
+import { useAppDispatch, useAppSelector } from '@/src/redux/hooks';
+import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader';
 
-// Remova a interface 'Music' local, vamos usar 'Track' de playerSlice.ts
+// REMOÇÃO: Removida a interface 'Music' local. Agora usamos 'Track' de playerSlice.ts
 interface MusicItemProps {
-    music: Track; // Agora usa a interface Track
+    music: Track; // ALTERAÇÃO: Agora usa a interface Track do playerSlice
     isCurrent: boolean;
     onPress: () => void;
     index: number;
@@ -30,8 +30,6 @@ interface MusicItemProps {
 // Componente para exibir uma música na lista
 const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
     <TouchableOpacity
-        // key deve usar o ID único da Track
-        // key={music.id} // Usamos music.id aqui
         style={[
             styles.musicItemContainer,
             isCurrent && styles.currentMusicItem,
@@ -41,7 +39,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
         testID={`music-item-${index}`}
     >
         <Text numberOfLines={1} style={styles.musicName}>
-            {isCurrent ? '▶ ' : ''}{music.title} {/* Exibe o título da Track */}
+            {isCurrent ? '▶ ' : ''}{music.title} {/* ALTERAÇÃO: Exibe o título da Track */}
         </Text>
         <Text style={styles.musicSize}>
             {music.size
@@ -53,29 +51,16 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
 
 // Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
-    //let coverUri: string
-    const dispatch = useAppDispatch(); // Hook para despachar ações
+    const dispatch = useAppDispatch();
     const {
-        // currentTrack,
-        currentIndex: reduxCurrentIndex, // Renomeado para evitar conflito com currentIndex local
+        currentIndex: reduxCurrentIndex,
         playlist,
-    } = useAppSelector((state) => state.player); // Pega o estado do player do Redux
+    } = useAppSelector((state) => state.player);
 
     const { musics: selectedLocalFiles, pickMusics } = useLocalMusicPicker();
 
-    // Define a imagem da capa (fallback para uma imagem padrão se não houver)
-    // const coverImage = currentTrack?.cover ? { uri: currentTrack.cover } : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-    // Use selectedLocalFiles como a fonte de dados principal, sem mockMusicList
-    // const mockMusicList: Music[] = [...]; // Remover mockMusicList
-
-    // Função para lidar com a seleção e reprodução de músicas
     const handleSelectAndPlayMusics = async () => {
-        // Dispara o picker para o usuário selecionar os arquivos
         await pickMusics();
-
-        // No useEffect, vamos detectar quando selectedLocalFiles muda para processá-los
-        // Não chame setPlaylistAndPlayThunk diretamente aqui, pois pickMusics é assíncrono
-        // e selectedLocalFiles só será atualizado APÓS o picker ser fechado.
     };
 
     // UseEffect para lidar com a mudança de 'selectedLocalFiles' após o picker
@@ -92,13 +77,10 @@ export default function LocalMusicScreen() {
                     const title = metadata.common.title || file.name.split('.').slice(0, -1).join('.') || 'Título Desconhecido';
                     const artist = metadata.common.artist || 'Artista Desconhecido';
 
-                    // Inicializa coverUri indefinido
                     let coverUri: string | undefined = undefined;
 
-                    // Log para depuração
                     console.log("Metadata picture:", metadata.common.picture);
 
-                    // Se tiver capa embutida
                     if (metadata.common.picture && metadata.common.picture.length > 0) {
                         const picture = metadata.common.picture[0];
                         const coverBlob = new Blob([picture.data], { type: picture.format });
@@ -109,7 +91,7 @@ export default function LocalMusicScreen() {
                     processedTracks.push({
                         id: uuidv4(),
                         uri: String(file.uri),
-                        name: file.name,
+                        // REMOÇÃO: Removida a propriedade 'name'
                         title,
                         artist,
                         cover: coverUri ?? 'https://via.placeholder.com/150', // Fallback correto
@@ -118,13 +100,10 @@ export default function LocalMusicScreen() {
                         duration: metadata.format.duration
                             ? Math.round(metadata.format.duration * 1000)
                             : undefined,
+                        source: 'library-local', // ADIÇÃO CRUCIAL: Define a origem da música
                     });
                 }
 
-                // Atualiza a capa global
-                //dispatch(setCoverImage(processedTracks[0]?.cover ?? 'https://via.placeholder.com/150'));
-
-                // Atualiza playlist
                 dispatch(
                     setPlaylistAndPlayThunk({
                         newPlaylist: processedTracks,
@@ -136,35 +115,32 @@ export default function LocalMusicScreen() {
 
             processFiles();
         }
-    }, [selectedLocalFiles, dispatch]);;// Dependências: reage quando selectedLocalFiles muda
+    }, [selectedLocalFiles, dispatch]);
 
     const handlePlaySpecificMusic = (index: number) => {
-        // Dispara a thunk para tocar uma música específica da playlist do Redux
         dispatch(playTrackThunk(index));
     };
 
     return (
         <View style={{ flex: 1, paddingHorizontal: 13, }}>
             <TouchableOpacity
-                onPress={handleSelectAndPlayMusics} // Chamada para abrir o picker
+                onPress={handleSelectAndPlayMusics}
                 style={styles.button}
                 testID="select-music-button"
             >
                 <Text style={styles.buttonText}>Selecionar músicas</Text>
             </TouchableOpacity>
 
-            {playlist.length === 0 ? ( // Verifica a playlist do Redux
+            {playlist.length === 0 ? (
                 <Text style={styles.empty}>Nenhuma música na playlist. Selecione para começar!</Text>
             ) : (
                 <FlatList
-                    data={playlist} // Usa a playlist do Redux
-                    // keyExtractor deve usar o `id` da Track
+                    data={playlist}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item, index }) => (
                         <MusicItem
                             music={item}
                             index={index}
-                            // Compara o currentIndex do Redux para destacar a música atual
                             isCurrent={index === reduxCurrentIndex}
                             onPress={() => handlePlaySpecificMusic(index)}
                         />

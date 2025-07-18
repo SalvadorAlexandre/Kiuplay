@@ -18,7 +18,7 @@ export interface Track {
   uri: string; // O URI do arquivo de áudio (local ou remoto)
   title: string;
   artist: string;
-  name: string;
+  //name: string;
   cover: string; // URL ou URI para a imagem da capa
   artistAvatar?: string;
   // Adicione outras propriedades relevantes, como duration, album, etc.
@@ -26,6 +26,8 @@ export interface Track {
   size?: number;
   mimeType?: string;
   // ... outras propriedades que você possa querer armazenar
+  source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'beatstore-feeds' | 'beatstore-curtidas' | 'beatstore-seguindo' | 'unknown';
+  type?: 'single'; // <--- ADICIONE ESTA LINHA
 }
 
 // Adaptação da interface Music do AudioManager para ser compatível, se necessário.

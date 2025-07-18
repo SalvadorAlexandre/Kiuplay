@@ -37,6 +37,7 @@ export interface VideoInfoAndActionsProps {
     isArtistFollowed: boolean
     artistId: string
     artistProfileImageUrl?: string
+    playlistVideo: string | number;
 
     onToggleLike: (videoId: string) => void;
     onToggleDislike: (videoId: string) => void;
@@ -121,7 +122,7 @@ const VideoInfoAndActions = ({
                 artistId,
                 artistName: artist,
                 artistProfileImageUrl: artistProfileImageUrl || '', // Passar URL ou string vazia
-                videoId: videoId,
+                playlistVideo: videoId,
             },
         });
     };

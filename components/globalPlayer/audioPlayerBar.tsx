@@ -26,6 +26,12 @@ import {
 import { getAudioManager } from '@/src/utils/audioManager';
 import { AVPlaybackStatus } from 'expo-av';
 
+// NOVO: Importar as ações do seu novo slice de músicas favoritas
+import {
+  addFavoriteMusic,
+  removeFavoriteMusic,
+} from '@/src/redux/favoriteMusicSlice'; // NOVO: Ajuste o caminho conforme seu projeto
+
 const audioManager = getAudioManager();
 
 export default function AudioPlayerBar() {
@@ -56,6 +62,14 @@ export default function AudioPlayerBar() {
       });
     }
   }, [router, currentTrack]); // <--- ADICIONADO: Dependências para o useCallback
+
+  // NOVO: Selecionar as músicas favoritas do estado do Redux
+  const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+
+  // NOVO: Determina se a música atual está favoritada
+  const isCurrentTrackFavorited = currentTrack
+    ? favoritedMusics.some((music) => music.id === currentTrack.id)
+    : false;
 
 
   useEffect(() => {
@@ -100,10 +114,25 @@ export default function AudioPlayerBar() {
 
   const progress = durationMillis > 0 ? positionMillis / durationMillis : 0;
 
-  const [isFavorited, setIsFavorited] = useState(false);
-  const toggleFavorite = () => {
-    setIsFavorited(!isFavorited);
-  };
+  // REMOVIDO: useState local para isFavorited, agora o estado vem do Redux
+  // const [isFavorited, setIsFavorited] = useState(false);
+
+  // ALTERADO: Lógica do toggleFavorite para usar as ações do Redux
+  const handleToggleFavorite = useCallback(() => {
+    if (!currentTrack) {
+      return; // Não faz nada se não houver música tocando
+    }
+
+    if (isCurrentTrackFavorited) {
+      // Se já está favoritada, remove
+      dispatch(removeFavoriteMusic(currentTrack.id));
+    } else {
+      // Se não está favoritada, adiciona
+      dispatch(addFavoriteMusic(currentTrack));
+    }
+  }, [dispatch, currentTrack, isCurrentTrackFavorited]); // NOVO: Dependências para o useCallback
+
+
 
   if (!currentTrack) return null;
 
@@ -248,31 +277,37 @@ export default function AudioPlayerBar() {
             
 
             <View style={styles.actionButtons}>
+
               <TouchableOpacity onPress={() => { }}>
                 <Image
                   source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
                   style={styles.iconActions}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={toggleFavorite}>
+
+              <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
                 <Ionicons
-                  name={isFavorited ? "heart" : "heart-outline"}
-                  size={24}
-                  color={isFavorited ? "#FF3D00" : "#fff"}
-                />
+                name={isCurrentTrackFavorited ? 'heart' : 'heart-outline'} // ALTERADO: Cor e ícone baseados no estado do Redux
+                size={24}
+                color={isCurrentTrackFavorited ? '#FF3D00' : '#fff'} // ALTERADO: Cor baseada no estado do Redux
+              />
               </TouchableOpacity>
+
               <TouchableOpacity onPress={handleOpenComments}>
                 <Image
                   source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')}
                   style={styles.iconActions}
                 />
               </TouchableOpacity>
+
               <TouchableOpacity onPress={() => { }}>
                 <Ionicons name="share-social-outline" size={24} color="#fff" />
               </TouchableOpacity>
+
               <TouchableOpacity onPress={() => { }}>
                 <Ionicons name="list" size={24} color="#fff" />
               </TouchableOpacity>
+
             </View>
           </View>
         )

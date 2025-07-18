@@ -202,6 +202,7 @@ export default function VideoClipesScreen() {
                                 artistId={currentPlayingVideo.artistId}
                                 artistProfileImageUrl={currentPlayingVideo.artistProfileImageUrl}
                                 videoUrl={currentPlayingVideo.videoUrl} // <-- PASSANDO A VIDEOURL AQUI
+                                playlistVideo={currentPlayingVideo.id}
                                 // FIM NOVAS PROPS
                                 onToggleLike={handleToggleLike}
                                 onToggleDislike={handleToggleDislike}
