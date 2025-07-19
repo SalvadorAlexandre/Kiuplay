@@ -8,9 +8,8 @@ import {
     TouchableOpacity,
     Image,
     FlatList,
-    Dimensions,
 } from 'react-native';
-import { useRouter } from 'expo-router'; // NOVO: Importe useRouter
+import { useRouter } from 'expo-router';
 
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
@@ -18,19 +17,12 @@ import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorL
 import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList';
 
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { Track } from '@/src/redux/playerSlice'; // Mantém Track para o tipo favoritedMusics
-// REMOVIDO: playTrackThunk, setPlaylistAndPlayThunk não são mais chamados diretamente aqui
-// import { playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
-// REMOVIDO: addFavoriteMusic, removeFavoriteMusic não são mais chamados diretamente aqui
-// import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
-
-// NOVO: Importe o componente renomeado e os novos tipos
-import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard'; // Caminho ajustado
+import { Track } from '@/src/redux/playerSlice';
+import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
 import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist } from '@/src/types/library';
 
 // ---
-// NOVO: Dados mockados para as abas da Cloud (Feeds, Curtidas, Seguindo)
-// Estes dados agora incluem diferentes tipos de conteúdo
+// Dados mockados (MOCKED_CLOUD_FEED_DATA) - Mantenha como está.
 const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
     {
         id: 'single-1',
@@ -42,7 +34,8 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         source: 'library-cloud-feeds',
         duration: 180000,
         type: 'single',
-    },
+        genre: 'Hip Hop',
+    } as Track,
     {
         id: 'album-1',
         title: 'Retrospectiva Jazz',
@@ -50,14 +43,15 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         cover: 'https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Jazz',
         type: 'album',
         releaseDate: '2023-11-15',
-    } as AlbumOrEP, // Cast para o tipo correto
+        genre: 'Jazz',
+    } as AlbumOrEP,
     {
         id: 'artist-1',
         name: 'Mestre da Batida',
         avatar: 'https://i.pravatar.cc/150?img=7',
         type: 'artist',
         genres: ['Hip Hop', 'Trap'],
-    } as ArtistProfile, // Cast para o tipo correto
+    } as ArtistProfile,
     {
         id: 'ep-1',
         title: 'Sons do Verão',
@@ -65,7 +59,8 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         cover: 'https://placehold.co/300x300/32CD32/FFFFFF?text=EP+Ver%C3%A3o',
         type: 'ep',
         releaseDate: '2024-06-20',
-    } as AlbumOrEP, // Cast para o tipo correto
+        genre: 'Reggaeton',
+    } as AlbumOrEP,
     {
         id: 'playlist-1',
         name: 'Chill & Study',
@@ -73,7 +68,7 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         cover: 'https://placehold.co/300x300/DAA520/000000?text=Playlist+Chill',
         type: 'playlist',
         description: 'Músicas perfeitas para focar e relaxar.',
-    } as Playlist, // Cast para o tipo correto
+    } as Playlist,
     {
         id: 'single-2',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
@@ -84,7 +79,15 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         source: 'library-cloud-feeds',
         duration: 210000,
         type: 'single',
-    },
+        genre: 'Soul',
+    } as Track,
+    {
+        id: 'artist-2',
+        name: 'EveryDay',
+        avatar: 'https://i.pravatar.cc/150?img=7',
+        type: 'artist',
+        genres: ['Hip Hop', 'Trap'],
+    } as ArtistProfile,
     {
         id: 'album-2',
         title: 'O Despertar',
@@ -92,7 +95,15 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         cover: 'https://placehold.co/300x300/CD5C5C/FFFFFF?text=Album+Aura',
         type: 'album',
         releaseDate: '2024-02-01',
+        genre: 'Ambient',
     } as AlbumOrEP,
+    {
+        id: 'artist-3',
+        name: 'Helloby',
+        avatar: 'https://i.pravatar.cc/150?img=7',
+        type: 'artist',
+        genres: ['Zouck', 'Trap'],
+    } as ArtistProfile,
     {
         id: 'artist-2',
         name: 'Rainha do R&B',
@@ -107,6 +118,7 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         cover: 'https://placehold.co/300x300/6A5ACD/FFFFFF?text=EP+Night',
         type: 'ep',
         releaseDate: '2023-09-01',
+        genre: 'Eletrônica',
     } as AlbumOrEP,
     {
         id: 'playlist-2',
@@ -116,8 +128,23 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         type: 'playlist',
         description: 'Energia máxima para seus treinos.',
     } as Playlist,
+    {
+        id: 'playlist-3',
+        name: 'Workout Power',
+        creator: 'Saag SWB',
+        cover: 'https://placehold.co/300x300/FF1493/FFFFFF?text=Playlist+Gym',
+        type: 'playlist',
+        description: 'Energia máxima para seus treinos.',
+    } as Playlist,
+    {
+        id: 'playlist-4',
+        name: 'Feito para salvador',
+        creator: 'Fitness Guru',
+        cover: 'https://placehold.co/300x300/FF1493/FFFFFF?text=Playlist+Gym',
+        type: 'playlist',
+        description: 'Energia máxima para seus treinos.',
+    } as Playlist,
 ];
-
 // ---
 
 const SubTabBar = ({
@@ -157,7 +184,7 @@ const SubTabBar = ({
 };
 
 export default function LibraryScreen() {
-    const router = useRouter(); // NOVO: Inicializa o router
+    const router = useRouter();
     const dispatch = useAppDispatch();
     const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const {
@@ -167,12 +194,7 @@ export default function LibraryScreen() {
     } = useSubTabSelectorLibrary();
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    // REMOVIDO: currentTrack, currentIndex, playlist não são mais usados diretamente aqui
-    // const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
 
-
-    // NOVO: Filtrar músicas favoritas que são do tipo Track (single) e de Cloud para a aba "Curtidas"
-    // Os outros tipos de conteúdo (Album, Artist, Playlist) não têm a noção de "favorito" da mesma forma que Track (single)
     const favoritedCloudTracks: Track[] = favoritedMusics.filter(
         (music) =>
             music.type === 'single' && (
@@ -180,35 +202,7 @@ export default function LibraryScreen() {
                 music.source === 'library-cloud-curtidas' ||
                 music.source === 'library-cloud-seguindo'
             )
-    ) as Track[]; // Cast para garantir que o tipo é Track[]
-
-    // REMOVIDO: handleToggleFavorite e handlePlayMusic não são mais passados para os cards da Cloud
-    /*
-    const handleToggleFavorite = (music: Track) => {
-        const isFavorited = favoritedMusics.some((favMusic) => favMusic.id === music.id);
-        if (isFavorited) {
-            dispatch(removeFavoriteMusic(music.id));
-        } else {
-            dispatch(addFavoriteMusic(music));
-        }
-    };
-
-    const handlePlayMusic = (music: Track) => {
-        const isAlreadyPlaying = currentTrack?.id === music.id && playlist.some(t => t.id === music.id);
-
-        if (isAlreadyPlaying) {
-            dispatch(playTrackThunk(currentIndex));
-        } else {
-            dispatch(
-                setPlaylistAndPlayThunk({
-                    newPlaylist: [music],
-                    startIndex: 0,
-                    shouldPlay: true,
-                })
-            );
-        }
-    };
-    */
+    ) as Track[];
 
     const isSelected = (current: TypeMusic, type: TypeMusic): boolean => {
         return current === type;
@@ -217,32 +211,22 @@ export default function LibraryScreen() {
     const localTabs: TypeSubTab[] = ['tudo', 'pastas', 'downloads'];
     const cloudTabs: TypeSubTab[] = ['feeds', 'curtidas', 'seguindo'];
 
-    // NOVO: Função para lidar com o clique em qualquer item do feed da Cloud
-    // NOVO: Função para lidar com o clique em qualquer item do feed da Cloud
     const handleCloudItemPress = (item: LibraryFeedItem) => {
-        // Exemplo de navegação baseada no tipo de item
         if (item.type === 'single') {
-            // ALTERADO: Removido '[id]' da string do caminho
             router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
         } else if (item.type === 'album') {
-            // ALTERADO: Removido '[id]' da string do caminho
             router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
         } else if (item.type === 'ep') {
-            // ALTERADO: Removido '[id]' e o '/' adicional da string do caminho
             router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
         } else if (item.type === 'artist') {
-            // ALTERADO: Removido '[id]' da string do caminho
             router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
         } else if (item.type === 'playlist') {
-            // ALTERADO: Removido '[id]' da string do caminho
             router.push(`/contentCardLibraryScreens/playlist-details/${item.id}`);
         } else {
             console.warn('Tipo de item desconhecido:', item.type);
-            // Opcional: navegar para uma tela de erro ou padrão
         }
-        // Futuramente, você pode adicionar a lógica de "play" aqui para singles/álbuns/EPs
-        // que começam a tocar automaticamente ao serem clicados.
     };
+
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
             <TopTabBarLibrary />
@@ -296,21 +280,22 @@ export default function LibraryScreen() {
                         {/* Aba 'Feeds' da Cloud: Exibe todos os tipos de conteúdo */}
                         {getSelectedSubTab('cloud') === 'feeds' && (
                             <View style={styles.cloudMusicListContainer}>
-                                <Text style={styles.title}>Feeds da Cloud</Text>
                                 <FlatList
-                                    data={MOCKED_CLOUD_FEED_DATA} // Usa a lista genérica de feed
+                                    data={MOCKED_CLOUD_FEED_DATA}
                                     keyExtractor={(item) => item.id}
                                     numColumns={2}
-                                    columnWrapperStyle={styles.row}
+                                    columnWrapperStyle={{justifyContent:'space-between'}}
+                                    
                                     renderItem={({ item }) => (
-                                        <View style={styles.cloudItemColumn}>
-                                            <LibraryContentCard // Usa o novo componente genérico
-                                                item={item} // Passa o item completo
-                                                onPress={handleCloudItemPress} // Passa a função de navegação
+                                        <View style={styles.cardItemColumn}>
+                                            <LibraryContentCard
+                                                item={item}
+                                                onPress={handleCloudItemPress}
                                             />
                                         </View>
                                     )}
-                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                    // NOVO: Usar contentContainerStyle para padding lateral e inferior
+                                    contentContainerStyle={styles.flatListContentContainer}
                                     ListEmptyComponent={() => (
                                         <Text style={styles.emptyListText}>Nenhum conteúdo no feed da cloud.</Text>
                                     )}
@@ -329,19 +314,13 @@ export default function LibraryScreen() {
                                         data={favoritedCloudTracks}
                                         keyExtractor={(item) => item.id}
                                         numColumns={2}
-                                        columnWrapperStyle={styles.row}
                                         renderItem={({ item }) => (
-                                            <View style={styles.cloudItemColumn}>
-                                                {/* Aqui, como a lista é de 'Track' (singles),
-                                                    usamos LibraryContentCard e ele saberá como renderizar o "single".
-                                                */}
-                                                <LibraryContentCard
-                                                    item={item}
-                                                    onPress={handleCloudItemPress}
-                                                />
-                                            </View>
+                                            <LibraryContentCard
+                                                item={item}
+                                                onPress={handleCloudItemPress}
+                                            />
                                         )}
-                                        contentContainerStyle={{ paddingBottom: 20 }}
+                                        contentContainerStyle={styles.flatListContentContainer}
                                     />
                                 )}
                             </View>
@@ -351,13 +330,9 @@ export default function LibraryScreen() {
                         {getSelectedSubTab('cloud') === 'seguindo' && (
                             <View style={styles.cloudMusicListContainer}>
                                 <Text style={styles.title}>Conteúdo de Artistas Seguindo (Cloud)</Text>
-                                {/* Para esta aba, podemos usar um filtro dos MOCKED_CLOUD_FEED_DATA
-                                    para simular conteúdo de artistas seguidos.
-                                    Na vida real, você teria dados específicos.
-                                */}
                                 {MOCKED_CLOUD_FEED_DATA.filter(item =>
-                                    item.type === 'artist' && item.id === 'artist-1' || // Exemplo: Artista com ID 'artist-1'
-                                    item.type === 'single' && (item as Track).source === 'library-cloud-seguindo' // Exemplo: Singles com source 'seguindo'
+                                    item.type === 'artist' && item.id === 'artist-1' ||
+                                    item.type === 'single' && (item as Track).source === 'library-cloud-seguindo'
                                 ).length === 0 ? (
                                     <Text style={styles.emptyListText}>Nenhum conteúdo de artista seguido na cloud.</Text>
                                 ) : (
@@ -368,16 +343,13 @@ export default function LibraryScreen() {
                                         )}
                                         keyExtractor={(item) => item.id}
                                         numColumns={2}
-                                        columnWrapperStyle={styles.row}
                                         renderItem={({ item }) => (
-                                            <View style={styles.cloudItemColumn}>
-                                                <LibraryContentCard
-                                                    item={item}
-                                                    onPress={handleCloudItemPress}
-                                                />
-                                            </View>
+                                            <LibraryContentCard
+                                                item={item}
+                                                onPress={handleCloudItemPress}
+                                            />
                                         )}
-                                        contentContainerStyle={{ paddingBottom: 20 }}
+                                        contentContainerStyle={styles.flatListContentContainer}
                                     />
                                 )}
                             </View>
@@ -428,7 +400,7 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#fff',
-        marginTop: 20, // Revertido para 20 para consistência, ou ajuste conforme preferir
+        //marginTop: 20,
         marginLeft: 15,
         marginBottom: 10,
         fontSize: 20,
@@ -499,13 +471,14 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginHorizontal: 20,
     },
-    row: {
-        flex: 1,
-        justifyContent: 'space-around',
-        marginHorizontal: 10,
-        marginBottom: 8,
+    // Removido: row, cloudItemColumn antigos.
+    // NOVOS ESTILOS PARA FlatList DE DUAS COLUNAS
+    flatListContentContainer: {
+        paddingHorizontal: 10, // Este é o padding lateral da FlatList
+        paddingBottom: 20, // Padding inferior para o scroll
+        // Sem flexGrow: 1 aqui, pois pode causar problemas com a centralização quando há poucos itens
     },
-    cloudItemColumn: {
-        width: '48%',
+    cardItemColumn: {
+        width: '50%',
     },
 });

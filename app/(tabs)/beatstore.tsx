@@ -33,6 +33,7 @@ const MOCKED_BEATSTORE_MUSIC_DATA: Track[] = [
     artistAvatar: 'https://i.pravatar.cc/150?img=10',
     source: 'beatstore-feeds', // Origem: Feeds da Beat Store
     duration: 180000,
+    
   },
   {
     id: 'beat-store-2',

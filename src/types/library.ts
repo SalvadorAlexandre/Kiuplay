@@ -1,5 +1,4 @@
 // src/types/library.ts (NOVO ARQUIVO)
-
 import { Track } from '@/src/redux/playerSlice'; // Importa a interface Track existente
 
 // A interface 'Track' já é um 'single' por padrão, então podemos estendê-la
@@ -16,6 +15,7 @@ export interface AlbumOrEP {
   type: 'album' | 'ep'; // Tipo de conteúdo
   releaseDate?: string;
   trackIds?: string[]; // IDs das faixas que compõem o álbum/EP
+  genre: string; // NOVO: Adicionado para o gênero
   // Adicione outras propriedades relevantes para álbuns/EPs
 }
 
@@ -64,5 +64,6 @@ export interface Track {
   mimeType?: string;
   source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'beatstore-feeds' | 'beatstore-curtidas' | 'beatstore-seguindo' | 'unknown';
   type?: 'single'; // <--- ADICIONE ESTA LINHA
+  genre?: string; // NOVO: Adicionado para o gênero
 }
 */

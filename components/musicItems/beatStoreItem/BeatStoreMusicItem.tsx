@@ -38,6 +38,8 @@ export default function BeatStoreMusicItem({
         {/* TODO: Adicionar exibição de preço/tipo (gratuito/pago) aqui */}
         {/* <Text style={styles.musicPrice}>Gratuito / $99.99</Text> */}
       </View>
+
+      
       <View style={styles.musicActions}>
         <TouchableOpacity onPress={() => onToggleFavorite(music)} style={styles.favoriteButton}>
           <Ionicons

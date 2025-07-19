@@ -1,135 +1,141 @@
 // components/musicItems/LibraryItem/LibraryContentCard.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
-// Ionicons não é mais necessário aqui, pois os botões foram removidos.
-// import { Ionicons } from '@expo/vector-icons';
+import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist } from '@/src/types/library';
+import { Track } from '@/src/redux/playerSlice';
 
-// NOVO: Importe o tipo genérico LibraryFeedItem (precisamos criar este arquivo de tipos)
-import { LibraryFeedItem } from '@/src/types/library'; // Ajuste o caminho conforme seu projeto
-
-const { width } = Dimensions.get('window');
-const ITEM_WIDTH = (width / 2) - 30; // Largura de cada item (metade da tela - margens)
-
-// NOVO: Interface para as props do componente, usando o tipo genérico
 interface LibraryContentCardProps {
-  item: LibraryFeedItem; // Agora aceita o tipo genérico
-  onPress: (item: LibraryFeedItem) => void; // A função de clique agora recebe o item completo
-  // As props onToggleFavorite, isFavorited, isCurrent foram removidas
+  item: LibraryFeedItem;
+  onPress: (item: LibraryFeedItem) => void;
 }
 
 export default function LibraryContentCard({
-  item, // NOVO: Recebe o item completo
+  item,
   onPress,
 }: LibraryContentCardProps) {
   let coverSource;
   let titleText;
   let subtitleText;
+  let genreText: string | undefined;
+  let categoryText: string | undefined;
+  let typeLabel: string | undefined;
 
-  // NOVO: Lógica para determinar a capa, título e subtítulo com base no tipo do item
   if (item.type === 'single' || item.type === 'album' || item.type === 'ep') {
-    // Para Singles, Álbuns, EPs (que são tipos de 'Track' ou similares com capa/artista)
-    const musicItem = item as any; // Cast temporário para acessar propriedades comuns
+    const musicItem = item as Track | AlbumOrEP;
     coverSource = musicItem.cover
       ? { uri: musicItem.cover }
       : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     titleText = musicItem.title;
     subtitleText = musicItem.artist;
+    genreText = musicItem.genre;
+    categoryText = musicItem.type!.charAt(0).toUpperCase() + musicItem.type!.slice(1);
   } else if (item.type === 'artist') {
-    // Para Artistas
-    const artistItem = item as any; // Cast temporário
+    const artistItem = item as ArtistProfile;
     coverSource = artistItem.avatar
       ? { uri: artistItem.avatar }
       : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
     titleText = artistItem.name;
-    subtitleText = 'Artista'; // Ou um campo de estilo/gênero do artista
+    subtitleText = artistItem.genres?.join(', ') || '';
+    typeLabel = 'Artista';
   } else if (item.type === 'playlist') {
-    // Para Playlists
-    const playlistItem = item as any; // Cast temporário
+    const playlistItem = item as Playlist;
     coverSource = playlistItem.cover
       ? { uri: playlistItem.cover }
       : require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png');
     titleText = playlistItem.name;
     subtitleText = `Por ${playlistItem.creator}`;
+    typeLabel = 'Playlist';
   } else {
-    // Fallback para tipos desconhecidos
     coverSource = require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     titleText = 'Conteúdo Desconhecido';
     subtitleText = '';
   }
 
   return (
-    <TouchableOpacity style={styles.columnItemContainer} onPress={() => onPress(item)}> {/* NOVO: Passa o item completo no onPress */}
-      <Image source={coverSource} style={styles.columnMusicCover} />
-      <Text style={styles.columnMusicTitle} numberOfLines={1}>
-        {titleText}
-      </Text>
-      <Text style={styles.columnMusicArtist} numberOfLines={1}>
-        {subtitleText}
-      </Text>
-      {/* Os botões de ação foram removidos, então não há mais columnActionsContainer aqui */}
+    <TouchableOpacity style={styles.cardContainer} onPress={() => onPress(item)}>
+      <View style={{backgroundColor: '#fff', flex: 1, borderRadius: 4,}}>
+        <Image source={coverSource} style={styles.cardCoverImage} />
+      </View>
+
+      <View style={styles.musicDetails}>
+
+        <Text style={styles.cardTitle} numberOfLines={1}>
+          {titleText}
+        </Text>
+        <Text style={styles.cardSubtitle} numberOfLines={1}>
+          {subtitleText}
+        </Text>
+
+        {genreText && (item.type === 'single' || item.type === 'album' || item.type === 'ep') && (
+          <Text style={styles.cardGenreText} numberOfLines={1}>
+            Gênero: {genreText}
+          </Text>
+        )}
+
+        {categoryText && (item.type === 'single' || item.type === 'album' || item.type === 'ep') && (
+          <Text style={styles.cardCategoryText} numberOfLines={1}>
+            {categoryText}
+          </Text>
+        )}
+        {typeLabel && (item.type === 'playlist' || item.type === 'artist') && (
+          <Text style={styles.cardTypeLabelText} numberOfLines={1}>
+            {typeLabel}
+          </Text>
+        )}
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  // Estilos do layout horizontal (original) - Manter se ainda for usar em algum lugar, caso contrário, remover
-  musicItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    marginBottom: 8,
+  // === AJUSTE 2: largura do card baseada na tela para permitir 2 colunas === //
+  cardContainer: { 
+    height: 250,
+    marginHorizontal: 3, 
+    marginBottom: 10,
     backgroundColor: '#282828',
     borderRadius: 8,
-    marginHorizontal: 15,
-  },
-  musicCover: {
-    width: 60,
-    height: 60,
-    borderRadius: 4,
-    marginRight: 10,
+    padding: 5,
   },
   musicDetails: {
-    flex: 1,
+    //flex: 1,
     justifyContent: 'center',
   },
-  musicTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  musicArtist: {
-    color: '#aaa',
-    fontSize: 13,
-  },
-
-  // Estilos para o layout em duas colunas (ajustados)
-  columnItemContainer: {
-    width: ITEM_WIDTH,
-    backgroundColor: '#282828',
-    borderRadius: 8,
-    padding: 10,
-    marginVertical: 5,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  columnMusicCover: {
+  cardCoverImage: {
     width: '100%',
-    height: ITEM_WIDTH,
+    height: '100%',
     borderRadius: 4,
-    marginBottom: 8,
+    //marginBottom: 8,
   },
-  columnMusicTitle: {
+  cardTitle: {
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
     width: '100%',
   },
-  columnMusicArtist: {
+  cardSubtitle: {
     color: '#aaa',
     fontSize: 12,
     width: '100%',
-    marginBottom: 8,
+    marginBottom: 2,
   },
-  // Os estilos de botões e container de ações foram removidos
+  cardCategoryText: {
+    color: '#bbb',
+    fontSize: 11,
+    width: '100%',
+    marginBottom: 2,
+  },
+  cardGenreText: {
+    color: '#bbb',
+    fontSize: 11,
+    width: '100%',
+  },
+  cardTypeLabelText: {
+    color: '#999',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginTop: 4,
+    width: '100%',
+  },
 });

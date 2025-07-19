@@ -27,7 +27,8 @@ export interface Track {
   mimeType?: string;
   // ... outras propriedades que você possa querer armazenar
   source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'beatstore-feeds' | 'beatstore-curtidas' | 'beatstore-seguindo' | 'unknown';
-  type?: 'single'; // <--- ADICIONE ESTA LINHA
+  type: 'single'; // <--- ADICIONE ESTA LINHA
+  genre: string; // NOVO: Adicionado para o gênero
 }
 
 // Adaptação da interface Music do AudioManager para ser compatível, se necessário.
