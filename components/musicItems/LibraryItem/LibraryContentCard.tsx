@@ -78,12 +78,23 @@ export default function LibraryContentCard({
 
   return (
     <TouchableOpacity style={styles.cardContainer} onPress={() => onPress(item)}>
-      <View style={{ backgroundColor: '#fff', flex: 1, borderRadius: 8, }}>
+      {/* NOVO: Imagem de background desfocada (Primeiro filho para ficar na base) */}
+      <Image
+        source={coverSource}
+        style={styles.blurredBackground}
+        blurRadius={10} // Nível de desfoque
+        resizeMode="cover" // Garante que a imagem cubra o espaço
+      />
+      {/* NOVO: Overlay para escurecer o background (Segundo filho para ficar sobre o background) */}
+      <View style={styles.overlay} />
+
+      {/* MANTIDO: A estrutura original do seu conteúdo principal,
+          com ajustes de zIndex e cor de fundo para permitir o desfoque */}
+      <View style={[styles.mainContentWrapper, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
         <Image source={coverSource} style={styles.cardCoverImage} />
       </View>
 
       <View style={styles.musicDetails}>
-
         <Text style={styles.cardTitle} numberOfLines={1}>
           {titleText}
         </Text>
@@ -113,24 +124,45 @@ export default function LibraryContentCard({
 }
 
 const styles = StyleSheet.create({
-  // === AJUSTE 2: largura do card baseada na tela para permitir 2 colunas === //
   cardContainer: {
-    height: 250,
-    marginHorizontal: 3,
-    marginBottom: 10,
-    backgroundColor: '#282828',
-    borderRadius: 8,
-    padding: 18,
+    height: 250, // MANTIDO
+    marginHorizontal: 3, // MANTIDO
+    marginBottom: 10, // MANTIDO
+    backgroundColor: '#282828', // MANTIDO
+    borderRadius: 8, // MANTIDO
+    padding: 7, // MANTIDO
+    overflow: 'hidden', // NOVO: ESSENCIAL para cortar o background desfocado com o borderRadius
+    position: 'relative', // NOVO: ESSENCIAL para que os elementos posicionados absolutamente funcionem
+  },
+  // NOVO: Estilo para a imagem de background desfocada
+  blurredBackground: {
+    ...StyleSheet.absoluteFillObject, // Posiciona a imagem para preencher todo o container pai (cardContainer)
+    zIndex: 0, // Garante que fique na camada mais baixa
+  },
+  // NOVO: Estilo para o overlay escuro sobre o background desfocado
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Preenche todo o container
+    backgroundColor: 'rgba(0,0,0,0.5)', // Cor preta com 50% de opacidade
+    zIndex: 1, // Fica sobre o background, mas abaixo do conteúdo principal
+  },
+  // NOVO: Wrapper para o conteúdo principal da imagem, com zIndex para sobreposição
+  mainContentWrapper: {
+    backgroundColor: 'rgba(255,255,255,0.05)', // Fundo semi-transparente para ver o desfoque
+    flex: 1, // MANTIDO: Ocupa o espaço flexível
+    borderRadius: 8, // MANTIDO
+    padding: 5, // MANTIDO
+    zIndex: 2, // NOVO: Garante que este conteúdo fique acima do overlay e do background
   },
   musicDetails: {
-    //flex: 1,
-    justifyContent: 'center',
+    // flex: 1, // MANTIDO (se estava no seu código real)
+    justifyContent: 'center', // MANTIDO
+    zIndex: 2, // NOVO: Garante que os detalhes da música fiquem acima do overlay e do background
   },
   cardCoverImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
-    //marginBottom: 8,
+    width: '100%', // MANTIDO
+    height: '100%', // MANTIDO
+    borderRadius: 8, // MANTIDO
+    // marginBottom: 8, // MANTIDO
   },
   cardTitle: {
     color: '#fff',
