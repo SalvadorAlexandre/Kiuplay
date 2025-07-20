@@ -94,13 +94,16 @@ export default function LocalMusicScreen() {
                         // REMOÇÃO: Removida a propriedade 'name'
                         title,
                         artist,
-                        cover: coverUri ?? 'https://via.placeholder.com/150', // Fallback correto
+                        cover: coverUri ?? '', // Fallback correto
                         size: file.size,
                         mimeType: file.mimeType,
                         duration: metadata.format.duration
                             ? Math.round(metadata.format.duration * 1000)
                             : undefined,
                         source: 'library-local', // ADIÇÃO CRUCIAL: Define a origem da música
+                        // ✅ ADICIONE ESTES CAMPOS
+                        type: "single", // ou outro valor, dependendo do seu enum/interface
+                        genre: metadata.common.genre?.[0] || 'Gênero desconhecido',
                     });
                 }
 

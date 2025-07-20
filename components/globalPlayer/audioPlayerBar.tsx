@@ -222,17 +222,19 @@ export default function AudioPlayerBar() {
 
               <View style={styles.expandedHeader}>
 
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                   <Image source={artistAvatarSrc} style={styles.profileImage} />
                   <Text style={styles.artistMainName} numberOfLines={1}>
                     {currentTrack.artist}
                   </Text>
                 </View>
 
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity style={styles.followButton} onPress={() => { }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+
+                  {/** <TouchableOpacity style={styles.followButton} onPress={() => { }}>
                     <Text style={styles.followButtonText}>Seguir</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity>*/}
+
                   <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
                     <Ionicons name="chevron-down" size={28} color="#fff" />
                   </TouchableOpacity>
@@ -245,8 +247,11 @@ export default function AudioPlayerBar() {
                 style={styles.expandedCover}
                 resizeMode="cover"
               />
-              <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
-              <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
+              <View>
+                <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
+                <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
+                <Text style={styles.artistName} numberOfLines={1}>{currentTrack.genre}</Text>
+              </View>
 
               <Slider
                 style={styles.slider}
@@ -289,12 +294,12 @@ export default function AudioPlayerBar() {
 
               <View style={styles.actionButtons}>
 
-                <TouchableOpacity onPress={() => { }}>
+                {/** <TouchableOpacity onPress={() => { }}>
                   <Image
                     source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
                     style={styles.iconActions}
                   />
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
 
                 <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
                   <Ionicons
@@ -315,9 +320,10 @@ export default function AudioPlayerBar() {
                   <Ionicons name="share-social-outline" size={24} color="#fff" />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => { }}>
+                {/** <TouchableOpacity onPress={() => { }}>
                   <Ionicons name="list" size={24} color="#fff" />
                 </TouchableOpacity>
+                */}
 
               </View>
             </View>
@@ -381,10 +387,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   expandedHeader: {
-    //width: '100%',
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    //justifyContent: 'space-between',
+    justifyContent: 'space-between',
     padding: 10,
     marginTop: 10,
     marginBottom: 10,
@@ -482,9 +488,9 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   imageBackground: {
-  flex: 1,
-  width: '100%',
-  height: '100%',
-  justifyContent: 'flex-start',
-},
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-start',
+  },
 });
