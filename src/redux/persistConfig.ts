@@ -8,12 +8,13 @@ import usersReducer from './userSlice';
 import followedArtistsReducer from './followedArtistsSlice'; // <-- IMPORTANTE: Novo import
 import notificationsReducer from './notificationsSlice'; // SIGNA: New import for notificationsReducer
 import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃO: Seu slice de músicas favoritas
+import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer
 
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['favorites', 'followedArtists', 'notifications', 'favoriteMusic'], // Persistir apenas favoritos
+  whitelist: ['favorites', 'followedArtists', 'notifications', 'favoriteMusic', 'network'], // Persistir apenas favoritos
 };
 
 const rootReducer = combineReducers({
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   followedArtists: followedArtistsReducer,
   notifications: notificationsReducer,
   favoriteMusic: favoriteMusicReducer, // <-- NOVA ADIÇÃO: Para suas músicas favoritas
+  network: networkReducer,  
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

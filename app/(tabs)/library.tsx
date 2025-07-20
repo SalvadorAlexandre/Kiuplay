@@ -29,7 +29,7 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
         title: 'Vibe Urbana',
         artist: 'BeatMaster',
-        cover: 'https://placehold.co/300x300/FF6347/FFFFFF?text=Single+Vibe',
+        cover: '',
         artistAvatar: 'https://i.pravatar.cc/150?img=6',
         source: 'library-cloud-feeds',
         duration: 180000,
@@ -48,7 +48,7 @@ const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
     {
         id: 'artist-1',
         name: 'Mestre da Batida',
-        avatar: 'https://i.pravatar.cc/150?img=7',
+        avatar: 'https://i.pravatar.cc/150?img=7', 
         type: 'artist',
         genres: ['Hip Hop', 'Trap'],
     } as ArtistProfile,
@@ -285,7 +285,6 @@ export default function LibraryScreen() {
                                     keyExtractor={(item) => item.id}
                                     numColumns={2}
                                     columnWrapperStyle={{justifyContent:'space-between'}}
-                                    
                                     renderItem={({ item }) => (
                                         <View style={styles.cardItemColumn}>
                                             <LibraryContentCard
@@ -296,6 +295,7 @@ export default function LibraryScreen() {
                                     )}
                                     // NOVO: Usar contentContainerStyle para padding lateral e inferior
                                     contentContainerStyle={styles.flatListContentContainer}
+
                                     ListEmptyComponent={() => (
                                         <Text style={styles.emptyListText}>Nenhum conteúdo no feed da cloud.</Text>
                                     )}

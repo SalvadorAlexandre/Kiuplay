@@ -1,8 +1,10 @@
 // components/musicItems/LibraryItem/LibraryContentCard.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, } from 'react-native';
 import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist } from '@/src/types/library';
 import { Track } from '@/src/redux/playerSlice';
+import { useAppSelector } from '@/src/redux/hooks'; // NOVO: Importe o hook useAppSelector do Redux
+
 
 interface LibraryContentCardProps {
   item: LibraryFeedItem;
@@ -13,6 +15,10 @@ export default function LibraryContentCard({
   item,
   onPress,
 }: LibraryContentCardProps) {
+  // NOVO: Lê o status de conexão do Redux global
+  // Se isConnected for null (ainda não verificado na inicialização), trataremos como "sem conexão" para exibir a imagem padrão.
+  const isConnected = useAppSelector((state) => state.network.isConnected);
+
   let coverSource;
   let titleText;
   let subtitleText;
@@ -20,40 +26,59 @@ export default function LibraryContentCard({
   let categoryText: string | undefined;
   let typeLabel: string | undefined;
 
+  // Função auxiliar para determinar a fonte da imagem
+  const getDynamicCoverSource = (coverUrl: string | undefined | null, defaultImage: any) => {
+    // Condição para exibir a imagem padrão:
+    // 1. Se isConnected é false (sem conexão) ou null (status inicial desconhecido)
+    // 2. OU se a coverUrl não existe (null/undefined)
+    // 3. OU se a coverUrl é uma string vazia (após remover espaços)
+    if (isConnected === false || coverUrl === null || coverUrl === undefined || coverUrl.trim() === '') {
+      return defaultImage;
+    }
+    // Caso contrário, tenta carregar a imagem da URL
+    return { uri: coverUrl };
+  };
+
+  // Lógica para determinar a coverSource, título e subtítulo com base no tipo do item
   if (item.type === 'single' || item.type === 'album' || item.type === 'ep') {
     const musicItem = item as Track | AlbumOrEP;
-    coverSource = musicItem.cover
-      ? { uri: musicItem.cover }
-      : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+    coverSource = getDynamicCoverSource(
+      musicItem.cover,
+      require('@/assets/images/Default_Profile_Icon/unknown_track.png')
+    );
     titleText = musicItem.title;
     subtitleText = musicItem.artist;
     genreText = musicItem.genre;
     categoryText = musicItem.type!.charAt(0).toUpperCase() + musicItem.type!.slice(1);
   } else if (item.type === 'artist') {
     const artistItem = item as ArtistProfile;
-    coverSource = artistItem.avatar
-      ? { uri: artistItem.avatar }
-      : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
+    coverSource = getDynamicCoverSource(
+      artistItem.avatar,
+      require('@/assets/images/Default_Profile_Icon/unknown_artist.png')
+    );
     titleText = artistItem.name;
     subtitleText = artistItem.genres?.join(', ') || '';
     typeLabel = 'Artista';
   } else if (item.type === 'playlist') {
     const playlistItem = item as Playlist;
-    coverSource = playlistItem.cover
-      ? { uri: playlistItem.cover }
-      : require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png');
+    coverSource = getDynamicCoverSource(
+      playlistItem.cover,
+      require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png')
+    );
     titleText = playlistItem.name;
     subtitleText = `Por ${playlistItem.creator}`;
     typeLabel = 'Playlist';
   } else {
+    // Para tipos de item desconhecidos, sempre exibe a imagem padrão de unknown_track
     coverSource = require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     titleText = 'Conteúdo Desconhecido';
     subtitleText = '';
   }
 
+
   return (
     <TouchableOpacity style={styles.cardContainer} onPress={() => onPress(item)}>
-      <View style={{backgroundColor: '#fff', flex: 1, borderRadius: 4,}}>
+      <View style={{ backgroundColor: '#fff', flex: 1, borderRadius: 8, }}>
         <Image source={coverSource} style={styles.cardCoverImage} />
       </View>
 
@@ -89,13 +114,13 @@ export default function LibraryContentCard({
 
 const styles = StyleSheet.create({
   // === AJUSTE 2: largura do card baseada na tela para permitir 2 colunas === //
-  cardContainer: { 
+  cardContainer: {
     height: 250,
-    marginHorizontal: 3, 
+    marginHorizontal: 3,
     marginBottom: 10,
     backgroundColor: '#282828',
     borderRadius: 8,
-    padding: 5,
+    padding: 18,
   },
   musicDetails: {
     //flex: 1,
@@ -104,7 +129,7 @@ const styles = StyleSheet.create({
   cardCoverImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 8,
     //marginBottom: 8,
   },
   cardTitle: {
