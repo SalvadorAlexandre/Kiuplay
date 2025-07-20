@@ -6,8 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ImageBackground,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
@@ -207,122 +210,129 @@ export default function AudioPlayerBar() {
       }
 
       {/*MODO MAXIMIZADO*/}
-      {
-        isExpanded && (
-          <View style={styles.expandedContent}>
-            <View style={styles.expandedHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Image source={artistAvatarSrc} style={styles.profileImage} />
-                <Text style={styles.artistMainName} numberOfLines={1}>
-                  {currentTrack.artist}
-                </Text>
+      {isExpanded && (
+        <ImageBackground
+          source={coverImage}
+          blurRadius={Platform.OS === 'android' ? 5 : 0} // ✅ ADICIONADO: blur nativo Android
+          style={styles.imageBackground} // ✅ ADICIONADO: novo estilo
+          resizeMode="cover"
+        >
+          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}> {/* ✅ ADICIONADO: Blur cross-plataforma */}
+            <View style={styles.expandedContent}>
+
+              <View style={styles.expandedHeader}>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <Image source={artistAvatarSrc} style={styles.profileImage} />
+                  <Text style={styles.artistMainName} numberOfLines={1}>
+                    {currentTrack.artist}
+                  </Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TouchableOpacity style={styles.followButton} onPress={() => { }}>
+                    <Text style={styles.followButtonText}>Seguir</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
+                    <Ionicons name="chevron-down" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity style={styles.followButton} onPress={() => { }}>
-                  <Text style={styles.followButtonText}>Seguir</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
-                  <Ionicons name="chevron-down" size={28} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </View>
 
-            <Image
-              source={coverImage}
-              style={styles.expandedCover}
-              resizeMode="cover"
-            />
-            <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
-            <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
-
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={durationMillis > 0 ? durationMillis : 1}
-              value={isSeeking ? sliderValue : positionMillis}
-              onValueChange={setSliderValue}
-              onSlidingStart={() => dispatch(setSeeking(true))}
-              onSlidingComplete={handleSeekTo}
-              minimumTrackTintColor="#1E90FF"
-              maximumTrackTintColor="#444"
-              thumbTintColor="#fff"
-              disabled={isLoading || durationMillis === 0}
-            />
-
-            <View style={styles.timeContainer}>
-              <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
-              <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
-            </View>
-
-            <View style={styles.controls}>
-              <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
-                <Ionicons name="play-skip-back" size={28} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleTogglePlayPause}>
-                {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Ionicons
-                    name={isPlaying ? 'pause-circle' : 'play-circle'}
-                    size={48}
-                    color="#fff"
-                  />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
-                <Ionicons name="play-skip-forward" size={28} color="#fff" />
-              </TouchableOpacity>
-            </View>
-
-            
-
-            <View style={styles.actionButtons}>
-
-              <TouchableOpacity onPress={() => { }}>
-                <Image
-                  source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
-                  style={styles.iconActions}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
-                <Ionicons
-                name={isCurrentTrackFavorited ? 'heart' : 'heart-outline'} // ALTERADO: Cor e ícone baseados no estado do Redux
-                size={24}
-                color={isCurrentTrackFavorited ? '#FF3D00' : '#fff'} // ALTERADO: Cor baseada no estado do Redux
+              <Image
+                source={coverImage}
+                style={styles.expandedCover}
+                resizeMode="cover"
               />
-              </TouchableOpacity>
+              <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
+              <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
 
-              <TouchableOpacity onPress={handleOpenComments}>
-                <Image
-                  source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')}
-                  style={styles.iconActions}
-                />
-              </TouchableOpacity>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={durationMillis > 0 ? durationMillis : 1}
+                value={isSeeking ? sliderValue : positionMillis}
+                onValueChange={setSliderValue}
+                onSlidingStart={() => dispatch(setSeeking(true))}
+                onSlidingComplete={handleSeekTo}
+                minimumTrackTintColor="#1E90FF"
+                maximumTrackTintColor="#444"
+                thumbTintColor="#fff"
+                disabled={isLoading || durationMillis === 0}
+              />
 
-              <TouchableOpacity onPress={() => { }}>
-                <Ionicons name="share-social-outline" size={24} color="#fff" />
-              </TouchableOpacity>
+              <View style={styles.timeContainer}>
+                <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
+                <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
+              </View>
 
-              <TouchableOpacity onPress={() => { }}>
-                <Ionicons name="list" size={24} color="#fff" />
-              </TouchableOpacity>
+              <View style={styles.controls}>
+                <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
+                  <Ionicons name="play-skip-back" size={28} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleTogglePlayPause}>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Ionicons
+                      name={isPlaying ? 'pause-circle' : 'play-circle'}
+                      size={48}
+                      color="#fff"
+                    />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
+                  <Ionicons name="play-skip-forward" size={28} color="#fff" />
+                </TouchableOpacity>
+              </View>
 
+              <View style={styles.actionButtons}>
+
+                <TouchableOpacity onPress={() => { }}>
+                  <Image
+                    source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
+                    style={styles.iconActions}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
+                  <Ionicons
+                    name={isCurrentTrackFavorited ? 'heart' : 'heart-outline'} // ALTERADO: Cor e ícone baseados no estado do Redux
+                    size={24}
+                    color={isCurrentTrackFavorited ? '#FF3D00' : '#fff'} // ALTERADO: Cor baseada no estado do Redux
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleOpenComments}>
+                  <Image
+                    source={require('@/assets/images/audioPlayerBar/icons8_sms_120px.png')}
+                    style={styles.iconActions}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => { }}>
+                  <Ionicons name="share-social-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => { }}>
+                  <Ionicons name="list" size={24} color="#fff" />
+                </TouchableOpacity>
+
+              </View>
             </View>
-          </View>
-        )
-      }
+          </BlurView>
+        </ImageBackground>
+      )}
 
-      {
-        error && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity onPress={() => dispatch(setError(null))}>
-              <Ionicons name="close-circle" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        )
-      }
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity onPress={() => dispatch(setError(null))}>
+            <Ionicons name="close-circle" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -371,10 +381,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   expandedHeader: {
-    width: '100%',
+    //width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    //justifyContent: 'space-between',
     padding: 10,
     marginTop: 10,
     marginBottom: 10,
@@ -462,7 +472,7 @@ const styles = StyleSheet.create({
     height: 25,
     // marginRight: 10,
   },
- 
+
   actionButtons: {
     //flex: 1,
     flexDirection: 'row',
@@ -471,4 +481,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 30,
   },
+  imageBackground: {
+  flex: 1,
+  width: '100%',
+  height: '100%',
+  justifyContent: 'flex-start',
+},
 });
