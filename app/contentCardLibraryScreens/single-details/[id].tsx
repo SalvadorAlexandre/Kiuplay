@@ -1,52 +1,90 @@
 // app/contentCardLibraryScreens/single-details/[id].tsx
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-// Você pode precisar importar o tipo Track de playerSlice ou types/library
-// import { Track } from '@/src/redux/playerSlice'; // Ou de '@/src/types/library'
+import { Ionicons } from '@expo/vector-icons';
+
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
+import { Track, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
+
+// Importe MOCKED_CLOUD_FEED_DATA
+import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library'; // Ajuste o caminho conforme necessário
 
 export default function SingleDetailsScreen() {
-  const { id } = useLocalSearchParams(); // Pega o ID da URL (ex: single-details/single-1)
+  const { id } = useLocalSearchParams();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  // NO FUTURO: Aqui você buscará os detalhes completos do single usando 'id'
-  // Por enquanto, usaremos dados mockados para exibição
-  const mockedSingleDetails = {
-    id: id as string,
-    title: `Single: ${id}`,
-    artist: 'Artista Desconhecido',
-    cover: `https://placehold.co/400x400/FF6347/FFFFFF?text=Single+${id}`,
-    description: `Detalhes completos para o single com ID: ${id}. Esta é uma faixa única de um artista.`,
-    releaseDate: '2024-01-01',
-    // ...outras propriedades de um single (duração, URI, etc.)
-  };
+  // 1. Encontrar o single correspondente nos dados mockados
+  // Filtramos para garantir que é um 'single' e fazemos o type assertion
+  const singleData = MOCKED_CLOUD_FEED_DATA.find(
+    (item) => item.id === id && item.type === 'single'
+  ) as Track | undefined; // 'as Track | undefined' para tipar corretamente
 
-  if (!id) {
+  // Se o single não for encontrado, mostramos uma mensagem de erro
+  if (!id || !singleData) {
     return (
       <View style={styles.container}>
         <Stack.Screen options={{ title: "Detalhes do Single" }} />
-        <Text style={styles.errorText}>ID do Single não encontrado.</Text>
+        <Text style={styles.errorText}>Single com ID "{id}" não encontrado.</Text>
       </View>
     );
   }
 
+  // Agora, `singleData` é o seu `mockedSingleDetails` real
+  const currentSingle: Track = singleData;
+
+  const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+  const isCurrentSingleFavorited = favoritedMusics.some((music) => music.id === currentSingle.id);
+
+  const handleToggleFavorite = useCallback(() => {
+    if (isCurrentSingleFavorited) {
+      dispatch(removeFavoriteMusic(currentSingle.id));
+    } else {
+      dispatch(addFavoriteMusic(currentSingle));
+    }
+  }, [dispatch, currentSingle, isCurrentSingleFavorited]);
+
+  const handlePlaySingle = useCallback(async () => {
+    if (!currentSingle.uri) {
+      Alert.alert("Erro", "URI da música não disponível para reprodução.");
+      return;
+    }
+    const singlePlaylist: Track[] = [currentSingle];
+    
+    dispatch(setPlaylistAndPlayThunk({
+      newPlaylist: singlePlaylist,
+      startIndex: 0,
+      shouldPlay: true,
+    }));
+  }, [dispatch, currentSingle]);
+
   return (
     <View style={styles.container}>
-      {/* Configura o cabeçalho da tela */}
-      <Stack.Screen options={{ title: mockedSingleDetails.title, headerBackTitle: 'Voltar' }} />
+      <Stack.Screen options={{ title: currentSingle.title, headerBackTitle: 'Voltar' }} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: mockedSingleDetails.cover }} style={styles.coverImage} />
-        <Text style={styles.title}>{mockedSingleDetails.title}</Text>
-        <Text style={styles.subtitle}>{mockedSingleDetails.artist}</Text>
-        <Text style={styles.description}>{mockedSingleDetails.description}</Text>
-        <Text style={styles.infoText}>Data de Lançamento: {mockedSingleDetails.releaseDate}</Text>
+        <Image source={{ uri: currentSingle.cover}} style={styles.coverImage} />
+        <Text style={styles.title}>{currentSingle.title}</Text>
+        <Text style={styles.subtitle}>{currentSingle.artist}</Text>
+        <Text style={styles.description}>{currentSingle.description || 'Nenhuma descrição disponível.'}</Text>
+        <Text style={styles.infoText}>Data de Lançamento: {currentSingle.releaseDate || 'N/A'}</Text>
 
-        <TouchableOpacity style={styles.button} onPress={() => { /* Lógica para tocar o single */ }}>
+        <TouchableOpacity style={styles.button} onPress={handlePlaySingle}>
           <Text style={styles.buttonText}>Tocar Single</Text>
         </TouchableOpacity>
 
-        {/* Adicione mais informações ou botões aqui (ex: adicionar à playlist, favoritar) */}
+        <TouchableOpacity style={styles.favoriteButton} onPress={handleToggleFavorite}>
+          <Ionicons
+            name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
+            size={30}
+            color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
+          />
+          <Text style={styles.favoriteButtonText}>
+            {isCurrentSingleFavorited ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Voltar</Text>
@@ -56,6 +94,7 @@ export default function SingleDetailsScreen() {
   );
 }
 
+// ... seus estilos existentes
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -108,6 +147,21 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  favoriteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 10,
+    gap: 10,
+  },
+  favoriteButtonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   backButton: {

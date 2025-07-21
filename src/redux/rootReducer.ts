@@ -2,7 +2,7 @@
 import { combineReducers } from 'redux';
 import playerReducer from './playerSlice';
 import usersReducer  from './userSlice'; 
-import favoritesReducer from './favoritesSlice'; 
+import favoritesReducer from './favoriteVideoSlice'; 
 import notificationsReducer from './notificationsSlice'; // SINAL: Importação do novo reducer
 import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃO: Seu novo slice de músicas favoritas
 import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer

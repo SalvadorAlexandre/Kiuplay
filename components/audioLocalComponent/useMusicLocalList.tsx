@@ -57,7 +57,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
                     <Text numberOfLines={1} style={styles.artistName}>
                         {music.artist
                             ? `${(music.artist)}`
-                            : 'Artista desconhecido'}
+                            : 'Artista desconhecido'}   
                     </Text>
                     <Text style={styles.musicSize}>
                         {music.size
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     musicItemContainer: {
         backgroundColor: '#1f1f1f',
         padding: 14,
-        marginBottom: 10,
+        marginBottom: 5,
         borderRadius: 8,
         borderColor: '#333',
         borderWidth: 1,

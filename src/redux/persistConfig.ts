@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux';
-import favoritesReducer from './favoritesSlice';
+import favoritesReducer from './favoriteVideoSlice';
 import playerReducer from './playerSlice';
 import usersReducer from './userSlice';
 import followedArtistsReducer from './followedArtistsSlice'; // <-- IMPORTANTE: Novo import

@@ -16,7 +16,7 @@ import VideoPlayerCore from '@/components/PlayerVideoComponents/VideoPlayerCore'
 import VideoInfoAndActions from '@/components/PlayerVideoComponents/VideoInfoAndActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/src/redux/store';
-import { addFavoriteVideo, removeFavoriteVideo } from '@/src/redux/favoritesSlice';
+import { addFavoriteVideo, removeFavoriteVideo } from '@/src/redux/favoriteVideoSlice';
 import { FollowedArtist, addFollowedArtist, removeFollowedArtist } from '@/src/redux/followedArtistsSlice'; // <-- IMPORTANTE: Novas importações
 
 // --- Definição da interface para os dados de cada vídeo ---

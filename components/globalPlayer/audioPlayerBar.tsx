@@ -135,6 +135,24 @@ export default function AudioPlayerBar() {
     }
   }, [dispatch, currentTrack, isCurrentTrackFavorited]); // NOVO: Dependências para o useCallback
 
+    //NOVO: Função para navegar para a tela de compartilhamento customizada
+    const handleShareMusic = useCallback(() => {
+        if (!currentTrack) {
+            console.warn("Nenhuma música tocando para compartilhar.");
+            return;
+        }
+
+        router.push({
+            pathname: '/shareScreens/music/[musicId]', // Caminho EXATO para sua futura tela de compartilhamento
+            params: {
+                musicId: currentTrack.id,
+                musicTitle: currentTrack.title,
+                artistName: currentTrack.artist,
+                albumArtUrl: currentTrack.cover || '',
+                // Adicione quaisquer outros dados que a tela de compartilhamento precise
+            },
+        });
+    }, [router, currentTrack]); // Depende do router e da música atual
 
 
   if (!currentTrack) return null;
@@ -316,7 +334,7 @@ export default function AudioPlayerBar() {
                   />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => { }}>
+                <TouchableOpacity onPress={handleShareMusic}>
                   <Ionicons name="share-social-outline" size={24} color="#fff" />
                 </TouchableOpacity>
 

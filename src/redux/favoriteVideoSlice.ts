@@ -21,7 +21,7 @@ const initialState: FavoritesState = {
   videos: [], // Começa com uma lista vazia de vídeos favoritos
 };
 
-const favoritesSlice = createSlice({
+const favoritesVideoSlice = createSlice({
   name: 'favorites',
   initialState,
   reducers: {
@@ -44,6 +44,6 @@ const favoritesSlice = createSlice({
   },
 });
 
-export const { addFavoriteVideo, removeFavoriteVideo, setFavoriteVideos } = favoritesSlice.actions;
+export const { addFavoriteVideo, removeFavoriteVideo, setFavoriteVideos } = favoritesVideoSlice.actions;
 
-export default favoritesSlice.reducer;
+export default favoritesVideoSlice.reducer;

@@ -23,7 +23,7 @@ import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist } from '@/src/types
 
 // ---
 // Dados mockados (MOCKED_CLOUD_FEED_DATA) - Mantenha como está.
-const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
+export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
     {
         id: 'single-1',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',

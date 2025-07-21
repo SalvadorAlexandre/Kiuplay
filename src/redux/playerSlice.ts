@@ -29,6 +29,9 @@ export interface Track {
   source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'beatstore-feeds' | 'beatstore-curtidas' | 'beatstore-seguindo' | 'unknown';
   type?: 'single'; // <--- ADICIONE ESTA LINHA
   genre?: string; // NOVO: Adicionado para o gênero
+  description?: string; // Propriedade para a descrição do single/música
+  releaseDate?: string; // Propriedade para a data de lançamento
+
 }
 
 // Adaptação da interface Music do AudioManager para ser compatível, se necessário.
