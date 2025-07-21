@@ -247,11 +247,11 @@ export default function AudioPlayerBar() {
                 style={styles.expandedCover}
                 resizeMode="cover"
               />
-              <View>
-                <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
-                <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
-                <Text style={styles.artistName} numberOfLines={1}>{currentTrack.genre}</Text>
-              </View>
+              
+              <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
+              <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
+              <Text style={styles.artistName} numberOfLines={1}>{currentTrack.genre}</Text>
+              
 
               <Slider
                 style={styles.slider}
@@ -342,7 +342,6 @@ export default function AudioPlayerBar() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',

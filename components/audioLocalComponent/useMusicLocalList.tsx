@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     FlatList,
+    Image,
 } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 import { parseBlob } from 'music-metadata';
@@ -28,26 +29,46 @@ interface MusicItemProps {
 }
 
 // Componente para exibir uma música na lista
-const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => (
-    <TouchableOpacity
-        style={[
-            styles.musicItemContainer,
-            isCurrent && styles.currentMusicItem,
-        ]}
-        onPress={onPress}
-        activeOpacity={0.7}
-        testID={`music-item-${index}`}
-    >
-        <Text numberOfLines={1} style={styles.musicName}>
-            {isCurrent ? '▶ ' : ''}{music.title} {/* ALTERAÇÃO: Exibe o título da Track */}
-        </Text>
-        <Text style={styles.musicSize}>
-            {music.size
-                ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
-                : 'Tamanho desconhecido'}
-        </Text>
-    </TouchableOpacity>
-);
+const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
+    const imageSource = music.cover
+        ? { uri: music.cover }
+        : require('@/assets/images/Default_Profile_Icon/unknown_track.png'); // imagem de fallback
+
+    return (
+        <TouchableOpacity
+            style={[
+                styles.musicItemContainer,
+                isCurrent && styles.currentMusicItem,
+            ]}
+            onPress={onPress}
+            activeOpacity={0.7}
+            testID={`music-item-${index}`}
+        >
+            <View style={styles.row}>
+                <Image
+                    source={imageSource}
+                    style={styles.coverImage}
+                    resizeMode="cover"
+                />
+                <View style={styles.musicTextContainer}>
+                    <Text numberOfLines={1} style={styles.musicName}>
+                        {isCurrent ? '▶ ' : ''}{music.title}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.artistName}>
+                        {music.artist
+                            ? `${(music.artist)}`
+                            : 'Artista desconhecido'}
+                    </Text>
+                    <Text style={styles.musicSize}>
+                        {music.size
+                            ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
+                            : 'Tamanho desconhecido'}
+                    </Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
 
 // Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
@@ -201,5 +222,23 @@ const styles = StyleSheet.create({
         color: '#aaa',
         fontSize: 13,
         marginTop: 4,
+    },
+    artistName: {
+        color: '#ccc',
+        fontSize: 12,
+    },
+    coverImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        marginRight: 12,
+        backgroundColor: '#333',
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    musicTextContainer: {
+        flex: 1,
     },
 });

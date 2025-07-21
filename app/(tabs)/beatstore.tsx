@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 // Ionicons ainda é necessário para outros ícones na tela principal (chevrons, etc.)
-import { Ionicons } from '@expo/vector-icons';
 
 import TopTabBarBeatStore from '@/components/topTabBarBeatStoreScreen';
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
@@ -33,7 +32,6 @@ const MOCKED_BEATSTORE_MUSIC_DATA: Track[] = [
     artistAvatar: 'https://i.pravatar.cc/150?img=10',
     source: 'beatstore-feeds', // Origem: Feeds da Beat Store
     duration: 180000,
-    
   },
   {
     id: 'beat-store-2',
