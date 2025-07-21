@@ -1,38 +1,46 @@
 // app/contentCardLibraryScreens/single-details/[id].tsx
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Alert,
+  ImageBackground,
+  Platform,
+  SafeAreaView,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
 import { Track, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
-
-// Importe MOCKED_CLOUD_FEED_DATA
-import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library'; // Ajuste o caminho conforme necessário
+import { BlurView } from 'expo-blur';
+import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library';
 
 export default function SingleDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // 1. Encontrar o single correspondente nos dados mockados
-  // Filtramos para garantir que é um 'single' e fazemos o type assertion
   const singleData = MOCKED_CLOUD_FEED_DATA.find(
     (item) => item.id === id && item.type === 'single'
-  ) as Track | undefined; // 'as Track | undefined' para tipar corretamente
+  ) as Track | undefined;
 
-  // Se o single não for encontrado, mostramos uma mensagem de erro
   if (!id || !singleData) {
     return (
-      <View style={styles.container}>
-        <Stack.Screen options={{ title: "Detalhes do Single" }} />
+      <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
         <Text style={styles.errorText}>Single com ID "{id}" não encontrado.</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>Voltar</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
-  // Agora, `singleData` é o seu `mockedSingleDetails` real
   const currentSingle: Track = singleData;
 
   const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
@@ -52,7 +60,7 @@ export default function SingleDetailsScreen() {
       return;
     }
     const singlePlaylist: Track[] = [currentSingle];
-    
+
     dispatch(setPlaylistAndPlayThunk({
       newPlaylist: singlePlaylist,
       startIndex: 0,
@@ -60,109 +68,173 @@ export default function SingleDetailsScreen() {
     }));
   }, [dispatch, currentSingle]);
 
+  const coverSource = currentSingle.cover
+    ? { uri: currentSingle.cover }
+    : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ title: currentSingle.title, headerBackTitle: 'Voltar' }} />
+    <ImageBackground
+      source={coverSource}
+      blurRadius={Platform.OS === 'android' ? 10 : 0}
+      style={styles.imageBackground}
+      resizeMode="cover"
+    >
+      <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
+        <SafeAreaView style={styles.safeArea}>
+          <Stack.Screen options={{ headerShown: false }} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: currentSingle.cover}} style={styles.coverImage} />
-        <Text style={styles.title}>{currentSingle.title}</Text>
-        <Text style={styles.subtitle}>{currentSingle.artist}</Text>
-        <Text style={styles.description}>{currentSingle.description || 'Nenhuma descrição disponível.'}</Text>
-        <Text style={styles.infoText}>Data de Lançamento: {currentSingle.releaseDate || 'N/A'}</Text>
+          <TouchableOpacity style={styles.customBackButton} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={30} color="#fff" />
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handlePlaySingle}>
-          <Text style={styles.buttonText}>Tocar Single</Text>
-        </TouchableOpacity>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.coverContainer}>
+              <Image source={coverSource} style={styles.coverImage} />
+            </View>
 
-        <TouchableOpacity style={styles.favoriteButton} onPress={handleToggleFavorite}>
-          <Ionicons
-            name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
-            size={30}
-            color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
-          />
-          <Text style={styles.favoriteButtonText}>
-            {isCurrentSingleFavorited ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
-          </Text>
-        </TouchableOpacity>
+            <Text style={styles.title}>{currentSingle.title}</Text>
+            <Text style={styles.subtitle}>{currentSingle.artist}</Text>
+            <Text style={styles.description}>{currentSingle.description || 'Nenhuma descrição disponível.'}</Text>
+            <Text style={styles.infoText}>Data de Lançamento: {currentSingle.releaseDate || 'N/A'}</Text>
 
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+            <View style={styles.actionButtonsRow}>
+              <TouchableOpacity style={styles.playButtonFixed} onPress={handlePlaySingle}>
+                {/* NOVO: Ícone de play */}
+                <Ionicons name="play" size={20} color="#fff" />
+                <Text style={styles.buttonText}>Ouvir</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.favoriteButtonIcon} onPress={handleToggleFavorite}>
+                <Ionicons
+                  name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
+                  size={30}
+                  color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
+                />
+              </TouchableOpacity>
+            </View>
+
+          </ScrollView>
+        </SafeAreaView>
+      </BlurView>
+    </ImageBackground>
   );
 }
 
-// ... seus estilos existentes
 const styles = StyleSheet.create({
+  imageBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
   container: {
     flex: 1,
+  },
+  errorContainer: {
+    flex: 1,
     backgroundColor: '#191919',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  customBackButton: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? 0 : 20,
+    left: 15,
+    zIndex: 10,
+    padding: 10,
   },
   scrollContent: {
     alignItems: 'center',
     paddingVertical: 20,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? 60 : 80,
+  },
+  coverContainer: {
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 5,
   },
   coverImage: {
-    width: 250,
-    height: 250,
-    borderRadius: 8,
-    marginBottom: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    resizeMode: 'cover',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 8, // Ajustado ligeiramente para melhor espaçamento
   },
   subtitle: {
     fontSize: 18,
     color: '#aaa',
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 5, // Ajustado ligeiramente para melhor espaçamento
   },
   description: {
     fontSize: 16,
     color: '#ccc',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 5, // Ajustado ligeiramente para melhor espaçamento
     lineHeight: 24,
   },
   infoText: {
     fontSize: 14,
     color: '#bbb',
-    marginBottom: 20,
+    marginBottom: 5,
+    textAlign: 'center',
   },
-  button: {
-    backgroundColor: '#1E90FF', // DodgerBlue
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 30,
+  actionButtonsRow: {
+    flexDirection: 'row',
+    width: '85%',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
     marginBottom: 10,
+    gap: 15,
+  },
+  playButtonFixed: {
+    backgroundColor: '#1E90FF',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+    width: 180,
+    flexDirection: 'row', // Adicionado para alinhar ícone e texto
+    alignItems: 'center', // Adicionado para alinhar ícone e texto verticalmente
+    justifyContent: 'center', // Centraliza o conteúdo (ícone + texto) horizontalmente
+    gap: 8, // Espaçamento entre o ícone e o texto
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    //fontWeight: 'bold',
   },
-  favoriteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  favoriteButtonIcon: {
+    //backgroundColor: '#333',
+    width: 50,
+    height: 50,
     borderRadius: 25,
-    marginTop: 10,
-    gap: 10,
-  },
-  favoriteButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backButton: {
     marginTop: 20,
@@ -171,11 +243,5 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#1E90FF',
     fontSize: 16,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 50,
   },
 });
