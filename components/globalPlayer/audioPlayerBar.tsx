@@ -163,7 +163,7 @@ export default function AudioPlayerBar() {
   /* logo depois de pegar currentTrack */
 
   const artistAvatarSrc =
-    currentTrack.artistAvatar        // ex.: https://…/avatar.jpg
+    currentTrack.artistAvatar   
       ? { uri: currentTrack.artistAvatar }
       : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
@@ -479,6 +479,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 25,
+    resizeMode: 'cover',
   },
   commentInput: {
     paddingVertical: 9,

@@ -10,6 +10,8 @@ import {
     FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSelector } from 'react-redux'; // NOVO: Importa useSelector
+import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState para tipagem
 
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
@@ -19,7 +21,7 @@ import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
-import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist } from '@/src/types/library';
+import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist, Single } from '@/src/types/library';
 
 // ---
 // Dados mockados (MOCKED_CLOUD_FEED_DATA) - Mantenha como está.
@@ -35,7 +37,8 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         duration: 180000,
         type: 'single',
         genre: 'Hip Hop',
-    } as Track,
+        viewsNumber: 271,
+    } as Single,
     {
         id: 'album-1',
         title: 'Retrospectiva Jazz',
@@ -48,7 +51,7 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
     {
         id: 'artist-1',
         name: 'Mestre da Batida',
-        avatar: 'https://i.pravatar.cc/150?img=7', 
+        avatar: 'https://i.pravatar.cc/150?img=7',
         type: 'artist',
         genres: ['Hip Hop', 'Trap'],
     } as ArtistProfile,
@@ -80,7 +83,8 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         duration: 210000,
         type: 'single',
         genre: 'Soul',
-    } as Track,
+        viewsNumber: 1000,
+    } as Single,
     {
         id: 'artist-2',
         name: 'EveryDay',
@@ -104,8 +108,9 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         type: 'artist',
         genres: ['Zouck', 'Trap'],
     } as ArtistProfile,
+    // Note: 'artist-2' está duplicado nos mockups originais, corrigi um dos IDs para 'artist-4'
     {
-        id: 'artist-2',
+        id: 'artist-4', // Alterado de 'artist-2' para 'artist-4' para evitar duplicidade de ID
         name: 'Rainha do R&B',
         avatar: 'https://i.pravatar.cc/150?img=9',
         type: 'artist',
@@ -185,7 +190,7 @@ const SubTabBar = ({
 
 export default function LibraryScreen() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch(); // Mantido caso precise de dispatch no futuro
     const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const {
         isSelectedSubTab,
@@ -194,6 +199,8 @@ export default function LibraryScreen() {
     } = useSubTabSelectorLibrary();
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    // NOVO: Obtém a lista de artistas seguidos do Redux
+    const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
 
     const favoritedCloudTracks: Track[] = favoritedMusics.filter(
         (music) =>
@@ -225,6 +232,11 @@ export default function LibraryScreen() {
         } else {
             console.warn('Tipo de item desconhecido:', item.type);
         }
+    };
+
+    // NOVO: Função para navegar para a tela do perfil do artista (igual à de BeatStoreScreen)
+    const handleNavigateToArtistProfile = (artistId: string) => {
+        router.push(`/contentCardLibraryScreens/artist-profile/${artistId}`);
     };
 
     return (
@@ -284,7 +296,7 @@ export default function LibraryScreen() {
                                     data={MOCKED_CLOUD_FEED_DATA}
                                     keyExtractor={(item) => item.id}
                                     numColumns={2}
-                                    columnWrapperStyle={{justifyContent:'space-between'}}
+                                    columnWrapperStyle={{ justifyContent: 'space-between' }}
                                     renderItem={({ item }) => (
                                         <View style={styles.cardItemColumn}>
                                             <LibraryContentCard
@@ -293,9 +305,7 @@ export default function LibraryScreen() {
                                             />
                                         </View>
                                     )}
-                                    // NOVO: Usar contentContainerStyle para padding lateral e inferior
                                     contentContainerStyle={styles.flatListContentContainer}
-
                                     ListEmptyComponent={() => (
                                         <Text style={styles.emptyListText}>Nenhum conteúdo no feed da cloud.</Text>
                                     )}
@@ -314,11 +324,14 @@ export default function LibraryScreen() {
                                         data={favoritedCloudTracks}
                                         keyExtractor={(item) => item.id}
                                         numColumns={2}
+                                        columnWrapperStyle={{ justifyContent: 'space-between' }}
                                         renderItem={({ item }) => (
-                                            <LibraryContentCard
-                                                item={item}
-                                                onPress={handleCloudItemPress}
-                                            />
+                                            <View style={styles.cardItemColumn}>
+                                                <LibraryContentCard
+                                                    item={item}
+                                                    onPress={handleCloudItemPress}
+                                                />
+                                            </View>
                                         )}
                                         contentContainerStyle={styles.flatListContentContainer}
                                     />
@@ -326,30 +339,32 @@ export default function LibraryScreen() {
                             </View>
                         )}
 
-                        {/* Aba 'Seguindo' da Cloud: Exibe conteúdos de artistas seguidos (mix de tipos ou apenas músicas) */}
+                        {/* NOVO: Aba 'Seguindo' da Cloud: Exibe artistas seguidos */}
                         {getSelectedSubTab('cloud') === 'seguindo' && (
-                            <View style={styles.cloudMusicListContainer}>
-                                <Text style={styles.title}>Conteúdo de Artistas Seguindo (Cloud)</Text>
-                                {MOCKED_CLOUD_FEED_DATA.filter(item =>
-                                    item.type === 'artist' && item.id === 'artist-1' ||
-                                    item.type === 'single' && (item as Track).source === 'library-cloud-seguindo'
-                                ).length === 0 ? (
-                                    <Text style={styles.emptyListText}>Nenhum conteúdo de artista seguido na cloud.</Text>
+                            <View style={styles.followedArtistsContainer}>
+                                <Text style={styles.title}>Artistas Seguindo (Cloud)</Text>
+                                {followedArtists.length === 0 ? (
+                                    <View style={styles.tabContentTextContainer}>
+                                        <Text style={styles.tabContentText}>Você não está seguindo nenhum artista.</Text>
+                                    </View>
                                 ) : (
                                     <FlatList
-                                        data={MOCKED_CLOUD_FEED_DATA.filter(item =>
-                                            item.type === 'artist' && item.id === 'artist-1' ||
-                                            item.type === 'single' && (item as Track).source === 'library-cloud-seguindo'
-                                        )}
+                                        data={followedArtists}
                                         keyExtractor={(item) => item.id}
-                                        numColumns={2}
                                         renderItem={({ item }) => (
-                                            <LibraryContentCard
-                                                item={item}
-                                                onPress={handleCloudItemPress}
-                                            />
+                                            <TouchableOpacity
+                                                style={styles.followedArtistItem}
+                                                onPress={() => handleNavigateToArtistProfile(item.id)}
+                                            >
+                                                <Image
+                                                    source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
+                                                    style={styles.followedArtistProfileImage}
+                                                />
+                                                <Text style={styles.followedArtistName}>{item.name}</Text>
+                                            </TouchableOpacity>
                                         )}
                                         contentContainerStyle={styles.flatListContentContainer}
+                                        showsVerticalScrollIndicator={false}
                                     />
                                 )}
                             </View>
@@ -400,7 +415,6 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#fff',
-        //marginTop: 20,
         marginLeft: 15,
         marginBottom: 10,
         fontSize: 20,
@@ -463,6 +477,7 @@ const styles = StyleSheet.create({
     },
     cloudMusicListContainer: {
         flex: 1,
+        paddingHorizontal: 10, // Adicionado padding horizontal aqui para as FlatLists de conteúdo
     },
     emptyListText: {
         color: '#aaa',
@@ -471,14 +486,47 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginHorizontal: 20,
     },
-    // Removido: row, cloudItemColumn antigos.
-    // NOVOS ESTILOS PARA FlatList DE DUAS COLUNAS
     flatListContentContainer: {
-        paddingHorizontal: 10, // Este é o padding lateral da FlatList
-        paddingBottom: 20, // Padding inferior para o scroll
-        // Sem flexGrow: 1 aqui, pois pode causar problemas com a centralização quando há poucos itens
+        paddingBottom: 20,
     },
     cardItemColumn: {
-        width: '50%',
+        width: '48%', // Ajustado para 48% para permitir o `space-between` no `columnWrapperStyle`
+        marginBottom: 10, // Adicionado margem inferior para espaçamento entre as linhas de cards
+    },
+    // NOVO: Estilos para a lista de artistas seguidos
+    followedArtistsContainer: {
+        flex: 1,
+        paddingHorizontal: 10, // Adicionado padding horizontal aqui para a FlatList de artistas
+    },
+    followedArtistItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+        marginBottom: 5, // Espaçamento entre os itens de artista
+    },
+    followedArtistProfileImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginRight: 15,
+        backgroundColor: '#555',
+    },
+    followedArtistName: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        flex: 1,
+    },
+    tabContentTextContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    tabContentText: {
+        color: '#fff',
+        fontSize: 16,
     },
 });

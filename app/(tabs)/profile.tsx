@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+// app/(tabs)/profile.tsx
+import React, { useState } from 'react';
 import { useSelectedMyContent, MyPostsType } from '@/hooks/useSelectedMyContent';
 import { Ionicons } from '@expo/vector-icons';
-import { router, } from 'expo-router';
+import { router } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
 import {
   ScrollView,
@@ -11,11 +12,27 @@ import {
   Image,
   TouchableOpacity,
   Animated,
-  // KeyboardAvoidingView,
 } from 'react-native';
 
-
 export default function ProfileScreen() {
+  // --- DADOS MOCADOS DO PERFIL ---
+  const userProfile = {
+    id: 'user123',
+    name: 'Saag Weelli Boy',
+    username: 'saag_swb_oficial',
+    // Usaremos a imagem padrão se 'avatarUrl' for null ou vazio
+    avatarUrl: null, // Pode ser uma URL como 'https://example.com/seu-avatar.jpg'
+    bio: 'Artista, produtor e sonhador. A música é a minha linguagem.',
+    followersCount: 450,
+    followingCount: 120,
+    singlesCount: 8,
+    epsCount: 2,
+    albumsCount: 1,
+    videosCount: 3, // Novo campo para vídeos
+    hasMonetizationEnabled: true, // Novo campo para monetização
+    isArtist: true, // Exemplo de outro campo
+  };
+  // ------------------------------
 
   /**
    * Função auxiliar que verifica se um tipo de conteúdo está atualmente selecionado.
@@ -27,458 +44,342 @@ export default function ProfileScreen() {
     return current === type;
   };
 
-  //Hook que verifica se um btn dos meus conteudos está checked
-  const { selectedProfileMyContent, setSelectedProfileMyContent } = useSelectedMyContent()
+  // Hook que verifica se um botão dos meus conteúdos está checked
+  const { selectedProfileMyContent, setSelectedProfileMyContent } = useSelectedMyContent();
 
-  //hooks para o btn configuraçoes do perfil----------------------------------------------
-  const [scaleValueConfig] = useState(new Animated.Value(1))
-  const handlePressInConfig = () => {
-    Animated.spring(scaleValueConfig, { toValue: 0.96, useNativeDriver: true, }).start()
-  }
-  const handlePressOutConfig = () => {
-    Animated.spring(scaleValueConfig, { toValue: 1, useNativeDriver: true, }).start()
-  }
-  //---------------------------------------------------------------------------------------
+  // Hooks para os botões de animação (mantidos do seu código original)
+  const [scaleValueConfig] = useState(new Animated.Value(1));
+  const handlePressInConfig = () => { Animated.spring(scaleValueConfig, { toValue: 0.96, useNativeDriver: true }).start(); };
+  const handlePressOutConfig = () => { Animated.spring(scaleValueConfig, { toValue: 1, useNativeDriver: true }).start(); };
 
-  //hooks para o btn configuraçoes do uploads----------------------------------------------
-  const [scaleValueUploads] = useState(new Animated.Value(1))
-  const handlePressInUploads = () => {
-    Animated.spring(scaleValueUploads, { toValue: 0.96, useNativeDriver: true, }).start()
-  }
-  const handlePressOutUploads = () => {
-    Animated.spring(scaleValueUploads, { toValue: 1, useNativeDriver: true, }).start()
-  }
-  //---------------------------------------------------------------------------------------
+  const [scaleValueUploads] = useState(new Animated.Value(1));
+  const handlePressInUploads = () => { Animated.spring(scaleValueUploads, { toValue: 0.96, useNativeDriver: true }).start(); };
+  const handlePressOutUploads = () => { Animated.spring(scaleValueUploads, { toValue: 1, useNativeDriver: true }).start(); };
 
-  //hooks para o btn configuraçoes dos Insight----------------------------------------------
-  const [scaleValueInsight] = useState(new Animated.Value(1))
-  const handlePressInInsight = () => {
-    Animated.spring(scaleValueInsight, { toValue: 0.96, useNativeDriver: true, }).start()
-  }
-  const handlePressOutInsight = () => {
-    Animated.spring(scaleValueInsight, { toValue: 1, useNativeDriver: true, }).start()
-  }
-  //---------------------------------------------------------------------------------------
+  const [scaleValueInsight] = useState(new Animated.Value(1));
+  const handlePressInInsight = () => { Animated.spring(scaleValueInsight, { toValue: 0.96, useNativeDriver: true }).start(); };
+  const handlePressOutInsight = () => { Animated.spring(scaleValueInsight, { toValue: 1, useNativeDriver: true }).start(); };
 
-  //hooks para o btn Monetization----------------------------------------------
-  const [scaleValueMonetization] = useState(new Animated.Value(1))
-  const handlePressInMonetization = () => {
-    Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true, }).start()
-  }
-  const handlePressOutMonetization = () => {
-    Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true, }).start()
-  }
-  //---------------------------------------------------------------------------------------
+  const [scaleValueMonetization] = useState(new Animated.Value(1));
+  const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
+  const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
 
   return (
-
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
-
       <TopTabBarProfile />
 
       <ScrollView
-        horizontal={false} // Garante que esta rolagem seja vertical
-        style={styles.scroll} // Aplica o estilo de fundo escuro
-        contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-        showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+        horizontal={false}
+        style={styles.scroll}
+        contentContainerStyle={styles.container}
+        showsHorizontalScrollIndicator={false}
       >
-
-        {/*View da visão Geral do perfil--------------------------------------------------*/}
+        {/* View da visão Geral do perfil */}
         <View style={styles.profileContainer}>
-          {/*Outros elementos estarao aqui dentro (elementos do perfil)*/}
-
           <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-
             <View style={styles.imageContainer}>
               <Image // Imagem do perfil
-                source={require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')} // imagem padrão
+                source={userProfile.avatarUrl ? { uri: userProfile.avatarUrl } : require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')}
                 style={styles.profileImage}
                 resizeMode="contain"
               />
             </View>
 
-            {/*Mostrar o nome e o arroba do utilizador*/}
+            {/* Mostrar o nome e o arroba do utilizador */}
             <View>
-              <Text style={styles.userName}>Saag Weelli Boy</Text>
-              <Text style={styles.userHandle}>@saag_swb_oficial</Text>
+              <Text style={styles.userName}>{userProfile.name}</Text>
+              <Text style={styles.userHandle}>@{userProfile.username}</Text>
             </View>
-
           </View>
 
-
-          {/* Estatísticas: seguindo, seguidores, singles, EPs, álbuns */}
+          {/* Estatísticas: seguindo, seguidores, singles, EPs, álbuns, vídeos */}
           <View style={styles.statsRow}>
-
-            {/*Mostrar o numero de pessoas que segue*/}
             <View style={styles.statBox}>
-              <Text style={styles.statValue}>120</Text>
+              <Text style={styles.statValue}>{userProfile.followingCount}</Text>
               <Text style={styles.statLabel}>Seguindo</Text>
             </View>
 
-            {/*Mostrar o numero de seguidores*/}
             <View style={styles.statBox}>
-              <Text style={styles.statValue}>450</Text>
+              <Text style={styles.statValue}>{userProfile.followersCount}</Text>
               <Text style={styles.statLabel}>Seguidores</Text>
             </View>
 
-            {/*Mostrar o numero de singles publicados*/}
             <View style={styles.statBox}>
-              <Text style={styles.statValue}>8</Text>
+              <Text style={styles.statValue}>{userProfile.singlesCount}</Text>
               <Text style={styles.statLabel}>Singles</Text>
             </View>
 
-            {/*Mostrar o numero de EP`s publicadas*/}
             <View style={styles.statBox}>
-              <Text style={styles.statValue}>2</Text>
+              <Text style={styles.statValue}>{userProfile.epsCount}</Text>
               <Text style={styles.statLabel}>EPs</Text>
             </View>
 
-            {/*Mostrar o numero de Albuns publicados-----*/}
             <View style={styles.statBox}>
-              <Text style={styles.statValue}>1</Text>
+              <Text style={styles.statValue}>{userProfile.albumsCount}</Text>
               <Text style={styles.statLabel}>Álbuns</Text>
             </View>
-          </View>
 
+            {/* Novo stat para Vídeos */}
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{userProfile.videosCount}</Text>
+              <Text style={styles.statLabel}>Vídeos</Text>
+            </View>
+          </View>
         </View>
 
-
-        {/*View das configuracao do perfil-----------------------------------------------------------------*/}
+        {/* View das configurações do perfil */}
         <Animated.View style={[
           styles.buttonContainer,
-          { transform: [{ scale: scaleValueConfig }] } // Aplica a animação
+          { transform: [{ scale: scaleValueConfig }] }
         ]}>
           <TouchableOpacity
-            onPressIn={handlePressInConfig}    // Aciona ao pressionar
-            onPressOut={handlePressOutConfig}  // Aciona ao soltar
-            onPress={() => router.push('/profileScreens/useProfileSettingsScreen')} // Exemplo de ação
-            style={styles.buttonContent} // Estilo interno
+            onPressIn={handlePressInConfig}
+            onPressOut={handlePressOutConfig}
+            onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}
+            style={styles.buttonContent}
           >
-            {/* Ícone esquerdo */}
             <Image
               source={require('@/assets/images/2/icons8_user_settings_120px.png')}
               style={styles.iconLeft}
             />
-
-            {/* Texto do botão */}
             <Text style={styles.buttonText}>Configurações do perfil</Text>
-
-            {/* Ícone seta para direita */}
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
-        {/*View das configuracao do perfil-----------------------------------------------------------------*/}
 
-        {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
+        {/* View do botão para entrar na tela de monetização */}
         <Animated.View style={[
           styles.buttonContainer,
-          { transform: [{ scale: scaleValueMonetization }] } // Animação de clique
+          { transform: [{ scale: scaleValueMonetization }] }
         ]}>
           <TouchableOpacity
-            onPressIn={handlePressInMonetization}    // Aciona ao pressionar
-            onPressOut={handlePressOutMonetization} // Aciona ao soltar
-            onPress={() => router.push('/profileScreens/useMonetizationScreen')} // Ação
-            style={styles.buttonContent} // Estilo interno
+            onPressIn={handlePressInMonetization}
+            onPressOut={handlePressOutMonetization}
+            onPress={() => router.push('/profileScreens/useMonetizationScreen')}
+            style={styles.buttonContent}
           >
-            {/* Ícone esquerdo (ícone de monetização*/}
             <Image
-              source={require('@/assets/images/2/icons8_euro_money_120px.png')} // Troque pelo seu ícone
+              source={require('@/assets/images/2/icons8_euro_money_120px.png')}
               style={styles.iconLeft}
             />
-
-            {/* Texto do botão */}
             <Text style={styles.buttonText}>Kiuplay Monetization</Text>
-
-            {/* Ícone seta para direita */}
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
-        {/*View do botão para entrar na tela de monetização-----------------------------------------------------------------*/}
 
-        {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
+        {/* View do botão Fazer Uploads */}
         <Animated.View style={[
           styles.buttonContainer,
-          { transform: [{ scale: scaleValueUploads }] } // Animação de clique
+          { transform: [{ scale: scaleValueUploads }] }
         ]}>
           <TouchableOpacity
-            onPressIn={handlePressInUploads}    // Aciona ao pressionar
-            onPressOut={handlePressOutUploads} // Aciona ao soltar 
-            onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} // Ação
-            style={styles.buttonContent} // Estilo interno
+            onPressIn={handlePressInUploads}
+            onPressOut={handlePressOutUploads}
+            onPress={() => router.push('/profileScreens/useOptionsPostsScreen')}
+            style={styles.buttonContent}
           >
-            {/* Ícone esquerdo (ícone de upload) */}
             <Image
-              source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')} // Troque pelo seu ícone
+              source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')}
               style={styles.iconLeft}
             />
-
-            {/* Texto do botão */}
             <Text style={styles.buttonText}>Fazer Uploads</Text>
-
-            {/* Ícone seta para direita */}
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
-        {/*View do botão Fazer Uploads-----------------------------------------------------------------*/}
 
-
-        {/*View do botão Fazer Insight-----------------------------------------------------------------*/}
+        {/* View do botão Fazer Insight */}
         <Animated.View style={[
           styles.buttonContainer,
-          { transform: [{ scale: scaleValueInsight }] } // Animação de clique
+          { transform: [{ scale: scaleValueInsight }] }
         ]}>
           <TouchableOpacity
-            onPressIn={handlePressInInsight}    // Aciona ao pressionar
-            onPressOut={handlePressOutInsight} // Aciona ao soltar
-            onPress={() => router.push('/profileScreens/useInsightsUserScreen')} // Ação
-            style={styles.buttonContent} // Estilo interno
+            onPressIn={handlePressInInsight}
+            onPressOut={handlePressOutInsight}
+            onPress={() => router.push('/profileScreens/useInsightsUserScreen')}
+            style={styles.buttonContent}
           >
-            {/* Ícone esquerdo (ícone de Insight) */}
             <Image
-              source={require('@/assets/images/2/icons8_funnel_120px_1.png')} // Troque pelo seu ícone
+              source={require('@/assets/images/2/icons8_funnel_120px_1.png')}
               style={styles.iconLeft}
             />
-
-            {/* Texto do botão */}
             <Text style={styles.buttonText}>Seus Insights</Text>
-
-            {/* Ícone seta para direita */}
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
-        {/*View do botão Fazer Insight-----------------------------------------------------------------*/}
 
-        {/*View dos conteudos do usuarios-----------*/}
+        {/* View dos conteúdos do usuário */}
         <View>
           <View style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            //paddingHorizontal: 1,
             marginTop: 20,
-            //marginBottom: 10,
-            //marginLeft: 20,
-          }}>
-          </View>
+          }}></View>
           <Text style={{ color: '#fff', marginBottom: 5, fontSize: 17, marginLeft: 5 }}>Meus Posts</Text>
           <ScrollView horizontal
-            showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-            style={{ marginBottom: 8, marginLeft: 1, }}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginBottom: 8, marginLeft: 1 }}
           >
-            {/*Botao para os Singles----------------*/}
+            {/* Botão para os Singles */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'single') &&
-                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+                isSelected(selectedProfileMyContent, 'single') && styles.workButtonSelected
               ]}
               onPress={() => setSelectedProfileMyContent('single')}>
-              <Image
-                source={require('@/assets/images/3/icons8_musical_120px.png')}
-                style={{ width: 23, height: 20, marginRight: 8 }}
-              />
+              <Image source={require('@/assets/images/3/icons8_musical_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
               <Text style={styles.workButtonText}>Faixa single</Text>
             </TouchableOpacity>
 
-            {/*Botao para as EPs*/}
+            {/* Botão para as EPs */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'eps') &&
-                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+                isSelected(selectedProfileMyContent, 'eps') && styles.workButtonSelected
               ]}
               onPress={() => setSelectedProfileMyContent('eps')}>
-              <Image
-                source={require('@/assets/images/3/icons8_music_record_120px.png')}
-                style={{ width: 20, height: 20, marginRight: 8 }}
-              />
+              <Image source={require('@/assets/images/3/icons8_music_record_120px.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
               <Text style={styles.workButtonText}>Extended Play (EPs)</Text>
             </TouchableOpacity>
 
-            {/*Botao para os Albuns*/}
+            {/* Botão para os Álbuns */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'albums') &&
-                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+                isSelected(selectedProfileMyContent, 'albums') && styles.workButtonSelected
               ]}
               onPress={() => setSelectedProfileMyContent('albums')}>
-              <Image
-                source={require('@/assets/images/3/icons8_music_album_120px.png')}
-                style={{ width: 23, height: 20, marginRight: 8 }}
-              />
+              <Image source={require('@/assets/images/3/icons8_music_album_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
               <Text style={styles.workButtonText}>Álbuns</Text>
             </TouchableOpacity>
 
-            {/*Instrumentais comprados*/}
+            {/* Instrumentais comprados */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'beats_bought') &&
-                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+                isSelected(selectedProfileMyContent, 'beats_bought') && styles.workButtonSelected
               ]}
               onPress={() => setSelectedProfileMyContent('beats_bought')}>
-              <Image
-                source={require('@/assets/images/3/icons8_paycheque_120px.png')}
-                style={{ width: 23, height: 20, marginRight: 8 }}
-              />
+              <Image source={require('@/assets/images/3/icons8_paycheque_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
               <Text style={styles.workButtonText}>Instrumentais comprados</Text>
             </TouchableOpacity>
 
-            {/*Instrumentais Postados*/}
+            {/* Instrumentais Postados */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'beats_posted') &&
-                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+                isSelected(selectedProfileMyContent, 'beats_posted') && styles.workButtonSelected
               ]}
               onPress={() => setSelectedProfileMyContent('beats_posted')}>
-              <Image
-                source={require('@/assets/images/3/icons8_vox_player_120px.png')}
-                style={{ width: 23, height: 20, marginRight: 8 }}
-              />
+              <Image source={require('@/assets/images/3/icons8_vox_player_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
               <Text style={styles.workButtonText}>Instrumentais postados</Text>
             </TouchableOpacity>
 
-            {/*VideoClips*/}
+            {/* VideoClips */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'videos') &&
-                styles.workButtonSelected //Aplica o outro estilo quando estiver checked
+                isSelected(selectedProfileMyContent, 'videos') && styles.workButtonSelected
               ]}
               onPress={() => setSelectedProfileMyContent('videos')}>
-              <Image
-                source={require('@/assets/images/3/icons8_video_camera_120px.png')}
-                style={{ width: 20, height: 20, marginRight: 8 }}
-              />
+              <Image source={require('@/assets/images/3/icons8_video_camera_120px.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
               <Text style={styles.workButtonText}>Video clipes</Text>
             </TouchableOpacity>
           </ScrollView>
 
           <View style={{ flex: 1, marginTop: 10 }}>
             {selectedProfileMyContent === 'single' && (
-              <Text style={styles.texto}>🔊 Mostrando faixas single</Text> // Aqui você poderia mapear uma lista de faixas
+              <Text style={styles.texto}>🔊 Mostrando faixas single</Text>
             )}
             {selectedProfileMyContent === 'eps' && (
-              <Text style={styles.texto}>🎧 Mostrando Extended Plays</Text> // Lista de EPs
+              <Text style={styles.texto}>🎧 Mostrando Extended Plays</Text>
             )}
             {selectedProfileMyContent === 'albums' && (
-              <Text style={styles.texto}>💿 Mostrando Álbuns</Text> // Lista de álbuns
+              <Text style={styles.texto}>💿 Mostrando Álbuns</Text>
             )}
             {selectedProfileMyContent === 'beats_bought' && (
-              <Text style={styles.texto}>🎶 Mostrando Instrumentais comprados </Text> // Lista de beats comprados
+              <Text style={styles.texto}>🎶 Mostrando Instrumentais comprados </Text>
             )}
             {selectedProfileMyContent === 'beats_posted' && (
-              <Text style={styles.texto}>🎹 Mostrando Instrumentais postados</Text> // Lista de beats postados
+              <Text style={styles.texto}>🎹 Mostrando Instrumentais postados</Text>
             )}
             {selectedProfileMyContent === 'videos' && (
-              <Text style={styles.texto}>🎬 Mostrando VideoClips</Text> // Lista de vídeos
+              <Text style={styles.texto}>🎬 Mostrando VideoClips</Text>
             )}
           </View>
         </View>
-        <View style={{ height: 110, }}></View>
-      </ScrollView >
+        <View style={{ height: 110 }}></View>
+      </ScrollView>
     </View>
-
   );
 }
 
-
-{/*Estilos dos componentes---------------------------------------------------------*/ }
+{/* Estilos dos componentes (mantidos inalterados) */ }
 const styles = StyleSheet.create({
-  // Estilo do scroll vertical (pai)
   scroll: {
-    flex: 1, // Faz com que o componente ocupe todo o espaço disponível dentro do contêiner flex
-    backgroundColor: '#191919', // Fundo preto (modo dark)
+    flex: 1,
+    backgroundColor: '#191919',
   },
-  // Estilo do container do conteúdo vertical
   container: {
-    flexGrow: 1, // Permite expansão do conteúdo
-    //paddingVertical: 40,   // Adiciona 40 de espaçamento interno (padding) nas partes superior e inferior do componente
-    //paddingHorizontal: 20, // Adiciona 20 de espaçamento interno (padding) nas partes esquerda e direita do componente
+    flexGrow: 1,
   },
-  // Estilo do conteúdo horizontal
   content: {
-    flexDirection: 'row', // Os blocos ficam lado a lado
+    flexDirection: 'row',
   },
-  // Estilo dos blocos de texto
   box: {
-    width: 200,                 // Define a largura fixa do componente como 200 unidades
-    height: 200,                // Define a altura fixa do componente como 200 unidades
-    marginRight: 20,            // Adiciona espaçamento à direita do componente
-    backgroundColor: '#1e1e1e', // Define a cor de fundo do componente para um cinza escuro
-    color: '#fff',              // Define a cor do texto como branco
-    textAlign: 'center',        // Centraliza horizontalmente o texto dentro do componente
-    textAlignVertical: 'center',// Centraliza verticalmente o texto (em componentes que suportam isso, como TextInput no Android)
-    lineHeight: 200,            // Define o espaçamento entre linhas; aqui é usado para centralizar o texto verticalmente em conjunto com textAlign
-    borderRadius: 10            // Deixa os cantos do componente arredondados com raio de 10 unidades
+    width: 200,
+    height: 200,
+    marginRight: 20,
+    backgroundColor: '#1e1e1e',
+    color: '#fff',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    lineHeight: 200,
+    borderRadius: 10
   },
-
-  //Estilo do teXto
   profileText: {
-    color: '#fff',               // Define a cor do texto como branco
-    alignSelf: 'flex-start',     // Alinha o componente ao início (esquerda) do eixo principal da View pai
-    marginBottom: 10,            // Adiciona espaçamento abaixo do componente
+    color: '#fff',
+    alignSelf: 'flex-start',
+    marginBottom: 10,
   },
-
-  //Estilo da View da imagem do perfil
   imageContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
     overflow: 'hidden',
-    backgroundColor: '#333', // fallback de fundo
+    backgroundColor: '#333',
     marginBottom: 20,
   },
-
-  //Estilo da Imagem do perfil
   profileImage: {
     width: '100%',
     height: '100%',
   },
-
-  //--------------------------------------------------------------------
-  //Linha que agrupa os dados estatisticos do perfil
-  // Estilo da tabela geral que agrupa as linhas de estatísticas
   statsTable: {
-    marginTop: 10, // Espaçamento superior em relação ao elemento acima (ex: nome do usuário)
+    marginTop: 10,
   },
-
-  // Estilo de cada linha da tabela de estatísticas
   statsRow: {
-    flexDirection: 'row',      // Alinha os elementos horizontalmente (em linha)
-    justifyContent: 'space-between', // Distribui o espaço igualmente entre os elementos da linha
-    marginBottom: 10,          // Espaçamento inferior entre uma linha e outra
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
-
-  // Estilo de cada “célula” da tabela (ex: um item com valor e rótulo)
   statBox: {
     flex: 1,
     alignItems: 'center',
-    borderColor: '#0083D0',    // Cor azul para a borda
-    paddingVertical: 10,    // Espaço interno para não colar no texto
-    marginHorizontal: 5,    // Espaço entre as colunas
-    //borderRadius: 6,        // Cantos arredondados
-    padding: 10,                 // Adiciona espaçamento interno (por dentro da View) em todos os lados.
-    margin: 10,                  // Adiciona espaçamento externo (por fora da View) em todos os lados.
+    borderColor: '#0083D0',
+    paddingVertical: 10,
+    marginHorizontal: 5,
+    padding: 10,
+    margin: 10,
   },
-
-  // Estilo do valor principal (ex: número de seguidores)
   statValue: {
-    color: '#fff',             // Cor branca para maior contraste com o fundo escuro
-    fontSize: 16,              // Tamanho da fonte um pouco maior para destaque
-    //fontWeight: 'bold',        // Negrito para reforçar a importância visual do valor
+    color: '#fff',
+    fontSize: 16,
   },
-
-  // Estilo do rótulo (ex: “Seguidores”, “EPs”)
   statLabel: {
-    color: '#aaa',             // Cor cinza claro, secundária em relação ao valor
-    fontSize: 12,              // Fonte menor para indicar papel complementar
-    marginTop: 2,              // Pequeno espaço entre o valor e o rótulo
+    color: '#aaa',
+    fontSize: 12,
+    marginTop: 2,
   },
-  //--------------------------------------------------------------------
-  //Estilo do nome do usuario
   userName: {
     color: '#fff',
     fontSize: 18,
@@ -488,8 +389,6 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     textAlign: 'center',
   },
-
-  //Estilo do arroba do usuario
   userHandle: {
     color: '#aaa',
     fontSize: 13,
@@ -497,27 +396,18 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     textAlign: 'center',
   },
-
-  //Estilo da view das obras do usuario
   profileContainer: {
-    paddingHorizontal: 15,   // Adiciona espaçamento interno horizontal (left/right) dentro da View.
-    backgroundColor: '#1e1e1e',   // Define a cor de fundo para um tom escuro (#1e1e1e).
-    //borderRadius: 20,   // Arredonda os cantos da View com raio de 10.
-    //borderTopLeftRadius: 20,
-    //borderTopRightRadius: 20,
-    padding: 30,   // Adiciona espaçamento interno (padding) uniforme em todos os lados.
-    margin: 10,   // Adiciona espaçamento externo (margin) uniforme em todos os lados.
-    //marginTop: 3,   // Adiciona um pequeno espaçamento extra no topo (3 unidades).
-    width: '100%',   // Faz a largura da View ocupar 100% do contêiner pai.
-    //height: '100%',   // Comentado: Se usado, define a altura da View como 40% do contêiner pai.
-    alignSelf: 'center',   // Centraliza horizontalmente a View dentro do contêiner pai.
+    paddingHorizontal: 15,
+    backgroundColor: '#1e1e1e',
+    padding: 30,
+    margin: 10,
+    width: '100%',
+    alignSelf: 'center',
     marginTop: -20,
   },
-
-  //Estilo dos botoes single, ep e album
   workButton: {
     backgroundColor: '#2a2a2a',
-    paddingHorizontal: 10,  // Espaço interno horizontal para dar folga ao conteúdo
+    paddingHorizontal: 10,
     paddingLeft: 4,
     height: 30,
     borderRadius: 6,
@@ -527,32 +417,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    alignSelf: 'flex-start' // Faz com que o botão se ajuste ao conteúdo (não preencha toda a linha)
+    alignSelf: 'flex-start'
   },
-  //Estilo que sera aplicado aos btn da seção meus conteudos quando forem checked
   workButtonSelected: {
     backgroundColor: '#1565C0',
-    //borderColor: '#00ff99',
   },
-
-  //Estilo dos textos dos botoes single, ep e album
   workButtonText: {
-    color: '#fff',           // Cor do texto
-    fontSize: 14,            // Tamanho da fonte
-    fontWeight: '600',       // Peso da fonte
-    textAlign: 'center',     // Alinha o texto horizontalmente dentro da área
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
     paddingLeft: 2,
   },
-  // Estilo do texto "Carregar Capa"
   texto: {
-    color: '#fff',     // texto branco
-    fontSize: 16,      // tamanho da fonte
+    color: '#fff',
+    fontSize: 16,
   },
-
   buttonContainer: {
     marginBottom: 5,
     width: '100%',
-    // borderRadius: 10,
     backgroundColor: '#1e1e1e',
     overflow: 'hidden',
   },
@@ -571,7 +454,5 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     fontSize: 16,
-    //fontWeight: 'bold',
   },
-
 });

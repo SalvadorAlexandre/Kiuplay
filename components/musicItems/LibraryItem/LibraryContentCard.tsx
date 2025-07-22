@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist } from '@/src/types/library';
-import { Track } from '@/src/redux/playerSlice';
+import { Single } from '@/src/types/library';
 import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
 
@@ -39,38 +39,33 @@ export default function LibraryContentCard({
     return { uri: coverUrl };
   };
 
-  if (item.type === 'single' || item.type === 'album' || item.type === 'ep') {
-    const musicItem = item as Track | AlbumOrEP;
+  if (item.type === 'single') {
+    const singleItem = item as Single;
+
     coverSource = getDynamicCoverSource(
-      musicItem.cover,
+      singleItem.cover,
       require('@/assets/images/Default_Profile_Icon/unknown_track.png')
     );
-    titleText = musicItem.title;
-    subtitleText = musicItem.artist;
-    genreText = musicItem.genre;
-    categoryText = musicItem.type!.charAt(0).toUpperCase() + musicItem.type!.slice(1);
-  } else if (item.type === 'artist') {
-    const artistItem = item as ArtistProfile;
-    coverSource = getDynamicCoverSource(
-      artistItem.avatar,
-      require('@/assets/images/Default_Profile_Icon/unknown_artist.png')
-    );
-    titleText = artistItem.name;
-    subtitleText = artistItem.genres?.join(', ') || '';
-    typeLabel = 'Artista';
-  } else if (item.type === 'playlist') {
-    const playlistItem = item as Playlist;
-    coverSource = getDynamicCoverSource(
-      playlistItem.cover,
-      require('@/assets/images/Default_Profile_Icon/kiuplayDefault.png')
-    );
-    titleText = playlistItem.name;
-    subtitleText = `Por ${playlistItem.creator}`;
-    typeLabel = 'Playlist';
-  } else {
-    coverSource = require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-    titleText = 'Conteúdo Desconhecido';
-    subtitleText = '';
+    titleText = singleItem.title;
+    subtitleText = singleItem.artist;
+    genreText = singleItem.genre;
+    categoryText = 'Single'; // Fixamos isso aqui se quiser
+
+  } else if (item.type === 'album') {
+    const album = item; // tipado automaticamente como AlbumItem
+    coverSource = getDynamicCoverSource(album.cover, require('@/assets/images/Default_Profile_Icon/unknown_track.png'));
+    titleText = album.title;
+    subtitleText = album.artist;
+    genreText = album.genre;
+    categoryText = 'Álbum';
+
+  } else if (item.type === 'ep') {
+    const ep = item; // tipado automaticamente como EPItem
+    coverSource = getDynamicCoverSource(ep.cover, require('@/assets/images/Default_Profile_Icon/unknown_track.png'));
+    titleText = ep.title;
+    subtitleText = ep.artist;
+    genreText = ep.genre;
+    categoryText = 'EP';
   }
 
   return (

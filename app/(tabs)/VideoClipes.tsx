@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 import { addFavoriteVideo, removeFavoriteVideo } from '@/src/redux/favoriteVideoSlice';
 import { FollowedArtist, addFollowedArtist, removeFollowedArtist } from '@/src/redux/followedArtistsSlice'; // <-- IMPORTANTE: Novas importações
+import { useRouter } from 'expo-router';
 
 // --- Definição da interface para os dados de cada vídeo ---
 export interface VideoData {
@@ -130,6 +131,13 @@ export default function VideoClipesScreen() {
                 videoThumbnailUrl: videoToToggle.thumbnail,
             }));
         }
+    };
+
+    const router = useRouter()
+
+    // Em app/(tabs)/videoClipes.tsx ou onde a chamada ocorre
+    const handleNavigateToArtistProfile = (artistId: string) => {
+        router.push(`/contentCardLibraryScreens/artist-profile/${artistId}`); // <--- Rota CORRETA
     };
 
     // Garante que o currentPlayingVideo tenha um valor inicial se a lista de dados não for vazia
@@ -265,7 +273,7 @@ export default function VideoClipesScreen() {
                 {/* Conteúdo da tab 'seguindo' (AGORA EXIBE OS ARTISTAS SEGUIDOS DO REDUX) */}
                 {activeTab === 'seguindo' && (
                     <FlatList
-                        data={followedArtists} // <-- EXIBE ARTISTAS SEGUIDOS
+                        data={followedArtists}
                         keyExtractor={(item) => item.id}
                         ListEmptyComponent={() => (
                             <View style={styles.tabContentTextContainer}>
@@ -273,20 +281,23 @@ export default function VideoClipesScreen() {
                             </View>
                         )}
                         renderItem={({ item }) => (
-                            <View style={styles.followedArtistItem}>
+                            <TouchableOpacity
+                                style={styles.followedArtistItem}
+                                onPress={() => handleNavigateToArtistProfile(item.id)} // Chama a função de navegação
+                            >
                                 <Image
                                     source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
                                     style={styles.followedArtistProfileImage}
                                 />
                                 <Text style={styles.followedArtistName}>{item.name}</Text>
-                                {/* Poderia adicionar um botão de "Deixar de Seguir" aqui também */}
-                                <TouchableOpacity
+                                {/* REMOVIDO: O botão "Deixar de Seguir" não está mais aqui */}
+                                {/* <TouchableOpacity
                                     style={styles.unfollowButton}
                                     onPress={() => dispatch(removeFollowedArtist(item.id))}
                                 >
                                     <Text style={styles.unfollowButtonText}>Deixar de Seguir</Text>
-                                </TouchableOpacity>
-                            </View>
+                                </TouchableOpacity> */}
+                            </TouchableOpacity>
                         )}
                         contentContainerStyle={styles.flatListContentContainer}
                         showsVerticalScrollIndicator={false}

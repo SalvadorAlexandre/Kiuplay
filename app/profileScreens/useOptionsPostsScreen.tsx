@@ -66,6 +66,16 @@ export default function OptionsListPostScreen() {
     }
     //---------------------------------------------------------------------------------------
 
+    //hooks para o btn postar Video----------------------------------------------
+    const [scaleValuePostPromote] = useState(new Animated.Value(1))
+    const handlePressInPostPromote = () => {
+        Animated.spring(scaleValuePostPromote, { toValue: 0.96, useNativeDriver: true, }).start()
+    }
+    const handlePressOutPostPromote = () => {
+        Animated.spring(scaleValuePostPromote, { toValue: 1, useNativeDriver: true, }).start()
+    }
+    //---------------------------------------------------------------------------------------
+
     return (
 
         <>
@@ -116,7 +126,7 @@ export default function OptionsListPostScreen() {
                         <TouchableOpacity
                             onPressIn={handlePressInPostSingle}    // Aciona ao pressionar
                             onPressOut={handlePressOutPostSingle} // Aciona ao soltar 
-                            onPress={() => router.push('/usePostFaixaScreen')} // Ação
+                            onPress={() => router.push('/profileScreens/usePostFaixaScreen')} // Ação
                             style={styles.buttonContent} // Estilo interno
                         >
                             {/* Ícone esquerdo (ícone de upload) */}
@@ -143,7 +153,7 @@ export default function OptionsListPostScreen() {
                         <TouchableOpacity
                             onPressIn={handlePressInPostEP}    // Aciona ao pressionar
                             onPressOut={handlePressOutPostEP} // Aciona ao soltar 
-                            onPress={() => router.push('/usePostEPScreen')} // Ação
+                            onPress={() => router.push('/profileScreens/usePostEPScreen')} // Ação
                             style={styles.buttonContent} // Estilo interno
                         >
                             {/* Ícone esquerdo (ícone de upload) */}
@@ -170,7 +180,7 @@ export default function OptionsListPostScreen() {
                         <TouchableOpacity
                             onPressIn={handlePressInPostAlbum}    // Aciona ao pressionar
                             onPressOut={handlePressOutPostAlbum} // Aciona ao soltar 
-                            onPress={() => router.push('/usePostAlbumScreen')} // Ação
+                            onPress={() => router.push('/profileScreens/usePostAlbumScreen')} // Ação
                             style={styles.buttonContent} // Estilo interno
                         >
                             {/* Ícone esquerdo (ícone de upload) */}
@@ -196,7 +206,7 @@ export default function OptionsListPostScreen() {
                         <TouchableOpacity
                             onPressIn={handlePressInPostBeat}    // Aciona ao pressionar
                             onPressOut={handlePressOutPostBeat} // Aciona ao soltar 
-                            onPress={() => router.push('/usePostBeatScreen')} // Ação
+                            onPress={() => router.push('/profileScreens/usePostBeatScreen')} // Ação
                             style={styles.buttonContent} // Estilo interno
                         >
                             {/* Ícone esquerdo (ícone de upload) */}
@@ -222,7 +232,7 @@ export default function OptionsListPostScreen() {
                         <TouchableOpacity
                             onPressIn={handlePressInPostVideo}    // Aciona ao pressionar
                             onPressOut={handlePressOutPostVideo} // Aciona ao soltar 
-                            onPress={() => router.push('/usePostVideoScreen')} // Ação
+                            onPress={() => router.push('/profileScreens/usePostVideoScreen')} // Ação
                             style={styles.buttonContent} // Estilo interno
                         >
                             {/* Ícone esquerdo (ícone de upload) */}
@@ -240,6 +250,31 @@ export default function OptionsListPostScreen() {
                     </Animated.View>
                     {/*----------------------------------------------------------------------------------------------*/}
 
+                    {/*View do botão promover obra-----------------------------------------------------------------*/}
+                    <Animated.View style={[
+                        styles.buttonContainer,
+                        { transform: [{ scale: scaleValuePostVideo }] } // Animação de clique
+                    ]}>
+                        <TouchableOpacity
+                            onPressIn={handlePressInPostPromote}    // Aciona ao pressionar
+                            onPressOut={handlePressOutPostPromote} // Aciona ao soltar 
+                            onPress={() => router.push('/profileScreens/usePostPromoteScreen')}
+                            style={styles.buttonContent} // Estilo interno
+                        >
+                            {/* Ícone esquerdo (ícone de upload) */}
+                            <Image
+                                source={require('@/assets/images/2/icons8_sound_surround_120px_1.png')} // Troque pelo seu ícone
+                                style={styles.iconLeft}
+                            />
+
+                            {/* Texto do botão */}
+                            <Text style={styles.buttonText}>Promover Arte</Text>
+
+                            {/* Ícone seta para direita */}
+                            <Ionicons name="chevron-forward" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </Animated.View>
+                    {/*----------------------------------------------------------------------------------------------*/}
 
                 </ScrollView>
 

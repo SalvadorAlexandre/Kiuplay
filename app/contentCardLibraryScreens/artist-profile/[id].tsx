@@ -2,34 +2,59 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useSelector, useDispatch } from 'react-redux'; // NOVO: Importa hooks do Redux
+import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
+import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice'; // NOVO: Importa ações e interface
 
 // NOVO: Defina uma interface mais específica para os itens de conteúdo do artista
 interface ArtistContentItem {
   id: string;
   title: string;
-  type: 'album' | 'single' | 'ep'; // NOVO: Tipos explícitos permitidos
+  type: 'album' | 'single' | 'ep';
   cover: string;
-  // Você pode adicionar outras propriedades se necessário, como 'duration' para singles
 }
 
 export default function ArtistProfileScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const dispatch = useDispatch(); // NOVO: Inicializa useDispatch
+  const followedArtists = useSelector((state: RootState) => state.followedArtists.artists); // NOVO: Obtém artistas seguidos do Redux
 
+  // Mock de perfil do artista (isto viria de uma API em um app real)
   const mockedArtistProfile = {
     id: id as string,
     name: `Artista: ${id}`,
     avatar: `https://i.pravatar.cc/200?u=${id}`,
     bio: `Biografia do artista com ID: ${id}. Um talento musical inovador e inspirador, com um som único que cativa a todos.`,
     genres: ['Pop', 'R&B', 'Hip Hop'],
-    followers: '1.2M',
-    // ALTERADO: Use a nova interface ArtistContentItem para o array 'albums'
+    // NOVO: Vamos mockar os seguidores dinamicamente para cada ID
+    followers: `${(Math.floor(Math.random() * 500) + 100) / 100}M`, // Ex: 1.2M, 2.5M
     albums: [
-      { id: 'art_alb1', title: 'Melhores Hits', type: 'album', cover: 'https://placehold.co/100x100/FFD700/000000?text=Alb1' },
-      { id: 'art_sing1', title: 'Single Vencedor', type: 'single', cover: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Sing1' },
-      // Exemplo de EP, se você quiser adicionar:
-      // { id: 'art_ep1', title: 'Mini Coleção', type: 'ep', cover: 'https://placehold.co/100x100/ADD8E6/000000?text=EP1' },
-    ] as ArtistContentItem[], // NOVO: Cast para o tipo Array de ArtistContentItem
+      { id: 'art_alb1_' + id, title: 'Melhores Hits', type: 'album', cover: 'https://placehold.co/100x100/FFD700/000000?text=Alb1' },
+      { id: 'art_sing1_' + id, title: 'Single Vencedor', type: 'single', cover: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Sing1' },
+      { id: 'art_ep1_' + id, title: 'Mini Coleção EP', type: 'ep', cover: 'https://placehold.co/100x100/ADD8E6/000000?text=EP1' },
+    ] as ArtistContentItem[],
+  };
+
+  // NOVO: Verifica se o artista atual é seguido
+  const isFollowing = followedArtists.some(artist => artist.id === mockedArtistProfile.id);
+
+  // NOVO: Função para alternar o status de seguir
+  const handleToggleFollow = () => {
+    if (isFollowing) {
+      dispatch(removeFollowedArtist(mockedArtistProfile.id));
+      console.log(`Deixou de seguir: ${mockedArtistProfile.name}`);
+    } else {
+      // Cria um objeto FollowedArtist com os dados necessários
+      const artistToFollow: FollowedArtist = {
+        id: mockedArtistProfile.id,
+        name: mockedArtistProfile.name,
+        profileImageUrl: mockedArtistProfile.avatar,
+        // Adicione outras propriedades se a interface FollowedArtist exigir
+      };
+      dispatch(addFollowedArtist(artistToFollow));
+      console.log(`Começou a seguir: ${mockedArtistProfile.name}`);
+    }
   };
 
   if (!id) {
@@ -41,13 +66,11 @@ export default function ArtistProfileScreen() {
     );
   }
 
-  // ALTERADO: Use a nova interface ArtistContentItem para o 'item'
   const renderContentItem = ({ item }: { item: ArtistContentItem }) => (
     <TouchableOpacity
       style={styles.contentItem}
       onPress={() =>
         router.push({
-          // ALTERADO: O pathname agora é inferido corretamente pelo TypeScript
           pathname: `/contentCardLibraryScreens/${item.type}-details/[id]`,
           params: { id: item.id },
         })
@@ -70,8 +93,12 @@ export default function ArtistProfileScreen() {
         <Text style={styles.artistGenres}>Gêneros: {mockedArtistProfile.genres.join(', ')}</Text>
         <Text style={styles.artistBio}>{mockedArtistProfile.bio}</Text>
 
-        <TouchableOpacity style={styles.button} onPress={() => { /* Lógica para seguir/deixar de seguir */ }}>
-          <Text style={styles.buttonText}>Seguir Artista</Text>
+        {/* NOVO: Botão de Seguir/Deixar de Seguir dinâmico */}
+        <TouchableOpacity
+          style={[styles.button, isFollowing ? styles.buttonFollowing : styles.buttonFollow]}
+          onPress={handleToggleFollow}
+        >
+          <Text style={styles.buttonText}>{isFollowing ? 'Seguindo' : 'Seguir Artista'}</Text>
         </TouchableOpacity>
 
         <Text style={styles.sectionTitle}>Conteúdo do Artista</Text>
@@ -136,12 +163,24 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   button: {
-    backgroundColor: '#1E90FF',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 25,
     marginTop: 10,
     marginBottom: 30,
+    minWidth: 150, // Garante que o botão tenha um tamanho mínimo
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // NOVO: Estilo para quando o botão está no estado "Seguir"
+  buttonFollow: {
+    backgroundColor: '#1E90FF',
+  },
+  // NOVO: Estilo para quando o botão está no estado "Seguindo"
+  buttonFollowing: {
+    backgroundColor: '#333', // Uma cor mais neutra para indicar que já está seguindo
+    borderWidth: 1,
+    borderColor: '#555',
   },
   buttonText: {
     color: '#fff',

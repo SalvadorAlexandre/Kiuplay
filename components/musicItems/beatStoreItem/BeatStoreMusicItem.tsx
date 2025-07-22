@@ -1,100 +1,143 @@
 // components/musicItems/beatStoreItem/BeatStoreMusicItem.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Track } from '@/src/redux/playerSlice'; // Importe a interface Track
+import {
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
+    ImageBackground,
+    Platform,
+} from 'react-native';
+import { Track } from '@/src/redux/playerSlice';
+import { useAppSelector } from '@/src/redux/hooks';
+import { BlurView } from 'expo-blur';
 
-// NOVO: Definição da interface para as props do componente
 interface BeatStoreMusicItemProps {
-  music: Track;
-  onPress: () => void;
-  onToggleFavorite: (music: Track) => void;
-  isFavorited: boolean;
-  isCurrent: boolean;
-  // TODO: Adicionar propriedades para preço/tipo (gratuito/pago) aqui futuramente
+    item: Track;
+    onPress: (track: Track) => void;
 }
 
-export default function BeatStoreMusicItem({
-  music,
-  onPress,
-  onToggleFavorite,
-  isFavorited,
-  isCurrent,
-}: BeatStoreMusicItemProps) {
-  const coverImage = music.cover
-    ? { uri: music.cover }
-    : require('@/assets/images/Default_Profile_Icon/unknown_track.png'); // Fallback para capa
+export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItemProps) {
+    const isConnected = useAppSelector((state) => state.network.isConnected);
 
-  return (
-    <TouchableOpacity style={styles.musicItemContainer} onPress={onPress}>
-      <Image source={coverImage} style={styles.musicCover} />
-      <View style={styles.musicDetails}>
-        <Text style={styles.musicTitle} numberOfLines={1}>
-          {music.title}
-        </Text>
-        <Text style={styles.musicArtist} numberOfLines={1}>
-          {music.artist}
-        </Text>
-        {/* TODO: Adicionar exibição de preço/tipo (gratuito/pago) aqui */}
-        {/* <Text style={styles.musicPrice}>Gratuito / $99.99</Text> */}
-      </View>
+    const getCoverSource = () => {
+        if (isConnected === false || !item.cover || item.cover.trim() === '') {
+            return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+        }
+        return { uri: item.cover };
+    };
 
-      
-      <View style={styles.musicActions}>
-        <TouchableOpacity onPress={() => onToggleFavorite(music)} style={styles.favoriteButton}>
-          <Ionicons
-            name={isFavorited ? 'heart' : 'heart-outline'}
-            size={22}
-            color={isFavorited ? '#FF3D00' : '#ccc'}
-          />
+
+    const coverSource = getCoverSource();
+    const titleText = item.title || 'Sem título';
+    const artistText = item.artist || 'Artista desconhecido';
+    const genreText = item.genre || 'Gênero não especificado';
+    const typeText = item.type === 'single' ? 'Single' : item.type;
+
+    return (
+        <TouchableOpacity style={styles.cardContainer} onPress={() => onPress(item)}>
+            <ImageBackground
+                source={coverSource}
+                style={styles.imageBackground}
+                resizeMode="cover"
+                imageStyle={{ borderRadius: 8 }}
+            >
+                {Platform.OS !== 'web' ? (
+                    <BlurView intensity={80} tint="dark" style={styles.blurLayer}>
+                        <View style={styles.overlay} />
+                        <View style={styles.mainContentWrapper}>
+                            <Image source={coverSource} style={styles.cardCoverImage} />
+                            <View style={styles.musicDetails}>
+                                <Text style={styles.cardTitle}>{titleText}</Text>
+                                <Text style={styles.cardSubtitle}>{artistText}</Text>
+                                <Text style={styles.cardGenreText}>{genreText}</Text>
+                                <Text style={styles.cardCategoryText}>{typeText}</Text>
+                            </View>
+                        </View>
+                    </BlurView>
+                ) : (
+                    <View style={[styles.blurLayer, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+                        <View style={styles.overlay} />
+                        <View style={styles.mainContentWrapper}>
+                            <Image source={coverSource} style={styles.cardCoverImage} />
+                            <View style={styles.musicDetails}>
+                                <Text style={styles.cardTitle}>{titleText}</Text>
+                                <Text style={styles.cardSubtitle}>{artistText}</Text>
+                                <Text style={styles.cardGenreText}>{genreText}</Text>
+                                <Text style={styles.cardCategoryText}>{typeText}</Text>
+                            </View>
+                        </View>
+                    </View>
+                )}
+            </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPress}>
-          <Ionicons
-            name={isCurrent ? 'pause-circle' : 'play-circle'}
-            size={30}
-            color="#1E90FF"
-          />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
-  musicItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    marginBottom: 8,
-    backgroundColor: '#282828',
-    borderRadius: 8,
-    marginHorizontal: 15,
-  },
-  musicCover: {
-    width: 60,
-    height: 60,
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  musicDetails: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  musicTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  musicArtist: {
-    color: '#aaa',
-    fontSize: 13,
-  },
-  musicActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
-  },
-  favoriteButton: {
-    padding: 5,
-  },
+    cardContainer: {
+        height: 250,
+        marginHorizontal: 3,
+        marginBottom: 10,
+        backgroundColor: '#282828',
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    imageBackground: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    blurLayer: {
+        flex: 1,
+        padding: 7,
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        zIndex: 1,
+    },
+    mainContentWrapper: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        flex: 1,
+        borderRadius: 8,
+        padding: 5,
+        zIndex: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cardCoverImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 8,
+        marginBottom: 10,
+    },
+    musicDetails: {
+        alignItems: 'center',
+    },
+    cardTitle: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginBottom: 2,
+        textAlign: 'center',
+    },
+    cardSubtitle: {
+        color: '#aaa',
+        fontSize: 12,
+        marginBottom: 2,
+        textAlign: 'center',
+    },
+    cardCategoryText: {
+        color: '#bbb',
+        fontSize: 11,
+        marginBottom: 2,
+    },
+    cardGenreText: {
+        color: '#bbb',
+        fontSize: 11,
+        marginBottom: 2,
+    },
 });
