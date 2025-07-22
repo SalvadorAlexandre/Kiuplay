@@ -158,13 +158,12 @@ export default function AudioPlayerBar() {
   if (!currentTrack) return null;
 
   const coverImage = currentTrack.cover
-    ? { uri: currentTrack.cover }
+    ? { uri: currentTrack.cover}
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
   /* logo depois de pegar currentTrack */
 
-  const artistAvatarSrc =
-    currentTrack.artistAvatar   
-      ? { uri: currentTrack.artistAvatar }
+  const artistAvatarSrc = currentTrack.artistAvatar   
+      ? { uri: currentTrack.artistAvatar}
       : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
   return (

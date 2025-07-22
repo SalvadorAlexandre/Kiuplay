@@ -4,6 +4,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 // Se Track for a interface mais completa, importe Track de um arquivo de tipos.
 import { getAudioManager, } from '../utils/audioManager'; // Renomear para evitar conflito
 import { AVPlaybackStatus, AVPlaybackStatusSuccess } from 'expo-av';
+import { PlayableContent } from '@/src/types/contentType'; // Importe o novo tipo PlayableContent
 
 import type { RootState, AppDispatch } from './store';
 
@@ -13,39 +14,19 @@ const audioManager = getAudioManager();
 // --- Define a interface Track de forma mais robusta e global ---
 // Esta interface deve ser consistente com a que você usará no LocalMusicScreen
 // e na forma como os dados são consumidos pelo AudioManager (se ele precisar de mais metadados)
-export interface Track {
-  id: string; // ID único para a chave da FlatList e identificação
-  uri: string; // O URI do arquivo de áudio (local ou remoto)
-  title: string;
-  artist: string;
-  //name: string;
-  cover: string; // URL ou URI para a imagem da capa
-  artistAvatar?: string;
-  // Adicione outras propriedades relevantes, como duration, album, etc.
-  duration?: number;
-  size?: number;
-  mimeType?: string;
-  // ... outras propriedades que você possa querer armazenar
-  source:
-  'library-local'
-  | 'library-cloud-feeds'
-  | 'library-cloud-curtidas'
-  | 'library-cloud-seguindo'
-  | 'beatstore-feeds'
-  | 'beatstore-curtidas'
-  | 'beatstore-seguindo'
-  | 'unknown';
-  type: 'single'; // <--- ADICIONE ESTA LINHA
-  genre?: string; // NOVO: Adicionado para o gênero
-  viewsNumber?: number;
-  releaseDate?: string; // Propriedade para a data de lançamento
-  //beat
-  price?: number;
-  bpm?: number;
-  isFree?: boolean;
-  
-}
+// src/redux/playerSlice.ts
 
+export type Track = PlayableContent & {
+    source: // Mantenha ou ajuste a source para englobar todas as origens possíveis do player
+        'library-local'
+        | 'library-cloud-feeds'
+        | 'library-cloud-favorites'
+        | 'beatstore-feeds'
+        | 'beatstore-favorites'
+        | 'unknown'
+    // Adicione outras propriedades específicas do player se houver (ex: `isPlaying`, `progress`, etc. - mas essas geralmente vão para o estado do slice, não na Track interface em si)
+}
+// ... restante do playerSlice.ts
 // Adaptação da interface Music do AudioManager para ser compatível, se necessário.
 // Ou, o AudioManager pode ser atualizado para trabalhar diretamente com Track.
 // Por enquanto, vamos assumir que Music do AudioManager é simples (uri, name)

@@ -10,8 +10,8 @@ import {
     FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSelector } from 'react-redux'; // NOVO: Importa useSelector
-import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState para tipagem
+import { useSelector } from 'react-redux';
+import { RootState } from '@/src/redux/store';
 
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
@@ -21,134 +21,122 @@ import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
-import { LibraryFeedItem, AlbumOrEP, ArtistProfile, Playlist, Single } from '@/src/types/library';
+import {
+    LibraryFeedItem,
+    Album,
+    ArtistProfile,
+    Single,
+    ExtendedPlayEP,
+    // REMOVIDOS: Playlist, Video, Promotion do import
+} from '@/src/types/contentType';
 
 // ---
-// Dados mockados (MOCKED_CLOUD_FEED_DATA) - Mantenha como está.
+// Dados mockados (MOCKED_CLOUD_FEED_DATA) - AJUSTADOS (Playlists, EPs, etc. removidos/corrigidos para ficarem apenas os tipos suportados no LibraryContentCard agora)
 export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
     {
         id: 'single-1',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3)',
         title: 'Vibe Urbana',
         artist: 'BeatMaster',
         cover: '',
-        artistAvatar: 'https://i.pravatar.cc/150?img=6',
+        artistAvatar: '[https://i.pravatar.cc/150?img=6](https://i.pravatar.cc/150?img=6)',
         source: 'library-cloud-feeds',
         duration: 180000,
-        type: 'single',
+        category: 'single', // Alterado 'type' para 'category' para consistência
         genre: 'Hip Hop',
-        viewsNumber: 271,
+        releaseYear: '2024', // Alterado 'viewsNumber' para 'releaseYear' ou similar
+        viewsCount: 271, // Adicionada viewsCount se for relevante para Single
     } as Single,
     {
         id: 'album-1',
         title: 'Retrospectiva Jazz',
         artist: 'Jazz Collective',
-        cover: 'https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Jazz',
-        type: 'album',
-        releaseDate: '2023-11-15',
-        genre: 'Jazz',
-    } as AlbumOrEP,
+        cover: '[https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Jazz](https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Jazz)',
+        category: 'album', // Alterado 'type' para 'category'
+        releaseYear: '2023', // Alterado 'releaseDate' para 'releaseYear'
+        mainGenre: 'Jazz', // Alterado 'genre' para 'mainGenre'
+    } as Album,
     {
         id: 'artist-1',
         name: 'Mestre da Batida',
-        avatar: 'https://i.pravatar.cc/150?img=7',
-        type: 'artist',
+        username: '@mestre_batida_ofc', // Adicionado username para consistência
+        avatar: '[https://i.pravatar.cc/150?img=7](https://i.pravatar.cc/150?img=7)',
+        category: 'artist', // Alterado 'type' para 'category'
         genres: ['Hip Hop', 'Trap'],
+        releaseYear: '2010', // Adicionado releaseYear
     } as ArtistProfile,
     {
         id: 'ep-1',
         title: 'Sons do Verão',
         artist: 'Tropical Vibes',
-        cover: 'https://placehold.co/300x300/32CD32/FFFFFF?text=EP+Ver%C3%A3o',
-        type: 'ep',
-        releaseDate: '2024-06-20',
-        genre: 'Reggaeton',
-    } as AlbumOrEP,
-    {
-        id: 'playlist-1',
-        name: 'Chill & Study',
-        creator: 'Kiuplay Curator',
-        cover: 'https://placehold.co/300x300/DAA520/000000?text=Playlist+Chill',
-        type: 'playlist',
-        description: 'Músicas perfeitas para focar e relaxar.',
-    } as Playlist,
+        cover: '[https://placehold.co/300x300/32CD32/FFFFFF?text=EP+Ver%C3%A3o](https://placehold.co/300x300/32CD32/FFFFFF?text=EP+Ver%C3%A3o)',
+        category: 'ep', // Alterado 'type' para 'category'
+        releaseYear: '2024', // Alterado 'releaseDate' para 'releaseYear'
+        mainGenre: 'Reggaeton', // Alterado 'genre' para 'mainGenre'
+        trackIds: [], // Adicionado trackIds para EP 
+    } as ExtendedPlayEP,
+    // REMOVIDO: { id: 'playlist-1', ... }
     {
         id: 'single-2',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3)',
         title: 'Caminhos do Soul',
         artist: 'Soulful Echoes',
-        cover: 'https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul',
-        artistAvatar: 'https://i.pravatar.cc/150?img=8',
+        cover: '[https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul](https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul)',
+        artistAvatar: '[https://i.pravatar.cc/150?img=8](https://i.pravatar.cc/150?img=8)',
         source: 'library-cloud-feeds',
         duration: 210000,
-        type: 'single',
+        category: 'single', // Alterado 'type' para 'category'
         genre: 'Soul',
-        viewsNumber: 1000,
+        releaseYear: '2024',
+        viewsCount: 1000,
     } as Single,
     {
         id: 'artist-2',
         name: 'EveryDay',
-        avatar: 'https://i.pravatar.cc/150?img=7',
-        type: 'artist',
+        username: '@everyday_ofc',
+        avatar: '[https://i.pravatar.cc/150?img=7](https://i.pravatar.cc/150?img=7)',
+        category: 'artist',
         genres: ['Hip Hop', 'Trap'],
+        releaseYear: '2018',
     } as ArtistProfile,
     {
         id: 'album-2',
         title: 'O Despertar',
         artist: 'Aura Sonora',
-        cover: 'https://placehold.co/300x300/CD5C5C/FFFFFF?text=Album+Aura',
-        type: 'album',
-        releaseDate: '2024-02-01',
-        genre: 'Ambient',
-    } as AlbumOrEP,
+        cover: '[https://placehold.co/300x300/CD5C5C/FFFFFF?text=Album+Aura](https://placehold.co/300x300/CD5C5C/FFFFFF?text=Album+Aura)',
+        category: 'album',
+        releaseYear: '2024',
+        mainGenre: 'Ambient',
+    } as Album,
     {
         id: 'artist-3',
         name: 'Helloby',
-        avatar: 'https://i.pravatar.cc/150?img=7',
-        type: 'artist',
+        username: '@helloby_music',
+        avatar: '[https://i.pravatar.cc/150?img=7](https://i.pravatar.cc/150?img=7)',
+        category: 'artist',
         genres: ['Zouck', 'Trap'],
+        releaseYear: '2015',
     } as ArtistProfile,
-    // Note: 'artist-2' está duplicado nos mockups originais, corrigi um dos IDs para 'artist-4'
     {
-        id: 'artist-4', // Alterado de 'artist-2' para 'artist-4' para evitar duplicidade de ID
+        id: 'artist-4',
         name: 'Rainha do R&B',
-        avatar: 'https://i.pravatar.cc/150?img=9',
-        type: 'artist',
+        username: '@rainha_rnb_ofc',
+        avatar: '[https://i.pravatar.cc/150?img=9](https://i.pravatar.cc/150?img=9)',
+        category: 'artist',
         genres: ['R&B', 'Pop'],
+        releaseYear: '2020',
     } as ArtistProfile,
     {
         id: 'ep-2',
         title: 'Reflexões Noturnas',
         artist: 'Dreamweaver',
-        cover: 'https://placehold.co/300x300/6A5ACD/FFFFFF?text=EP+Night',
-        type: 'ep',
-        releaseDate: '2023-09-01',
-        genre: 'Eletrônica',
-    } as AlbumOrEP,
-    {
-        id: 'playlist-2',
-        name: 'Workout Power',
-        creator: 'Fitness Guru',
-        cover: 'https://placehold.co/300x300/FF1493/FFFFFF?text=Playlist+Gym',
-        type: 'playlist',
-        description: 'Energia máxima para seus treinos.',
-    } as Playlist,
-    {
-        id: 'playlist-3',
-        name: 'Workout Power',
-        creator: 'Saag SWB',
-        cover: 'https://placehold.co/300x300/FF1493/FFFFFF?text=Playlist+Gym',
-        type: 'playlist',
-        description: 'Energia máxima para seus treinos.',
-    } as Playlist,
-    {
-        id: 'playlist-4',
-        name: 'Feito para salvador',
-        creator: 'Fitness Guru',
-        cover: 'https://placehold.co/300x300/FF1493/FFFFFF?text=Playlist+Gym',
-        type: 'playlist',
-        description: 'Energia máxima para seus treinos.',
-    } as Playlist,
+        cover: '[https://placehold.co/300x300/6A5ACD/FFFFFF?text=EP+Night](https://placehold.co/300x300/6A5ACD/FFFFFF?text=EP+Night)',
+        category: 'ep',
+        releaseYear: '2023',
+        mainGenre: 'Eletrônica',
+        trackIds: []
+    } as ExtendedPlayEP,
+    // REMOVIDOS: playlist-2, playlist-3, playlist-4
 ];
 // ---
 
@@ -190,7 +178,7 @@ const SubTabBar = ({
 
 export default function LibraryScreen() {
     const router = useRouter();
-    const dispatch = useAppDispatch(); // Mantido caso precise de dispatch no futuro
+    const dispatch = useAppDispatch();
     const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const {
         isSelectedSubTab,
@@ -199,15 +187,14 @@ export default function LibraryScreen() {
     } = useSubTabSelectorLibrary();
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    // NOVO: Obtém a lista de artistas seguidos do Redux
     const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
 
     const favoritedCloudTracks: Track[] = favoritedMusics.filter(
         (music) =>
-            music.type === 'single' && (
+            music.category === 'single' && ( // Manteve music.category, corrigi para 'single'
                 music.source === 'library-cloud-feeds' ||
-                music.source === 'library-cloud-curtidas' ||
-                music.source === 'library-cloud-seguindo'
+                music.source === 'library-cloud-favorites' ||
+                music.source === 'library-local'
             )
     ) as Track[];
 
@@ -219,22 +206,21 @@ export default function LibraryScreen() {
     const cloudTabs: TypeSubTab[] = ['feeds', 'curtidas', 'seguindo'];
 
     const handleCloudItemPress = (item: LibraryFeedItem) => {
-        if (item.type === 'single') {
+        // Agora, LibraryContentCard só lida com 'single', 'album', 'ep', 'artist'
+        if (item.category === 'single') {
             router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
-        } else if (item.type === 'album') {
+        } else if (item.category === 'album') {
             router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
-        } else if (item.type === 'ep') {
+        } else if (item.category === 'ep') {
             router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
-        } else if (item.type === 'artist') {
+        } else if (item.category === 'artist') {
             router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
-        } else if (item.type === 'playlist') {
-            router.push(`/contentCardLibraryScreens/playlist-details/${item.id}`);
-        } else {
-            console.warn('Tipo de item desconhecido:', item.type);
+        }
+        else {
+            console.warn('Tipo de item desconhecido ou não suportado para navegação:', item.category);
         }
     };
 
-    // NOVO: Função para navegar para a tela do perfil do artista (igual à de BeatStoreScreen)
     const handleNavigateToArtistProfile = (artistId: string) => {
         router.push(`/contentCardLibraryScreens/artist-profile/${artistId}`);
     };
@@ -327,8 +313,9 @@ export default function LibraryScreen() {
                                         columnWrapperStyle={{ justifyContent: 'space-between' }}
                                         renderItem={({ item }) => (
                                             <View style={styles.cardItemColumn}>
+                                                {/* Certifique-se de que `item` é compatível com `LibraryFeedItem` */}
                                                 <LibraryContentCard
-                                                    item={item}
+                                                    item={item as unknown as LibraryFeedItem}
                                                     onPress={handleCloudItemPress}
                                                 />
                                             </View>
@@ -339,7 +326,7 @@ export default function LibraryScreen() {
                             </View>
                         )}
 
-                        {/* NOVO: Aba 'Seguindo' da Cloud: Exibe artistas seguidos */}
+                        {/* Aba 'Seguindo' da Cloud: Exibe artistas seguidos */}
                         {getSelectedSubTab('cloud') === 'seguindo' && (
                             <View style={styles.followedArtistsContainer}>
                                 <Text style={styles.title}>Artistas Seguindo (Cloud)</Text>
@@ -477,7 +464,7 @@ const styles = StyleSheet.create({
     },
     cloudMusicListContainer: {
         flex: 1,
-        paddingHorizontal: 10, // Adicionado padding horizontal aqui para as FlatLists de conteúdo
+        paddingHorizontal: 10,
     },
     emptyListText: {
         color: '#aaa',
@@ -490,13 +477,12 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     cardItemColumn: {
-        width: '48%', // Ajustado para 48% para permitir o `space-between` no `columnWrapperStyle`
-        marginBottom: 10, // Adicionado margem inferior para espaçamento entre as linhas de cards
+        width: '48%',
+        marginBottom: 10,
     },
-    // NOVO: Estilos para a lista de artistas seguidos
     followedArtistsContainer: {
         flex: 1,
-        paddingHorizontal: 10, // Adicionado padding horizontal aqui para a FlatList de artistas
+        paddingHorizontal: 10,
     },
     followedArtistItem: {
         flexDirection: 'row',
@@ -504,7 +490,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#333',
-        marginBottom: 5, // Espaçamento entre os itens de artista
+        marginBottom: 5,
     },
     followedArtistProfileImage: {
         width: 50,

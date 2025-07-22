@@ -122,8 +122,8 @@ export default function LocalMusicScreen() {
                             ? Math.round(metadata.format.duration * 1000)
                             : undefined,
                         source: 'library-local', // ADIÇÃO CRUCIAL: Define a origem da música
-                        // ✅ ADICIONE ESTES CAMPOS
-                        type: "single", // ou outro valor, dependendo do seu enum/interface
+                        category: "single", // ou outro valor, dependendo do seu enum/interface
+                        releaseYear: new Date().getFullYear().toString(), // Ex: "2025"
                         genre: metadata.common.genre?.[0] || 'Gênero desconhecido',
                     });
                 }

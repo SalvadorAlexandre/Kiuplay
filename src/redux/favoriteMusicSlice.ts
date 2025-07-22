@@ -6,10 +6,9 @@ import { Track } from './playerSlice'; // Importamos a interface Track do player
 // mas podemos ter certeza que ela terá as informações essenciais.
 // Você pode criar uma nova interface aqui se quiser que o favorito tenha *menos* propriedades que o Track completo,
 // mas por simplicidade e para manter a consistência, podemos usar Track diretamente.
-export interface FavoritedMusic extends Track {
+export type FavoritedMusic = Track
   // Você pode adicionar propriedades específicas para a música favorita aqui se necessário,
   // mas por enquanto, Track já deve ser suficiente.
-}
 
 interface FavoriteMusicState {
   musics: FavoritedMusic[];

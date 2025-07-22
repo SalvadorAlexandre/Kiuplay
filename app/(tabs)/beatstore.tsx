@@ -17,86 +17,98 @@ import TopTabBarBeatStore from '@/components/topTabBarBeatStoreScreen';
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
+import { addFavoriteMusic, removeFavoriteMusic, FavoritedMusic } from '@/src/redux/favoriteMusicSlice'; // Importar FavoritedMusic
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
+// Importar os tipos específicos de beats para os dados mockados
+import { ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
 
-// Dados mockados para beats da Beat Store (Feeds e Seguindo) - ADICIONADO PREÇO E GÊNERO
-const MOCKED_BEATSTORE_MUSIC_DATA: Track[] = [
+// Dados mockados para beats da Beat Store (Feeds e Seguindo) - ATUALIZADO COM TIPAGEM E PROPRIEDADES CORRETAS
+// O tipo agora é uma união de ExclusiveBeat e FreeBeat
+const MOCKED_BEATSTORE_MUSIC_DATA: (ExclusiveBeat | FreeBeat)[] = [
     {
         id: 'beat-store-1',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
         title: 'Trap Beat - "Midnight Groove"',
         artist: 'Producer X',
+        producer: 'Producer X', // Adicionado produtor
         cover: 'https://placehold.co/150x150/8A2BE2/FFFFFF?text=BeatX',
-        artistAvatar: 'https://i.pravatar.cc/150?img=10',
+        // artistAvatar: 'https://i.pravatar.cc/150?img=10', // Removido, não faz parte de ExclusiveBeat/FreeBeat
         source: 'beatstore-feeds',
         duration: 180000,
-        // NOVOS DADOS
         genre: 'Trap',
-        price: 49.99, // Exemplo de beat exclusivo
-        isFree: false,
+        price: 49.99,
+        typeUse: 'exclusive', // Usar typeUse para indicar se é exclusivo/gratuito
+        category: 'beat', // Categoria é 'beat'
         bpm: 120,
-    },
+        releaseYear: '2023', // Adicionado releaseYear
+    } as ExclusiveBeat,
     {
         id: 'beat-store-2',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
         title: 'Boom Bap - "Golden Era"',
         artist: 'HipHop Pro',
+        producer: 'HipHop Pro', // Adicionado produtor
         cover: 'https://placehold.co/150x150/DAA520/000000?text=BeatY',
-        artistAvatar: 'https://i.pravatar.cc/150?img=11',
+        // artistAvatar: 'https://i.pravatar.cc/150?img=11', // Removido
         source: 'beatstore-feeds',
         duration: 210000,
-        // NOVOS DADOS
         genre: 'Boom Bap',
-        price: 0, // Ou simplesmente não incluir 'price' se for gratuito
-        isFree: true,
+        isFree: true, // Para FreeBeat
+        typeUse: 'free', // Usar typeUse
+        category: 'beat', // Categoria é 'beat'
         bpm: 87,
-    },
+        releaseYear: '2022', // Adicionado releaseYear
+    } as FreeBeat,
     {
         id: 'beat-store-3',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
         title: 'Afrobeat - "Vibes Tropicais"',
         artist: 'Afro Maestro',
+        producer: 'Afro Maestro', // Adicionado produtor
         cover: 'https://placehold.co/150x150/3CB371/FFFFFF?text=AfroZ',
-        artistAvatar: 'https://i.pravatar.cc/150?img=12',
-        source: 'beatstore-seguindo',
+        source: 'beatstore-feeds',
         duration: 240000,
-        // NOVOS DADOS
         genre: 'Afrobeat',
         price: 79.00,
-        isFree: false,
+        typeUse: 'exclusive', // Usar typeUse
+        category: 'beat', // Categoria é 'beat'
         bpm: 102,
-    },
+        releaseYear: '2024', // Adicionado releaseYear
+    } as ExclusiveBeat,
     {
         id: 'beat-store-4',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
         title: 'Drill Type Beat - "Dark Alley"',
         artist: 'Urban Soundz',
+        producer: 'Urban Soundz', // Adicionado produtor
         cover: 'https://placehold.co/150x150/4B0082/FFFFFF?text=DrillA',
-        artistAvatar: 'https://i.pravatar.cc/150?img=13',
+        // artistAvatar: 'https://i.pravatar.cc/150?img=13', // Removido
         source: 'beatstore-feeds',
         duration: 150000,
-        // NOVOS DADOS
         genre: 'Drill',
-        price: 0,
-        isFree: true,
+        isFree: true, // Para FreeBeat
+        typeUse: 'free', // Usar typeUse
+        category: 'beat', // Categoria é 'beat'
         bpm: 90,
-    },
+        releaseYear: '2023', // Adicionado releaseYear
+    } as FreeBeat,
     {
         id: 'beat-store-5',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
         title: 'Trap Soul - "Smooth Operator"',
-        artist: 'Groovy Beats', // Artista diferente para exemplo
+        artist: 'Groovy Beats',
+        producer: 'Groovy Beats', // Adicionado produtor
         cover: 'https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul',
-        artistAvatar: 'https://i.pravatar.cc/150?img=14',
+        // artistAvatar: 'https://i.pravatar.cc/150?img=14', // Removido
         source: 'beatstore-feeds',
         duration: 190000,
-        // NOVOS DADOS
         genre: 'Trap Soul',
         price: 65.50,
-        isFree: false,
+        typeUse: 'exclusive', // Usar typeUse
+        category: 'beat', // Categoria é 'beat'
         bpm: 85,
-    },
+        releaseYear: '2024', // Adicionado releaseYear
+    } as ExclusiveBeat,
 ];
 
 export default function BeatStoreScreen() {
@@ -108,29 +120,39 @@ export default function BeatStoreScreen() {
     const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
     const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
 
-    const favoritedBeatStoreMusics = favoritedMusics.filter(
+    // O filtro aqui já funciona, pois FavoritedMusic estende Track, que por sua vez inclui ExclusiveBeat e FreeBeat
+    const favoritedBeatStoreMusics: (ExclusiveBeat | FreeBeat)[] = favoritedMusics.filter(
         (music) =>
-            music.source === 'beatstore-curtidas' || music.source === 'beatstore-seguindo' || music.source === 'beatstore-feeds'
-    );
+            music.category === 'beat' && ( // Adicionado filtro por categoria 'beat'
+                music.source === 'beatstore-favorites'||
+                music.source === 'beatstore-feeds'
+            )
+    ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
 
-    const handleToggleFavorite = (music: Track) => {
+    const handleToggleFavorite = (music: ExclusiveBeat | FreeBeat) => { // Tipagem atualizada
         const isFavorited = favoritedMusics.some((favMusic) => favMusic.id === music.id);
+        // O dispatch de addFavoriteMusic e removeFavoriteMusic espera FavoritedMusic, que estende Track.
+        // Como ExclusiveBeat e FreeBeat são PlayableContent, e Track é PlayableContent,
+        // eles são compatíveis com FavoritedMusic.
         if (isFavorited) {
             dispatch(removeFavoriteMusic(music.id));
         } else {
-            dispatch(addFavoriteMusic(music));
+            dispatch(addFavoriteMusic(music as FavoritedMusic)); // Casting para FavoritedMusic
         }
     };
 
-    const handlePlayMusic = (music: Track) => {
-        const isAlreadyPlaying = currentTrack?.id === music.id && playlist.some(t => t.id === music.id);
+    const handlePlayMusic = (music: ExclusiveBeat | FreeBeat) => { // Tipagem atualizada
+        // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
+        const trackToPlay = music as Track;
+
+        const isAlreadyPlaying = currentTrack?.id === trackToPlay.id && playlist.some(t => t.id === trackToPlay.id);
 
         if (isAlreadyPlaying) {
             dispatch(playTrackThunk(currentIndex));
         } else {
             dispatch(
                 setPlaylistAndPlayThunk({
-                    newPlaylist: [music],
+                    newPlaylist: [trackToPlay],
                     startIndex: 0,
                     shouldPlay: true,
                 })
@@ -181,19 +203,19 @@ export default function BeatStoreScreen() {
                             data={MOCKED_BEATSTORE_MUSIC_DATA.filter(m => m.source === 'beatstore-feeds')}
                             keyExtractor={(item) => item.id}
                             numColumns={2}
-                            columnWrapperStyle={styles.row} 
+                            columnWrapperStyle={styles.row}
                             renderItem={({ item }) => (
                                 <BeatStoreMusicItem
-                                    music={item}
-                                    onPress={() => handlePlayMusic(item)}
-                                    onToggleFavorite={handleToggleFavorite}
-                                    isFavorited={favoritedMusics.some((favMusic) => favMusic.id === item.id)}
-                                    isCurrent={currentTrack?.id === item.id}
-                                    price={item.price}
-                                    isFree={item.isFree || false}
-                                    genre={item.genre}
-                                    bpm={item.bpm}
-                                
+                                    item={item} // Passa o item completo
+                                    onPress={handlePlayMusic}
+                                    // As props abaixo não são mais necessárias, pois BeatStoreMusicItem as deriva do 'item'
+                                    // onToggleFavorite={handleToggleFavorite}
+                                    // isFavorited={favoritedMusics.some((favMusic) => favMusic.id === item.id)}
+                                    // isCurrent={currentTrack?.id === item.id}
+                                    // price={item.price}
+                                    // isFree={item.isFree || false}
+                                    // genre={item.genre}
+                                    // bpm={item.bpm}
                                 />
                             )}
                             contentContainerStyle={{ paddingBottom: 20 }}
@@ -220,16 +242,16 @@ export default function BeatStoreScreen() {
                                 columnWrapperStyle={styles.row}
                                 renderItem={({ item }) => (
                                     <BeatStoreMusicItem
-                                        item={item}
-                                        onPress={() => handlePlayMusic(item)}
-                                        onToggleFavorite={handleToggleFavorite}
-                                        isFavorited={favoritedMusics.some((favMusic) => favMusic.id === item.id)}
-                                        isCurrent={currentTrack?.id === item.id}
-                                        price={item.price} 
-                                        isFree={item.isFree} 
-                                        genre={item.genre}
-                                        bpm={item.bpm}
-                                        
+                                        item={item} // Passa o item completo
+                                        onPress={handlePlayMusic}
+                                        // As props abaixo não são mais necessárias, pois BeatStoreMusicItem as deriva do 'item'
+                                        // onToggleFavorite={handleToggleFavorite}
+                                        // isFavorited={favoritedMusics.some((favMusic) => favMusic.id === item.id)}
+                                        // isCurrent={currentTrack?.id === item.id}
+                                        // price={item.price}
+                                        // isFree={item.isFree}
+                                        // genre={item.genre}
+                                        // bpm={item.bpm}
                                     />
                                 )}
                                 contentContainerStyle={{ paddingBottom: 20 }}
@@ -342,7 +364,7 @@ const styles = StyleSheet.create({
     },
     beatStoreMusicListContainer: {
         flex: 1,
-        paddingHorizontal: 10, // Adicionado para padding lateral na FlatList
+        paddingHorizontal: 10,
     },
     emptyListText: {
         color: '#aaa',
@@ -361,13 +383,9 @@ const styles = StyleSheet.create({
     },
     row: {
         flex: 1,
-        justifyContent: 'space-between', // Para distribuir os itens em 2 colunas
-        marginBottom: 8, // Espaçamento entre as linhas
+        justifyContent: 'space-between',
+        marginBottom: 8,
     },
-    // Removido beatItemColumn, pois o estilo já está no BeatStoreMusicItem agora
-    // beatItemColumn: {
-    //     width: '48%',
-    // },
     followedArtistItem: {
         flexDirection: 'row',
         alignItems: 'center',

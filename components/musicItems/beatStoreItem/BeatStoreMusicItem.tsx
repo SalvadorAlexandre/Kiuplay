@@ -9,13 +9,17 @@ import {
     ImageBackground,
     Platform,
 } from 'react-native';
-import { Track } from '@/src/redux/playerSlice';
+//import { Track } from '@/src/redux/playerSlice';
 import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
+// Importe os tipos específicos de beats para uma tipagem mais precisa
+import { ExclusiveBeat, FreeBeat } from '@/src/types/contentType'; // Ajuste o caminho conforme necessário
 
 interface BeatStoreMusicItemProps {
-    item: Track;
-    onPress: (track: Track) => void;
+    // Definimos o item como uma união de ExclusiveBeat ou FreeBeat,
+    // pois este componente é específico da BeatStore.
+    item: ExclusiveBeat | FreeBeat;
+    onPress: (track: ExclusiveBeat | FreeBeat) => void;
 }
 
 export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItemProps) {
@@ -28,12 +32,19 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
         return { uri: item.cover };
     };
 
-
     const coverSource = getCoverSource();
-    const titleText = item.title || 'Sem título';
-    const artistText = item.artist || 'Artista desconhecido';
-    const genreText = item.genre || 'Gênero não especificado';
-    const typeText = item.type === 'single' ? 'Single' : item.type;
+    const titleText = item.title; // 'title' é obrigatório, então não precisa de || 'Sem título'
+    const artistText = item.artist; // 'artist' é obrigatório
+    const genreText = item.genre;   // 'genre' é obrigatório
+
+    // Para beats, a categoria é sempre 'beat', então simplificamos:
+    const typeText = "Beat";
+
+    // Adicione propriedades específicas de beat
+    const producerText = item.producer;
+    const bpmText = `${item.bpm} BPM`;
+    const priceText = (item as ExclusiveBeat).price ? `R$ ${(item as ExclusiveBeat).price.toFixed(2)}` : 'GRÁTIS';
+
 
     return (
         <TouchableOpacity style={styles.cardContainer} onPress={() => onPress(item)}>
@@ -50,9 +61,10 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
                             <Image source={coverSource} style={styles.cardCoverImage} />
                             <View style={styles.musicDetails}>
                                 <Text style={styles.cardTitle}>{titleText}</Text>
-                                <Text style={styles.cardSubtitle}>{artistText}</Text>
                                 <Text style={styles.cardGenreText}>{genreText}</Text>
+                                <Text style={styles.cardBpmText}>{bpmText}</Text> {/* NOVO */}
                                 <Text style={styles.cardCategoryText}>{typeText}</Text>
+                                <Text style={styles.cardPriceText}>{priceText}</Text> {/* NOVO */}
                             </View>
                         </View>
                     </BlurView>
@@ -63,9 +75,10 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
                             <Image source={coverSource} style={styles.cardCoverImage} />
                             <View style={styles.musicDetails}>
                                 <Text style={styles.cardTitle}>{titleText}</Text>
-                                <Text style={styles.cardSubtitle}>{artistText}</Text>
                                 <Text style={styles.cardGenreText}>{genreText}</Text>
+                                <Text style={styles.cardBpmText}>{bpmText}</Text> {/* NOVO */}
                                 <Text style={styles.cardCategoryText}>{typeText}</Text>
+                                <Text style={styles.cardPriceText}>{priceText}</Text> {/* NOVO */}
                             </View>
                         </View>
                     </View>
@@ -77,7 +90,8 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
 
 const styles = StyleSheet.create({
     cardContainer: {
-        height: 250,
+        width: '48%', // Adicionei um width fixo ou flexível para melhor layout em FlatList/ScrollView
+        height: 260,
         marginHorizontal: 3,
         marginBottom: 10,
         backgroundColor: '#282828',
@@ -107,6 +121,7 @@ const styles = StyleSheet.create({
         zIndex: 2,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingVertical: 10,
     },
     cardCoverImage: {
         width: 100,
@@ -130,6 +145,12 @@ const styles = StyleSheet.create({
         marginBottom: 2,
         textAlign: 'center',
     },
+    cardProducerText: { // NOVO ESTILO
+        color: '#ccc',
+        fontSize: 11,
+        marginBottom: 2,
+        textAlign: 'center',
+    },
     cardCategoryText: {
         color: '#bbb',
         fontSize: 11,
@@ -139,5 +160,16 @@ const styles = StyleSheet.create({
         color: '#bbb',
         fontSize: 11,
         marginBottom: 2,
+    },
+    cardBpmText: { // NOVO ESTILO
+        color: '#999',
+        fontSize: 11,
+        marginBottom: 2,
+    },
+    cardPriceText: { // NOVO ESTILO
+        color: '#1565C0', // Ou uma cor que destaque o preço
+        fontSize: 13,
+        fontWeight: 'bold',
+        marginTop: 5,
     },
 });
