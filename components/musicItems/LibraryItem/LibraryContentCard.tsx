@@ -7,7 +7,7 @@ import {
     Image,
     StyleSheet,
     Platform,
-    ImageBackground,
+    ImageBackground, 
 } from 'react-native';
 // IMPORTANTE: Ajuste os imports para incluir APENAS os tipos que serão usados
 import {
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         height: 250,
         marginHorizontal: 3,
-        marginBottom: 10,
+        marginBottom: 5,
         backgroundColor: '#282828',
         borderRadius: 8,
         overflow: 'hidden',

@@ -1,5 +1,4 @@
 // src/types/contentType.ts
-//import { Track } from '@/src/redux/playerSlice'; // Importa a interface Track existente
 
 // Interface para um Perfil de Artista
 export interface ArtistProfile {
@@ -25,9 +24,10 @@ export interface Single {
     uri: string; // O URI do arquivo de áudio (local ou remoto)
     title: string;
     artist: string;
-    participants?: string[]
-    cover: string; // URL ou URI para a imagem da capa
     artistAvatar?: string;
+    producer?: string
+    feat?: string[]
+    cover: string; // URL ou URI para a imagem da capa
     duration?: number;
     size?: number;
     favoritesCount?: number
@@ -46,9 +46,10 @@ export interface ExtendedPlayEP {
     id: string;
     title: string;
     artist: string; // Artista principal do EP
+    artistAvatar?: string;
     cover: string | null; // URL para a capa do EP
     category: 'ep'; // Tipo de conteúdo
-    trackIds: string[]; // IDs das faixas que compõem a EP
+    tracks: Single[]; // IDs das faixas que compõem a EP
     mainGenre: string; // NOVO: Adicionado para o gênero
     viewsCount?: number;
     favoritesCount?: number
@@ -66,7 +67,7 @@ export interface Album {
     cover: string; // URL para a capa do álbum
     category: 'album'; // Tipo de conteúdo
     releaseDate: string;
-    trackIds?: string[]; // IDs das faixas que compõem o álbum
+    tracks: Single[]; // IDs das faixas que compõem o álbum
     mainGenre: string; // NOVO: Adicionado para o gênero
     viewsCount?: number;
     favoritesCount?: number
@@ -83,7 +84,7 @@ export interface Playlist {
     creator: string; // Criador da playlist
     cover: string; // URL para a capa da playlist
     category: 'playlist'; // Tipo de conteúdo
-    trackIds?: string[]; // IDs das faixas na playlist
+    tracks: Single[]; // IDs das faixas na playlist
     releaseYear: string;
 }
 

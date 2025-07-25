@@ -251,7 +251,7 @@ const VideoInfoAndActions = ({
                     <TouchableOpacity
                         style={styles.actionButton}
                         onPress={() => onToggleFavorite(videoId)}
-                        accessibilityLabel={isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                        accessibilityLabel={isFavorited? "Remover dos favoritos" : "Adicionar aos favoritos"}
                     >
                         <Ionicons
                             name={isFavorited ? "heart" : "heart-outline"}
@@ -277,10 +277,7 @@ const VideoInfoAndActions = ({
                         onPress={handleCommentPress}
                         accessibilityLabel="Ver e adicionar comentários"
                     >
-                        <Image
-                            source={require("@/assets/images/audioPlayerBar/icons8_sms_120px.png")}
-                            style={styles.iconButton}
-                        />
+                        <Ionicons name="chatbox-outline" size={24} color="#fff" />
                         <Text style={styles.actionButtonText}>{commentCount}</Text>
                     </TouchableOpacity>
 
@@ -300,10 +297,7 @@ const VideoInfoAndActions = ({
                         onPress={handleDownloadPress} // <-- CHAMAR A NOVA FUNÇÃO AQUI
                         accessibilityLabel="Baixar vídeo"
                     >
-                        <Image
-                            source={require('@/assets/images/audioPlayerBar/icons8_download_120px_2.png')}
-                            style={styles.iconButton}
-                        />
+                         <Ionicons name="download" size={23} color="#fff" />
                         <Text style={styles.actionButtonText}>Baixar</Text>
                     </TouchableOpacity>
 

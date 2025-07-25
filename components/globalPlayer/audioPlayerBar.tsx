@@ -14,7 +14,6 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
-
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import {
   togglePlayPauseThunk,
@@ -25,6 +24,8 @@ import {
   setError,
   toggleExpanded,
   setSeeking,
+  toggleShuffle, // NOVO: Importe toggleShuffle
+  toggleRepeat, // NOVO: Importe toggleRepeat
 } from '@/src/redux/playerSlice';
 import { getAudioManager } from '@/src/utils/audioManager';
 import { AVPlaybackStatus } from 'expo-av';
@@ -49,10 +50,12 @@ export default function AudioPlayerBar() {
     isLoading,
     isSeeking,
     error,
+    isShuffle, // NOVO: Obtenha o estado do shuffle
+    isRepeat,   // NOVO: Obtenha o estado da repetição
   } = useAppSelector((state) => state.player);
 
-  const handleOpenComments = useCallback(() => { // <--- ADICIONADO
-    if (currentTrack) { // <--- ADICIONADO: Verifica se há uma música tocando
+  const handleOpenComments = useCallback(() => {
+    if (currentTrack) {
       router.push({
         pathname: '/commentScreens/musics/[musicId]', // <--- ADICIONADO: Caminho da nova tela de comentários de música
         params: {
@@ -117,6 +120,14 @@ export default function AudioPlayerBar() {
 
   const progress = durationMillis > 0 ? positionMillis / durationMillis : 0;
 
+  const handleToggleShuffle = useCallback(() => {
+    dispatch(toggleShuffle());
+  }, [dispatch]);
+
+  const handleToggleRepeat = useCallback(() => {
+    dispatch(toggleRepeat());
+  }, [dispatch]);
+
   // REMOVIDO: useState local para isFavorited, agora o estado vem do Redux
   // const [isFavorited, setIsFavorited] = useState(false);
 
@@ -135,36 +146,36 @@ export default function AudioPlayerBar() {
     }
   }, [dispatch, currentTrack, isCurrentTrackFavorited]); // NOVO: Dependências para o useCallback
 
-    //NOVO: Função para navegar para a tela de compartilhamento customizada
-    const handleShareMusic = useCallback(() => {
-        if (!currentTrack) {
-            console.warn("Nenhuma música tocando para compartilhar.");
-            return;
-        }
+  //NOVO: Função para navegar para a tela de compartilhamento customizada
+  const handleShareMusic = useCallback(() => {
+    if (!currentTrack) {
+      console.warn("Nenhuma música tocando para compartilhar.");
+      return;
+    }
 
-        router.push({
-            pathname: '/shareScreens/music/[musicId]', // Caminho EXATO para sua futura tela de compartilhamento
-            params: {
-                musicId: currentTrack.id,
-                musicTitle: currentTrack.title,
-                artistName: currentTrack.artist,
-                albumArtUrl: currentTrack.cover || '',
-                // Adicione quaisquer outros dados que a tela de compartilhamento precise
-            },
-        });
-    }, [router, currentTrack]); // Depende do router e da música atual
+    router.push({
+      pathname: '/shareScreens/music/[musicId]', // Caminho EXATO para sua futura tela de compartilhamento
+      params: {
+        musicId: currentTrack.id,
+        musicTitle: currentTrack.title,
+        artistName: currentTrack.artist,
+        albumArtUrl: currentTrack.cover || '',
+        // Adicione quaisquer outros dados que a tela de compartilhamento precise
+      },
+    });
+  }, [router, currentTrack]); // Depende do router e da música atual
 
 
   if (!currentTrack) return null;
 
   const coverImage = currentTrack.cover
-    ? { uri: currentTrack.cover}
+    ? { uri: currentTrack.cover }
     : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
   /* logo depois de pegar currentTrack */
 
-  const artistAvatarSrc = currentTrack.artistAvatar   
-      ? { uri: currentTrack.artistAvatar}
-      : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
+  const artistAvatarSrc = currentTrack.artistAvatar
+    ? { uri: currentTrack.artistAvatar }
+    : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
   return (
     <View
@@ -264,11 +275,11 @@ export default function AudioPlayerBar() {
                 style={styles.expandedCover}
                 resizeMode="cover"
               />
-              
+
               <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
               <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
               <Text style={styles.artistName} numberOfLines={1}>{currentTrack.genre}</Text>
-              
+
 
               <Slider
                 style={styles.slider}
@@ -290,23 +301,43 @@ export default function AudioPlayerBar() {
               </View>
 
               <View style={styles.controls}>
-                <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
-                  <Ionicons name="play-skip-back" size={28} color="#fff" />
+                {/* Botão de Shuffle */}
+                <TouchableOpacity onPress={handleToggleShuffle}>
+                  <Ionicons
+                    name="shuffle"
+                    size={28}
+                    color={isShuffle ? '#1E90FF' : '#fff'}
+                  />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleTogglePlayPause}>
-                  {isLoading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
+
+                <View style={styles.controls}>
+                  <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
+                    <Ionicons name="play-skip-back" size={28} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleTogglePlayPause}>
+                    {isLoading ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Ionicons
+                        name={isPlaying ? 'pause-circle' : 'play-circle'}
+                        size={48}
+                        color="#fff"
+                      />
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
+                    <Ionicons name="play-skip-forward" size={28} color="#fff" />
+                  </TouchableOpacity>
+
+                  {/* Botão de Repetir */}
+                  <TouchableOpacity onPress={handleToggleRepeat}>
                     <Ionicons
-                      name={isPlaying ? 'pause-circle' : 'play-circle'}
-                      size={48}
-                      color="#fff"
+                      name={isRepeat ? 'repeat-outline' : 'repeat'}
+                      size={28}
+                      color={isRepeat ? '#1E90FF' : '#fff'}
                     />
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
-                  <Ionicons name="play-skip-forward" size={28} color="#fff" />
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <View style={styles.actionButtons}>
@@ -316,7 +347,7 @@ export default function AudioPlayerBar() {
                     source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
                     style={styles.iconActions}
                   />
-                </TouchableOpacity>*/}
+                   </TouchableOpacity>*/}
 
                 <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
                   <Ionicons
@@ -339,11 +370,12 @@ export default function AudioPlayerBar() {
 
                 {/** <TouchableOpacity onPress={() => { }}>
                   <Ionicons name="list" size={24} color="#fff" />
-                </TouchableOpacity>
-                */}
+                  </TouchableOpacity>
+                  */}
 
               </View>
             </View>
+
           </BlurView>
         </ImageBackground>
       )}

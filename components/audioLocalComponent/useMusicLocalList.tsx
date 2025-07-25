@@ -202,12 +202,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     musicItemContainer: {
-        backgroundColor: '#1f1f1f',
-        padding: 14,
+        //backgroundColor: '#1f1f1f',
+        padding: 10,
         marginBottom: 5,
         borderRadius: 8,
-        borderColor: '#333',
-        borderWidth: 1,
+        borderColor: '#1e90ff',
+        //borderWidth: 1,
     },
     currentMusicItem: {
         borderColor: '#1e90ff',

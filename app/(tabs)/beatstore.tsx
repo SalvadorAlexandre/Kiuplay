@@ -208,14 +208,6 @@ export default function BeatStoreScreen() {
                                 <BeatStoreMusicItem
                                     item={item} // Passa o item completo
                                     onPress={handlePlayMusic}
-                                    // As props abaixo não são mais necessárias, pois BeatStoreMusicItem as deriva do 'item'
-                                    // onToggleFavorite={handleToggleFavorite}
-                                    // isFavorited={favoritedMusics.some((favMusic) => favMusic.id === item.id)}
-                                    // isCurrent={currentTrack?.id === item.id}
-                                    // price={item.price}
-                                    // isFree={item.isFree || false}
-                                    // genre={item.genre}
-                                    // bpm={item.bpm}
                                 />
                             )}
                             contentContainerStyle={{ paddingBottom: 20 }}

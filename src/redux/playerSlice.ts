@@ -5,6 +5,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getAudioManager, } from '../utils/audioManager'; // Renomear para evitar conflito
 import { AVPlaybackStatus, AVPlaybackStatusSuccess } from 'expo-av';
 import { PlayableContent } from '@/src/types/contentType'; // Importe o novo tipo PlayableContent
+import {shuffleArray} from '@/src/utils/arrayUtils'
 
 import type { RootState, AppDispatch } from './store';
 
@@ -17,20 +18,15 @@ const audioManager = getAudioManager();
 // src/redux/playerSlice.ts
 
 export type Track = PlayableContent & {
-    source: // Mantenha ou ajuste a source para englobar todas as origens possíveis do player
-        'library-local'
-        | 'library-cloud-feeds'
-        | 'library-cloud-favorites'
-        | 'beatstore-feeds'
-        | 'beatstore-favorites'
-        | 'unknown'
-    // Adicione outras propriedades específicas do player se houver (ex: `isPlaying`, `progress`, etc. - mas essas geralmente vão para o estado do slice, não na Track interface em si)
+  source: // Mantenha ou ajuste a source para englobar todas as origens possíveis do player
+  'library-local'
+  | 'library-cloud-feeds'
+  | 'library-cloud-favorites'
+  | 'beatstore-feeds'
+  | 'beatstore-favorites'
+  | 'unknown'
+  // Adicione outras propriedades específicas do player se houver (ex: `isPlaying`, `progress`, etc. - mas essas geralmente vão para o estado do slice, não na Track interface em si)
 }
-// ... restante do playerSlice.ts
-// Adaptação da interface Music do AudioManager para ser compatível, se necessário.
-// Ou, o AudioManager pode ser atualizado para trabalhar diretamente com Track.
-// Por enquanto, vamos assumir que Music do AudioManager é simples (uri, name)
-// e que fazemos a conversão no slice.
 
 // --- Define a estrutura do estado global do player ---
 export interface PlayerState {
@@ -39,6 +35,8 @@ export interface PlayerState {
   positionMillis: number;
   durationMillis: number;
   playlist: Track[]; // Agora a playlist é de Tracks
+  shuffledPlaylist: Track[]; // NOVO: A playlist na ordem embaralhada
+  isShuffle: boolean; // NOVO: Indica se o shuffle está ativo
   currentIndex: number;
   isLoading: boolean;
   error: string | null;
@@ -54,6 +52,8 @@ const initialState: PlayerState = {
   positionMillis: 0,
   durationMillis: 0,
   playlist: [],
+  shuffledPlaylist: [], // Inicialmente vazia
+  isShuffle: false, // Inicialmente desativado
   currentIndex: -1,
   isLoading: false,
   error: null,
@@ -214,6 +214,8 @@ export const togglePlayPauseThunk = createAsyncThunk<
 
 
 // Thunk para tocar a próxima música na playlist
+// src/redux/playerSlice.ts
+
 export const playNextThunk = createAsyncThunk<
   void,
   void,
@@ -223,25 +225,74 @@ export const playNextThunk = createAsyncThunk<
   async (_, { dispatch, getState, rejectWithValue }) => {
     const state = getState().player;
 
-    if (state.playlist.length === 0 || state.currentIndex === -1) {
+    // Determina qual playlist usar com base no estado do shuffle
+    const currentActivePlaylist = state.isShuffle ? state.shuffledPlaylist : state.playlist;
+
+    if (currentActivePlaylist.length === 0 || state.currentIndex === -1) {
       dispatch(setError("Nenhuma playlist ou música selecionada para avançar."));
       return;
     }
 
-    let nextIndex = state.currentIndex + 1;
-    // Se isRepeat estiver ativado, volta para o início da playlist
-    if (nextIndex >= state.playlist.length) {
+    // Encontra o índice da música ATUAL dentro da playlist ATIVA.
+    // Isso é crucial porque currentIndex do Redux aponta para a playlist ORIGINAL,
+    // mas a navegação é feita na playlist ativa (original ou embaralhada).
+    const currentTrackId = state.currentTrack?.id;
+    let currentTrackIndexInActivePlaylist = currentActivePlaylist.findIndex(t => t.id === currentTrackId);
+
+    // Se a música atual não foi encontrada na activePlaylist (o que pode acontecer
+    // se o shuffle for ativado/desativado no meio da música),
+    // tentamos usar o currentIndex original como ponto de partida para a activePlaylist.
+    // Isso pode levar a um comportamento ligeiramente diferente ao alternar o shuffle
+    // no meio da música, mas é uma solução comum.
+    if (currentTrackIndexInActivePlaylist === -1) {
+      // Tenta encontrar a música atual na playlist original e usa esse índice
+      // como ponto de partida para a activePlaylist, se ela contiver a música.
+      currentTrackIndexInActivePlaylist = state.currentIndex;
+      // Garante que o índice não seja inválido
+      if (currentTrackIndexInActivePlaylist >= currentActivePlaylist.length) {
+        currentTrackIndexInActivePlaylist = currentActivePlaylist.length - 1;
+      }
+    }
+
+
+    let nextTrackIndexInActivePlaylist = currentTrackIndexInActivePlaylist + 1;
+
+    // Lógica para o final da playlist: repetição ou parada
+    if (nextTrackIndexInActivePlaylist >= currentActivePlaylist.length) {
       if (state.isRepeat) {
-        nextIndex = 0;
+        nextTrackIndexInActivePlaylist = 0; // Volta para o início da playlist ATIVA
+        // Se shuffle está ativo e a playlist está repetindo, re-embaralhar para uma nova sequência
+        if (state.isShuffle) {
+          // Re-embaralha as músicas da playlist original inteira
+          const newShuffledPlaylist = shuffleArray(state.playlist);
+          // Atualiza a shuffledPlaylist no estado. Não alteramos `isShuffle` para não disparar re-render desnecessário.
+          dispatch(playerSlice.actions._setShuffledPlaylist(newShuffledPlaylist));
+          // Importante: A próxima música será a primeira da nova playlist embaralhada
+          nextTrackIndexInActivePlaylist = 0;
+        }
       } else {
-        // Se não houver repetição e for a última música, parar
+        // Se não repete e chegou ao fim, para a reprodução
         dispatch(stopPlayerThunk());
         return;
       }
     }
 
-    // Usa a nova thunk para tocar a próxima música
-    dispatch(playTrackThunk(nextIndex));
+    const nextTrackToPlay = currentActivePlaylist[nextTrackIndexInActivePlaylist];
+
+    if (nextTrackToPlay) {
+      // Encontra o índice da próxima música na playlist ORIGINAL para passar para playTrackThunk
+      const originalIndex = state.playlist.findIndex(t => t.id === nextTrackToPlay.id);
+      if (originalIndex !== -1) {
+        dispatch(playTrackThunk(originalIndex));
+      } else {
+        // Caso de erro: música na playlist ativa não encontrada na playlist original
+        dispatch(setError('Erro: Música não encontrada na playlist original.'));
+        return rejectWithValue('Música não encontrada na playlist original.');
+      }
+    } else {
+      dispatch(setError('Não foi possível determinar a próxima música.'));
+      return rejectWithValue('Não foi possível determinar a próxima música.');
+    }
   }
 );
 
@@ -352,20 +403,53 @@ const playerSlice = createSlice({
   reducers: {
     //Para lidar com a capa da currentTrack
     //setCoverImage: (state, action: PayloadAction<string | null>) => {
-     // state.coverImage = action.payload;
+    // state.coverImage = action.payload;
     //},
+    // Ação síncrona para alternar o modo shuffle
+    toggleShuffle: (state) => {
+      state.isShuffle = !state.isShuffle;
+      if (state.isShuffle) {
+        // Se ativado:
+        // 1. Mantém as músicas já tocadas + a música atual na ordem original.
+        // 2. Embaralha apenas as músicas restantes da playlist original.
+        // 3. Concatena tudo para formar a shuffledPlaylist.
+
+        const playedTracks = state.playlist.slice(0, state.currentIndex + 1);
+        const remainingTracksToShuffle = state.playlist.slice(state.currentIndex + 1);
+        const shuffledRemaining = shuffleArray(remainingTracksToShuffle);
+
+        state.shuffledPlaylist = [...playedTracks, ...shuffledRemaining];
+
+        // NOTA: O currentIndex no Redux continua se referindo à playlist original.
+        // A lógica de playNext/playPrevious usará a shuffledPlaylist para a navegação.
+
+      } else {
+        // Se desativado:
+        // Limpa a shuffledPlaylist, indicando que a playlist original será usada.
+        state.shuffledPlaylist = [];
+      }
+    },
+    _setShuffledPlaylist: (state, action: PayloadAction<Track[]>) => {
+      state.shuffledPlaylist = action.payload;
+    },
     // Ação síncrona para definir a playlist e o índice (usado por thunks)
     _setPlaylist: (state, action: PayloadAction<SetPlaylistAndPlayPayload>) => {
-      state.playlist = action.payload.newPlaylist;
+      state.playlist = action.payload.newPlaylist; // A playlist original
       state.currentIndex = action.payload.startIndex ?? 0;
       state.currentTrack = state.playlist[state.currentIndex] || null;
       state.positionMillis = 0;
       state.durationMillis = 0;
-      state.isPlaying = false; // Começa pausado após setar nova playlist, as thunks decidem se tocar
+      state.isPlaying = false;
       state.error = null;
+      state.isShuffle = false; // Desativa o shuffle ao definir uma nova playlist
+      state.shuffledPlaylist = []; // Limpa a playlist embaralhada
     },
 
     // Ação síncrona para atualizar o status de reprodução vindo do AudioManager
+    // src/redux/playerSlice.ts
+
+    // ...
+
     updatePlaybackStatus: (state, action: PayloadAction<AVPlaybackStatus>) => {
       const status = action.payload;
 
@@ -382,25 +466,28 @@ const playerSlice = createSlice({
         // Se o URI do status difere do URI da música atual no estado Redux,
         // atualiza currentTrack e currentIndex para refletir a música que *realmente* está tocando.
         // Isso é crucial se o AudioManager muda de faixa por conta própria (ex: em loop automático interno)
+        // ou se o shuffle alterou a próxima música.
         if (status.uri && state.currentTrack && String(state.currentTrack.uri) !== String(status.uri)) {
           const matchedIndex = state.playlist.findIndex(t => String(t.uri) === String(status.uri));
           if (matchedIndex !== -1) {
             state.currentTrack = state.playlist[matchedIndex];
-            state.currentIndex = matchedIndex;
+            state.currentIndex = matchedIndex; // Sempre atualiza o currentIndex para a playlist ORIGINAL
           }
         }
 
-        // Tratamento de erros de reprodução
+        // ... restante da sua lógica de updatePlaybackStatus (didJustFinish, erros)
         if ('error' in status && typeof status.error === 'string' && status.error) {
           state.error = status.error;
           state.isPlaying = false;
           state.isLoading = false;
         }
 
-        // A lógica de `didJustFinish` é melhor gerenciada no componente AudioPlayerBar via useEffect.
         if ('didJustFinish' in status && status.didJustFinish) {
           state.isPlaying = false;
           state.positionMillis = 0;
+          // IMPORTANTE: A lógica de avançar para a próxima música (incluindo shuffle)
+          // DEVE ser disparada a partir do `useEffect` em `AudioPlayerBar` quando `didJustFinish` for true.
+          // Não adicione `dispatch(playNextThunk())` aqui diretamente para evitar ciclos e garantir o controle do componente.
         }
 
       } else if ('error' in status && typeof status.error === 'string' && status.error) {
@@ -533,10 +620,11 @@ export const {
   setError,
   setSeeking,
   _setVolume,
+  _setShuffledPlaylist,
   toggleExpanded,
   toggleRepeat,
   resetPlayerState,
-  //setCoverImage,
+  toggleShuffle,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

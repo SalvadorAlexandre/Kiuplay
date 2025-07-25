@@ -25,14 +25,14 @@ interface BeatStoreMusicItemProps {
 export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItemProps) {
     const isConnected = useAppSelector((state) => state.network.isConnected);
 
-    const getCoverSource = () => {
+    const getDynamicCoverSource = () => {
         if (isConnected === false || !item.cover || item.cover.trim() === '') {
             return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
         }
         return { uri: item.cover };
     };
 
-    const coverSource = getCoverSource();
+    const coverSource = getDynamicCoverSource();
     const titleText = item.title; // 'title' é obrigatório, então não precisa de || 'Sem título'
     const artistText = item.artist; // 'artist' é obrigatório
     const genreText = item.genre;   // 'genre' é obrigatório
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         width: '48%', // Adicionei um width fixo ou flexível para melhor layout em FlatList/ScrollView
         height: 260,
         marginHorizontal: 3,
-        marginBottom: 10,
+        marginBottom: 5,
         backgroundColor: '#282828',
         borderRadius: 8,
         overflow: 'hidden',
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
         marginBottom: 2,
     },
     cardPriceText: { // NOVO ESTILO
-        color: '#1565C0', // Ou uma cor que destaque o preço
+        color: '#1E90FF', // Ou uma cor que destaque o preço
         fontSize: 13,
         fontWeight: 'bold',
         marginTop: 5,

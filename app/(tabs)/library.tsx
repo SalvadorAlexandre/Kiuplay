@@ -73,7 +73,42 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         category: 'ep', // Alterado 'type' para 'category'
         releaseYear: '2024', // Alterado 'releaseDate' para 'releaseYear'
         mainGenre: 'Reggaeton', // Alterado 'genre' para 'mainGenre'
-        trackIds: [], // Adicionado trackIds para EP 
+        tracks: [ // <--- DEVE SER UM ARRAY DE OBJETOS SINGLE COMPLETOS
+            {
+                id: 'ep-track-a',
+                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                title: 'Amanhecer Urbano',
+                artist: 'Novo Talento',
+                artistAvatar: 'https://i.pravatar.cc/150?img=15',
+                cover: 'https://placehold.co/300x300/FF5733/FFFFFF?text=EP+Vozes',
+                duration: 200000,
+                viewsCount: 1500,
+                favoritesCount: 50,
+                commentCount: 10,
+                shareCount: 5,
+                genre: 'Hip Hop',
+                releaseYear: '2025',
+                category: 'single',
+                source: 'library-cloud-feeds',
+            },
+            {
+                id: 'ep-track-b',
+                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                title: 'Noite de Ritmos',
+                artist: 'Novo Talento',
+                artistAvatar: 'https://i.pravatar.cc/150?img=15',
+                cover: 'https://placehold.co/300x300/FF5733/FFFFFF?text=EP+Vozes',
+                duration: 220000,
+                viewsCount: 1800,
+                favoritesCount: 60,
+                commentCount: 12,
+                shareCount: 7,
+                genre: 'Hip Hop',
+                releaseYear: '2025',
+                category: 'single',
+                source: 'library-cloud-feeds',
+            }, // Adicionado trackIds para EP 
+        ]
     } as ExtendedPlayEP,
     // REMOVIDO: { id: 'playlist-1', ... }
     {
@@ -134,8 +169,27 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         category: 'ep',
         releaseYear: '2023',
         mainGenre: 'Eletrônica',
-        trackIds: []
+        tracks: [],
     } as ExtendedPlayEP,
+    {
+        id: 'single-3',
+        uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3)',
+        title: 'Cara ou Coroa',
+        artist: 'Saag Weelli Boy',
+        cover: '[https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul](https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul)',
+        artistAvatar: '[https://i.pravatar.cc/150?img=8](https://i.pravatar.cc/150?img=8)',
+        source: 'library-cloud-feeds',
+        duration: 210000,
+        category: 'single', // Alterado 'type' para 'category'
+        genre: 'Trap',
+        releaseYear: '2026',
+        viewsCount: 1000,
+        feat: ['Dji Tafinha', 'Xuxu Bower'],
+        producer: 'DJ Dada',
+        commentCount: 120,
+        favoritesCount: 348,
+        shareCount: 150,
+    } as Single,
     // REMOVIDOS: playlist-2, playlist-3, playlist-4
 ];
 // ---

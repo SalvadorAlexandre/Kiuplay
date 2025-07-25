@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    // ✨ NOVO: Estilos para o botão de compartilhamento nativo
+    // NOVO: Estilos para o botão de compartilhamento nativo
     nativeShareButton: {
         flexDirection: 'row',
         alignItems: 'center',
