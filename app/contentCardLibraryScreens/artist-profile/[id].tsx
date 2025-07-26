@@ -4,7 +4,9 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList }
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux'; // NOVO: Importa hooks do Redux
 import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
-import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice'; // NOVO: Importa ações e interface
+import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice';
+import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library';
+import { ArtistProfile, Album, Single } from '@/src/types/contentType'; // Importado Single também
 
 // NOVO: Defina uma interface mais específica para os itens de conteúdo do artista
 interface ArtistContentItem {

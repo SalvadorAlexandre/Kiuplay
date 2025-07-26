@@ -65,6 +65,7 @@ export interface Album {
     title: string;
     artist: string; // Artista principal do álbum
     cover: string; // URL para a capa do álbum
+    artistAvatar?: string;
     category: 'album'; // Tipo de conteúdo
     releaseDate: string;
     tracks: Single[]; // IDs das faixas que compõem o álbum

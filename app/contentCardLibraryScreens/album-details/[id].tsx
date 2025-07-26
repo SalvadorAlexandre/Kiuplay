@@ -1,71 +1,305 @@
 // app/contentCardLibraryScreens/album-details/[id].tsx
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
+import React, { useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+  ImageBackground,
+  Platform,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
+import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice'; // Adicionado para favoritar EP/faixas
+import { Ionicons } from '@expo/vector-icons';
+import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library';
+import { Album, Single } from '@/src/types/contentType'; // Importado Single também
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+
+
+
+
+// Componente para renderizar cada item da faixa na FlatList
+const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent }: { // NOVO: Adicione isCurrent
+  track: Single;
+  onPlay: (track: Single) => void;
+  isFavorited: boolean;
+  onToggleFavorite: (track: Single) => void;
+  isCurrent: boolean; // NOVO: Tipo para isCurrent
+}) => {
+  const isConnected = useAppSelector((state) => state.network.isConnected)
+  // NOVO: Obtenha o currentTrack do estado do player
+  
+
+  const getImageSource = () => {
+    if (isConnected === false || !track.cover || track.cover.trim() === '') {
+      return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+    }
+    return { uri: track.cover };
+  };
+
+  const imageSource = getImageSource();
+
+  return (
+    <TouchableOpacity
+      style={[
+        trackItemStyles.container,
+        isCurrent && trackItemStyles.currentTrackItem,
+      ]}
+      onPress={() => onPlay(track)}
+    >
+      <Image
+        source={imageSource}
+        style={trackItemStyles.coverImage}
+        resizeMode="cover"
+      />
+      <View style={trackItemStyles.infoContainer}>
+        <Text style={trackItemStyles.title} numberOfLines={1}>
+          {isCurrent ? '▶ ' : ''}{track.title}
+        </Text>
+        <Text style={trackItemStyles.artist} numberOfLines={1}>{track.artist}</Text>
+      </View>
+      <TouchableOpacity onPress={() => onToggleFavorite(track)} style={trackItemStyles.favoriteButton}>
+        <Ionicons name={isFavorited ? 'heart' : 'heart-outline'} size={24} color={isFavorited ? '#FF3D00' : '#bbb'} />
+      </TouchableOpacity>
+      {/* Você pode adicionar um ícone de menu ou mais opções aqui */}
+    </TouchableOpacity>
+  );
+};
+
+// Estilos para os itens da FlatList
+const trackItemStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  currentTrackItem: { // NOVO: Estilo para a faixa atual
+    //backgroundColor: 'rgba(30, 144, 255, 0.2)', // Exemplo: um fundo azul claro transparente
+    borderRadius: 8, // Opcional: bordas arredondadas para o destaque
+  },
+  infoContainer: {
+    flex: 1,
+    marginRight: 10,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  artist: {
+    color: '#bbb',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  favoriteButton: {
+    padding: 5,
+  },
+  coverImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#333',
+  },
+});
+
 
 export default function AlbumDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  // NO FUTURO: Aqui você buscará os detalhes completos do álbum e suas faixas
-  const mockedAlbumDetails = {
-    id: id as string,
-    title: `Álbum: ${id}`,
-    artist: 'Banda Sensacional',
-    cover: `https://placehold.co/400x400/4682B4/FFFFFF?text=Album+${id}`,
-    description: `Explorando as profundezas sonoras do álbum com ID: ${id}. Uma jornada musical imperdível.`,
-    releaseDate: '2023-05-10',
-    tracks: [ // Exemplo de faixas no álbum
-      { id: 't1', title: 'Faixa 1', artist: 'Banda Sensacional', duration: '3:45' },
-      { id: 't2', title: 'Faixa 2', artist: 'Banda Sensacional', duration: '4:10' },
-      { id: 't3', title: 'Faixa 3', artist: 'Banda Sensacional', duration: '3:00' },
-    ],
-  };
+  const AlbumData = MOCKED_CLOUD_FEED_DATA.find(
+    (item) => item.id === id && item.category === 'album'
+  ) as Album | undefined;
 
-  if (!id) {
+  if (!id || !AlbumData) {
     return (
-      <View style={styles.container}>
-        <Stack.Screen options={{ title: "Detalhes do Álbum" }} />
-        <Text style={styles.errorText}>ID do Álbum não encontrado.</Text>
-      </View>
-    );
-  }
-
-  const renderTrackItem = ({ item }: { item: { id: string; title: string; artist: string; duration: string } }) => (
-    <TouchableOpacity style={styles.trackItem} onPress={() => { /* Lógica para tocar a faixa */ }}>
-      <Text style={styles.trackTitle}>{item.title}</Text>
-      <Text style={styles.trackArtist}>{item.artist}</Text>
-      <Text style={styles.trackDuration}>{item.duration}</Text>
-    </TouchableOpacity>
-  );
-
-  return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ title: mockedAlbumDetails.title, headerBackTitle: 'Voltar' }} />
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: mockedAlbumDetails.cover }} style={styles.coverImage} />
-        <Text style={styles.title}>{mockedAlbumDetails.title}</Text>
-        <Text style={styles.subtitle}>{mockedAlbumDetails.artist}</Text>
-        <Text style={styles.description}>{mockedAlbumDetails.description}</Text>
-        <Text style={styles.infoText}>Lançamento: {mockedAlbumDetails.releaseDate}</Text>
-
-        <TouchableOpacity style={styles.button} onPress={() => { /* Lógica para tocar o álbum */ }}>
-          <Text style={styles.buttonText}>Tocar Álbum</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.sectionTitle}>Faixas</Text>
-        <FlatList
-          data={mockedAlbumDetails.tracks}
-          keyExtractor={(item) => item.id}
-          renderItem={renderTrackItem}
-          scrollEnabled={false} // Para que a FlatList role junto com a ScrollView pai
-        />
-
+      <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
+        <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
+        <Text style={styles.errorText}>Album com ID "{id}" não encontrado.</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Voltar</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
+    );
+  }
+  const currentAlbum: Album = AlbumData;
+
+  const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+  // Verifica se o EP em si é favoritado (se ExtendedPlayEP tiver um ID para favoritar)
+  // Ou se qualquer uma das músicas do EP é favoritada
+  const { currentTrack } = useAppSelector((state) => state.player);
+  //Verifica se alguma faixa esta nos favoritos
+  //const isAnyTrackFavorited = currentEp.tracks?.some(track =>
+  //favoritedMusics.some(favTrack => favTrack.id === track.id)
+  //);
+
+  const isConnected = useAppSelector((state) => state.network.isConnected);
+
+  const getDynamicCoverSource = () => {
+    if (isConnected === false || !currentAlbum.cover || currentAlbum.cover.trim() === '') {
+      return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+    }
+    return { uri: currentAlbum.cover };
+  };
+  const coverSource = getDynamicCoverSource();
+
+  const getDynamicUserAvatar = () => {
+    if (isConnected === false || !currentAlbum.artistAvatar || currentAlbum.artistAvatar.trim() === '') {
+      return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
+    }
+    return { uri: currentAlbum.artistAvatar };
+  };
+  const artistAvatarSrc = getDynamicUserAvatar();
+
+  const handlePlayEp = useCallback(() => {
+    if (!currentAlbum.tracks || currentAlbum.tracks.length === 0) {
+      Alert.alert("Erro", "Este EP não possui faixas para reproduzir.");
+      return;
+    }
+    dispatch(setPlaylistAndPlayThunk({
+      newPlaylist: currentAlbum.tracks,
+      startIndex: 0,
+      shouldPlay: true,
+    }));
+  }, [dispatch, currentAlbum]);
+
+
+  //Embaralha e inicia reproducao do EP
+  //const handleShufflePlayEp = useCallback(() => {
+  //  if (!currentEp.tracks || currentEp.tracks.length === 0) {
+  //    Alert.alert("Erro", "Este EP não possui faixas para reproduzir.");
+  //   return;
+  // }
+
+  // Embaralha a lista de faixas
+  // const shuffledTracks = [...currentEp.tracks].sort(() => Math.random() - 0.5);
+  // dispatch(setPlaylistAndPlayThunk({
+  //   newPlaylist: shuffledTracks,
+  //   startIndex: 0,
+  //   shouldPlay: true,
+  // }));
+  //}, [dispatch, currentEp]);
+
+
+
+  //Inicia reproducao a partir de uma faixa clicada
+  const handlePlayTrack = useCallback((track: Single) => {
+    if (!track.uri) {
+      Alert.alert("Erro", "URI da faixa não disponível para reprodução.");
+      return;
+    }
+    dispatch(setPlaylistAndPlayThunk({
+      newPlaylist: currentAlbum.tracks, // Toca a partir da lista completa do EP
+      startIndex: currentAlbum.tracks.findIndex(t => t.id === track.id), // Encontra o índice da faixa clicada
+      shouldPlay: true,
+    }));
+  }, [dispatch, currentAlbum]);
+
+
+  //Adiciona ou remove uma faixa dos favoritos
+  const handleToggleFavoriteTrack = useCallback((track: Single) => {
+    const isCurrentlyFavorited = favoritedMusics.some(favTrack => favTrack.id === track.id);
+    if (isCurrentlyFavorited) {
+      dispatch(removeFavoriteMusic(track.id));
+      Alert.alert("Removido", `"${track.title}" removida dos favoritos.`);
+    } else {
+      dispatch(addFavoriteMusic(track));
+      Alert.alert("Adicionado", `"${track.title}" adicionada aos favoritos.`);
+    }
+  }, [dispatch, favoritedMusics]);
+
+
+  // NOVO: Componente/Função para o cabeçalho da FlatList
+  const ListHeaderComponent = useCallback(() => (
+    <View style={styles.headerContentContainer}> {/* Novo estilo para o conteúdo do cabeçalho */}
+      <ImageBackground
+        source={coverSource}
+        blurRadius={Platform.OS === 'android' ? 10 : 0}
+        style={styles.imageBackground} // Este estilo vai precisar de ajustes
+        resizeMode="cover"
+      >
+        <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
+
+          {/* Header Bar (Voltar e Artista Info) */}
+          <View style={styles.headerBar}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={30} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.artistInfo}>
+              <Image source={artistAvatarSrc} style={styles.profileImage} />
+              <Text style={styles.artistMainName} numberOfLines={1}>
+                {currentAlbum.artist}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.coverAndDetailsSection}> {/* Novo View para alinhar capa e textos */}
+            <Image source={coverSource} style={styles.coverImage} />
+
+            {/* Detalhes do EP (Título, Artista, Produtor, Feat, Ano, Gênero, Plays, Faixas) */}
+            <Text style={styles.title}>{currentAlbum.title}</Text>
+            <Text style={styles.artistName}>{currentAlbum.artist}</Text>
+
+            <Text style={styles.detailText}>
+              {currentAlbum.category.charAt(0).toUpperCase() + currentAlbum.category.slice(1)} • {currentAlbum.releaseYear || 'Ano Desconhecido'} • {currentAlbum.tracks?.length || 0} faixas
+            </Text>
+
+            <Text style={styles.detailText}>
+              {currentAlbum.mainGenre || 'Gênero Desconhecido'}
+            </Text>
+          </View>
+
+          {/* *** ADICIONANDO O DEGRADÊ AQUI *** */}
+          <LinearGradient
+            colors={['transparent', styles.container.backgroundColor || '#191919']}
+            style={styles.fadeOverlay}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+          />
+
+          <View style={styles.playButtonContainer}> {/* Novo estilo para o botão de play */}
+            <TouchableOpacity onPress={handlePlayEp}>
+              <Ionicons name={'play-circle'} size={48} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+        </BlurView>
+      </ImageBackground>
+    </View>
+  ), [currentAlbum, coverSource, artistAvatarSrc, handlePlayEp, router, isConnected]); // Dependências do useCallback
+
+  return (
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      {/* A FlatList agora é o componente principal de rolagem */}
+      <FlatList
+        data={currentAlbum.tracks}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TrackListItem
+            track={item}
+            onPlay={handlePlayTrack}
+            isFavorited={favoritedMusics.some(favTrack => favTrack.id === item.id)}
+            onToggleFavorite={handleToggleFavoriteTrack}
+            isCurrent={currentTrack?.id === item.id}
+          />
+        )}
+        ListHeaderComponent={ListHeaderComponent}
+        contentContainerStyle={styles.trackListContent}
+        ListEmptyComponent={
+          <Text style={styles.emptyListText}>Nenhuma faixa encontrada neste EP.</Text>
+        }
+      />
     </View>
   );
 }
@@ -73,88 +307,102 @@ export default function AlbumDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: '#191919', // Fundo escuro geral
   },
-  scrollContent: {
+  // NOVO: Estilo para o container do cabeçalho da FlatList
+  headerContentContainer: {
+    width: '100%',
+    // Sem height fixo aqui, pois o ImageBackground e seu conteúdo definirão a altura
+    // O flex: 1 no ImageBackground vai fazer com que ele preencha o espaço disponível
+    // dentro de ListHeaderComponent, mas precisamos garantir que ele tenha um tamanho.
+    // Vamos definir uma altura mínima para ImageBackground.
+  },
+  imageBackground: {
+    width: '100%',
+    height: 450, // Ajuste esta altura conforme o desejado para a seção da capa
+    justifyContent: 'flex-start', // Alinha o conteúdo ao topo
+    paddingHorizontal: 15, // Adicionado padding para o conteúdo interno
+  },
+  headerBar: {
+    marginTop: 40,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 15,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  artistInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+    marginLeft: 19,
+  },
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    resizeMode: 'cover',
+  },
+  artistMainName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    flexShrink: 1,
+  },
+  coverAndDetailsSection: { // NOVO: Container para a capa e textos do EP
+    alignItems: 'center', // Centraliza a capa e os textos
+    marginTop: 20, // Espaço após o headerBar
   },
   coverImage: {
-    width: 250,
-    height: 250,
-    borderRadius: 8,
-    marginBottom: 20,
+    width: 140,
+    height: 140,
+    borderRadius: 12, // Adicionado de volta para bordas arredondadas
+    resizeMode: 'cover',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    marginBottom: 15, // Espaço entre a capa e o título
   },
   title: {
-    fontSize: 28,
+    fontSize: 24, // Aumentei um pouco para destaque
     fontWeight: 'bold',
     color: '#fff',
-    textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 3,
+    textAlign: 'center', // Centraliza o título
   },
-  subtitle: {
-    fontSize: 18,
-    color: '#aaa',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  description: {
+  artistName: {
     fontSize: 16,
-    color: '#ccc',
-    textAlign: 'center',
-    marginBottom: 10,
-    lineHeight: 24,
+    color: '#aaa',
+    textAlign: 'center', // Centraliza o nome do artista
+    marginBottom: 4,
   },
-  infoText: {
+  detailText: {
     fontSize: 14,
     color: '#bbb',
-    marginBottom: 20,
+    textAlign: 'center', // Centraliza os detalhes
   },
-  button: {
-    backgroundColor: '#1E90FF',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 30,
-    marginTop: 20,
-    marginBottom: 20,
+  playButtonContainer: { // NOVO: Container para o botão de play
+    alignSelf: 'flex-end', // Alinha o botão de play à direita
+    marginTop: 'auto', // Empurra para o final do ImageBackground
+    marginBottom: 20, // Espaço antes do fim do ImageBackground
+    paddingHorizontal: 20,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 20,
-    marginBottom: 15,
-    alignSelf: 'flex-start',
-  },
-  trackItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  trackTitle: {
-    color: '#fff',
-    fontSize: 16,
+  errorContainer: {
     flex: 1,
+    backgroundColor: '#191919',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  trackArtist: {
-    color: '#aaa',
-    fontSize: 14,
-    marginRight: 10,
-  },
-  trackDuration: {
-    color: '#bbb',
-    fontSize: 14,
+  errorText: {
+    color: 'red',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 20,
   },
   backButton: {
     marginTop: 20,
@@ -164,10 +412,20 @@ const styles = StyleSheet.create({
     color: '#1E90FF',
     fontSize: 16,
   },
-  errorText: {
-    color: 'red',
-    fontSize: 18,
+  trackListContent: {
+    // paddingBottom: 100, // Mantido, para espaço no fundo
+  },
+  emptyListText: {
+    color: '#bbb',
     textAlign: 'center',
     marginTop: 50,
+    fontSize: 16,
+  },
+  fadeOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 160, // Ajuste a altura conforme necessário para o efeito desejado
   },
 });
