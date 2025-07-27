@@ -43,7 +43,7 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
     // Adicione propriedades específicas de beat
     const producerText = item.producer;
     const bpmText = `${item.bpm} BPM`;
-    const priceText = (item as ExclusiveBeat).price ? `R$ ${(item as ExclusiveBeat).price.toFixed(2)}` : 'GRÁTIS';
+    const priceText = (item as ExclusiveBeat).price ? `R$ ${(item as ExclusiveBeat).price.toFixed(2)}` : 'Free';
 
 
     return (
@@ -62,9 +62,9 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
                             <View style={styles.musicDetails}>
                                 <Text style={styles.cardTitle}>{titleText}</Text>
                                 <Text style={styles.cardGenreText}>{genreText}</Text>
-                                <Text style={styles.cardBpmText}>{bpmText}</Text> {/* NOVO */}
+                                <Text style={styles.cardBpmText}>{bpmText}</Text>
                                 <Text style={styles.cardCategoryText}>{typeText}</Text>
-                                <Text style={styles.cardPriceText}>{priceText}</Text> {/* NOVO */}
+                                <Text style={styles.cardPriceText}>{priceText}</Text>
                             </View>
                         </View>
                     </BlurView>
@@ -76,9 +76,9 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
                             <View style={styles.musicDetails}>
                                 <Text style={styles.cardTitle}>{titleText}</Text>
                                 <Text style={styles.cardGenreText}>{genreText}</Text>
-                                <Text style={styles.cardBpmText}>{bpmText}</Text> {/* NOVO */}
+                                <Text style={styles.cardBpmText}>{bpmText}</Text>
                                 <Text style={styles.cardCategoryText}>{typeText}</Text>
-                                <Text style={styles.cardPriceText}>{priceText}</Text> {/* NOVO */}
+                                <Text style={styles.cardPriceText}>{priceText}</Text>
                             </View>
                         </View>
                     </View>

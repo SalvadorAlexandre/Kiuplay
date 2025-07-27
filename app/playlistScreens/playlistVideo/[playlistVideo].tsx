@@ -95,7 +95,7 @@ export default function ArtistPlaylistScreen() {
                     </Text>
                 </View>
             </View>
-
+            <Text style={{color: '#fff', fontSize: 20, padding: 20}}>Videos</Text>
             {/* Lista de vídeos do artista */}
             {artistVideos.length > 0 ? (
                 <FlatList
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
         flexShrink: 1, // Para quebrar a linha se o título for muito longo
     },
     flatListContentContainer: {

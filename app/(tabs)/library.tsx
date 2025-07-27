@@ -114,10 +114,10 @@ export default function LibraryScreen() {
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
             <TopTabBarLibrary />
 
-            <View style={{ marginTop: 10 }}>
+            <View>
                 {selectedLibraryContent === 'local' && (
                     <View style={{ paddingVertical: 15, }}>
-                        <Text style={styles.title}>Curtir músicas em offline!</Text>
+                        
                         <SubTabBar
                             tabs={localTabs}
                             group="local"
@@ -129,7 +129,7 @@ export default function LibraryScreen() {
 
                 {selectedLibraryContent === 'cloud' && (
                     <View style={{ paddingVertical: 15, }}>
-                        <Text style={styles.title}>Ouvir músicas na Kiuplay Cloud!</Text>
+                      
                         <SubTabBar
                             tabs={cloudTabs}
                             group="cloud"

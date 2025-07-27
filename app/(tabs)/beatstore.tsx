@@ -24,92 +24,7 @@ import {BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentTy
 
 // Dados mockados para beats da Beat Store (Feeds e Seguindo) - ATUALIZADO COM TIPAGEM E PROPRIEDADES CORRETAS
 // O tipo agora é uma união de ExclusiveBeat e FreeBeat
-const MOCKED_BEATSTORE_MUSIC_DATA: (ExclusiveBeat | FreeBeat)[] = [
-    {
-        id: 'beat-store-1',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
-        title: 'Trap Beat - "Midnight Groove"',
-        artist: 'Producer X',
-        producer: 'Producer X', // Adicionado produtor
-        cover: 'https://placehold.co/150x150/8A2BE2/FFFFFF?text=BeatX',
-        // artistAvatar: 'https://i.pravatar.cc/150?img=10', // Removido, não faz parte de ExclusiveBeat/FreeBeat
-        source: 'beatstore-feeds',
-        duration: 180000,
-        genre: 'Trap',
-        price: 49.99,
-        typeUse: 'exclusive', // Usar typeUse para indicar se é exclusivo/gratuito
-        category: 'beat', // Categoria é 'beat'
-        bpm: 120,
-        releaseYear: '2023', // Adicionado releaseYear
-    } as ExclusiveBeat,
-    {
-        id: 'beat-store-2',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
-        title: 'Boom Bap - "Golden Era"',
-        artist: 'HipHop Pro',
-        producer: 'HipHop Pro', // Adicionado produtor
-        cover: 'https://placehold.co/150x150/DAA520/000000?text=BeatY',
-        // artistAvatar: 'https://i.pravatar.cc/150?img=11', // Removido
-        source: 'beatstore-feeds',
-        duration: 210000,
-        genre: 'Boom Bap',
-        isFree: true, // Para FreeBeat
-        typeUse: 'free', // Usar typeUse
-        category: 'beat', // Categoria é 'beat'
-        bpm: 87,
-        releaseYear: '2022', // Adicionado releaseYear
-    } as FreeBeat,
-    {
-        id: 'beat-store-3',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
-        title: 'Afrobeat - "Vibes Tropicais"',
-        artist: 'Afro Maestro',
-        producer: 'Afro Maestro', // Adicionado produtor
-        cover: 'https://placehold.co/150x150/3CB371/FFFFFF?text=AfroZ',
-        source: 'beatstore-feeds',
-        duration: 240000,
-        genre: 'Afrobeat',
-        price: 79.00,
-        typeUse: 'exclusive', // Usar typeUse
-        category: 'beat', // Categoria é 'beat'
-        bpm: 102,
-        releaseYear: '2024', // Adicionado releaseYear
-    } as ExclusiveBeat,
-    {
-        id: 'beat-store-4',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-        title: 'Drill Type Beat - "Dark Alley"',
-        artist: 'Urban Soundz',
-        producer: 'Urban Soundz', // Adicionado produtor
-        cover: 'https://placehold.co/150x150/4B0082/FFFFFF?text=DrillA',
-        // artistAvatar: 'https://i.pravatar.cc/150?img=13', // Removido
-        source: 'beatstore-feeds',
-        duration: 150000,
-        genre: 'Drill',
-        isFree: true, // Para FreeBeat
-        typeUse: 'free', // Usar typeUse
-        category: 'beat', // Categoria é 'beat'
-        bpm: 90,
-        releaseYear: '2023', // Adicionado releaseYear
-    } as FreeBeat,
-    {
-        id: 'beat-store-5',
-        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-        title: 'Trap Soul - "Smooth Operator"',
-        artist: 'Groovy Beats',
-        producer: 'Groovy Beats', // Adicionado produtor
-        cover: 'https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul',
-        // artistAvatar: 'https://i.pravatar.cc/150?img=14', // Removido
-        source: 'beatstore-feeds',
-        duration: 190000,
-        genre: 'Trap Soul',
-        price: 65.50,
-        typeUse: 'exclusive', // Usar typeUse
-        category: 'beat', // Categoria é 'beat'
-        bpm: 85,
-        releaseYear: '2024', // Adicionado releaseYear
-    } as ExclusiveBeat,
-];
+
 
 export default function BeatStoreScreen() {
     const router = useRouter();
@@ -143,22 +58,15 @@ export default function BeatStoreScreen() {
         }
     };
 
-    const handlePlayMusic = (music: ExclusiveBeat | FreeBeat) => { // Tipagem atualizada
+    const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => { // Tipagem atualizada
         // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
-        const trackToPlay = music as Track;
-
-        const isAlreadyPlaying = currentTrack?.id === trackToPlay.id && playlist.some(t => t.id === trackToPlay.id);
-
-        if (isAlreadyPlaying) {
-            dispatch(playTrackThunk(currentIndex));
-        } else {
-            dispatch(
-                setPlaylistAndPlayThunk({
-                    newPlaylist: [trackToPlay],
-                    startIndex: 0,
-                    shouldPlay: true,
-                })
-            );
+        if (item.typeUse === 'free') {
+            router.push(`/contentCardBeatStoreScreens/freeBeat-details/${item.id}`);
+        } else if (item.typeUse === 'exclusive') {
+            router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${item.id}`);
+        }
+        else {
+            console.warn('Tipo de item desconhecido ou não suportado para navegação...');
         }
     };
 
@@ -200,16 +108,16 @@ export default function BeatStoreScreen() {
             >
                 {activeTab === 'feeds' && (
                     <View style={styles.beatStoreMusicListContainer}>
-                        <Text style={styles.title}>Feeds (Beats em Destaque)</Text>
+                        
                         <FlatList
-                            data={MOCKED_BEATSTORE_MUSIC_DATA.filter(m => m.source === 'beatstore-feeds')}
+                            data={MOCKED_BEATSTORE_FEED_DATA}
                             keyExtractor={(item) => item.id}
                             numColumns={2}
                             columnWrapperStyle={styles.row}
                             renderItem={({ item }) => (
                                 <BeatStoreMusicItem
                                     item={item} // Passa o item completo
-                                    onPress={handlePlayMusic}
+                                    onPress={handleBeatStoreItemPress}
                                 />
                             )}
                             contentContainerStyle={{ paddingBottom: 20 }}
@@ -222,7 +130,7 @@ export default function BeatStoreScreen() {
 
                 {activeTab === 'curtidas' && (
                     <View style={styles.favoritedMusicListContainer}>
-                        <Text style={styles.title}>Músicas Curtidas (Beat Store)</Text>
+                     
                         <Text style={styles.infoMessage}>
                             Instrumentais de uso exclusivo (que estão à venda) podem ser automaticamente removidos dos favoritos se forem comprados por outro utilizador. Apenas beats de uso livre podem permanecer permanentemente.
                         </Text>
@@ -237,7 +145,7 @@ export default function BeatStoreScreen() {
                                 renderItem={({ item }) => (
                                     <BeatStoreMusicItem
                                         item={item} // Passa o item completo
-                                        onPress={handlePlayMusic}
+                                        onPress={handleBeatStoreItemPress}
                                     />
                                 )}
                                 contentContainerStyle={{ paddingBottom: 20 }}
@@ -318,7 +226,8 @@ const styles = StyleSheet.create({
     },
     tabsContainer: {
         flexDirection: 'row',
-        marginLeft: 10,
+        //marginLeft: 10,
+        paddingVertical: 15,
     },
     tabButton: {
         paddingVertical: 8,
@@ -368,9 +277,9 @@ const styles = StyleSheet.create({
         lineHeight: 18,
     },
     row: {
-        flex: 1,
+        //flex: 1,
         justifyContent: 'space-between',
-        marginBottom: 8,
+        //marginBottom: 8,
     },
     followedArtistItem: {
         flexDirection: 'row',

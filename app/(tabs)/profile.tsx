@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     paddingHorizontal: 15,
-    backgroundColor: '#1e1e1e',
+    //backgroundColor: '#1e1e1e',
     padding: 30,
     margin: 10,
     width: '100%',
