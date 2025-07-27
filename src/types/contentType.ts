@@ -9,14 +9,24 @@ export interface ArtistProfile {
     category: 'artist'; // Tipo de conteúdo
     bio?: string;
     genres?: string[];
+
     followersCount?: number;
     followingCount?: number
     singlesCount?: number,
-    epsCount?: number
+    epsCount?: number;
     albumsCount?: number
-    videosCount?: number // Novo campo para vídeos
-    hasMonetizationEnabled?: boolean // Novo campo para monetização
+    freeBeatsCount?: number
+    exclusiveBeatsCount?: number;
+    videosCount?: number; // Novo campo para vídeos
+    hasMonetizationEnabled?: boolean; // Novo campo para monetização
     releaseYear: string;
+
+    singles?: Single[];
+    albums?: Album[];
+    eps?: ExtendedPlayEP[];
+    freeBeats?: FreeBeat[];
+    exclusiveBeats?: ExclusiveBeat[];
+    videos?: Video[];
 }
 
 export interface Single {
@@ -24,6 +34,7 @@ export interface Single {
     uri: string; // O URI do arquivo de áudio (local ou remoto)
     title: string;
     artist: string;
+    artistId?: string;
     artistAvatar?: string;
     producer?: string
     feat?: string[]
@@ -46,6 +57,7 @@ export interface ExtendedPlayEP {
     id: string;
     title: string;
     artist: string; // Artista principal do EP
+    artistId?: string;
     artistAvatar?: string;
     cover: string | null; // URL para a capa do EP
     category: 'ep'; // Tipo de conteúdo
@@ -56,7 +68,7 @@ export interface ExtendedPlayEP {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
-    source?: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites'
+    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile'; 
 }
 
 // Interface para um Álbum
@@ -64,10 +76,10 @@ export interface Album {
     id: string;
     title: string;
     artist: string; // Artista principal do álbum
-    cover: string; // URL para a capa do álbum
+    artistId?: string;
+    cover?: string; // URL para a capa do álbum
     artistAvatar?: string;
-    category: 'album'; // Tipo de conteúdo
-    releaseDate: string;
+    category: 'album'; // Tipo de conteúdo;
     tracks: Single[]; // IDs das faixas que compõem o álbum
     mainGenre: string; // NOVO: Adicionado para o gênero
     viewsCount?: number;
@@ -75,18 +87,7 @@ export interface Album {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo';
-}
-
-// Interface para uma Playlist (O utilizador pedera criar playlists e adicionar musicas)
-export interface Playlist {
-    id: string;
-    name: string; // Nome da playlist
-    creator: string; // Criador da playlist
-    cover: string; // URL para a capa da playlist
-    category: 'playlist'; // Tipo de conteúdo
-    tracks: Single[]; // IDs das faixas na playlist
-    releaseYear: string;
+    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'library-artistProfile';
 }
 
 // Interface para um Beat Exclusivo (da BeatStore)
@@ -94,6 +95,7 @@ export interface ExclusiveBeat {
     id: string;
     title: string;
     artist: string; // Artista principal (pode ser o produtor)
+    artistId?: string;
     producer: string // Nome do produtor
     cover: string; // Capa do beat
     artistAvatar?: string;
@@ -119,6 +121,7 @@ export interface FreeBeat {
     id: string;
     title: string;
     artist: string; // Artista principal (pode ser o produtor)
+    artistId?: string;
     producer: string // Nome do produtor
     cover: string; // Capa do beat
     artistAvatar?: string;
@@ -143,30 +146,38 @@ export interface Video {
     id: string;
     title: string;
     artist: string;
+    artistAvatar?: string;
+    artistId?: string;
     ThumbnailUrl?: string;
     videoUrl: string;
     duration?: string; // Duração em formato string (ex: "03:45")
     category: 'video'; // <- Categoria correta
     releaseDate: string;
+    liked?: boolean;
+    disliked?: boolean;
+    isFavorited?: boolean; // Esta prop já vem do Redux via VideoClipesScreen
+
+    likeCount?: number ;
+    dislikeCount?: number;
     viewsCount?: number;
     favoritesCount?: number
     commentCount?: number | string;
     shareCount?: number
-    downloadCount?: number
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo'; // Adicionei source
+    source?: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo'; // Adicionei source
 }
 
 export interface Promotion {
     id: string; // ID único da promoção
     contentId: string; // ID da obra promovida
-    contentType: 'single' | 'album' | 'ep' | 'video' | 'playlist' | 'message';
+    artistAvatar?: string;
+    contentType: 'single' | 'album' | 'ep' | 'video' | 'freebeat' | 'exclusive_beat' | 'message';
     promoterId: string; // Quem promoveu (usuário ou artista)
     title: string; // Título do anúncio ou conteúdo
     message?: string; // Mensagem personalizada
     thumbnail?: string; // Imagem ou capa do conteúdo
     startAt: string; // Início da campanha de promoção (ISO date)
     endAt: string; // Fim da campanha
-    targetAudience?: 'followers' | 'all' | 'custom'; // Público alvo
+    targetAudience?: 'followers' | 'friends' | 'all' ; // Público alvo
     notify: boolean; // Se deve disparar notificação push
     createdAt: string;
     category: 'promotion';
@@ -177,7 +188,10 @@ export interface Promotion {
 // ... suas outras interfaces (ArtistProfile, Single, ExtendedPlayEP, Album, Playlist, Video, Promotion, ExclusiveBeat, FreeBeat) ...
 
 // Tipo de União para qualquer item que possa aparecer no feed da Library Cloud
-export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album | Playlist | Video | Promotion | ExclusiveBeat | FreeBeat; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
+export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album | Video | Promotion | ExclusiveBeat | FreeBeat; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
 
+export type BeatStoreFeedItem = ExclusiveBeat | FreeBeat;
+
+export type VideoFeedItem = Video
 // União de tipos que o player pode reproduzir (mantenha como está se estiver correto para seu player)
 export type PlayableContent = Single | ExclusiveBeat | FreeBeat;

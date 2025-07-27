@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row', // Alinha os itens lado a lado (thumbnail à esquerda, info à direita)
         //marginBottom: 3,
         backgroundColor: '#1a1a1a',
-        borderRadius: 8,
+        //borderRadius: 8,
         overflow: 'hidden', // Garante que a borda arredondada se aplique
         alignItems: 'flex-start', // Alinha os itens ao topo do container
         padding: 10, // Adiciona um padding interno ao item

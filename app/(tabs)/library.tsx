@@ -12,223 +12,18 @@ import {
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
-
 import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
 import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList';
-
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
-import {
-    LibraryFeedItem,
-    Album,
-    ArtistProfile,
-    Single,
-    ExtendedPlayEP,
-    // REMOVIDOS: Playlist, Video, Promotion do import
-} from '@/src/types/contentType';
+import {LibraryFeedItem,} from '@/src/types/contentType';
+import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 
-// ---
-// Dados mockados (MOCKED_CLOUD_FEED_DATA) - AJUSTADOS (Playlists, EPs, etc. removidos/corrigidos para ficarem apenas os tipos suportados no LibraryContentCard agora)
-export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
-    {
-        id: 'single-1',
-        uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3)',
-        title: 'Vibe Urbana',
-        artist: 'BeatMaster',
-        cover: '',
-        artistAvatar: '[https://i.pravatar.cc/150?img=6](https://i.pravatar.cc/150?img=6)',
-        source: 'library-cloud-feeds',
-        duration: 180000,
-        category: 'single', // Alterado 'type' para 'category' para consistência
-        genre: 'Hip Hop',
-        releaseYear: '2024', // Alterado 'viewsNumber' para 'releaseYear' ou similar
-        viewsCount: 271, // Adicionada viewsCount se for relevante para Single
-    } as Single,
-    {
-        id: 'album-1',
-        title: 'Retrospectiva Jazz',
-        artist: 'Jazz Collective',
-        cover: '[https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Jazz](https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Jazz)',
-        category: 'album', // Alterado 'type' para 'category'
-        releaseYear: '2023', // Alterado 'releaseDate' para 'releaseYear'
-        mainGenre: 'Jazz', // Alterado 'genre' para 'mainGenre'
-    } as Album,
-    {
-        id: 'artist-1',
-        name: 'Mestre da Batida',
-        username: '@mestre_batida_ofc', // Adicionado username para consistência
-        avatar: '[https://i.pravatar.cc/150?img=7](https://i.pravatar.cc/150?img=7)',
-        category: 'artist', // Alterado 'type' para 'category'
-        genres: ['Hip Hop', 'Trap'],
-        releaseYear: '2010', // Adicionado releaseYear
-    } as ArtistProfile,
-    {
-        id: 'ep-1',
-        title: 'Sons do Verão',
-        artist: 'Tropical Vibes',
-        cover: '[https://placehold.co/300x300/32CD32/FFFFFF?text=EP+Ver%C3%A3o](https://placehold.co/300x300/32CD32/FFFFFF?text=EP+Ver%C3%A3o)',
-        category: 'ep', // Alterado 'type' para 'category'
-        releaseYear: '2024', // Alterado 'releaseDate' para 'releaseYear'
-        mainGenre: 'Reggaeton', // Alterado 'genre' para 'mainGenre'
-        tracks: [ // <--- DEVE SER UM ARRAY DE OBJETOS SINGLE COMPLETOS
-            {
-                id: 'ep-track-a',
-                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-                title: 'Amanhecer Urbano',
-                artist: 'Novo Talento',
-                artistAvatar: 'https://i.pravatar.cc/150?img=15',
-                cover: 'https://placehold.co/300x300/FF5733/FFFFFF?text=EP+Vozes',
-                duration: 200000,
-                viewsCount: 1500,
-                favoritesCount: 50,
-                commentCount: 10,
-                shareCount: 5,
-                genre: 'Hip Hop',
-                releaseYear: '2025',
-                category: 'single',
-                source: 'library-cloud-feeds',
-            },
-            {
-                id: 'ep-track-b',
-                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-                title: 'Noite de Ritmos',
-                artist: 'Novo Talento',
-                artistAvatar: 'https://i.pravatar.cc/150?img=15',
-                cover: 'https://placehold.co/300x300/FF5733/FFFFFF?text=EP+Vozes',
-                duration: 220000,
-                viewsCount: 1800,
-                favoritesCount: 60,
-                commentCount: 12,
-                shareCount: 7,
-                genre: 'Hip Hop',
-                releaseYear: '2025',
-                category: 'single',
-                source: 'library-cloud-feeds',
-            }, // Adicionado trackIds para EP 
-        ]
-    } as ExtendedPlayEP,
-    // REMOVIDO: { id: 'playlist-1', ... }
-    {
-        id: 'single-2',
-        uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3)',
-        title: 'Caminhos do Soul',
-        artist: 'Soulful Echoes',
-        cover: '[https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul](https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul)',
-        artistAvatar: '[https://i.pravatar.cc/150?img=8](https://i.pravatar.cc/150?img=8)',
-        source: 'library-cloud-feeds',
-        duration: 210000,
-        category: 'single', // Alterado 'type' para 'category'
-        genre: 'Soul',
-        releaseYear: '2024',
-        viewsCount: 1000,
-    } as Single,
-    {
-        id: 'artist-2',
-        name: 'EveryDay',
-        username: '@everyday_ofc',
-        avatar: '[https://i.pravatar.cc/150?img=7](https://i.pravatar.cc/150?img=7)',
-        category: 'artist',
-        genres: ['Hip Hop', 'Trap'],
-        releaseYear: '2018',
-    } as ArtistProfile,
-    {
-        id: 'album-2',
-        title: 'O Despertar',
-        artist: 'Aura Sonora',
-        cover: '[https://placehold.co/300x300/CD5C5C/FFFFFF?text=Album+Aura](https://placehold.co/300x300/CD5C5C/FFFFFF?text=Album+Aura)',
-        category: 'album',
-        releaseYear: '2024',
-        mainGenre: 'Ambient',
-        tracks: [ // <--- DEVE SER UM ARRAY DE OBJETOS SINGLE COMPLETOS
-            {
-                id: 'ep-track-a',
-                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-                title: 'Amanhecer Urbano',
-                artist: 'Novo Talento',
-                artistAvatar: 'https://i.pravatar.cc/150?img=15',
-                cover: 'https://placehold.co/300x300/FF5733/FFFFFF?text=EP+Vozes',
-                duration: 200000,
-                viewsCount: 1500,
-                favoritesCount: 50,
-                commentCount: 10,
-                shareCount: 5,
-                genre: 'Hip Hop',
-                releaseYear: '2025',
-                category: 'single',
-                source: 'library-cloud-feeds',
-            },
-            {
-                id: 'ep-track-b',
-                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-                title: 'Noite de Ritmos',
-                artist: 'Novo Talento',
-                artistAvatar: 'https://i.pravatar.cc/150?img=15',
-                cover: 'https://placehold.co/300x300/FF5733/FFFFFF?text=EP+Vozes',
-                duration: 220000,
-                viewsCount: 1800,
-                favoritesCount: 60,
-                commentCount: 12,
-                shareCount: 7,
-                genre: 'Hip Hop',
-                releaseYear: '2025',
-                category: 'single',
-                source: 'library-cloud-feeds',
-            }, // Adicionado trackIds para EP 
-        ]
-    } as Album,
-    {
-        id: 'artist-3',
-        name: 'Helloby',
-        username: '@helloby_music',
-        avatar: '[https://i.pravatar.cc/150?img=7](https://i.pravatar.cc/150?img=7)',
-        category: 'artist',
-        genres: ['Zouck', 'Trap'],
-        releaseYear: '2015',
-    } as ArtistProfile,
-    {
-        id: 'artist-4',
-        name: 'Rainha do R&B',
-        username: '@rainha_rnb_ofc',
-        avatar: '[https://i.pravatar.cc/150?img=9](https://i.pravatar.cc/150?img=9)',
-        category: 'artist',
-        genres: ['R&B', 'Pop'],
-        releaseYear: '2020',
-    } as ArtistProfile,
-    {
-        id: 'ep-2',
-        title: 'Reflexões Noturnas',
-        artist: 'Dreamweaver',
-        cover: '[https://placehold.co/300x300/6A5ACD/FFFFFF?text=EP+Night](https://placehold.co/300x300/6A5ACD/FFFFFF?text=EP+Night)',
-        category: 'ep',
-        releaseYear: '2023',
-        mainGenre: 'Eletrônica',
-        tracks: [],
-    } as ExtendedPlayEP,
-    {
-        id: 'single-3',
-        uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3)',
-        title: 'Cara ou Coroa',
-        artist: 'Saag Weelli Boy',
-        cover: '[https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul](https://placehold.co/300x300/8A2BE2/FFFFFF?text=Single+Soul)',
-        artistAvatar: '[https://i.pravatar.cc/150?img=8](https://i.pravatar.cc/150?img=8)',
-        source: 'library-cloud-feeds',
-        duration: 210000,
-        category: 'single', // Alterado 'type' para 'category'
-        genre: 'Trap',
-        releaseYear: '2026',
-        viewsCount: 1000,
-        feat: ['Dji Tafinha', 'Xuxu Bower'],
-        producer: 'DJ Dada',
-        commentCount: 120,
-        favoritesCount: 348,
-        shareCount: 150,
-    } as Single,
-    // REMOVIDOS: playlist-2, playlist-3, playlist-4
-];
-// ---
+
+
 
 const SubTabBar = ({
     tabs,
@@ -268,7 +63,7 @@ const SubTabBar = ({
 
 export default function LibraryScreen() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
+    //const dispatch = useAppDispatch();
     const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const {
         isSelectedSubTab,

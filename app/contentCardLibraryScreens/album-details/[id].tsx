@@ -16,7 +16,7 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice'; // Adicionado para favoritar EP/faixas
 import { Ionicons } from '@expo/vector-icons';
-import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library';
+import {MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Album, Single } from '@/src/types/contentType'; // Importado Single também
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -71,7 +71,6 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
     </TouchableOpacity>
   );
 };
-
 // Estilos para os itens da FlatList
 const trackItemStyles = StyleSheet.create({
   container: {
@@ -124,7 +123,7 @@ export default function AlbumDetailsScreen() {
     return (
       <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
         <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-        <Text style={styles.errorText}>Album com ID "{id}" não encontrado.</Text>
+        <Text style={styles.errorText}>Album não encontrado.</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Voltar</Text>
         </TouchableOpacity>
@@ -413,7 +412,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   trackListContent: {
-    // paddingBottom: 100, // Mantido, para espaço no fundo
+     paddingBottom: 100, // Mantido, para espaço no fundo
   },
   emptyListText: {
     color: '#bbb',

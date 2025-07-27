@@ -19,8 +19,8 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
 import { addFavoriteMusic, removeFavoriteMusic, FavoritedMusic } from '@/src/redux/favoriteMusicSlice'; // Importar FavoritedMusic
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
-// Importar os tipos específicos de beats para os dados mockados
-import { ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
+import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
+import {BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
 
 // Dados mockados para beats da Beat Store (Feeds e Seguindo) - ATUALIZADO COM TIPAGEM E PROPRIEDADES CORRETAS
 // O tipo agora é uma união de ExclusiveBeat e FreeBeat
@@ -115,6 +115,8 @@ export default function BeatStoreScreen() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { activeTab, handleTabChange } = useBeatStoreTabs();
+
+    
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
@@ -236,14 +238,6 @@ export default function BeatStoreScreen() {
                                     <BeatStoreMusicItem
                                         item={item} // Passa o item completo
                                         onPress={handlePlayMusic}
-                                        // As props abaixo não são mais necessárias, pois BeatStoreMusicItem as deriva do 'item'
-                                        // onToggleFavorite={handleToggleFavorite}
-                                        // isFavorited={favoritedMusics.some((favMusic) => favMusic.id === item.id)}
-                                        // isCurrent={currentTrack?.id === item.id}
-                                        // price={item.price}
-                                        // isFree={item.isFree}
-                                        // genre={item.genre}
-                                        // bpm={item.bpm}
                                     />
                                 )}
                                 contentContainerStyle={{ paddingBottom: 20 }}

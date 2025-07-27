@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     imageBackground: {
         flex: 1,
         justifyContent: 'center',
+        width: '100%',
     },
     blurLayer: {
         flex: 1,

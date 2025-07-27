@@ -61,8 +61,7 @@ const VideoInfoAndActions = ({
     uploadTime = 'há 3 semanas',
     commentCount = '30',
     videoThumbnailUrl,
-    videoUrl, // <-- Receber videoUrl
-
+    videoUrl,
     isArtistFollowed,
     artistId,
     artistProfileImageUrl,

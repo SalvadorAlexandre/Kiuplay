@@ -18,7 +18,7 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
-import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library';
+import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Single } from '@/src/types/contentType';
 
 export default function SingleDetailsScreen() {

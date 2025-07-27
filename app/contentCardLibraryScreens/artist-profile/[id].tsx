@@ -1,20 +1,26 @@
 // app/contentCardLibraryScreens/artist-profile/[id].tsx
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux'; // NOVO: Importa hooks do Redux
 import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
 import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice';
-import { MOCKED_CLOUD_FEED_DATA } from '@/app/(tabs)/library';
-import { ArtistProfile, Album, Single } from '@/src/types/contentType'; // Importado Single também
+import { MOCKED_CLOUD_FEED_DATA} from '@/src/types/contentServer';
+import { ArtistProfile, Single } from '@/src/types/contentType'; // Importado Single também
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
+import { Ionicons } from '@expo/vector-icons';
 
-// NOVO: Defina uma interface mais específica para os itens de conteúdo do artista
-interface ArtistContentItem {
-  id: string;
-  title: string;
-  type: 'album' | 'single' | 'ep';
-  cover: string;
-}
+
 
 export default function ArtistProfileScreen() {
   const { id } = useLocalSearchParams();
@@ -22,100 +28,144 @@ export default function ArtistProfileScreen() {
   const dispatch = useDispatch(); // NOVO: Inicializa useDispatch
   const followedArtists = useSelector((state: RootState) => state.followedArtists.artists); // NOVO: Obtém artistas seguidos do Redux
 
-  // Mock de perfil do artista (isto viria de uma API em um app real)
-  const mockedArtistProfile = {
-    id: id as string,
-    name: `Artista: ${id}`,
-    avatar: `https://i.pravatar.cc/200?u=${id}`,
-    bio: `Biografia do artista com ID: ${id}. Um talento musical inovador e inspirador, com um som único que cativa a todos.`,
-    genres: ['Pop', 'R&B', 'Hip Hop'],
-    // NOVO: Vamos mockar os seguidores dinamicamente para cada ID
-    followers: `${(Math.floor(Math.random() * 500) + 100) / 100}M`, // Ex: 1.2M, 2.5M
-    albums: [
-      { id: 'art_alb1_' + id, title: 'Melhores Hits', type: 'album', cover: 'https://placehold.co/100x100/FFD700/000000?text=Alb1' },
-      { id: 'art_sing1_' + id, title: 'Single Vencedor', type: 'single', cover: 'https://placehold.co/100x100/FF6347/FFFFFF?text=Sing1' },
-      { id: 'art_ep1_' + id, title: 'Mini Coleção EP', type: 'ep', cover: 'https://placehold.co/100x100/ADD8E6/000000?text=EP1' },
-    ] as ArtistContentItem[],
-  };
+  const ArtistData = MOCKED_CLOUD_FEED_DATA.find(
+    (item) => item.id === id && item.category === 'artist'
+  ) as ArtistProfile | undefined;
+
+  if (!id || !ArtistData) {
+    return (
+      <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
+        <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
+        <Text style={styles.errorText}>Artista não encontrado.</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>Voltar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+  const currentArtist: ArtistProfile = ArtistData;
+
+  const tabs = ['Single','Album','Extended Play','Free Beats','Exclusive Beats'];
+  const [activeTab, setActiveTab] = useState('Single');
 
   // NOVO: Verifica se o artista atual é seguido
-  const isFollowing = followedArtists.some(artist => artist.id === mockedArtistProfile.id);
+  const isFollowing = followedArtists.some(artist => artist.id === currentArtist.id);
+
 
   // NOVO: Função para alternar o status de seguir
   const handleToggleFollow = () => {
     if (isFollowing) {
-      dispatch(removeFollowedArtist(mockedArtistProfile.id));
-      console.log(`Deixou de seguir: ${mockedArtistProfile.name}`);
+      dispatch(removeFollowedArtist(currentArtist.id));
+      console.log(`Deixou de seguir: ${currentArtist.name}`);
     } else {
       // Cria um objeto FollowedArtist com os dados necessários
       const artistToFollow: FollowedArtist = {
-        id: mockedArtistProfile.id,
-        name: mockedArtistProfile.name,
-        profileImageUrl: mockedArtistProfile.avatar,
+        id: currentArtist.id,
+        name: currentArtist.name,
+        profileImageUrl: currentArtist.avatar,
         // Adicione outras propriedades se a interface FollowedArtist exigir
       };
       dispatch(addFollowedArtist(artistToFollow));
-      console.log(`Começou a seguir: ${mockedArtistProfile.name}`);
+      console.log(`Começou a seguir: ${currentArtist.name}`);
     }
   };
 
-  if (!id) {
-    return (
-      <View style={styles.container}>
-        <Stack.Screen options={{ title: "Perfil do Artista" }} />
-        <Text style={styles.errorText}>ID do Artista não encontrado.</Text>
-      </View>
-    );
-  }
+  const isConnected = useAppSelector((state) => state.network.isConnected);
 
-  const renderContentItem = ({ item }: { item: ArtistContentItem }) => (
-    <TouchableOpacity
-      style={styles.contentItem}
-      onPress={() =>
-        router.push({
-          pathname: `/contentCardLibraryScreens/${item.type}-details/[id]`,
-          params: { id: item.id },
-        })
-      }
-    >
-      <Image source={{ uri: item.cover }} style={styles.contentCover} />
-      <Text style={styles.contentTitle} numberOfLines={1}>{item.title}</Text>
-      <Text style={styles.contentType}>{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</Text>
-    </TouchableOpacity>
-  );
+  const getDynamicUserAvatar = () => {
+    if (isConnected === false || !currentArtist.avatar || currentArtist.avatar.trim() === '') {
+      return require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png');
+    }
+    return { uri: currentArtist.avatar };
+  };
+  const artistAvatarSrc = getDynamicUserAvatar();
+
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: mockedArtistProfile.name, headerBackTitle: 'Voltar' }} />
+      <Stack.Screen options={{ headerShown: false }} />
+
+      {/* Header Bar (Voltar e Artista Info) */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={30} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: mockedArtistProfile.avatar }} style={styles.artistAvatar} />
-        <Text style={styles.artistName}>{mockedArtistProfile.name}</Text>
-        <Text style={styles.artistFollowers}>{mockedArtistProfile.followers} Seguidores</Text>
-        <Text style={styles.artistGenres}>Gêneros: {mockedArtistProfile.genres.join(', ')}</Text>
-        <Text style={styles.artistBio}>{mockedArtistProfile.bio}</Text>
+        <Image source={{ uri: artistAvatarSrc }} style={styles.artistAvatar} />
 
-        {/* NOVO: Botão de Seguir/Deixar de Seguir dinâmico */}
-        <TouchableOpacity
-          style={[styles.button, isFollowing ? styles.buttonFollowing : styles.buttonFollow]}
-          onPress={handleToggleFollow}
-        >
-          <Text style={styles.buttonText}>{isFollowing ? 'Seguindo' : 'Seguir Artista'}</Text>
+        <Text style={styles.artistNameProfile}>{currentArtist.name}</Text>
+
+        <Text style={styles.artistUserName}>{currentArtist.username}</Text>
+
+        {currentArtist.genres !== undefined && (
+          <Text style={styles.artistGenres}> {currentArtist.category} • {currentArtist.genres} • Desde {currentArtist.releaseYear}</Text>
+        )}
+
+        {currentArtist.followersCount !== undefined && (
+          <Text style={styles.artistFollowers}>{currentArtist.followersCount?.toLocaleString()} Seguidores • {currentArtist.followingCount?.toLocaleString()} Seguindo</Text>
+        )}
+
+        <View style={{ flexDirection: 'row' }}>
+
+          {/* NOVO: Botão de Seguir/Deixar de Seguir dinâmico */}
+          <TouchableOpacity
+            style={[styles.buttonFollowers, isFollowing ? styles.buttonFollowing : styles.buttonFollow]}
+            onPress={handleToggleFollow}
+          >
+            <Text style={styles.buttonText}>{isFollowing ? 'Seguindo' : 'Seguir'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.buttonVideo} onPress={handleToggleFollow}>
+          <Text style={styles.sectionTitle}>Ver videos • </Text>
+          <Ionicons name='videocam' size={20} color="#fff" />
         </TouchableOpacity>
 
-        <Text style={styles.sectionTitle}>Conteúdo do Artista</Text>
-        <FlatList
-          data={mockedArtistProfile.albums}
-          keyExtractor={(item) => item.id}
-          renderItem={renderContentItem}
-          horizontal
+        <ScrollView
+          horizontal={true}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.contentList}
-        />
+          style={styles.tabsContainer}
+        >
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.tabButton,
+                activeTab === tab && styles.activeTabButton,
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
+                ]}
+              >
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <View style={{ flex: 1 }}>
+          {activeTab === 'Single' && (
+            <Text>Singles list</Text>
+          )}
 
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
+          {activeTab === 'Album' && (
+            <Text>Album List</Text>
+          )}
+          {activeTab === 'Extended Play' && (
+            <Text>Extended Play list</Text>
+          )}
+          {activeTab === 'Free Beats' && (
+            <Text>Free Beats</Text>
+          )}
+          {activeTab === 'Exclusive Beats' && (
+            <Text>Exclusive Beats</Text>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
@@ -127,23 +177,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#191919',
   },
   scrollContent: {
-    alignItems: 'center',
     paddingVertical: 20,
     paddingHorizontal: 15,
   },
   artistAvatar: {
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     borderRadius: 75,
-    marginBottom: 20,
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: '#1E90FF',
   },
-  artistName: {
-    fontSize: 30,
+  artistNameProfile: {
+    fontSize: 19,
     fontWeight: 'bold',
     color: '#fff',
-    textAlign: 'center',
+    marginBottom: 5,
+  },
+  artistUserName: {
+    fontSize: 15,
+    color: '#bbb',
     marginBottom: 5,
   },
   artistFollowers: {
@@ -154,8 +207,7 @@ const styles = StyleSheet.create({
   artistGenres: {
     fontSize: 14,
     color: '#bbb',
-    marginBottom: 15,
-    textAlign: 'center',
+    marginBottom: 5,
   },
   artistBio: {
     fontSize: 16,
@@ -164,15 +216,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     lineHeight: 24,
   },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  headerBar: {
+    marginTop: 39,
+    width: '100%',
+    marginBottom: 10,
+    paddingHorizontal: 25,
+    flexDirection: 'row',
+  },
+  buttonFollowers: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderRadius: 25,
     marginTop: 10,
     marginBottom: 30,
     minWidth: 150, // Garante que o botão tenha um tamanho mínimo
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonVideo: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   // NOVO: Estilo para quando o botão está no estado "Seguir"
   buttonFollow: {
@@ -190,12 +253,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 16,
     color: '#fff',
     marginTop: 10,
     marginBottom: 15,
-    alignSelf: 'flex-start',
   },
   contentList: {
     paddingHorizontal: 5,
@@ -232,10 +293,50 @@ const styles = StyleSheet.create({
     color: '#1E90FF',
     fontSize: 16,
   },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: '#191919',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
   errorText: {
     color: 'red',
     fontSize: 18,
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  trackListContent: {
+    paddingBottom: 100,
+  },
+  emptyListText: {
+    color: '#bbb',
+    textAlign: 'center',
     marginTop: 50,
+    fontSize: 16,
+  },
+
+
+  tabsContainer: {
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
+  tabButton: {
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: '#222',
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeTabButton: {
+    backgroundColor: '#1e90ff',
+  },
+  tabText: {
+    color: '#aaa',
+    fontSize: 14,
+  },
+  activeTabText: {
+    color: '#fff',
   },
 });
