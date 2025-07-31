@@ -16,8 +16,8 @@ import { RootState } from '@/src/redux/store';
 import TopTabBarBeatStore from '@/components/topTabBarBeatStoreScreen';
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
-import { addFavoriteMusic, removeFavoriteMusic, FavoritedMusic } from '@/src/redux/favoriteMusicSlice'; // Importar FavoritedMusic
+//import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
+//import { addFavoriteMusic, removeFavoriteMusic, FavoritedMusic } from '@/src/redux/favoriteMusicSlice'; // Importar FavoritedMusic
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import {BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
@@ -28,13 +28,13 @@ import {BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentTy
 
 export default function BeatStoreScreen() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
+    //const dispatch = useAppDispatch();
     const { activeTab, handleTabChange } = useBeatStoreTabs();
 
     
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
+    //const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
     const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
 
     // O filtro aqui já funciona, pois FavoritedMusic estende Track, que por sua vez inclui ExclusiveBeat e FreeBeat
@@ -45,18 +45,6 @@ export default function BeatStoreScreen() {
                 music.source === 'beatstore-feeds'
             )
     ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
-
-    const handleToggleFavorite = (music: ExclusiveBeat | FreeBeat) => { // Tipagem atualizada
-        const isFavorited = favoritedMusics.some((favMusic) => favMusic.id === music.id);
-        // O dispatch de addFavoriteMusic e removeFavoriteMusic espera FavoritedMusic, que estende Track.
-        // Como ExclusiveBeat e FreeBeat são PlayableContent, e Track é PlayableContent,
-        // eles são compatíveis com FavoritedMusic.
-        if (isFavorited) {
-            dispatch(removeFavoriteMusic(music.id));
-        } else {
-            dispatch(addFavoriteMusic(music as FavoritedMusic)); // Casting para FavoritedMusic
-        }
-    };
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => { // Tipagem atualizada
         // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
@@ -130,10 +118,6 @@ export default function BeatStoreScreen() {
 
                 {activeTab === 'curtidas' && (
                     <View style={styles.favoritedMusicListContainer}>
-                     
-                        <Text style={styles.infoMessage}>
-                            Instrumentais de uso exclusivo (que estão à venda) podem ser automaticamente removidos dos favoritos se forem comprados por outro utilizador. Apenas beats de uso livre podem permanecer permanentemente.
-                        </Text>
                         {favoritedBeatStoreMusics.length === 0 ? (
                             <Text style={styles.emptyListText}>Nenhum beat curtido ainda na Beat Store.</Text>
                         ) : (
@@ -256,6 +240,7 @@ const styles = StyleSheet.create({
     },
     favoritedMusicListContainer: {
         flex: 1,
+        paddingHorizontal: 10,
     },
     beatStoreMusicListContainer: {
         flex: 1,
@@ -285,8 +270,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
+        //borderBottomWidth: 1,
+        //borderBottomColor: '#333',
         marginHorizontal: 15,
     },
     followedArtistProfileImage: {

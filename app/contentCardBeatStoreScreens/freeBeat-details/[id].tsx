@@ -21,7 +21,7 @@ import { BlurView } from 'expo-blur';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { FreeBeat } from '@/src/types/contentType';
 
-export default function SingleDetailsScreen() {
+export default function feeBeatDetailsScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -157,7 +157,7 @@ export default function SingleDetailsScreen() {
                                         Producer: {currentFreeBeat.producer}
                                     </Text>
                                 )}
-                                <Text style={styles.detailText}>Use: {currentFreeBeat.typeUse}</Text>
+                                <Text style={styles.detailText}>{currentFreeBeat.typeUse}</Text>
 
                                 <Text style={styles.detailText}>
                                     {currentFreeBeat.category.charAt(0).toUpperCase() + currentFreeBeat.category.slice(1)} • {currentFreeBeat.releaseYear || 'Ano Desconhecido'}

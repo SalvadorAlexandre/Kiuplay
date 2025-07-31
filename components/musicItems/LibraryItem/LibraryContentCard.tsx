@@ -151,7 +151,8 @@ export default function LibraryContentCard({
 
 const styles = StyleSheet.create({
     cardContainer: {
-        height: 250,
+        width: '48%',
+        height: 260,
         marginHorizontal: 3,
         marginBottom: 5,
         backgroundColor: '#282828',

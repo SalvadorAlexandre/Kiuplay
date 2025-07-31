@@ -296,7 +296,7 @@ export default function AlbumDetailsScreen() {
         ListHeaderComponent={ListHeaderComponent}
         contentContainerStyle={styles.trackListContent}
         ListEmptyComponent={
-          <Text style={styles.emptyListText}>Nenhuma faixa encontrada neste EP.</Text>
+          <Text style={styles.emptyListText}>Nenhuma faixa encontrada neste Album.</Text>
         }
       />
     </View>

@@ -90,7 +90,7 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
 
 const styles = StyleSheet.create({
     cardContainer: {
-        width: '48%', // Adicionei um width fixo ou flexível para melhor layout em FlatList/ScrollView
+        width: '48%',
         height: 260,
         marginHorizontal: 3,
         marginBottom: 5,

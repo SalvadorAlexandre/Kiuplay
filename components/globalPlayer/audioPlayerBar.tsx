@@ -241,33 +241,24 @@ export default function AudioPlayerBar() {
       {isExpanded && (
         <ImageBackground
           source={coverImage}
-          blurRadius={Platform.OS === 'android' ? 5 : 0} // ✅ ADICIONADO: blur nativo Android
-          style={styles.imageBackground} // ✅ ADICIONADO: novo estilo
+          blurRadius={Platform.OS === 'android' ? 5 : 0} // ADICIONADO: blur nativo Android
+          style={styles.imageBackground} // ADICIONADO: novo estilo
           resizeMode="cover"
         >
-          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}> {/* ✅ ADICIONADO: Blur cross-plataforma */}
+          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}> {/* ADICIONADO: Blur cross-plataforma */}
             <View style={styles.expandedContent}>
-
               <View style={styles.expandedHeader}>
-
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                   <Image source={artistAvatarSrc} style={styles.profileImage} />
                   <Text style={styles.artistMainName} numberOfLines={1}>
                     {currentTrack.artist}
                   </Text>
                 </View>
-
                 <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-
-                  {/** <TouchableOpacity style={styles.followButton} onPress={() => { }}>
-                    <Text style={styles.followButtonText}>Seguir</Text>
-                  </TouchableOpacity>*/}
-
                   <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
                     <Ionicons name="chevron-down" size={28} color="#fff" />
                   </TouchableOpacity>
                 </View>
-
               </View>
 
               <Image
@@ -301,7 +292,7 @@ export default function AudioPlayerBar() {
               </View>
 
               <View style={styles.controls}>
-                {/* Botão de Shuffle */}
+                {/* Botão de Shuffle (Aleatorio)*/}
                 <TouchableOpacity onPress={handleToggleShuffle}>
                   <Ionicons
                     name="shuffle"
@@ -310,44 +301,41 @@ export default function AudioPlayerBar() {
                   />
                 </TouchableOpacity>
 
-                <View style={styles.controls}>
-                  <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
-                    <Ionicons name="play-skip-back" size={28} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={handleTogglePlayPause}>
-                    {isLoading ? (
-                      <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                      <Ionicons
-                        name={isPlaying ? 'pause-circle' : 'play-circle'}
-                        size={48}
-                        color="#fff"
-                      />
-                    )}
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
-                    <Ionicons name="play-skip-forward" size={28} color="#fff" />
-                  </TouchableOpacity>
+                {/* Botão de Anterior */}
+                <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
+                  <Ionicons name="play-skip-back" size={28} color="#fff" />
+                </TouchableOpacity>
 
-                  {/* Botão de Repetir */}
-                  <TouchableOpacity onPress={handleToggleRepeat}>
+
+                {/* Botão de Play/Pause */}
+                <TouchableOpacity onPress={handleTogglePlayPause}>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
                     <Ionicons
-                      name={isRepeat ? 'repeat-outline' : 'repeat'}
-                      size={28}
-                      color={isRepeat ? '#1E90FF' : '#fff'}
+                      name={isPlaying ? 'pause-circle' : 'play-circle'}
+                      size={48}
+                      color="#fff"
                     />
-                  </TouchableOpacity>
-                </View>
+                  )}
+                </TouchableOpacity>
+
+                {/* Botão de Proximo */}
+                <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
+                  <Ionicons name="play-skip-forward" size={28} color="#fff" />
+                </TouchableOpacity>
+
+                {/* Botão de Repetir */}
+                <TouchableOpacity onPress={handleToggleRepeat}>
+                  <Ionicons
+                    name={isRepeat ? 'repeat-outline' : 'repeat'}
+                    size={28}
+                    color={isRepeat ? '#1E90FF' : '#fff'}
+                  />
+                </TouchableOpacity>
               </View>
 
               <View style={styles.actionButtons}>
-
-                {/** <TouchableOpacity onPress={() => { }}>
-                  <Image
-                    source={require('@/assets/images/audioPlayerBar/icons8_download_120px.png')}
-                    style={styles.iconActions}
-                  />
-                   </TouchableOpacity>*/}
 
                 <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
                   <Ionicons
@@ -367,12 +355,6 @@ export default function AudioPlayerBar() {
                 <TouchableOpacity onPress={handleShareMusic}>
                   <Ionicons name="share-social-outline" size={24} color="#fff" />
                 </TouchableOpacity>
-
-                {/** <TouchableOpacity onPress={() => { }}>
-                  <Ionicons name="list" size={24} color="#fff" />
-                  </TouchableOpacity>
-                  */}
-
               </View>
             </View>
 

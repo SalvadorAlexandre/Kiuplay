@@ -19,7 +19,7 @@ import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
-import {LibraryFeedItem,} from '@/src/types/contentType';
+import { LibraryFeedItem, } from '@/src/types/contentType';
 import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 
 
@@ -102,7 +102,7 @@ export default function LibraryScreen() {
             router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
         }
         else {
-            console.warn('Tipo de item desconhecido ou não suportado para navegação:', item.category);
+            console.warn('Tipo de item desconhecido ou não suportado para navegação...', item.category);
         }
     };
 
@@ -117,7 +117,7 @@ export default function LibraryScreen() {
             <View>
                 {selectedLibraryContent === 'local' && (
                     <View style={{ paddingVertical: 15, }}>
-                        
+
                         <SubTabBar
                             tabs={localTabs}
                             group="local"
@@ -129,7 +129,7 @@ export default function LibraryScreen() {
 
                 {selectedLibraryContent === 'cloud' && (
                     <View style={{ paddingVertical: 15, }}>
-                      
+
                         <SubTabBar
                             tabs={cloudTabs}
                             group="cloud"
@@ -169,12 +169,10 @@ export default function LibraryScreen() {
                                     numColumns={2}
                                     columnWrapperStyle={{ justifyContent: 'space-between' }}
                                     renderItem={({ item }) => (
-                                        <View style={styles.cardItemColumn}>
-                                            <LibraryContentCard
-                                                item={item}
-                                                onPress={handleCloudItemPress}
-                                            />
-                                        </View>
+                                        <LibraryContentCard
+                                            item={item}
+                                            onPress={handleCloudItemPress}
+                                        />
                                     )}
                                     contentContainerStyle={styles.flatListContentContainer}
                                     ListEmptyComponent={() => (
@@ -187,7 +185,6 @@ export default function LibraryScreen() {
                         {/* Aba 'Curtidas' da Cloud: Exibe apenas músicas/singles curtidos */}
                         {getSelectedSubTab('cloud') === 'curtidas' && (
                             <View style={styles.cloudMusicListContainer}>
-                                <Text style={styles.title}>Músicas Curtidas (Cloud)</Text>
                                 {favoritedCloudTracks.length === 0 ? (
                                     <Text style={styles.emptyListText}>Nenhuma música curtida na cloud ainda.</Text>
                                 ) : (
@@ -196,14 +193,11 @@ export default function LibraryScreen() {
                                         keyExtractor={(item) => item.id}
                                         numColumns={2}
                                         columnWrapperStyle={{ justifyContent: 'space-between' }}
-                                        renderItem={({ item }) => (
-                                            <View style={styles.cardItemColumn}>
-                                                {/* Certifique-se de que `item` é compatível com `LibraryFeedItem` */}
-                                                <LibraryContentCard
-                                                    item={item as unknown as LibraryFeedItem}
-                                                    onPress={handleCloudItemPress}
-                                                />
-                                            </View>
+                                        renderItem={({ item }) => (      
+                                            <LibraryContentCard
+                                                item={item as unknown as LibraryFeedItem}
+                                                onPress={handleCloudItemPress}
+                                            />        
                                         )}
                                         contentContainerStyle={styles.flatListContentContainer}
                                     />
@@ -214,7 +208,6 @@ export default function LibraryScreen() {
                         {/* Aba 'Seguindo' da Cloud: Exibe artistas seguidos */}
                         {getSelectedSubTab('cloud') === 'seguindo' && (
                             <View style={styles.followedArtistsContainer}>
-                                <Text style={styles.title}>Artistas Seguindo (Cloud)</Text>
                                 {followedArtists.length === 0 ? (
                                     <View style={styles.tabContentTextContainer}>
                                         <Text style={styles.tabContentText}>Você não está seguindo nenhum artista.</Text>
@@ -361,10 +354,6 @@ const styles = StyleSheet.create({
     flatListContentContainer: {
         paddingBottom: 20,
     },
-    cardItemColumn: {
-        width: '48%',
-        marginBottom: 10,
-    },
     followedArtistsContainer: {
         flex: 1,
         paddingHorizontal: 10,
@@ -373,8 +362,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
+        //borderBottomWidth: 1,
+        //borderBottomColor: '#333',
         marginBottom: 5,
     },
     followedArtistProfileImage: {
