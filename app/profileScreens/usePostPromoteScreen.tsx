@@ -1,6 +1,6 @@
+//app/profileScreens/usePromoteScreen.tsx
 import React from 'react'
 import { Stack } from 'expo-router';
-import TopTabBarInsights from '@/components/useTabBarInsights'
 import {
   View,
   ScrollView,

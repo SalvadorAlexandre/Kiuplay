@@ -26,7 +26,6 @@ export interface ArtistProfile {
     eps?: ExtendedPlayEP[];
     freeBeats?: FreeBeat[];
     exclusiveBeats?: ExclusiveBeat[];
-    videos?: Video[];
 }
 
 export interface Single {
@@ -68,7 +67,7 @@ export interface ExtendedPlayEP {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile'; 
+    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile';
 }
 
 // Interface para um Álbum
@@ -142,29 +141,6 @@ export interface FreeBeat {
     source: 'beatstore-feeds' | 'beatstore-favorites';
 }
 
-export interface Video {
-    id: string;
-    title: string;
-    artist: string;
-    artistAvatar?: string;
-    artistId?: string;
-    ThumbnailUrl?: string;
-    videoUrl: string;
-    duration?: string; // Duração em formato string (ex: "03:45")
-    category: 'video'; // <- Categoria correta
-    releaseDate: string;
-    liked?: boolean;
-    disliked?: boolean;
-    isFavorited?: boolean; // Esta prop já vem do Redux via VideoClipesScreen
-
-    likeCount?: number ;
-    dislikeCount?: number;
-    viewsCount?: number;
-    favoritesCount?: number
-    commentCount?: number | string;
-    shareCount?: number
-    source?: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo'; // Adicionei source
-}
 
 export interface Promotion {
     id: string; // ID único da promoção
@@ -177,21 +153,36 @@ export interface Promotion {
     thumbnail?: string; // Imagem ou capa do conteúdo
     startAt: string; // Início da campanha de promoção (ISO date)
     endAt: string; // Fim da campanha
-    targetAudience?: 'followers' | 'friends' | 'all' ; // Público alvo
+    targetAudience?: 'followers' | 'friends' | 'all'; // Público alvo
     notify: boolean; // Se deve disparar notificação push
     createdAt: string;
     category: 'promotion';
 }
+
+export type NotificationType = 'upload' | 'like' | 'comment' | 'follow' | 'purchase' | 'promotion' | 'message' | 'friend_request';
+export interface Notification {
+    id: string;
+    type: NotificationType;
+    title: string;
+    message: string;
+    timestamp: string; // ISO format date
+    isRead: boolean;
+    userId?: string; // quem gerou a notificação
+    contentId?: string; // conteúdo relacionado (beat, single, etc.)
+    contentType?: 'single' | 'ep' | 'album' | 'freebeat' | 'exclusive_beat' | 'message' | 'artist' | 'promotion';
+    avatarUrl?: string;
+    category: 'notification';
+}
+
 
 // src/types/contentType.ts
 
 // ... suas outras interfaces (ArtistProfile, Single, ExtendedPlayEP, Album, Playlist, Video, Promotion, ExclusiveBeat, FreeBeat) ...
 
 // Tipo de União para qualquer item que possa aparecer no feed da Library Cloud
-export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album | Video | Promotion | ExclusiveBeat | FreeBeat; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
+export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album | Promotion | ExclusiveBeat | FreeBeat; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
 
 export type BeatStoreFeedItem = ExclusiveBeat | FreeBeat;
 
-export type VideoFeedItem = Video
 // União de tipos que o player pode reproduzir (mantenha como está se estiver correto para seu player)
 export type PlayableContent = Single | ExclusiveBeat | FreeBeat;

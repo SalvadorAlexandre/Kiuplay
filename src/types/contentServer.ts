@@ -1,7 +1,9 @@
+//src/types/contentServer.ts
 
+import { LibraryFeedItem, BeatStoreFeedItem, Album, ArtistProfile, Single, ExtendedPlayEP, ExclusiveBeat, FreeBeat,} from '@/src/types/contentType';
 
+import { Notification } from '@/src/types/contentType';
 
-import { LibraryFeedItem, BeatStoreFeedItem, VideoFeedItem, Album, ArtistProfile, Single, ExtendedPlayEP, ExclusiveBeat, FreeBeat, Video } from '@/src/types/contentType';
 
 // Dados mockados (MOCKED_CLOUD_FEED_DATA) - AJUSTADOS (Playlists, EPs, etc. removidos/corrigidos para ficarem apenas os tipos suportados no LibraryContentCard agora)
 export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
@@ -476,101 +478,6 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
     } as Single,
 ];
 
-
-export const MOCKED_VIDEO_FEED_DATA: VideoFeedItem[] = [
-    {
-        id: '1',
-        title: 'Minha Música Perfeita',
-        artist: 'Artista A',
-        artistId: 'artist1',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        thumbnail: 'https://i.ytimg.com/vi/M7lc1UVf-VE/hqdefault.jpg',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=1',
-        category: 'video',
-        releaseDate: '12/3/2025'
-    } as Video,
-    {
-        id: '2',
-        title: 'Ritmo da Cidade Noturna',
-        artist: 'Banda B',
-        artistId: 'artist2',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=2',
-        category: 'video',
-        releaseDate: '',
-
-
-    } as Video,
-    {
-        id: '3',
-        title: 'Noite Estrelada de Verão',
-        artist: 'Cantor C',
-        artistId: 'artist3',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=3',
-        thumbnail: 'https://i.ytimg.com/vi/3y7Kq2l_k6w/hqdefault.jpg',
-        videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4',
-        category: 'video',
-        releaseDate: '',
-    } as Video,
-    {
-        id: '4',
-        title: 'Sons da Natureza Selvagem',
-        artist: 'Grupo D',
-        artistId: 'artist4',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=4',
-        thumbnail: 'https://i.ytimg.com/vi/F-glUq_jWv0/hqdefault.jpg',
-        videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4',
-        category: 'video',
-        releaseDate: '',
-    } as Video,
-    {
-        id: '5',
-        title: 'Caminhos da Descoberta',
-        artist: 'Artista E',
-        artistId: 'artist5',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=5',
-        thumbnail: 'https://i.ytimg.com/vi/2N7TfX6f4oM/hqdefault.jpg',
-        videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/a.mp4',
-        category: 'video',
-        releaseDate: '',
-    } as Video,
-    {
-        id: '6',
-        title: 'Amanhecer Dourado',
-        artist: 'Solista F',
-        artistId: 'artist6',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=6',
-        thumbnail: 'https://i.ytimg.com/vi/eJk8e8e8e8e/hqdefault.jpg',
-        videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/b.mp4',
-        category: 'video',
-        releaseDate: '',
-    } as Video,
-    {
-        id: '7',
-        title: 'Energia Vibrante',
-        artist: 'DJ G',
-        artistId: 'artist7',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=7',
-        thumbnail: 'https://i.ytimg.com/vi/xM6uD7n1BfQ/hqdefault.jpg',
-        videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4',
-        category: 'video',
-        releaseDate: '',
-    } as Video,
-    {
-        id: '8',
-        title: 'Reflexões Profundas',
-        artist: 'Poeta H',
-        artistId: 'artist8',
-        artistProfileImageUrl: 'https://i.pravatar.cc/150?img=8',
-        thumbnail: 'https://i.ytimg.com/vi/wA5wA5wA5wA/hqdefault.jpg',
-        videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4',
-        category: 'video',
-        releaseDate: '',
-    } as Video,
-]
-
-
 export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
     {
         id: 'beat-store-1',
@@ -656,4 +563,57 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         bpm: 85,
         releaseYear: '2024', // Adicionado releaseYear
     } as ExclusiveBeat,
+];
+
+export const MOCKED_NOTIFICATIONS: Notification[] = [
+  {
+    id: "notif-1",
+    type: "like",
+    title: "Nova curtida!",
+    message: "DJ G curtiu sua faixa 'Vibe Urbana'.",
+    timestamp: new Date().toISOString(),
+    isRead: false,
+    userId: "user-1",
+    contentId: "single-1",
+    contentType: "single",
+    avatarUrl: "https://i.pravatar.cc/150?img=12",
+    category: "notification",
+  },
+  {
+    id: "notif-2",
+    type: "comment",
+    title: "Novo comentário!",
+    message: "Saag Weelli Boy comentou na sua faixa 'Cara ou Coroa'.",
+    timestamp: new Date().toISOString(),
+    isRead: true,
+    userId: "user-2",
+    contentId: "single-3",
+    contentType: "single",
+    avatarUrl: "https://i.pravatar.cc/150?img=13",
+    category: "notification",
+  },
+  {
+    id: "notif-3",
+    type: "promotion",
+    title: "Promoção ativa!",
+    message: "Confira a promoção exclusiva do beat 'Trap Soul - Smooth Operator'.",
+    timestamp: new Date().toISOString(),
+    isRead: false,
+    contentId: "beat-store-5",
+    contentType: "exclusive_beat",
+    avatarUrl: "https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul",
+    category: "notification",
+  },
+  {
+    id: "notif-4",
+    type: "follow",
+    title: "Novo seguidor!",
+    message: "EveryDay começou a seguir você.",
+    timestamp: new Date().toISOString(),
+    isRead: true,
+    userId: "artist-2",
+    contentType: "artist",
+    avatarUrl: "https://i.pravatar.cc/150?img=7",
+    category: "notification",
+  },
 ];

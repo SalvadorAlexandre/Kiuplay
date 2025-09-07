@@ -103,13 +103,14 @@ export default function AudioPlayerBar() {
     dispatch(seekToThunk(v));
   }, [dispatch]);
 
-  const formatTime = (millis: number) => {
-    if (!millis) return '0:00';
+  const formatTime = (millis: number | undefined | null): string => {
+    if (!millis || typeof millis !== 'number' || isNaN(millis)) return '0:00';
     const totalSeconds = Math.floor(millis / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
+  
 
   const [sliderValue, setSliderValue] = useState(positionMillis);
   useEffect(() => {
@@ -362,7 +363,7 @@ export default function AudioPlayerBar() {
         </ImageBackground>
       )}
 
-      {error && (
+      {typeof error === 'string' && error.trim() !== '' && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity onPress={() => dispatch(setError(null))}>

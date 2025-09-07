@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    //marginBottom: 1,
   },
   statBox: {
     flex: 1,
@@ -424,9 +424,9 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     paddingHorizontal: 15,
-    //backgroundColor: '#1e1e1e',
+    backgroundColor: '#1e1e1e',
     padding: 30,
-    margin: 10,
+    margin: 5,
     width: '100%',
     alignSelf: 'center',
     marginTop: -20,

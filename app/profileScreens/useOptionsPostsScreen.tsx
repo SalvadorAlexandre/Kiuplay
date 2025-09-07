@@ -100,7 +100,7 @@ export default function OptionsListPostScreen() {
                     <View style={{
                         //backgroundColor: '#fff',
                         marginBottom: 10,
-                       // marginTop: -20,
+                        // marginTop: -20,
                         alignItems: 'center',
                         justifyContent: 'center',
                         width: "100%", // Defina o tamanho desejado para a View
@@ -224,31 +224,6 @@ export default function OptionsListPostScreen() {
                     </Animated.View>
                     {/*----------------------------------------------------------------------------------------------*/}
 
-                    {/*View do botão postar video-----------------------------------------------------------------*/}
-                    <Animated.View style={[
-                        styles.buttonContainer,
-                        { transform: [{ scale: scaleValuePostVideo }] } // Animação de clique
-                    ]}>
-                        <TouchableOpacity
-                            onPressIn={handlePressInPostVideo}    // Aciona ao pressionar
-                            onPressOut={handlePressOutPostVideo} // Aciona ao soltar 
-                            onPress={() => router.push('/profileScreens/usePostVideoScreen')} // Ação
-                            style={styles.buttonContent} // Estilo interno
-                        >
-                            {/* Ícone esquerdo (ícone de upload) */}
-                            <Image
-                                source={require('@/assets/images/2/icons8_video_camera_120px.png')} // Troque pelo seu ícone
-                                style={styles.iconLeft}
-                            />
-
-                            {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Criar post de VideoClip</Text>
-
-                            {/* Ícone seta para direita */}
-                            <Ionicons name="chevron-forward" size={20} color="#fff" />
-                        </TouchableOpacity>
-                    </Animated.View>
-                    {/*----------------------------------------------------------------------------------------------*/}
 
                     {/*View do botão promover obra-----------------------------------------------------------------*/}
                     <Animated.View style={[
@@ -268,7 +243,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Promover Arte</Text>
+                            <Text style={styles.buttonText}>Promover uma postagem</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
