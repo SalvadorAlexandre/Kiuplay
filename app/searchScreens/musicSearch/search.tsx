@@ -1,0 +1,1 @@
+// app/searchScreens/search.tsx

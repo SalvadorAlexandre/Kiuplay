@@ -4,7 +4,6 @@ import {
     TouchableOpacity,
     StyleSheet,
     Text,
-    TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -24,18 +23,6 @@ export default function TopTabBarBeatStore() {
         <View style={styles.container}>
 
             <Text style={styles.title}>Loja</Text>
-
-            {/* Botão de notificações de novos beats postados de utilizadores que voce segue*/}
-            <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.button}>
-                {/* Ícone de notificações*/}
-                <Ionicons
-                    name='notifications-outline'
-                    size={26}
-                    color='#fff'
-                />
-            </TouchableOpacity>
 
             {/* Botão de pesquisa*/}
             <TouchableOpacity

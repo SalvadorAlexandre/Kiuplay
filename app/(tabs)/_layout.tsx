@@ -1,7 +1,7 @@
 //app/(tabs)/_layout.tsx
 import React from 'react';
 import { Tabs, } from 'expo-router';
-import { Image,} from 'react-native';
+import { Image, } from 'react-native';
 import Colors from '@/constants/Colors'; // Usaremos para definir cor do fundo
 import AudioPlayerBar from '@/components/globalPlayer/audioPlayerBar';
 
@@ -47,28 +47,6 @@ export default function TabLayout() {
 
         }}
       >
-
-        <Tabs.Screen
-          name="videoClipes" //Tela videos
-          options={{
-            title: 'Videos',
-            tabBarLabel: 'Videos',
-            tabBarIcon: ({ focused }) => (
-              <Image
-                source={
-                  focused
-                    ? require('@/assets/images/1/icons8_video_playlist_120px.png') // Ícone quando ativo
-                    : require('@/assets/images/1/icons8_video_playlist_120px_2.png') // Ícone quando inativo
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  opacity: focused ? 1 : 0.5,
-                }}
-              />
-            ),
-          }}
-        />
 
         <Tabs.Screen
           name="profile" //Tela Perfil

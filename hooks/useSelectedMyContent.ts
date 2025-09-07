@@ -10,8 +10,8 @@ export type MyPostsType =
   | 'eps'           // Extended Plays (EPs)
   | 'albums'        // Álbuns completos
   | 'beats_bought'  // Beats comprados
-  | 'beats_posted'  // Beats postados pelo usuário
-  | 'videos';     // Vídeos clipes
+  | 'exclusive_beats'  // Beats a venda (exclusivos) postados pelo usuário
+  | 'free_beats';     // Beats frees postados pelo usuário
 
 /**
  * Hook personalizado responsável por armazenar e alterar

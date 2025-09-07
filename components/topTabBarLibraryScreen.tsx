@@ -25,18 +25,6 @@ export default function TopTabBarLibrary() {
 
             <Text style={styles.title}>Musicas</Text>
 
-            {/* Botão de notificações de novas musicas postados de utilizadores que voce segue*/}
-            <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.button}>
-                {/* Ícone de notificações*/}
-                <Ionicons
-                    name='notifications-outline'
-                    size={26}
-                    color='#fff'
-                />
-            </TouchableOpacity>
-
             {/* Botão de pesquisa*/}
             <TouchableOpacity
                 onPress={() => router.back()}

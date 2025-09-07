@@ -28,7 +28,6 @@ export default function ProfileScreen() {
     singlesCount: 8,
     epsCount: 2,
     albumsCount: 1,
-    videosCount: 3, // Novo campo para vídeos
     hasMonetizationEnabled: true, // Novo campo para monetização
     isArtist: true, // Exemplo de outro campo
   };
@@ -59,6 +58,10 @@ export default function ProfileScreen() {
   const [scaleValueInsight] = useState(new Animated.Value(1));
   const handlePressInInsight = () => { Animated.spring(scaleValueInsight, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutInsight = () => { Animated.spring(scaleValueInsight, { toValue: 1, useNativeDriver: true }).start(); };
+
+  const [scaleValueNotification] = useState(new Animated.Value(1));
+  const handlePressInNotification = () => { Animated.spring(scaleValueNotification, { toValue: 0.96, useNativeDriver: true }).start(); };
+  const handlePressOutNotification = () => { Animated.spring(scaleValueNotification, { toValue: 1, useNativeDriver: true }).start(); };
 
   const [scaleValueMonetization] = useState(new Animated.Value(1));
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
@@ -119,11 +122,14 @@ export default function ProfileScreen() {
               <Text style={styles.statLabel}>Álbuns</Text>
             </View>
 
-            {/* Novo stat para Vídeos */}
-            <View style={styles.statBox}>
+            {/* Novo stat para Vídeos 
+             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userProfile.videosCount}</Text>
               <Text style={styles.statLabel}>Vídeos</Text>
-            </View>
+            </View>r
+            
+            */}
+
           </View>
         </View>
 
@@ -135,14 +141,14 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInConfig}
             onPressOut={handlePressOutConfig}
-            onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}
+            onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}  //Tela de configurações
             style={styles.buttonContent}
           >
             <Image
               source={require('@/assets/images/2/icons8_user_settings_120px.png')}
               style={styles.iconLeft}
             />
-            <Text style={styles.buttonText}>Configurações do perfil</Text>
+            <Text style={styles.buttonText}>Configurações</Text>
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
@@ -155,7 +161,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInMonetization}
             onPressOut={handlePressOutMonetization}
-            onPress={() => router.push('/profileScreens/useMonetizationScreen')}
+            onPress={() => router.push('/profileScreens/useMonetizationScreen')} //Tela de monetização
             style={styles.buttonContent}
           >
             <Image
@@ -175,8 +181,8 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInUploads}
             onPressOut={handlePressOutUploads}
-            onPress={() => router.push('/profileScreens/useOptionsPostsScreen')}
-            style={styles.buttonContent}
+            onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
+            style={styles.buttonContent} 
           >
             <Image
               source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')}
@@ -187,7 +193,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* View do botão Fazer Insight */}
+        {/* View do botão Insight */}
         <Animated.View style={[
           styles.buttonContainer,
           { transform: [{ scale: scaleValueInsight }] }
@@ -195,7 +201,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPressIn={handlePressInInsight}
             onPressOut={handlePressOutInsight}
-            onPress={() => router.push('/profileScreens/useInsightsUserScreen')}
+            onPress={() => router.push('/profileScreens/useInsightsUserScreen')} //Tela de Insights
             style={styles.buttonContent}
           >
             <Image
@@ -203,6 +209,26 @@ export default function ProfileScreen() {
               style={styles.iconLeft}
             />
             <Text style={styles.buttonText}>Seus Insights</Text>
+            <Ionicons name="chevron-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* View do botão Notificaçoee */}
+        <Animated.View style={[
+          styles.buttonContainer,
+          { transform: [{ scale: scaleValueNotification }] }
+        ]}>
+          <TouchableOpacity
+            onPressIn={handlePressInNotification}
+            onPressOut={handlePressOutNotification}
+            onPress={() => router.push('/notificationsScreens/notifications')} //Tela de noticaões
+            style={styles.buttonContent}
+          >
+            <Image
+              source={require('@/assets/images/2/icons8_notification_120px.png')}
+              style={styles.iconLeft}
+            />
+            <Text style={styles.buttonText}>Notificações</Text>
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
@@ -268,22 +294,22 @@ export default function ProfileScreen() {
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'beats_posted') && styles.workButtonSelected
+                isSelected(selectedProfileMyContent, 'exclusive_beats') && styles.workButtonSelected
               ]}
-              onPress={() => setSelectedProfileMyContent('beats_posted')}>
+              onPress={() => setSelectedProfileMyContent('exclusive_beats')}>
               <Image source={require('@/assets/images/3/icons8_vox_player_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Instrumentais postados</Text>
+              <Text style={styles.workButtonText}>Instrumentais Exclusivos</Text>
             </TouchableOpacity>
 
             {/* VideoClips */}
             <TouchableOpacity
               style={[
                 styles.workButton,
-                isSelected(selectedProfileMyContent, 'videos') && styles.workButtonSelected
+                isSelected(selectedProfileMyContent, 'free_beats') && styles.workButtonSelected
               ]}
-              onPress={() => setSelectedProfileMyContent('videos')}>
-              <Image source={require('@/assets/images/3/icons8_video_camera_120px.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Video clipes</Text>
+              onPress={() => setSelectedProfileMyContent('free_beats')}>
+              <Image source={require('@/assets/images/3/icons8_dj_120px.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
+              <Text style={styles.workButtonText}>Instrumentais Free</Text>
             </TouchableOpacity>
           </ScrollView>
 
@@ -297,14 +323,14 @@ export default function ProfileScreen() {
             {selectedProfileMyContent === 'albums' && (
               <Text style={styles.texto}>💿 Mostrando Álbuns</Text>
             )}
-            {selectedProfileMyContent === 'beats_bought' && (
+            {selectedProfileMyContent === 'beats_bought' && ( //beats comprados
               <Text style={styles.texto}>🎶 Mostrando Instrumentais comprados </Text>
             )}
-            {selectedProfileMyContent === 'beats_posted' && (
-              <Text style={styles.texto}>🎹 Mostrando Instrumentais postados</Text>
+            {selectedProfileMyContent === 'exclusive_beats' && (
+              <Text style={styles.texto}>🎹 Mostrando Instrumentais exclusivos</Text>
             )}
-            {selectedProfileMyContent === 'videos' && (
-              <Text style={styles.texto}>🎬 Mostrando VideoClips</Text>
+            {selectedProfileMyContent === 'free_beats' && (
+              <Text style={styles.texto}>🎬 Mostrando instrumentais free</Text>
             )}
           </View>
         </View>

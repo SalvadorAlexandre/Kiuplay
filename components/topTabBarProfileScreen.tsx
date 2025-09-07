@@ -1,11 +1,9 @@
 // Importa os componentes necessários do React Native
 import {
   View,
-  TouchableOpacity,
   StyleSheet,
   Text,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 // Importa o ícone de seta para a esquerda da biblioteca Lucide (ícones modernos compatíveis com React Native)
 //import { ArrowLeft } from 'lucide-react-native';
@@ -22,17 +20,6 @@ export default function TopTabBarProfile() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Perfil</Text>
-      {/* Botão de notificações de monetização*/}
-      <TouchableOpacity
-        onPress={() => router.back()}
-        style={styles.button}>
-        {/* Ícone de notificações*/}
-        <Ionicons
-          name='notifications-outline'
-          size={26}
-          color='#fff'
-        />
-      </TouchableOpacity>
     </View>
   );
 }
