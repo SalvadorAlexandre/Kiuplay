@@ -25,7 +25,6 @@ export interface ArtistProfile {
     eps?: ExtendedPlayEP[];
     freeBeats?: FreeBeat[];
     exclusiveBeats?: ExclusiveBeat[];
-    beats_bought?: Beats_bought[]
 }
 
 export interface Single {
@@ -114,33 +113,6 @@ export interface ExclusiveBeat {
     commentCount?: number; // Adicionei para consistência
     shareCount?: number; // Adicionei para consistência
 }
-
-// Interface para um Beat Exclusivo (da BeatStore)
-export interface Beats_bought {
-    id: string;
-    title: string;
-    artist: string; // Artista principal (pode ser o produtor)
-    artistId?: string;
-    producer: string // Nome do produtor
-    cover: string; // Capa do beat
-    artistAvatar?: string;
-    uri: string; // Caminho para o arquivo de áudio (MUDEI DE 'url' PARA 'uri' PARA CONSISTÊNCIA COM TRACK)
-    genre: string;
-    bpm: number;
-    size?: number;
-    price: number; // Preço obrigatório para ExclusiveBeat
-    isBuyed: boolean // Se foi comprado
-    typeUse: 'exclusive' // Tipo de uso
-    duration?: number;
-    category: 'beat'; // Categoria específica
-    releaseYear: string;
-    source: 'beatstore-feeds' | 'beatstore-favorites'; // Adicionei my-purchases
-    viewsCount?: number; // Adicionei para consistência
-    favoritesCount?: number; // Adicionei para consistência
-    commentCount?: number; // Adicionei para consistência
-    shareCount?: number; // Adicionei para consistência
-}
-
 
 // Interface para um Beat Gratuito (da BeatStore)
 export interface FreeBeat {

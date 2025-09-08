@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
+import { ExpoRouter } from 'expo-router';
+import SingleCard from '@/components/musicItems/singleItem/SingleCard';
 import {
   ScrollView,
   View,
@@ -13,11 +15,12 @@ import {
   Image,
   TouchableOpacity,
   Animated,
+  FlatList,
 } from 'react-native';
 
 export default function ProfileScreen() {
   // --- DADOS MOCADOS DO PERFIL ---
-  const userProfile =  MOCKED_PROFILE[0]
+  const userProfile = MOCKED_PROFILE[0]
   // ------------------------------
 
   /**
@@ -53,6 +56,8 @@ export default function ProfileScreen() {
   const [scaleValueMonetization] = useState(new Animated.Value(1));
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
+
+  
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
@@ -300,10 +305,31 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </ScrollView>
 
-          <View style={{ flex: 1, marginTop: 10 }}>
-            {selectedProfileMyContent === 'single' && (
-              <Text style={styles.texto}>🔊 Mostrando faixas single</Text>
+          <View style={{ marginTop: 10 }}>
+            {selectedProfileMyContent === "single" && (
+              <View style={{ flex: 1,  paddingHorizontal: 10,}}>
+                {/** <Text style={styles.texto}>🔊 Mostrando faixas single</Text>*/}
+                <FlatList
+                  data={MOCKED_PROFILE[0].singles} // pega os singles do artista
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  renderItem={({ item }) => (
+                    <SingleCard
+                      item={item}
+                      onPress={(selected) =>
+                        router.push(`/contentCardLibraryScreens/single-details/${item.id}`)
+                      }
+                    />
+                  )}
+                  contentContainerStyle={{ paddingBottom: 20 }}
+                  ListEmptyComponent={() => (
+                    <Text style={styles.texto}>Nenhum single publicado ainda.</Text>
+                  )}
+                />
+              </View>
             )}
+
             {selectedProfileMyContent === 'eps' && (
               <Text style={styles.texto}>🎧 Mostrando Extended Plays</Text>
             )}
@@ -321,7 +347,7 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
-        <View style={{ height: 110 }}></View>
+        <View style={{ height: 120 }}></View>
       </ScrollView>
     </View>
   );

@@ -633,6 +633,20 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 releaseYear: "2024",
                 viewsCount: 1050,
             },
+            {
+                id: 'single-1',
+                uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3)',
+                title: 'Vibe Urbana',
+                artist: 'BeatMaster',
+                cover: '',
+                artistAvatar: '[https://i.pravatar.cc/150?img=6](https://i.pravatar.cc/150?img=6)',
+                source: 'library-cloud-feeds',
+                duration: 180000,
+                category: 'single', // Alterado 'type' para 'category' para consistência
+                genre: 'Hip Hop',
+                releaseYear: '2024', // Alterado 'viewsNumber' para 'releaseYear' ou similar
+                viewsCount: 271, // Adicionada viewsCount se for relevante para Single
+            },
         ],
 
         // 🔥 Álbuns
@@ -648,7 +662,9 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 releaseYear: "2023",
                 mainGenre: "Trap",
                 source: "library-cloud-feeds",
-                tracks: [], // pode linkar os singles mockados aqui
+                tracks: [
+
+                ], // pode linkar os singles mockados aqui
             },
         ],
 
@@ -665,7 +681,9 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 releaseYear: "2022",
                 mainGenre: "Hip Hop",
                 source: "library-cloud-feeds",
-                tracks: [],
+                tracks: [
+
+                ],
             },
         ],
 
@@ -712,27 +730,5 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 isBuyed: false,
             },
         ],
-
-        beats_bought: [
-            {
-                id: 'beat-store-5',
-                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-                title: 'Trap Soul - "Smooth Operator"',
-                artist: 'Groovy Beats',
-                producer: 'Groovy Beats', // Adicionado produtor
-                cover: 'https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul',
-                // artistAvatar: 'https://i.pravatar.cc/150?img=14', // Removido
-                source: 'beatstore-feeds',
-                duration: 190000,
-                genre: 'Trap Soul',
-                price: 65.50,
-                typeUse: 'exclusive', // Usar typeUse
-                category: 'beat', // Categoria é 'beat'
-                bpm: 85,
-                releaseYear: '2024', // Adicionado releaseYear
-                isBuyed: false,
-            },
-        ],
-
     },
 ];
