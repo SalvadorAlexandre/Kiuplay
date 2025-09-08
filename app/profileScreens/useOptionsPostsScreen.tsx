@@ -104,16 +104,16 @@ export default function OptionsListPostScreen() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         width: "100%", // Defina o tamanho desejado para a View
-                        height: 300, // Defina a altura desejada para a View
+                        height: 400, // Defina a altura desejada para a View
                         overflow: 'hidden', // Garante que a imagem não ultrapasse a View
                         borderTopLeftRadius: 20,
                         borderTopRightRadius: 20,
 
                     }}>
                         <Image
-                            source={require('@/assets/images/4/essential-10.png')}
+                            source={require('@/assets/images/4/Promote.png')}
                             style={{ width: '100%', height: '100%' }} // Preenche toda a View
-                            resizeMode="cover" // Ajusta a imagem para cobrir toda a área
+                            resizeMode='stretch' // Ajusta a imagem para cobrir toda a área
                         />
                     </View>
 
@@ -136,7 +136,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Criar post de faixa single</Text>
+                            <Text style={styles.buttonText}>Postar uma faixa single</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -163,7 +163,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Criar post de Extended Play (EP)</Text>
+                            <Text style={styles.buttonText}>Postar um Extended Play (EP)</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -190,7 +190,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Criar post de Album</Text>
+                            <Text style={styles.buttonText}>Postar um Album</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -216,7 +216,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Criar post de Beat</Text>
+                            <Text style={styles.buttonText}>Postar um instrumental</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
