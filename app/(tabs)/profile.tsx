@@ -4,6 +4,7 @@ import { useSelectedMyContent, MyPostsType } from '@/hooks/useSelectedMyContent'
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
+import { MOCKED_PROFILE } from '@/src/types/contentServer'
 import {
   ScrollView,
   View,
@@ -16,21 +17,7 @@ import {
 
 export default function ProfileScreen() {
   // --- DADOS MOCADOS DO PERFIL ---
-  const userProfile = {
-    id: 'user123',
-    name: 'Saag Weelli Boy',
-    username: 'saag_swb_oficial',
-    // Usaremos a imagem padrão se 'avatarUrl' for null ou vazio
-    avatarUrl: null, // Pode ser uma URL como 'https://example.com/seu-avatar.jpg'
-    bio: 'Artista, produtor e sonhador. A música é a minha linguagem.',
-    followersCount: 450,
-    followingCount: 120,
-    singlesCount: 8,
-    epsCount: 2,
-    albumsCount: 1,
-    hasMonetizationEnabled: true, // Novo campo para monetização
-    isArtist: true, // Exemplo de outro campo
-  };
+  const userProfile =  MOCKED_PROFILE[0]
   // ------------------------------
 
   /**
@@ -82,7 +69,7 @@ export default function ProfileScreen() {
           <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <View style={styles.imageContainer}>
               <Image // Imagem do perfil
-                source={userProfile.avatarUrl ? { uri: userProfile.avatarUrl } : require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')}
+                source={userProfile.avatar ? { uri: userProfile.avatar } : require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')}
                 style={styles.profileImage}
                 resizeMode="contain"
               />
@@ -91,7 +78,7 @@ export default function ProfileScreen() {
             {/* Mostrar o nome e o arroba do utilizador */}
             <View>
               <Text style={styles.userName}>{userProfile.name}</Text>
-              <Text style={styles.userHandle}>@{userProfile.username}</Text>
+              <Text style={styles.userHandle}>{userProfile.username}</Text>
             </View>
           </View>
 
@@ -182,7 +169,7 @@ export default function ProfileScreen() {
             onPressIn={handlePressInUploads}
             onPressOut={handlePressOutUploads}
             onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
-            style={styles.buttonContent} 
+            style={styles.buttonContent}
           >
             <Image
               source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')}

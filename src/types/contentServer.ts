@@ -1,6 +1,6 @@
 //src/types/contentServer.ts
 
-import { LibraryFeedItem, BeatStoreFeedItem, Album, ArtistProfile, Single, ExtendedPlayEP, ExclusiveBeat, FreeBeat,} from '@/src/types/contentType';
+import { LibraryFeedItem, BeatStoreFeedItem, Album, ArtistProfile, Single, ExtendedPlayEP, ExclusiveBeat, FreeBeat, } from '@/src/types/contentType';
 
 import { Notification } from '@/src/types/contentType';
 
@@ -265,30 +265,6 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
                 releaseYear: '2023', // Adicionado releaseYear
             },
         ],
-        videos: [
-            {
-                id: '7',
-                title: 'Energia Vibrante',
-                artist: 'DJ G',
-                artistId: 'artist7',
-                //artistProfileImageUrl: 'https://i.pravatar.cc/150?img=7',
-                //thumbnail: 'https://i.ytimg.com/vi/xM6uD7n1BfQ/hqdefault.jpg',
-                videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/c.mp4',
-                category: 'video',
-                releaseDate: '',
-            },
-            {
-                id: '8',
-                title: 'Reflexões Profundas',
-                artist: 'Poeta H',
-                artistId: 'artist8',
-                //artistProfileImageUrl: 'https://i.pravatar.cc/150?img=8',
-                //thumbnail: 'https://i.ytimg.com/vi/wA5wA5wA5wA/hqdefault.jpg',
-                videoUrl: 'http://d23dyxekqfd0rc.cloudfront.net/d.mp4',
-                category: 'video',
-                releaseDate: '',
-            },
-        ],
 
     } as ArtistProfile,
     //--------------------------------------------------------------------------------------
@@ -444,7 +420,6 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         eps: [],
         freeBeats: [],
         exclusiveBeats: [],
-        videos: [],
     } as ArtistProfile,
     {
         id: 'ep-2',
@@ -495,6 +470,7 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 120,
         releaseYear: '2023', // Adicionado releaseYear
+        isBuyed: true,
     } as ExclusiveBeat,
     {
         id: 'beat-store-2',
@@ -528,6 +504,7 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 102,
         releaseYear: '2024', // Adicionado releaseYear
+        isBuyed: true,
     } as ExclusiveBeat,
     {
         id: 'beat-store-4',
@@ -562,58 +539,200 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 85,
         releaseYear: '2024', // Adicionado releaseYear
+        isBuyed: false,
     } as ExclusiveBeat,
 ];
 
 export const MOCKED_NOTIFICATIONS: Notification[] = [
-  {
-    id: "notif-1",
-    type: "like",
-    title: "Nova curtida!",
-    message: "DJ G curtiu sua faixa 'Vibe Urbana'.",
-    timestamp: new Date().toISOString(),
-    isRead: false,
-    userId: "user-1",
-    contentId: "single-1",
-    contentType: "single",
-    avatarUrl: "https://i.pravatar.cc/150?img=12",
-    category: "notification",
-  },
-  {
-    id: "notif-2",
-    type: "comment",
-    title: "Novo comentário!",
-    message: "Saag Weelli Boy comentou na sua faixa 'Cara ou Coroa'.",
-    timestamp: new Date().toISOString(),
-    isRead: true,
-    userId: "user-2",
-    contentId: "single-3",
-    contentType: "single",
-    avatarUrl: "https://i.pravatar.cc/150?img=13",
-    category: "notification",
-  },
-  {
-    id: "notif-3",
-    type: "promotion",
-    title: "Promoção ativa!",
-    message: "Confira a promoção exclusiva do beat 'Trap Soul - Smooth Operator'.",
-    timestamp: new Date().toISOString(),
-    isRead: false,
-    contentId: "beat-store-5",
-    contentType: "exclusive_beat",
-    avatarUrl: "https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul",
-    category: "notification",
-  },
-  {
-    id: "notif-4",
-    type: "follow",
-    title: "Novo seguidor!",
-    message: "EveryDay começou a seguir você.",
-    timestamp: new Date().toISOString(),
-    isRead: true,
-    userId: "artist-2",
-    contentType: "artist",
-    avatarUrl: "https://i.pravatar.cc/150?img=7",
-    category: "notification",
-  },
+    {
+        id: "notif-1",
+        type: "like",
+        title: "Nova curtida!",
+        message: "DJ G curtiu sua faixa 'Vibe Urbana'.",
+        timestamp: new Date().toISOString(),
+        isRead: false,
+        userId: "user-1",
+        contentId: "single-1",
+        contentType: "single",
+        avatarUrl: "https://i.pravatar.cc/150?img=12",
+        category: "notification",
+    },
+    {
+        id: "notif-2",
+        type: "comment",
+        title: "Novo comentário!",
+        message: "Saag Weelli Boy comentou na sua faixa 'Cara ou Coroa'.",
+        timestamp: new Date().toISOString(),
+        isRead: true,
+        userId: "user-2",
+        contentId: "single-3",
+        contentType: "single",
+        avatarUrl: "https://i.pravatar.cc/150?img=13",
+        category: "notification",
+    },
+    {
+        id: "notif-3",
+        type: "promotion",
+        title: "Promoção ativa!",
+        message: "Confira a promoção exclusiva do beat 'Trap Soul - Smooth Operator'.",
+        timestamp: new Date().toISOString(),
+        isRead: false,
+        contentId: "beat-store-5",
+        contentType: "exclusive_beat",
+        avatarUrl: "https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul",
+        category: "notification",
+    },
+    {
+        id: "notif-4",
+        type: "follow",
+        title: "Novo seguidor!",
+        message: "EveryDay começou a seguir você.",
+        timestamp: new Date().toISOString(),
+        isRead: true,
+        userId: "artist-2",
+        contentType: "artist",
+        avatarUrl: "https://i.pravatar.cc/150?img=7",
+        category: "notification",
+    },
+];
+
+export const MOCKED_PROFILE: ArtistProfile[] = [
+    {
+        id: "artist-saag-001",
+        name: "Saag Weelli Boy",
+        username: "@saag_swb_oficial",
+        avatar: "https://i.pravatar.cc/150?img=12",
+        category: "artist",
+        bio: "Artista angolano explorando Trap, Hip Hop e Afrobeat.",
+        genres: ["Trap", "Hip Hop", "Afrobeat"],
+
+        followersCount: 12450,
+        followingCount: 320,
+        singlesCount: 1,
+        epsCount: 1,
+        albumsCount: 1,
+        freeBeatsCount: 1,
+        exclusiveBeatsCount: 1,
+        hasMonetizationEnabled: true,
+        releaseYear: "2018",
+
+        // 🔥 Singles
+        singles: [
+            {
+                id: "single-1",
+                uri: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                title: "Cara ou Coroa",
+                artist: "Saag Weelli Boy",
+                artistId: "artist-saag-001",
+                artistAvatar: "https://i.pravatar.cc/150?img=12",
+                cover: "https://placehold.co/300x300/8A2BE2/FFFFFF?text=Cara+ou+Coroa",
+                source: "library-cloud-feeds",
+                duration: 210000,
+                category: "single",
+                genre: "Trap",
+                releaseYear: "2024",
+                viewsCount: 1050,
+            },
+        ],
+
+        // 🔥 Álbuns
+        albums: [
+            {
+                id: "album-1",
+                title: "Retrospectiva Urbana",
+                artist: "Saag Weelli Boy",
+                artistId: "artist-saag-001",
+                artistAvatar: "https://i.pravatar.cc/150?img=12",
+                cover: "https://placehold.co/300x300/4682B4/FFFFFF?text=Album+Urbano",
+                category: "album",
+                releaseYear: "2023",
+                mainGenre: "Trap",
+                source: "library-cloud-feeds",
+                tracks: [], // pode linkar os singles mockados aqui
+            },
+        ],
+
+        // 🔥 EPs
+        eps: [
+            {
+                id: "ep-1",
+                title: "Sons da Rua",
+                artist: "Saag Weelli Boy",
+                artistId: "artist-saag-001",
+                artistAvatar: "https://i.pravatar.cc/150?img=12",
+                cover: "https://placehold.co/300x300/DAA520/000000?text=EP+Rua",
+                category: "ep",
+                releaseYear: "2022",
+                mainGenre: "Hip Hop",
+                source: "library-cloud-feeds",
+                tracks: [],
+            },
+        ],
+
+        // 🔥 Free Beats
+        freeBeats: [
+            {
+                id: "free-beat-1",
+                uri: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+                title: "Boom Bap Golden",
+                artist: "Saag Weelli Boy",
+                artistId: "artist-saag-001",
+                artistAvatar: "https://i.pravatar.cc/150?img=12",
+                producer: "Saag Weelli Boy",
+                cover: "https://placehold.co/150x150/DAA520/000000?text=FreeBeat",
+                source: "beatstore-feeds",
+                duration: 200000,
+                genre: "Boom Bap",
+                isFree: true,
+                typeUse: "free",
+                category: "beat",
+                bpm: 90,
+                releaseYear: "2021",
+            },
+        ],
+
+        // 🔥 Exclusive Beats
+        exclusiveBeats: [
+            {
+                id: 'beat-store-1',
+                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+                title: 'Trap Beat - "Midnight Groove"',
+                artist: 'Producer X',
+                producer: 'Producer X', // Adicionado produtor
+                cover: 'https://placehold.co/150x150/8A2BE2/FFFFFF?text=BeatX',
+                // artistAvatar: 'https://i.pravatar.cc/150?img=10', // Removido, não faz parte de ExclusiveBeat/FreeBeat
+                source: 'beatstore-feeds',
+                duration: 180000,
+                genre: 'Trap',
+                price: 49.99,
+                typeUse: 'exclusive', // Usar typeUse para indicar se é exclusivo/gratuito
+                category: 'beat', // Categoria é 'beat'
+                bpm: 120,
+                releaseYear: '2023', // Adicionado releaseYear
+                isBuyed: false,
+            },
+        ],
+
+        beats_bought: [
+            {
+                id: 'beat-store-5',
+                uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+                title: 'Trap Soul - "Smooth Operator"',
+                artist: 'Groovy Beats',
+                producer: 'Groovy Beats', // Adicionado produtor
+                cover: 'https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul',
+                // artistAvatar: 'https://i.pravatar.cc/150?img=14', // Removido
+                source: 'beatstore-feeds',
+                duration: 190000,
+                genre: 'Trap Soul',
+                price: 65.50,
+                typeUse: 'exclusive', // Usar typeUse
+                category: 'beat', // Categoria é 'beat'
+                bpm: 85,
+                releaseYear: '2024', // Adicionado releaseYear
+                isBuyed: false,
+            },
+        ],
+
+    },
 ];
