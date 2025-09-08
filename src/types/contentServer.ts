@@ -671,8 +671,23 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
         // 🔥 EPs
         eps: [
             {
-                id: "ep-1",
+                id: "ep-2",
                 title: "Sons da Rua",
+                artist: "Saag Weelli Boy",
+                artistId: "artist-saag-001",
+                artistAvatar: "https://i.pravatar.cc/150?img=12",
+                cover: "https://placehold.co/300x300/DAA520/000000?text=EP+Rua",
+                category: "ep",
+                releaseYear: "2022",
+                mainGenre: "Hip Hop",
+                source: "library-cloud-feeds",
+                tracks: [
+
+                ],
+            },
+            {
+                id: "ep-1",
+                title: "Depressao",
                 artist: "Saag Weelli Boy",
                 artistId: "artist-saag-001",
                 artistAvatar: "https://i.pravatar.cc/150?img=12",

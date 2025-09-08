@@ -5,8 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
-import { ExpoRouter } from 'expo-router';
 import SingleCard from '@/components/musicItems/singleItem/SingleCard';
+import EpCard from '@/components/musicItems/epItem/EpCard';
 import {
   ScrollView,
   View,
@@ -17,6 +17,7 @@ import {
   Animated,
   FlatList,
 } from 'react-native';
+import { useAppSelector } from "@/src/redux/hooks";
 
 export default function ProfileScreen() {
   // --- DADOS MOCADOS DO PERFIL ---
@@ -57,7 +58,16 @@ export default function ProfileScreen() {
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
 
-  
+  const isConnected = useAppSelector((state) => state.network.isConnected);
+
+  const getDynamicAvatarSource = () => {
+    if (isConnected === false || !userProfile.avatar || userProfile.avatar.trim() === "") {
+      return require("@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png");
+    }
+    return { uri: userProfile.avatar };
+  };
+
+  const avatarUser = getDynamicAvatarSource()
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
@@ -74,7 +84,7 @@ export default function ProfileScreen() {
           <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <View style={styles.imageContainer}>
               <Image // Imagem do perfil
-                source={userProfile.avatar ? { uri: userProfile.avatar } : require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png')}
+                source={avatarUser}
                 style={styles.profileImage}
                 resizeMode="contain"
               />
@@ -293,7 +303,7 @@ export default function ProfileScreen() {
               <Text style={styles.workButtonText}>Instrumentais Exclusivos</Text>
             </TouchableOpacity>
 
-            {/* VideoClips */}
+            {/* free_beats */}
             <TouchableOpacity
               style={[
                 styles.workButton,
@@ -307,7 +317,7 @@ export default function ProfileScreen() {
 
           <View style={{ marginTop: 10 }}>
             {selectedProfileMyContent === "single" && (
-              <View style={{ flex: 1,  paddingHorizontal: 10,}}>
+              <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 {/** <Text style={styles.texto}>🔊 Mostrando faixas single</Text>*/}
                 <FlatList
                   data={MOCKED_PROFILE[0].singles} // pega os singles do artista
@@ -330,8 +340,28 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            {selectedProfileMyContent === 'eps' && (
-              <Text style={styles.texto}>🎧 Mostrando Extended Plays</Text>
+            {selectedProfileMyContent === "eps" && (
+              <View style={{ flex: 1, paddingHorizontal: 10, }}>
+                {/**<Text style={styles.texto}>🎧 Mostrando Extended Plays</Text>*/}
+
+                <FlatList
+                  data={MOCKED_PROFILE[0].eps}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  renderItem={({ item }) => (
+                    <EpCard
+                      item={item}
+                      onPress={(selected) =>
+                        router.push(`/contentCardLibraryScreens/ep-details/${selected.id}`)
+                      }
+                    />
+                  )}
+                  ListEmptyComponent={() => (
+                    <Text style={styles.texto}>Nenhum EP publicado ainda.</Text>
+                  )}
+                />
+              </View>
             )}
             {selectedProfileMyContent === 'albums' && (
               <Text style={styles.texto}>💿 Mostrando Álbuns</Text>
