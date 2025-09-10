@@ -7,6 +7,9 @@ import TopTabBarProfile from '@/components/topTabBarProfileScreen';
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
 import SingleCard from '@/components/musicItems/singleItem/SingleCard';
 import EpCard from '@/components/musicItems/epItem/EpCard';
+import AlbumCard from '@/components/musicItems/albumItem/AlbumCard';
+import ExclusiveBeatCard from '@/components/musicItems/exclusiveBeatItem/ExclusiveBeatCard';
+import FreeBeatCard from '@/components/musicItems/freeBeatItem/FreeBeatCard';
 import {
   ScrollView,
   View,
@@ -364,16 +367,72 @@ export default function ProfileScreen() {
               </View>
             )}
             {selectedProfileMyContent === 'albums' && (
-              <Text style={styles.texto}>💿 Mostrando Álbuns</Text>
+
+              <View style={{ flex: 1, paddingHorizontal: 10, }}>
+                <FlatList
+                  data={MOCKED_PROFILE[0].albums}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  renderItem={({ item }) => (
+                    <AlbumCard
+                      item={item}
+                      onPress={(selected) =>
+                        router.push(`/contentCardLibraryScreens/album-details/${selected.id}`)
+                      }
+                    />
+                  )}
+                  ListEmptyComponent={() => (
+                    <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                  )}
+                />
+              </View>
+
             )}
             {selectedProfileMyContent === 'beats_bought' && ( //beats comprados
-              <Text style={styles.texto}>🎶 Mostrando Instrumentais comprados </Text>
+              <Text style={styles.texto}>Mostrando instrumentais comprados</Text>
             )}
             {selectedProfileMyContent === 'exclusive_beats' && (
-              <Text style={styles.texto}>🎹 Mostrando Instrumentais exclusivos</Text>
+              <View style={{ flex: 1, paddingHorizontal: 10, }}>
+                <FlatList
+                  data={MOCKED_PROFILE[0].exclusiveBeats}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  renderItem={({ item }) => (
+                    <ExclusiveBeatCard
+                      item={item}
+                      onPress={(selected) =>
+                        router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
+                      }
+                    />
+                  )}
+                  ListEmptyComponent={() => (
+                    <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                  )}
+                />
+              </View>
             )}
             {selectedProfileMyContent === 'free_beats' && (
-              <Text style={styles.texto}>🎬 Mostrando instrumentais free</Text>
+              <View style={{ flex: 1, paddingHorizontal: 10, }}>
+                <FlatList
+                  data={MOCKED_PROFILE[0].freeBeats}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  renderItem={({ item }) => (
+                    <FreeBeatCard
+                      item={item}
+                      onPress={(selected) =>
+                        router.push(`/contentCardBeatStoreScreens/freeBeat-details/${selected.id}`)
+                      }
+                    />
+                  )}
+                  ListEmptyComponent={() => (
+                    <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                  )}
+                />
+              </View>
             )}
           </View>
         </View>

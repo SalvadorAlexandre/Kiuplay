@@ -1,4 +1,4 @@
-// components/profileItems/epItem/EpCard.tsx
+// components/musicItems/epItem/EpCard.tsx
 import React from "react";
 import {
     View,
@@ -10,7 +10,7 @@ import {
     Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import { ExtendedPlayEP } from "@/src/types/contentType"; // seu tipo de EP
+import { ExtendedPlayEP } from "@/src/types/contentType";
 import { useAppSelector } from "@/src/redux/hooks";
 
 interface EpCardProps {
@@ -69,7 +69,7 @@ function CardContent({
                 <Text style={styles.cardSubtitle}>{item.artist}</Text>
                 <Text style={styles.cardGenreText}>{item.mainGenre}</Text>
                 <Text style={styles.cardYearText}>{item.releaseYear}</Text>
-                <Text style={styles.cardCategoryText}>EP</Text>
+                <Text style={styles.cardCategoryText}>{item.category}</Text>
             </View>
         </View>
     );
