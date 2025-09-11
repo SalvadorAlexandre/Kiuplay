@@ -14,12 +14,17 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux'; // NOVO: Importa hooks do Redux
 import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
 import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice';
-import { MOCKED_CLOUD_FEED_DATA} from '@/src/types/contentServer';
-import { ArtistProfile, Single } from '@/src/types/contentType'; // Importado Single também
+import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+import { ArtistProfile, } from '@/src/types/contentType'; // Importado Single também
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { Ionicons } from '@expo/vector-icons';
 
+import SingleCard from '@/components/musicItems/singleItem/SingleCard';
+import EpCard from '@/components/musicItems/epItem/EpCard';
+import AlbumCard from '@/components/musicItems/albumItem/AlbumCard';
+import ExclusiveBeatCard from '@/components/musicItems/exclusiveBeatItem/ExclusiveBeatCard';
+import FreeBeatCard from '@/components/musicItems/freeBeatItem/FreeBeatCard';
 
 
 export default function ArtistProfileScreen() {
@@ -45,7 +50,7 @@ export default function ArtistProfileScreen() {
   }
   const currentArtist: ArtistProfile = ArtistData;
 
-  const tabs = ['Single','Album','Extended Play','Free Beats','Exclusive Beats'];
+  const tabs = ['Single', 'Extended Play', 'Album', 'Free Beats', 'Exclusive Beats'];
   const [activeTab, setActiveTab] = useState('Single');
 
   // NOVO: Verifica se o artista atual é seguido
@@ -93,7 +98,7 @@ export default function ArtistProfileScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: artistAvatarSrc }} style={styles.artistAvatar} />
+        <Image source={artistAvatarSrc} style={styles.artistAvatar} />
 
         <Text style={styles.artistNameProfile}>{currentArtist.name}</Text>
 
@@ -117,11 +122,6 @@ export default function ArtistProfileScreen() {
             <Text style={styles.buttonText}>{isFollowing ? 'Seguindo' : 'Seguir'}</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.buttonVideo} onPress={handleToggleFollow}>
-          <Text style={styles.sectionTitle}>Ver videos • </Text>
-          <Ionicons name='videocam' size={20} color="#fff" />
-        </TouchableOpacity>
 
         <ScrollView
           horizontal={true}
@@ -148,22 +148,104 @@ export default function ArtistProfileScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <View style={{ flex: 1 }}>
+
+        <View>
           {activeTab === 'Single' && (
-            <Text>Singles list</Text>
+            <FlatList
+              data={currentArtist.singles} // pega os singles do artista
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              renderItem={({ item }) => (
+                <SingleCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardLibraryScreens/single-details/${selected.id}`)
+                  }
+                />
+              )}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              ListEmptyComponent={() => (
+                <Text style={styles.texto}>Nenhum single publicado ainda.</Text>
+              )}
+            />
           )}
 
           {activeTab === 'Album' && (
-            <Text>Album List</Text>
+            <FlatList
+              data={currentArtist.albums}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              renderItem={({ item }) => (
+                <AlbumCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardLibraryScreens/album-details/${selected.id}`)
+                  }
+                />
+              )}
+              ListEmptyComponent={() => (
+                <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+              )}
+            />
           )}
           {activeTab === 'Extended Play' && (
-            <Text>Extended Play list</Text>
+            <FlatList
+              data={currentArtist.eps}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              renderItem={({ item }) => (
+                <EpCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardLibraryScreens/ep-details/${selected.id}`)
+                  }
+                />
+              )}
+              ListEmptyComponent={() => (
+                <Text style={styles.texto}>Nenhum EP publicado ainda.</Text>
+              )}
+            />
           )}
           {activeTab === 'Free Beats' && (
-            <Text>Free Beats</Text>
+            <FlatList
+              data={currentArtist.freeBeats}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              renderItem={({ item }) => (
+                <FreeBeatCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardBeatStoreScreens/freeBeat-details/${selected.id}`)
+                  }
+                />
+              )}
+              ListEmptyComponent={() => (
+                <Text style={styles.texto}>Nenhum Free Beat publicado ainda.</Text>
+              )}
+            />
           )}
           {activeTab === 'Exclusive Beats' && (
-            <Text>Exclusive Beats</Text>
+            <FlatList
+              data={currentArtist.exclusiveBeats}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              renderItem={({ item }) => (
+                <ExclusiveBeatCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
+                  }
+                />
+              )}
+              ListEmptyComponent={() => (
+                <Text style={styles.texto}>Nenhum Beat publicado ainda.</Text>
+              )}
+            />
           )}
         </View>
       </ScrollView>
@@ -315,6 +397,10 @@ const styles = StyleSheet.create({
     marginTop: 50,
     fontSize: 16,
   },
+  texto: {
+    color: '#fff',
+    fontSize: 16,
+  },
 
 
   tabsContainer: {
@@ -324,6 +410,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingHorizontal: 12,
     borderRadius: 20,
+    paddingVertical: 8,
     backgroundColor: '#222',
     marginRight: 10,
     alignItems: 'center',

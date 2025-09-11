@@ -107,7 +107,7 @@ export interface ExclusiveBeat {
     duration?: number;
     category: 'beat'; // Categoria específica
     releaseYear: string;
-    source: 'beatstore-feeds' | 'beatstore-favorites'; // Adicionei my-purchases
+    source: 'beatstore-feeds' | 'beatstore-favorites' | 'user-profile';
     viewsCount?: number; // Adicionei para consistência
     favoritesCount?: number; // Adicionei para consistência
     commentCount?: number; // Adicionei para consistência

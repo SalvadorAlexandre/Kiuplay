@@ -1,6 +1,6 @@
 // app/(tabs)/profile.tsx
 import React, { useState } from 'react';
-import { useSelectedMyContent, MyPostsType } from '@/hooks/useSelectedMyContent';
+
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import TopTabBarProfile from '@/components/topTabBarProfileScreen';
@@ -33,12 +33,6 @@ export default function ProfileScreen() {
    * @param type - Tipo a ser verificado.
    * @returns true se for o mesmo tipo, false caso contrário.
    */
-  const isSelected = (current: MyPostsType, type: MyPostsType): boolean => {
-    return current === type;
-  };
-
-  // Hook que verifica se um botão dos meus conteúdos está checked
-  const { selectedProfileMyContent, setSelectedProfileMyContent } = useSelectedMyContent();
 
   // Hooks para os botões de animação (mantidos do seu código original)
   const [scaleValueConfig] = useState(new Animated.Value(1));
@@ -60,6 +54,9 @@ export default function ProfileScreen() {
   const [scaleValueMonetization] = useState(new Animated.Value(1));
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
+
+  const tabs = ['Single', 'Extended Play', 'Album', 'Beats Comprados', 'Exclusive Beats', 'Free Beats',];
+  const [activeTab, setActiveTab] = useState('Single');
 
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
@@ -246,84 +243,39 @@ export default function ProfileScreen() {
             alignItems: 'center',
             marginTop: 20,
           }}></View>
-          <Text style={{ color: '#fff', marginBottom: 5, fontSize: 17, marginLeft: 5 }}>Meus Posts</Text>
-          <ScrollView horizontal
+          
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
-            style={{ marginBottom: 8, marginLeft: 1 }}
+            style={styles.tabsContainer}
           >
-            {/* Botão para os Singles */}
-            <TouchableOpacity
-              style={[
-                styles.workButton,
-                isSelected(selectedProfileMyContent, 'single') && styles.workButtonSelected
-              ]}
-              onPress={() => setSelectedProfileMyContent('single')}>
-              <Image source={require('@/assets/images/3/icons8_musical_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Faixa single</Text>
-            </TouchableOpacity>
-
-            {/* Botão para as EPs */}
-            <TouchableOpacity
-              style={[
-                styles.workButton,
-                isSelected(selectedProfileMyContent, 'eps') && styles.workButtonSelected
-              ]}
-              onPress={() => setSelectedProfileMyContent('eps')}>
-              <Image source={require('@/assets/images/3/icons8_music_record_120px.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Extended Play (EPs)</Text>
-            </TouchableOpacity>
-
-            {/* Botão para os Álbuns */}
-            <TouchableOpacity
-              style={[
-                styles.workButton,
-                isSelected(selectedProfileMyContent, 'albums') && styles.workButtonSelected
-              ]}
-              onPress={() => setSelectedProfileMyContent('albums')}>
-              <Image source={require('@/assets/images/3/icons8_music_album_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Álbuns</Text>
-            </TouchableOpacity>
-
-            {/* Instrumentais comprados */}
-            <TouchableOpacity
-              style={[
-                styles.workButton,
-                isSelected(selectedProfileMyContent, 'beats_bought') && styles.workButtonSelected
-              ]}
-              onPress={() => setSelectedProfileMyContent('beats_bought')}>
-              <Image source={require('@/assets/images/3/icons8_paycheque_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Instrumentais comprados</Text>
-            </TouchableOpacity>
-
-            {/* Instrumentais Postados */}
-            <TouchableOpacity
-              style={[
-                styles.workButton,
-                isSelected(selectedProfileMyContent, 'exclusive_beats') && styles.workButtonSelected
-              ]}
-              onPress={() => setSelectedProfileMyContent('exclusive_beats')}>
-              <Image source={require('@/assets/images/3/icons8_vox_player_120px.png')} style={{ width: 23, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Instrumentais Exclusivos</Text>
-            </TouchableOpacity>
-
-            {/* free_beats */}
-            <TouchableOpacity
-              style={[
-                styles.workButton,
-                isSelected(selectedProfileMyContent, 'free_beats') && styles.workButtonSelected
-              ]}
-              onPress={() => setSelectedProfileMyContent('free_beats')}>
-              <Image source={require('@/assets/images/3/icons8_dj_120px.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
-              <Text style={styles.workButtonText}>Instrumentais Free</Text>
-            </TouchableOpacity>
+            {tabs.map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                style={[
+                  styles.tabButton,
+                  activeTab === tab && styles.activeTabButton,
+                ]}
+                onPress={() => setActiveTab(tab)}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === tab && styles.activeTabText,
+                  ]}
+                >
+                  {tab}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
 
           <View style={{ marginTop: 10 }}>
-            {selectedProfileMyContent === "single" && (
+            {activeTab === 'Single' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 {/** <Text style={styles.texto}>🔊 Mostrando faixas single</Text>*/}
                 <FlatList
-                  data={MOCKED_PROFILE[0].singles} // pega os singles do artista
+                  data={userProfile.singles} // pega os singles do artista
                   keyExtractor={(item) => item.id}
                   numColumns={2}
                   columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -331,7 +283,7 @@ export default function ProfileScreen() {
                     <SingleCard
                       item={item}
                       onPress={(selected) =>
-                        router.push(`/contentCardLibraryScreens/single-details/${item.id}`)
+                        router.push(`/contentCardLibraryScreens/single-details/${selected.id}`)
                       }
                     />
                   )}
@@ -343,12 +295,11 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            {selectedProfileMyContent === "eps" && (
+            {activeTab === 'Extended Play' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 {/**<Text style={styles.texto}>🎧 Mostrando Extended Plays</Text>*/}
-
                 <FlatList
-                  data={MOCKED_PROFILE[0].eps}
+                  data={userProfile.eps}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
                   columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -366,11 +317,10 @@ export default function ProfileScreen() {
                 />
               </View>
             )}
-            {selectedProfileMyContent === 'albums' && (
-
+            {activeTab === 'Album' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 <FlatList
-                  data={MOCKED_PROFILE[0].albums}
+                  data={userProfile.albums}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
                   columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -389,13 +339,13 @@ export default function ProfileScreen() {
               </View>
 
             )}
-            {selectedProfileMyContent === 'beats_bought' && ( //beats comprados
+            {activeTab === 'Beats Comprados' && ( //beats comprados
               <Text style={styles.texto}>Mostrando instrumentais comprados</Text>
             )}
-            {selectedProfileMyContent === 'exclusive_beats' && (
+            {activeTab === 'Exclusive Beats' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 <FlatList
-                  data={MOCKED_PROFILE[0].exclusiveBeats}
+                  data={userProfile.exclusiveBeats}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
                   columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -408,15 +358,15 @@ export default function ProfileScreen() {
                     />
                   )}
                   ListEmptyComponent={() => (
-                    <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                    <Text style={styles.texto}>Nenhum Beat publicado ainda.</Text>
                   )}
                 />
               </View>
             )}
-            {selectedProfileMyContent === 'free_beats' && (
+            {activeTab === 'Free Beats' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 <FlatList
-                  data={MOCKED_PROFILE[0].freeBeats}
+                  data={userProfile.freeBeats}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
                   columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -429,7 +379,7 @@ export default function ProfileScreen() {
                     />
                   )}
                   ListEmptyComponent={() => (
-                    <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                    <Text style={styles.texto}>Nenhum Free Beat publicado ainda.</Text>
                   )}
                 />
               </View>
@@ -534,28 +484,12 @@ const styles = StyleSheet.create({
     marginTop: -20,
   },
   workButton: {
-    backgroundColor: '#2a2a2a',
-    paddingHorizontal: 10,
-    paddingLeft: 4,
-    height: 30,
-    borderRadius: 6,
-    marginRight: 5,
-    borderWidth: 1,
-    borderColor: '#555',
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: '#222',
+    marginRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    alignSelf: 'flex-start'
-  },
-  workButtonSelected: {
-    backgroundColor: '#1565C0',
-  },
-  workButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingLeft: 2,
   },
   texto: {
     color: '#fff',
@@ -582,5 +516,30 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     fontSize: 16,
+  },
+
+  tabsContainer: {
+    flexDirection: 'row',
+    marginVertical: 10,
+    paddingHorizontal: 10,
+  },
+  tabButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#222',
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeTabButton: {
+    backgroundColor: '#1e90ff',
+  },
+  tabText: {
+    color: '#aaa',
+    fontSize: 14,
+  },
+  activeTabText: {
+    color: '#fff',
   },
 });
