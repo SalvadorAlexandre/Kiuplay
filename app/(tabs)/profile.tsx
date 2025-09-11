@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import TopTabBarProfile from '@/components/topTabBars/topTabBarProfileScreen';
+import TopTabBarProfile from '@/components/mainTopTabBars/topTabBarProfileScreen';
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
 import SingleCard from '@/components/musicItems/singleItem/SingleCard';
 import EpCard from '@/components/musicItems/epItem/EpCard';

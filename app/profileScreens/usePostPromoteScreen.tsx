@@ -6,6 +6,9 @@ import {
   StyleSheet,
   Text,
   Pressable,
+  TouchableOpacity,
+  ScrollView,
+  Image,
 } from 'react-native';
 
 export default function PromoteUserScreen() {
@@ -22,7 +25,7 @@ export default function PromoteUserScreen() {
         }}
       />
       <View style={{ flex: 1, backgroundColor: '#191919' }}>
-        
+
         {/* --- Tab Bar Custom --- */}
         <View style={styles.tabBar}>
           <Pressable
@@ -42,10 +45,25 @@ export default function PromoteUserScreen() {
         {/* --- Conteúdo de cada aba --- */}
         <View style={styles.content}>
           {activeTab === 'configurar' ? (
-            
-            <Text style={styles.contentText}>Aqui o utilizador vai configurar uma nova promoção.</Text>
+            <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+              <Image
+                source={require('@/assets/images/4/icons8_music_library_125px.png')}
+                resizeMode='center'
+              />
+              <Text style={styles.configContentText}>Seleciona o conteúdo que desejas promover...</Text>
+              <TouchableOpacity
+                style={styles.buttonLoadContent}>
+                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Escolher música ou instrumental</Text>
+              </TouchableOpacity>
+            </View>
+
           ) : (
-            <Text style={styles.contentText}>Aqui vão aparecer as promoções ativas do utilizador.</Text>
+            <ScrollView
+              horizontal={false}
+              showsHorizontalScrollIndicator={false}
+            >
+              <Text style={styles.ativePromoteText}>Aqui vão aparecer as promoções ativas do utilizador.</Text>
+            </ScrollView>
           )}
         </View>
       </View>
@@ -77,13 +95,36 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    //padding: 20,
+    //alignItems: 'center',
+    //justifyContent: 'center',
   },
-  contentText: {
+  configContentText: {
+    color: '#fff',
+    fontSize: 20,
+    //textAlign: 'center',
+    marginBottom: 20,
+  },
+  ativePromoteText: {
     color: '#fff',
     fontSize: 16,
-    textAlign: 'center',
+    //textAlign: 'center',
+    marginBottom: 20,
+  },
+
+  buttonLoadContent: {
+    //flexDirection: 'row',
+    alignItems: 'center',
+    //justifyContent: 'center',
+    backgroundColor: '#1565C0',
+    paddingVertical: 5,
+    //paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#555',
+    //alignSelf: 'flex-start',
+    //marginRight: 15,
+    //marginBottom: 12,
+    //padding: 6,  // Espaçamento interno do botão
   },
 });
