@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
-import TopTabBarLibrary from '@/components/topTabBarLibraryScreen';
+import TopTabBarLibrary from '@/components/topTabBars/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
 import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList';

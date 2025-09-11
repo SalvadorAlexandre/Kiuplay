@@ -42,8 +42,8 @@ export default function PromoteUserScreen() {
         {/* --- Conteúdo de cada aba --- */}
         <View style={styles.content}>
           {activeTab === 'configurar' ? (
-            <Text style={styles.contentText}>Aqui o utilizador vai configurar uma nova promoção.</Text>
             
+            <Text style={styles.contentText}>Aqui o utilizador vai configurar uma nova promoção.</Text>
           ) : (
             <Text style={styles.contentText}>Aqui vão aparecer as promoções ativas do utilizador.</Text>
           )}

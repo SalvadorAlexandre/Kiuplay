@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import useChatTabs from "@/hooks/useChatTabs";
-import TopTabBarChat from "@/components/topTabBarChatScreen";
+import TopTabBarChat from "@/components/topTabBars/topTabBarChatScreen";
 import ChatListItem from "@/components/ChatComponents/ChatListItem"
 import UserDiscoveryItem from "@/components/ChatComponents/UserDiscoveryItem"
 import FriendRequestItem from "@/components/ChatComponents/FriendRequestItem"

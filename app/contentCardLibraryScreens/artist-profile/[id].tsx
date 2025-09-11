@@ -97,7 +97,11 @@ export default function ArtistProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsHorizontalScrollIndicator={false}
+        horizontal={false}
+      >
         <Image source={artistAvatarSrc} style={styles.artistAvatar} />
 
         <Text style={styles.artistNameProfile}>{currentArtist.name}</Text>

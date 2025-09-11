@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostAlbum'; // Importa o Hook usePostAlbum
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
-import TopTabBarAlbum from '@/components/useTabBarPostAlbum'
+import TopTabBarAlbum from '@/components/TabBarPosts/useTabBarPostAlbum'
 import {
     StyleSheet,
     ScrollView,

@@ -4,7 +4,7 @@ import { usePostBeat } from '@/hooks/usePostBeat';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
-import TopTabBarBeat from '@/components/useTabBarPostBeat'
+import TopTabBarBeat from '@/components/TabBarPosts/useTabBarPostBeat'
 import {
     StyleSheet,
     View,

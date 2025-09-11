@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 
-import TopTabBarBeatStore from '@/components/topTabBarBeatStoreScreen';
+import TopTabBarBeatStore from '@/components/topTabBars/topTabBarBeatStoreScreen';
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 //import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';

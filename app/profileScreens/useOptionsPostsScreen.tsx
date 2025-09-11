@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
-import TopTabBarOptionsPosts from '@/components/useTabBarOptionsPosts'
+import TopTabBarOptionsPosts from '@/components/topTabBarInUserOptions/useTabBarOptionsPosts'
 import {
     ScrollView,
     View,

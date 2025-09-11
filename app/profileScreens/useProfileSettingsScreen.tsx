@@ -7,7 +7,7 @@ import {
     Text,
     Image,
 } from 'react-native'
-import TopTabBarSettings from '@/components/useTopTabBarSettings'
+import TopTabBarSettings from '@/components/topTabBarInUserOptions/useTopTabBarSettings'
 
 export default function ProfileSettingsScreen() {
 

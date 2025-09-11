@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingBottom: 40,
   },
   sectionTitle: {
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   unreadCard: {
-    borderColor: '#00ff99',
+    borderColor: "#1E90FF",
     borderWidth: 1,
   },
   cardTitle: {

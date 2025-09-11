@@ -1,6 +1,6 @@
 import React from 'react'
 import { Stack } from 'expo-router';
-import TopTabBarInsights from '@/components/useTabBarInsights'
+import TopTabBarInsights from '@/components/topTabBarInUserOptions/useTabBarInsights'
 import {
   View,
   ScrollView,

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Stack } from 'expo-router';
-import TopTabBarMonetization from '@/components/useTabBarMonetization'
+import TopTabBarMonetization from '@/components/topTabBarInUserOptions/useTabBarMonetization'
 import {
     View,
     ScrollView,
