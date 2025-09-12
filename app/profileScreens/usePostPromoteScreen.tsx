@@ -1,6 +1,6 @@
 // app/profileScreens/usePromoteScreen.tsx
 import React, { useState } from 'react';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import {
   View,
   StyleSheet,
@@ -11,8 +11,10 @@ import {
   Image,
 } from 'react-native';
 
+
 export default function PromoteUserScreen() {
   const [activeTab, setActiveTab] = useState<'configurar' | 'ativas'>('configurar');
+  
 
   return (
     <>
@@ -52,7 +54,9 @@ export default function PromoteUserScreen() {
               />
               <Text style={styles.configContentText}>Seleciona o conteúdo que desejas promover...</Text>
               <TouchableOpacity
-                style={styles.buttonLoadContent}>
+                style={styles.buttonLoadContent}
+                onPress={() => router.push('/promoteContentScreens/selectContentScreen')}
+                >
                 <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Escolher música ou instrumental</Text>
               </TouchableOpacity>
             </View>
