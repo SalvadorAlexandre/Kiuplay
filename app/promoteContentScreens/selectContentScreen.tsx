@@ -185,7 +185,7 @@ export default function SelectContentScreen() {
             disabled={!selectedContentId}
           >
             <Text style={styles.buttonText}>
-              Continuar (Promoção Premium)
+              Continuar
             </Text>
           </TouchableOpacity>
         </View>

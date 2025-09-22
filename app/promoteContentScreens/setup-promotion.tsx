@@ -16,6 +16,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Para selecionar datas
 
+// IMPORTAÇÕES DO REDUX
+import { useAppDispatch } from '@/src/redux/hooks'; // Importa o hook para disparar ações
+import { addPromotion } from '@/src/redux/promotionsSlice'; // Importa a ação de adicionar promoção
+
 const userProfile = MOCKED_PROFILE[0];
 
 // Tipagem para os itens de conteúdo
@@ -29,6 +33,7 @@ const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown
 export default function SetupPromotionScreen() {
     const router = useRouter();
     const { contentId, contentType } = useLocalSearchParams();
+    const dispatch = useAppDispatch()
 
     // 1. Estados da Promoção
     const [adTitle, setAdTitle] = useState('');
@@ -72,7 +77,9 @@ export default function SetupPromotionScreen() {
         return defaultCoverSource;
     };
 
+    // FUNÇÃO QUE É CHAMADA PELO BOTÃO
     const publishPromotion = () => {
+        // Validações
         if (!adTitle.trim()) {
             Alert.alert('Erro', 'Por favor, insira um título para o anúncio.');
             return;
@@ -83,22 +90,24 @@ export default function SetupPromotionScreen() {
             return;
         }
 
-        // Lógica para "publicar" a promoção (mock)
-        const promotionData = {
-            id: `promo_${Date.now()}`,
-            contentId: selectedContent?.id,
-            contentType,
+        // Cria o objeto de promoção com os dados dos estados
+        const newPromotion = {
+            id: `promo_${Date.now()}`, // ID único
             adTitle,
             customMessage,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
-            status: 'publicada',
+            coverSource: getCoverSource(), // Pega a fonte da imagem
+            contentTitle: selectedContent?.title || 'Conteúdo Sem Título', // Título do conteúdo original
+            status: 'active' as 'active',
         };
-        console.log('Promoção Publicada:', promotionData);
 
-        // Alerta de sucesso e navegação de volta
+        // DISPARA A AÇÃO DO REDUX AQUI!
+        dispatch(addPromotion(newPromotion));
+
+        // Exibe alerta de sucesso e navega para a tela de promoções ativas
         Alert.alert('Sucesso!', 'Sua promoção foi publicada com sucesso.', [
-            { text: 'OK', onPress: () => router.back() }
+            { text: 'OK', onPress: () => router.push('/profileScreens/usePostPromoteScreen') }
         ]);
     };
 

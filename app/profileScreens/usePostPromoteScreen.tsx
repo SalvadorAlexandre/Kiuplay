@@ -7,14 +7,56 @@ import {
   Text,
   Pressable,
   TouchableOpacity,
-  ScrollView,
+  FlatList, // Importa FlatList para exibir a lista de promoções
   Image,
+  Alert,
 } from 'react-native';
-
+import { Ionicons } from '@expo/vector-icons';
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { removePromotion } from '@/src/redux/promotionsSlice'; // Importa a ação de remoção
 
 export default function PromoteUserScreen() {
   const [activeTab, setActiveTab] = useState<'configurar' | 'ativas'>('configurar');
-  
+  const dispatch = useAppDispatch();
+  const activePromotions = useAppSelector((state) => state.promotions.activePromotions);
+
+  // Função para renderizar cada item da lista de promoções
+  const renderPromotionItem = ({ item }: { item: any }) => {
+    const startDate = new Date(item.startDate).toLocaleDateString();
+    const endDate = new Date(item.endDate).toLocaleDateString();
+
+    const handleRemovePromotion = () => {
+      Alert.alert(
+        'Confirmar Exclusão',
+        'Tem certeza que deseja apagar esta promoção?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Apagar', onPress: () => dispatch(removePromotion(item.id)) }
+        ]
+      );
+    };
+
+    return (
+      <View style={styles.promotionItemContainer}>
+        <View style={styles.promoItemHeader}>
+          <Image source={item.coverSource} style={styles.promoCover} />
+          <View style={styles.promoDetails}>
+            <Text style={styles.promoTitle} numberOfLines={1}>{item.adTitle}</Text>
+            <Text style={styles.promoContentTitle}>{item.contentTitle}</Text>
+            <Text style={styles.promoDates}>
+              {`Início: ${startDate}`}
+            </Text>
+            <Text style={styles.promoDates}>
+              {`Término: ${endDate}`}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.deleteButton} onPress={handleRemovePromotion}>
+          <Ionicons name="trash-outline" size={24} color="#FF6347" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <>
@@ -27,7 +69,6 @@ export default function PromoteUserScreen() {
         }}
       />
       <View style={{ flex: 1, backgroundColor: '#191919' }}>
-
         {/* --- Tab Bar Custom --- */}
         <View style={styles.tabBar}>
           <Pressable
@@ -60,14 +101,20 @@ export default function PromoteUserScreen() {
                 <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Escolher música ou instrumental</Text>
               </TouchableOpacity>
             </View>
-
           ) : (
-            <ScrollView
-              horizontal={false}
-              showsHorizontalScrollIndicator={false}
-            >
-              <Text style={styles.ativePromoteText}>Aqui vão aparecer as promoções ativas do utilizador.</Text>
-            </ScrollView>
+            <FlatList
+              data={activePromotions}
+              renderItem={renderPromotionItem}
+              keyExtractor={(item) => item.id}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyListContainer}>
+                  <Text style={styles.emptyListText}>
+                    Nenhuma promoção ativa no momento.
+                  </Text>
+                </View>
+              )}
+              contentContainerStyle={styles.promoListContainer}
+            />
           )}
         </View>
       </View>
@@ -90,7 +137,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#1e90ff', // destaque na aba ativa
+    borderBottomColor: '#1e90ff',
   },
   tabText: {
     color: '#fff',
@@ -99,36 +146,74 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    //padding: 20,
-    //alignItems: 'center',
-    //justifyContent: 'center',
   },
   configContentText: {
     color: '#fff',
     fontSize: 20,
-    //textAlign: 'center',
     marginBottom: 20,
+    textAlign: 'center',
   },
-  ativePromoteText: {
+  emptyListContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,
+  },
+  emptyListText: {
+    color: '#aaa',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  promoListContainer: {
+    padding: 10,
+  },
+  promotionItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2b2b2b',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 10,
+    justifyContent: 'space-between',
+  },
+  promoItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  promoCover: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 15,
+  },
+  promoDetails: {
+    flex: 1,
+  },
+  promoTitle: {
     color: '#fff',
     fontSize: 16,
-    //textAlign: 'center',
-    marginBottom: 20,
+    fontWeight: 'bold',
   },
-
+  promoContentTitle: {
+    color: '#aaa',
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  promoDates: {
+    color: '#ccc',
+    fontSize: 12,
+  },
+  deleteButton: {
+    padding: 10,
+    marginLeft: 10,
+  },
   buttonLoadContent: {
-    //flexDirection: 'row',
     alignItems: 'center',
-    //justifyContent: 'center',
     backgroundColor: '#1565C0',
-    paddingVertical: 5,
-    //paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#555',
-    //alignSelf: 'flex-start',
-    //marginRight: 15,
-    //marginBottom: 12,
-    //padding: 6,  // Espaçamento interno do botão
   },
 });

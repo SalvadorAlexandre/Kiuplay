@@ -11,6 +11,7 @@ import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃ
 import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer
 
 import notificationsReducer from '../redux/notificationsSlice';
+import promotionsReducer from '../redux/promotionsSlice';
 
 const rootReducer = combineReducers({
   player: playerReducer,
@@ -19,12 +20,20 @@ const rootReducer = combineReducers({
   favoriteMusic: favoriteMusicReducer, // <-- NOVA ADIÇÃO: Para suas músicas favoritas
   network: networkReducer,  
   notifications: notificationsReducer,
+  promotions: promotionsReducer,
 });
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['favorites', 'followedArtists', 'favoriteMusic', 'network', 'notifications'], // Persistir apenas favoritos
+  whitelist: [
+    'favorites',
+    'followedArtists',
+    'favoriteMusic',
+    'network',
+    'notifications',
+    'promotions',
+  ], // Persistir apenas favoritos
 };
 
 
