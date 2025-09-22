@@ -1,4 +1,6 @@
-// app/contentCardBeatStoreScreens/album-details/[id].tsx
+//app/beats_boughtScreen/beats_bought.tsx
+////Essa janela sera visualizada unica e exclusivamente pelo utilizador que comprou o beat
+/*
 import React, { useCallback } from 'react';
 import {
     View,
@@ -117,7 +119,8 @@ export default function exclusiveBeatDetailsScreen() {
                                 <Image source={coverSource} style={styles.coverImage} />
                             </View>
 
-                            {/* LAYOUT DE DETALHES DA MÚSICA */}
+                            {/* LAYOUT DE DETALHES DA MÚSICA */
+                            /*
                             <View style={styles.detailsContainer}>
                                 <Text style={styles.title}>{currentExclusiveBeat.title}</Text>
                                 <Text style={styles.artistName}>{currentExclusiveBeat.artist}</Text>
@@ -138,7 +141,8 @@ export default function exclusiveBeatDetailsScreen() {
                                 </Text>
                             </View>
                         </TouchableOpacity>
-                        {/* FIM DO LAYOUT */}
+                        {/* FIM DO LAYOUT */
+                        /*
 
                         <View style={styles.containerBtnActionsRow}>
 
@@ -146,9 +150,7 @@ export default function exclusiveBeatDetailsScreen() {
                                 style={styles.buttonBuy}
                                 //onPress={handleDownloadPress}
                             >
-                                <Text  style={styles.textBuy}>
-                                   Comprar por {currentExclusiveBeat.price.toString()} R$
-                                </Text>
+                                <Text  style={styles.textBuy}>Baixar para uso</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
@@ -312,3 +314,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+*/

@@ -634,7 +634,7 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 viewsCount: 1050,
             },
             {
-                id: 'single-1',
+                id: 'single-2',
                 uri: '[https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3](https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3)',
                 title: 'Vibe Urbana',
                 artist: 'BeatMaster',

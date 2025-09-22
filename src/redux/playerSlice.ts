@@ -24,6 +24,7 @@ export type Track = PlayableContent & {
   | 'library-cloud-favorites'
   | 'beatstore-feeds'
   | 'beatstore-favorites'
+  | 'user-profile'
   | 'unknown'
   // Adicione outras propriedades específicas do player se houver (ex: `isPlaying`, `progress`, etc. - mas essas geralmente vão para o estado do slice, não na Track interface em si)
 }

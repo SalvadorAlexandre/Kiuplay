@@ -1,5 +1,5 @@
 // app/(tabs)/profile.tsx
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -19,10 +19,19 @@ import {
   TouchableOpacity,
   Animated,
   FlatList,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { useAppSelector } from "@/src/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
+import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
+import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
+
 
 export default function ProfileScreen() {
+
+  const dispatch = useAppDispatch();
+  const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
+  const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
   // --- DADOS MOCADOS DO PERFIL ---
   const userProfile = MOCKED_PROFILE[0]
   // ------------------------------
@@ -68,6 +77,37 @@ export default function ProfileScreen() {
   };
 
   const avatarUser = getDynamicAvatarSource()
+
+  //Logica para carrar lista de audio no player baseando se na aba ativa
+  const getTracksForActiveTab = () => {
+    switch (activeTab) {
+      case "Single":
+        return userProfile.singles;
+      case "Exclusive Beats":
+        return userProfile.exclusiveBeats;
+      case "Free Beats":
+        return userProfile.freeBeats;
+      default:
+        // Se o utilizador estiver noutra aba → usa Singles como padrão
+        return userProfile.singles;
+    }
+  };
+
+  const handlePlayFromTab = useCallback(() => {
+    const tracks = getTracksForActiveTab();
+
+    if (!tracks || tracks.length === 0) {
+      Alert.alert("Erro", "Não há faixas disponíveis nesta aba.");
+      return;
+    }
+
+    dispatch(setPlaylistAndPlayThunk({
+      newPlaylist: tracks,
+      startIndex: 0,
+      shouldPlay: true,
+    }));
+  }, [dispatch, activeTab, userProfile]);
+  //Terminou aqui
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
@@ -243,7 +283,7 @@ export default function ProfileScreen() {
             alignItems: 'center',
             marginTop: 20,
           }}></View>
-          
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -270,10 +310,9 @@ export default function ProfileScreen() {
             ))}
           </ScrollView>
 
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 20 }}>
             {activeTab === 'Single' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
-                {/** <Text style={styles.texto}>🔊 Mostrando faixas single</Text>*/}
                 <FlatList
                   data={userProfile.singles} // pega os singles do artista
                   keyExtractor={(item) => item.id}
@@ -337,10 +376,11 @@ export default function ProfileScreen() {
                   )}
                 />
               </View>
-
             )}
             {activeTab === 'Beats Comprados' && ( //beats comprados
-              <Text style={styles.texto}>Mostrando instrumentais comprados</Text>
+              <View>
+
+              </View>
             )}
             {activeTab === 'Exclusive Beats' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
@@ -353,7 +393,7 @@ export default function ProfileScreen() {
                     <ExclusiveBeatCard
                       item={item}
                       onPress={(selected) =>
-                        router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
+                        router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/ ${selected.id}`)
                       }
                     />
                   )}
@@ -386,7 +426,7 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
-        <View style={{ height: 120 }}></View>
+        <View style={{ height: 130 }}></View>
       </ScrollView>
     </View>
   );
