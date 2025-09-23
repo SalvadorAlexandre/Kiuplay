@@ -1,16 +1,6 @@
-//src/redux/promotionsSlice
+// src/redux/promotionsSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export interface Promotion {
-  id: string;
-  adTitle: string;
-  customMessage: string;
-  startDate: string;
-  endDate: string;
-  coverSource: any; // A fonte da imagem pode ser um objeto ou um require
-  contentTitle: string;
-  status: 'active' | 'expired' | 'pending' | 'removed';
-}
+import { Promotion } from '@/src/types/contentType';
 
 interface PromotionsState {
   activePromotions: Promotion[];
@@ -36,5 +26,4 @@ const promotionsSlice = createSlice({
 });
 
 export const { addPromotion, removePromotion } = promotionsSlice.actions;
-
 export default promotionsSlice.reducer;

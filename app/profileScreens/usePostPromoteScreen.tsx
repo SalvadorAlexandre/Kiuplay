@@ -7,13 +7,13 @@ import {
   Text,
   Pressable,
   TouchableOpacity,
-  FlatList, // Importa FlatList para exibir a lista de promoções
+  FlatList,
   Image,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { removePromotion } from '@/src/redux/promotionsSlice'; // Importa a ação de remoção
+import { removePromotion } from '@/src/redux/promotionsSlice';
+import { Promotion } from '@/src/types/contentType';
 
 export default function PromoteUserScreen() {
   const [activeTab, setActiveTab] = useState<'configurar' | 'ativas'>('configurar');
@@ -21,28 +21,24 @@ export default function PromoteUserScreen() {
   const activePromotions = useAppSelector((state) => state.promotions.activePromotions);
 
   // Função para renderizar cada item da lista de promoções
-  const renderPromotionItem = ({ item }: { item: any }) => {
+  const renderPromotionItem = ({ item }: { item: Promotion }) => {
     const startDate = new Date(item.startDate).toLocaleDateString();
     const endDate = new Date(item.endDate).toLocaleDateString();
-
-    const handleRemovePromotion = () => {
-      Alert.alert(
-        'Confirmar Exclusão',
-        'Tem certeza que deseja apagar esta promoção?',
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          { text: 'Apagar', onPress: () => dispatch(removePromotion(item.id)) }
-        ]
-      );
-    };
 
     return (
       <View style={styles.promotionItemContainer}>
         <View style={styles.promoItemHeader}>
-          <Image source={item.coverSource} style={styles.promoCover} />
+          <Image
+            source={
+              item.thumbnail
+                ? { uri: item.thumbnail }
+                : require('@/assets/images/Default_Profile_Icon/unknown_track.png')
+            }
+            style={styles.promoCover}
+          />
           <View style={styles.promoDetails}>
-            <Text style={styles.promoTitle} numberOfLines={1}>{item.adTitle}</Text>
-            <Text style={styles.promoContentTitle}>{item.contentTitle}</Text>
+            <Text style={styles.promoTitle} numberOfLines={1}>{item.title}</Text>
+            <Text style={styles.promoContentTitle}>{item.message}</Text>
             <Text style={styles.promoDates}>
               {`Início: ${startDate}`}
             </Text>
@@ -51,7 +47,12 @@ export default function PromoteUserScreen() {
             </Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.deleteButton} onPress={handleRemovePromotion}>
+
+        {/* Botão direto sem Alert */}
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => dispatch(removePromotion(item.id))}
+        >
           <Ionicons name="trash-outline" size={24} color="#FF6347" />
         </TouchableOpacity>
       </View>
@@ -97,7 +98,7 @@ export default function PromoteUserScreen() {
               <TouchableOpacity
                 style={styles.buttonLoadContent}
                 onPress={() => router.push('/promoteContentScreens/selectContentScreen')}
-                >
+              >
                 <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Escolher música ou instrumental</Text>
               </TouchableOpacity>
             </View>

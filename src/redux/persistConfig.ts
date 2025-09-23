@@ -27,7 +27,6 @@ const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   whitelist: [
-    'favorites',
     'followedArtists',
     'favoriteMusic',
     'network',

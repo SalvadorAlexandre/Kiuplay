@@ -146,12 +146,13 @@ export interface Promotion {
     contentId: string; // ID da obra promovida
     artistAvatar?: string;
     contentType: 'single' | 'album' | 'ep' | 'video' | 'freebeat' | 'exclusive_beat' | 'message';
+    status: 'active' | 'expired' | 'pending' | 'removed';
     promoterId: string; // Quem promoveu (usuário ou artista)
     title: string; // Título do anúncio ou conteúdo
     message?: string; // Mensagem personalizada
     thumbnail?: string; // Imagem ou capa do conteúdo
-    startAt: string; // Início da campanha de promoção (ISO date)
-    endAt: string; // Fim da campanha
+    startDate: string; // Início da campanha de promoção (ISO date)
+    endDate: string; // Fim da campanha
     targetAudience?: 'followers' | 'friends' | 'all'; // Público alvo
     notify: boolean; // Se deve disparar notificação push
     createdAt: string;

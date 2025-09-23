@@ -10,19 +10,25 @@ import {
     Image,
     Alert,
     Platform,
+    ActivityIndicator,
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { MOCKED_PROFILE } from '@/src/types/contentServer';
+import { Promotion } from '@/src/types/contentType';
 
 // Importações para a biblioteca de data
 import { Calendar } from 'react-native-calendars';
 import dayjs, { Dayjs } from 'dayjs';
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import "dayjs/locale/pt-br"; // localização em português
 
+// Estenda o Day.js com os plugins necessários
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 dayjs.locale("pt-br");
+
 
 // IMPORTAÇÕES DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
@@ -32,7 +38,6 @@ const userProfile = MOCKED_PROFILE[0];
 
 // Tipagem para os itens de conteúdo
 type ContentItem = { id: string; title: string; cover?: string | null };
-type TabName = 'Singles' | 'Extended Play' | 'Álbuns' | 'Exclusive Beats' | 'Free Beats';
 
 // Imagem padrão
 const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
@@ -48,9 +53,16 @@ export default function SetupPromotionScreen() {
     const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
     const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().add(7, 'day'));
 
+    const [publishStatus, setPublishStatus] = useState<'idle' | 'publishing' | 'success'>('idle');
+
     const isDateRangeInvalid = useMemo(() => {
-        return !startDate || !endDate || startDate.isSame(endDate, 'day') || startDate.isAfter(endDate);
+        return !startDate || !endDate || startDate.isSameOrAfter(endDate, 'day');
     }, [startDate, endDate]);
+
+    // LÓGICA ATUALIZADA: O botão fica desabilitado se o título, as datas ou o status não estiverem corretos.
+    const isButtonDisabled = useMemo(() => {
+        return !adTitle.trim() || isDateRangeInvalid || publishStatus === 'publishing';
+    }, [adTitle, isDateRangeInvalid, publishStatus]);
 
     const selectedContent = useMemo(() => {
         let contentList: ContentItem[] = [];
@@ -83,43 +95,60 @@ export default function SetupPromotionScreen() {
         return defaultCoverSource;
     };
 
-    const publishPromotion = () => {
-        // 1. Valida título
-        if (!adTitle.trim()) {
-            Alert.alert('Erro', 'Por favor, insira um título para o anúncio.');
-            return;
+    const publishPromotion = async () => {
+        if (!adTitle.trim()) return;
+        if (!startDate || !endDate || startDate.isSameOrAfter(endDate)) return;
+
+        setPublishStatus("publishing");
+
+        try {
+            // Determina status dinamicamente
+            let status: Promotion["status"] = "pending";
+            const now = dayjs();
+
+            if (startDate.isSameOrBefore(now) && endDate.isSameOrAfter(now)) {
+                status = "active";
+            } else if (endDate.isBefore(now)) {
+                status = "expired";
+            }
+
+            const newPromotion: Promotion = {
+                id: `promo_${Date.now()}`,
+                contentId: contentId as string,
+                contentType: (contentType as Promotion["contentType"]) || "single",
+                promoterId: userProfile.id,
+                title: adTitle,
+                message: customMessage.trim() || undefined,
+                thumbnail: selectedContent?.cover || undefined,
+                artistAvatar: userProfile.avatar || undefined,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                targetAudience: "all",
+                notify: true,
+                createdAt: new Date().toISOString(),
+                category: "promotion",
+                status, // calculado dinamicamente
+            };
+
+            dispatch(addPromotion(newPromotion));
+
+            setPublishStatus("success");
+
+            setAdTitle('')
+            setCustomMessage('')
+            setStartDate(dayjs())
+            setEndDate(dayjs().add(7, 'day'))
+
+
+            // ✅ Navega direto sem Alert
+            router.push("/profileScreens/usePostPromoteScreen");
+
+            // volta para idle depois de 1s
+            setTimeout(() => setPublishStatus("idle"), 1000);
+        } catch (error) {
+            console.error("Erro ao publicar promoção:", error);
+            setPublishStatus("idle");
         }
-
-        // 2. Valida datas
-        if (!startDate || !endDate) {
-            Alert.alert('Erro', 'Selecione a data de início e término.');
-            return;
-        }
-
-        if (startDate >= endDate) {
-            Alert.alert('Erro', 'A data de término deve ser posterior à data de início.');
-            return;
-        }
-
-        // 3. Cria objeto de promoção
-        const newPromotion = {
-            id: `promo_${Date.now()}`,
-            adTitle,
-            customMessage,
-            startDate: startDate!.toISOString(),
-            endDate: endDate!.toISOString(),
-            coverSource: getCoverSource(),
-            contentTitle: selectedContent?.title || 'Conteúdo Sem Título',
-            status: 'active' as 'active',
-        };
-
-        // 4. Dispara ação do Redux
-        dispatch(addPromotion(newPromotion));
-
-        // 5. Alerta de sucesso e navegação
-        Alert.alert('Sucesso!', 'Sua promoção foi publicada com sucesso.', [
-            { text: 'OK', onPress: () => router.push('/profileScreens/usePostPromoteScreen') }
-        ]);
     };
 
     if (!selectedContent) {
@@ -131,7 +160,6 @@ export default function SetupPromotionScreen() {
         );
     }
 
-    // Lógica para marcar as datas - AGORA DENTRO DE UM useMemo
     const markedDates = useMemo(() => {
         const marked: Record<string, any> = {};
         if (startDate) {
@@ -163,25 +191,20 @@ export default function SetupPromotionScreen() {
         return marked;
     }, [startDate, endDate]);
 
-    // Lógica para redefinir as datas
     const onDayPress = (day: { dateString: string }) => {
         const selectedDay = dayjs(day.dateString);
 
         if (startDate && endDate) {
-            // Se já há um intervalo completo, reinicia a seleção
             setStartDate(selectedDay);
             setEndDate(null);
         } else if (startDate) {
             if (selectedDay.isBefore(startDate)) {
-                // Se a nova data é anterior, troca as datas
                 setEndDate(startDate);
                 setStartDate(selectedDay);
             } else {
-                // Senão, define a data de fim
                 setEndDate(selectedDay);
             }
         } else {
-            // Se não há data de início, define a data de início
             setStartDate(selectedDay);
             setEndDate(null);
         }
@@ -216,7 +239,7 @@ export default function SetupPromotionScreen() {
                     placeholder="Mensagem personalizada (opcional)"
                     placeholderTextColor="#888"
                     multiline
-                    numberOfLines={4}
+                    numberOfLines={3}
                     value={customMessage}
                     onChangeText={setCustomMessage}
                 />
@@ -239,7 +262,6 @@ export default function SetupPromotionScreen() {
                     </View>
                 </View>
 
-                {/* NOVO COMPONENTE DO CALENDÁRIO */}
                 <Calendar
                     initialDate={startDate?.format('YYYY-MM-DD')}
                     markedDates={markedDates}
@@ -258,7 +280,7 @@ export default function SetupPromotionScreen() {
                 />
                 <View style={styles.audienceContainer}>
                     <Image
-                        source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')} // substitua pelo seu ícone
+                        source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
                         style={styles.audienceImage}
                     />
                     <View style={styles.audienceTextContainer}>
@@ -275,17 +297,26 @@ export default function SetupPromotionScreen() {
                     <View style={styles.previewHeader}>
                         <Image source={getCoverSource()} style={styles.previewAvatar} />
                         <View>
-                            <Text style={styles.previewTitle} numberOfLines={1}>{adTitle || 'Prévia do Título do Anúncio'}</Text>
+                            {/* adTitle agora reflete o campo Promotion.title */}
+                            <Text style={styles.previewTitle} numberOfLines={1}>
+                                {adTitle || 'Prévia do Título da Promoção'}
+                            </Text>
                             <Text style={styles.previewArtist}>{userProfile.name}</Text>
                         </View>
                     </View>
+
                     <View style={styles.previewBody}>
                         <Image source={getCoverSource()} style={styles.previewImage} />
+
+                        {/* customMessage agora reflete o campo Promotion.message */}
                         {customMessage.trim() ? (
                             <Text style={styles.previewMessage}>{customMessage}</Text>
                         ) : (
-                            <Text style={styles.previewMessagePlaceholder}>Sua mensagem personalizada aparecerá aqui.</Text>
+                            <Text style={styles.previewMessagePlaceholder}>
+                                Sua mensagem personalizada aparecerá aqui.
+                            </Text>
                         )}
+
                         <Text style={[styles.previewDates, isDateRangeInvalid && styles.errorDates]}>
                             {isDateRangeInvalid ? (
                                 "A data de término não pode ser igual ou anterior à de início."
@@ -300,11 +331,19 @@ export default function SetupPromotionScreen() {
             {/* 4. Botão de Ação */}
             <View style={styles.bottomBar}>
                 <TouchableOpacity
-                    style={[styles.publishButton, isDateRangeInvalid && styles.disabledButton]}
+                    style={[styles.publishButton, isButtonDisabled && styles.disabledButton]}
                     onPress={publishPromotion}
-                    disabled={isDateRangeInvalid}
+                    disabled={isButtonDisabled || publishStatus === 'success'}
                 >
-                    <Text style={styles.publishButtonText}>Publicar Promoção</Text>
+                    {publishStatus === 'idle' && (
+                        <Text style={styles.publishButtonText}>Publicar Promoção</Text>
+                    )}
+                    {publishStatus === 'publishing' && (
+                        <ActivityIndicator color="#fff" size="small" />
+                    )}
+                    {publishStatus === 'success' && (
+                        <Ionicons name="checkmark-circle" size={28} color="#fff" />
+                    )}
                 </TouchableOpacity>
             </View>
         </View>
@@ -447,6 +486,8 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 25,
         alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 50,
     },
     publishButtonText: {
         color: '#fff',
@@ -473,7 +514,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     dateView: {
-        //flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#2b2b2b',
         padding: 15,
@@ -483,9 +523,8 @@ const styles = StyleSheet.create({
     },
 
     audienceContainer: {
-        flexDirection: 'row',       // imagem à esquerda, textos à direita
+        flexDirection: 'row',
         alignItems: 'flex-start',
-        //width: 350,                 // largura fixa
         padding: 10,
         backgroundColor: '#2b2b2b',
         borderRadius: 12,
@@ -495,10 +534,10 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         marginRight: 10,
-        resizeMode: 'contain',       // mantém proporção da imagem
+        resizeMode: 'contain',
     },
     audienceTextContainer: {
-        flex: 1,                     // ocupa o restante da largura
+        flex: 1,
     },
     audienceTitle: {
         fontSize: 16,
