@@ -14,11 +14,19 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { MOCKED_PROFILE } from '@/src/types/contentServer';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Para selecionar datas
+
+// Importações para a biblioteca de data
+import { Calendar } from 'react-native-calendars';
+import dayjs, { Dayjs } from 'dayjs';
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import "dayjs/locale/pt-br"; // localização em português
+
+dayjs.extend(isSameOrBefore);
+dayjs.locale("pt-br");
 
 // IMPORTAÇÕES DO REDUX
-import { useAppDispatch } from '@/src/redux/hooks'; // Importa o hook para disparar ações
-import { addPromotion } from '@/src/redux/promotionsSlice'; // Importa a ação de adicionar promoção
+import { useAppDispatch } from '@/src/redux/hooks';
+import { addPromotion } from '@/src/redux/promotionsSlice';
 
 const userProfile = MOCKED_PROFILE[0];
 
@@ -29,21 +37,21 @@ type TabName = 'Singles' | 'Extended Play' | 'Álbuns' | 'Exclusive Beats' | 'Fr
 // Imagem padrão
 const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
 
-
 export default function SetupPromotionScreen() {
     const router = useRouter();
     const { contentId, contentType } = useLocalSearchParams();
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
 
     // 1. Estados da Promoção
     const [adTitle, setAdTitle] = useState('');
     const [customMessage, setCustomMessage] = useState('');
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
-    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
+    const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().add(7, 'day'));
 
-    // Busca o item de conteúdo selecionado
+    const isDateRangeInvalid = useMemo(() => {
+        return !startDate || !endDate || startDate.isSame(endDate, 'day') || startDate.isAfter(endDate);
+    }, [startDate, endDate]);
+
     const selectedContent = useMemo(() => {
         let contentList: ContentItem[] = [];
         switch (contentType) {
@@ -68,20 +76,23 @@ export default function SetupPromotionScreen() {
         return contentList.find(item => item.id === contentId) || null;
     }, [contentId, contentType]);
 
-    // Lógica para obter a capa do conteúdo ou a imagem padrão
     const getCoverSource = () => {
-        // A lógica de verificação de conexão seria necessária, mas para este mock, assumimos que a imagem pode ser carregada
         if (selectedContent?.cover && selectedContent.cover.trim() !== '') {
             return { uri: selectedContent.cover };
         }
         return defaultCoverSource;
     };
 
-    // FUNÇÃO QUE É CHAMADA PELO BOTÃO
     const publishPromotion = () => {
-        // Validações
+        // 1. Valida título
         if (!adTitle.trim()) {
             Alert.alert('Erro', 'Por favor, insira um título para o anúncio.');
+            return;
+        }
+
+        // 2. Valida datas
+        if (!startDate || !endDate) {
+            Alert.alert('Erro', 'Selecione a data de início e término.');
             return;
         }
 
@@ -90,22 +101,22 @@ export default function SetupPromotionScreen() {
             return;
         }
 
-        // Cria o objeto de promoção com os dados dos estados
+        // 3. Cria objeto de promoção
         const newPromotion = {
-            id: `promo_${Date.now()}`, // ID único
+            id: `promo_${Date.now()}`,
             adTitle,
             customMessage,
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-            coverSource: getCoverSource(), // Pega a fonte da imagem
-            contentTitle: selectedContent?.title || 'Conteúdo Sem Título', // Título do conteúdo original
+            startDate: startDate!.toISOString(),
+            endDate: endDate!.toISOString(),
+            coverSource: getCoverSource(),
+            contentTitle: selectedContent?.title || 'Conteúdo Sem Título',
             status: 'active' as 'active',
         };
 
-        // DISPARA A AÇÃO DO REDUX AQUI!
+        // 4. Dispara ação do Redux
         dispatch(addPromotion(newPromotion));
 
-        // Exibe alerta de sucesso e navega para a tela de promoções ativas
+        // 5. Alerta de sucesso e navegação
         Alert.alert('Sucesso!', 'Sua promoção foi publicada com sucesso.', [
             { text: 'OK', onPress: () => router.push('/profileScreens/usePostPromoteScreen') }
         ]);
@@ -120,6 +131,63 @@ export default function SetupPromotionScreen() {
         );
     }
 
+    // Lógica para marcar as datas - AGORA DENTRO DE UM useMemo
+    const markedDates = useMemo(() => {
+        const marked: Record<string, any> = {};
+        if (startDate) {
+            marked[startDate.format('YYYY-MM-DD')] = {
+                selected: true,
+                startingDay: true,
+                color: '#1E90FF',
+                textColor: '#fff',
+            };
+        }
+        if (startDate && endDate && !startDate.isSame(endDate)) {
+            const endString = endDate.format('YYYY-MM-DD');
+            marked[endString] = {
+                selected: true,
+                endingDay: true,
+                color: '#FF6347',
+                textColor: '#fff',
+            };
+            let currentDate = startDate.add(1, 'day');
+            while (currentDate.isBefore(endDate)) {
+                marked[currentDate.format('YYYY-MM-DD')] = {
+                    selected: true,
+                    color: 'rgba(30, 144, 255, 0.2)',
+                    textColor: '#fff',
+                };
+                currentDate = currentDate.add(1, 'day');
+            }
+        }
+        return marked;
+    }, [startDate, endDate]);
+
+    // Lógica para redefinir as datas
+    const onDayPress = (day: { dateString: string }) => {
+        const selectedDay = dayjs(day.dateString);
+
+        if (startDate && endDate) {
+            // Se já há um intervalo completo, reinicia a seleção
+            setStartDate(selectedDay);
+            setEndDate(null);
+        } else if (startDate) {
+            if (selectedDay.isBefore(startDate)) {
+                // Se a nova data é anterior, troca as datas
+                setEndDate(startDate);
+                setStartDate(selectedDay);
+            } else {
+                // Senão, define a data de fim
+                setEndDate(selectedDay);
+            }
+        } else {
+            // Se não há data de início, define a data de início
+            setStartDate(selectedDay);
+            setEndDate(null);
+        }
+    };
+
+
     return (
         <View style={styles.container}>
             <Stack.Screen
@@ -127,7 +195,6 @@ export default function SetupPromotionScreen() {
                     title: 'Configurar Promoção',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
-                    //headerBackTitleVisible: false,
                 }}
             />
             <ScrollView
@@ -135,7 +202,6 @@ export default function SetupPromotionScreen() {
                 horizontal={false}
                 contentContainerStyle={styles.scrollContent}
             >
-
                 {/* 1. Informações da Promoção */}
                 <Text style={styles.sectionTitle}>1. Informações da Promoção</Text>
                 <TextInput
@@ -156,40 +222,52 @@ export default function SetupPromotionScreen() {
                 />
 
                 {/* 2. Configuração da Campanha */}
-                <Text style={styles.sectionTitle}>2. Configuração da Campanha</Text>
-                <View style={styles.datePickerContainer}>
-                    <TouchableOpacity onPress={() => setShowStartDatePicker(true)} style={styles.dateInput}>
-                        <Ionicons name="calendar-outline" size={20} color="#fff" />
-                        <Text style={styles.dateText}>Início: {startDate.toLocaleDateString()}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setShowEndDatePicker(true)} style={styles.dateInput}>
-                        <Ionicons name="calendar-outline" size={20} color="#fff" />
-                        <Text style={styles.dateText}>Término: {endDate.toLocaleDateString()}</Text>
-                    </TouchableOpacity>
+                <Text style={styles.sectionTitle}>2. Configurar início e término da Campanha</Text>
+                <View style={styles.startEndContainerData}>
+                    <View style={styles.dateView}>
+                        <Ionicons name="calendar-outline" size={28} color="#fff" />
+                        <Text style={{ color: "#1E90FF", marginTop: 5, fontSize: 16 }}>
+                            Início: {startDate ? startDate.format("DD/MM/YYYY") : "—"}
+                        </Text>
+                    </View>
+
+                    <View style={styles.dateView}>
+                        <Ionicons name="calendar-outline" size={28} color="#fff" />
+                        <Text style={{ color: "#FF6347", marginTop: 5, fontSize: 16, marginBottom: 10 }}>
+                            Fim: {endDate ? endDate.format("DD/MM/YYYY") : "—"}
+                        </Text>
+                    </View>
                 </View>
-                {showStartDatePicker && (
-                    <DateTimePicker
-                        value={startDate}
-                        mode="date"
-                        display="default"
-                        onChange={(event, selectedDate) => {
-                            setShowStartDatePicker(false);
-                            if (selectedDate) setStartDate(selectedDate);
-                        }}
+
+                {/* NOVO COMPONENTE DO CALENDÁRIO */}
+                <Calendar
+                    initialDate={startDate?.format('YYYY-MM-DD')}
+                    markedDates={markedDates}
+                    markingType={'period'}
+                    onDayPress={onDayPress}
+                    theme={{
+                        backgroundColor: '#191919',
+                        calendarBackground: '#191919',
+                        monthTextColor: '#fff',
+                        dayTextColor: '#fff',
+                        textDisabledColor: '#555',
+                        arrowColor: '#fff',
+                        todayTextColor: '#1E90FF',
+                    }}
+                    style={{ borderRadius: 12, backgroundColor: "#2b2b2b" }}
+                />
+                <View style={styles.audienceContainer}>
+                    <Image
+                        source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')} // substitua pelo seu ícone
+                        style={styles.audienceImage}
                     />
-                )}
-                {showEndDatePicker && (
-                    <DateTimePicker
-                        value={endDate}
-                        mode="date"
-                        display="default"
-                        onChange={(event, selectedDate) => {
-                            setShowEndDatePicker(false);
-                            if (selectedDate) setEndDate(selectedDate);
-                        }}
-                    />
-                )}
-                <Text style={styles.audienceText}>Público Alvo: Todos</Text>
+                    <View style={styles.audienceTextContainer}>
+                        <Text style={styles.audienceTitle}>Público Alvo (Seguidores, Amigos e Outros)</Text>
+                        <Text style={styles.audienceDescription}>
+                            Esta promoção será exibida para mais utilizadores, além de seus amigos e seguidores.
+                        </Text>
+                    </View>
+                </View>
 
                 {/* 3. Resumo da Promoção (Preview) */}
                 <Text style={styles.sectionTitle}>3. Resumo da Promoção</Text>
@@ -208,17 +286,24 @@ export default function SetupPromotionScreen() {
                         ) : (
                             <Text style={styles.previewMessagePlaceholder}>Sua mensagem personalizada aparecerá aqui.</Text>
                         )}
-                        <Text style={styles.previewDates}>
-                            Promoção ativa de {startDate.toLocaleDateString()} a {endDate.toLocaleDateString()}
+                        <Text style={[styles.previewDates, isDateRangeInvalid && styles.errorDates]}>
+                            {isDateRangeInvalid ? (
+                                "A data de término não pode ser igual ou anterior à de início."
+                            ) : (
+                                `Promoção ativa de ${startDate?.format('DD/MM/YYYY')} a ${endDate?.format('DD/MM/YYYY')}`
+                            )}
                         </Text>
                     </View>
                 </View>
-
             </ScrollView>
 
             {/* 4. Botão de Ação */}
             <View style={styles.bottomBar}>
-                <TouchableOpacity style={styles.publishButton} onPress={publishPromotion}>
+                <TouchableOpacity
+                    style={[styles.publishButton, isDateRangeInvalid && styles.disabledButton]}
+                    onPress={publishPromotion}
+                    disabled={isDateRangeInvalid}
+                >
                     <Text style={styles.publishButtonText}>Publicar Promoção</Text>
                 </TouchableOpacity>
             </View>
@@ -233,14 +318,14 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 15,
-        paddingBottom: 100, // Espaço para o bottom bar
+        paddingBottom: 100,
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#fff',
         marginTop: 20,
-        marginBottom: 10,
+        marginBottom: 5,
     },
     input: {
         backgroundColor: '#2b2b2b',
@@ -368,10 +453,61 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    disabledButton: {
+        backgroundColor: '#555',
+    },
     errorText: {
         color: '#fff',
         fontSize: 18,
         textAlign: 'center',
         marginTop: 50,
+    },
+    errorDates: {
+        color: 'red',
+        fontWeight: 'bold',
+    },
+
+    startEndContainerData: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    dateView: {
+        //flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#2b2b2b',
+        padding: 15,
+        borderRadius: 8,
+        flex: 1,
+        marginHorizontal: 5,
+    },
+
+    audienceContainer: {
+        flexDirection: 'row',       // imagem à esquerda, textos à direita
+        alignItems: 'flex-start',
+        //width: 350,                 // largura fixa
+        padding: 10,
+        backgroundColor: '#2b2b2b',
+        borderRadius: 12,
+        marginVertical: 15,
+    },
+    audienceImage: {
+        width: 50,
+        height: 50,
+        marginRight: 10,
+        resizeMode: 'contain',       // mantém proporção da imagem
+    },
+    audienceTextContainer: {
+        flex: 1,                     // ocupa o restante da largura
+    },
+    audienceTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 4,
+    },
+    audienceDescription: {
+        fontSize: 14,
+        color: '#aaa',
     },
 });
