@@ -76,20 +76,20 @@ export default function PromoteUserScreen() {
             style={[styles.tabButton, activeTab === 'configurar' && styles.activeTab]}
             onPress={() => setActiveTab('configurar')}
           >
-            <Text style={styles.tabText}>Configurar Promoção</Text>
+            <Text style={[styles.tabText, activeTab === 'configurar' && styles.activeTabText]}>Configurar Promoção</Text>
           </Pressable>
           <Pressable
             style={[styles.tabButton, activeTab === 'ativas' && styles.activeTab]}
             onPress={() => setActiveTab('ativas')}
           >
-            <Text style={styles.tabText}>Promoções Ativas</Text>
+            <Text style={[styles.tabText, activeTab === 'ativas' && styles.activeTabText]}>Promoções Ativas</Text>
           </Pressable>
         </View>
 
         {/* --- Conteúdo de cada aba --- */}
         <View style={styles.content}>
           {activeTab === 'configurar' ? (
-            <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+            <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 20, }}>
               <Image
                 source={require('@/assets/images/4/icons8_music_library_125px.png')}
                 resizeMode='center'
@@ -142,11 +142,14 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
   content: {
     flex: 1,
+  },
+  activeTabText: {
+    color: '#1E90FF',
   },
   configContentText: {
     color: '#fff',

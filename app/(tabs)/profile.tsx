@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import TopTabBarProfile from '@/components/mainTopTabBars/topTabBarProfileScreen';
+
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
 import SingleCard from '@/components/musicItems/singleItem/SingleCard';
 import EpCard from '@/components/musicItems/epItem/EpCard';
@@ -111,7 +111,10 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
-      <TopTabBarProfile />
+
+      <View style={styles.containerTopBar}>
+        <Text style={styles.titleTopBar}>Perfil</Text>
+      </View>
 
       <ScrollView
         horizontal={false}
@@ -581,5 +584,21 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: '#fff',
+  },
+
+  containerTopBar: {
+    backgroundColor: '#1e1e1e',      // Cor de fundo escura
+    paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+    paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
+    borderBottomWidth: 1,            // Borda inferior com 1 pixel
+    borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+    flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+    alignItems: 'center',            // Alinha verticalmente ao centro
+  },
+  titleTopBar: {
+    color: '#fff',
+    fontSize: 20,
+    flex: 1,
+    //textAlign: 'center',
   },
 });

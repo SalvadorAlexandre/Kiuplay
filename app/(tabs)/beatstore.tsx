@@ -13,14 +13,16 @@ import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 
-import TopTabBarBeatStore from '@/components/mainTopTabBars/topTabBarBeatStoreScreen';
+
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 //import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
 //import { addFavoriteMusic, removeFavoriteMusic, FavoritedMusic } from '@/src/redux/favoriteMusicSlice'; // Importar FavoritedMusic
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
-import {BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
+import { BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
+
+import { Ionicons } from '@expo/vector-icons';
 
 // Dados mockados para beats da Beat Store (Feeds e Seguindo) - ATUALIZADO COM TIPAGEM E PROPRIEDADES CORRETAS
 // O tipo agora é uma união de ExclusiveBeat e FreeBeat
@@ -31,7 +33,7 @@ export default function BeatStoreScreen() {
     //const dispatch = useAppDispatch();
     const { activeTab, handleTabChange } = useBeatStoreTabs();
 
-    
+
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     //const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
@@ -41,7 +43,7 @@ export default function BeatStoreScreen() {
     const favoritedBeatStoreMusics: (ExclusiveBeat | FreeBeat)[] = favoritedMusics.filter(
         (music) =>
             music.category === 'beat' && ( // Adicionado filtro por categoria 'beat'
-                music.source === 'beatstore-favorites'||
+                music.source === 'beatstore-favorites' ||
                 music.source === 'beatstore-feeds'
             )
     ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
@@ -64,7 +66,25 @@ export default function BeatStoreScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
-            <TopTabBarBeatStore />
+
+            {/**TopBar customizada */}
+            <View style={styles.containerTopBar}>
+
+                <Text style={styles.titleTopBar}>Loja</Text>
+
+                {/* Botão de pesquisa*/}
+                <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={styles.button}>
+                    {/* Ícone de notificações*/}
+                    <Ionicons
+                        name='search-outline'
+                        size={26}
+                        color='#fff'
+                    />
+                </TouchableOpacity>
+
+            </View>
 
             <View style={styles.tabsContainer}>
                 {['feeds', 'curtidas', 'seguindo'].map((tab) => (
@@ -96,7 +116,7 @@ export default function BeatStoreScreen() {
             >
                 {activeTab === 'feeds' && (
                     <View style={styles.beatStoreMusicListContainer}>
-                        
+
                         <FlatList
                             data={MOCKED_BEATSTORE_FEED_DATA}
                             keyExtractor={(item) => item.id}
@@ -299,5 +319,27 @@ const styles = StyleSheet.create({
     },
     flatListContentContainer: {
         paddingBottom: 20,
-    }
+    },
+
+    //Estilo do topbar
+    containerTopBar: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
+        borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+    },
+    // Estilo do botão (área clicável)
+    button: {
+        padding: 6,  // Espaçamento interno do botão
+    },
+    titleTopBar: {
+        color: '#fff',
+        fontSize: 20,
+        //marginBottom: 8,
+        flex: 1,
+        //textAlign: 'center',
+    },
 });

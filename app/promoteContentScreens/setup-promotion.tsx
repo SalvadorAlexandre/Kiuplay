@@ -140,7 +140,7 @@ export default function SetupPromotionScreen() {
             setEndDate(dayjs().add(7, 'day'))
 
 
-            // ✅ Navega direto sem Alert
+            // Navega direto sem Alert
             router.push("/profileScreens/usePostPromoteScreen");
 
             // volta para idle depois de 1s

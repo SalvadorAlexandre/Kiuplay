@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import useChatTabs from "@/hooks/useChatTabs";
-import TopTabBarChat from "@/components/mainTopTabBars/topTabBarChatScreen";
 import ChatListItem from "@/components/ChatComponents/ChatListItem"
 import UserDiscoveryItem from "@/components/ChatComponents/UserDiscoveryItem"
 import FriendRequestItem from "@/components/ChatComponents/FriendRequestItem"
@@ -95,7 +94,23 @@ export default function ChatScreen() {
   return (
     <View style={styles.container}>
       {/* Topo fixo */}
-      <TopTabBarChat />
+      <View style={styles.containerTopBar}>
+
+        <Text style={styles.titleTopBar}>Chat</Text>
+
+        {/* Botão de pesquisa*/}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.buttonTopBar}>
+          {/* Ícone de notificações*/}
+          <Ionicons
+            name='search-outline'
+            size={26}
+            color='#fff'
+          />
+        </TouchableOpacity>
+
+      </View>
 
       {/* Cabeçalho e tabs */}
       <View style={styles.header}>
@@ -209,7 +224,7 @@ export default function ChatScreen() {
                     source={require("@/assets/images/4/icons8_info_120px.png")}
                     style={styles.iconLeft}
                   />
-                  <Text style={{ fontSize: 16, color: "#fff", marginLeft: 10,}}>Informação de Privacidade</Text>
+                  <Text style={{ fontSize: 16, color: "#fff", marginLeft: 10, }}>Informação de Privacidade</Text>
                 </View>
                 <TouchableOpacity onPress={() => setExpanded(!expanded)}>
                   <Ionicons
@@ -229,7 +244,7 @@ export default function ChatScreen() {
                     pedido. Acesse as definições para mudar...
                   </Text>
                   <TouchableOpacity
-                    onPress={() => router.push('/useProfileSettingsScreen')}
+                    onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}
                     style={styles.ButtonChange}
                   >
                     <Text style={styles.TextChange}>Mudar</Text>
@@ -401,4 +416,25 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+
+  containerTopBar: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
+        borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+    },
+    // Estilo do botão (área clicável)
+    buttonTopBar: {
+        padding: 6,  // Espaçamento interno do botão
+    },
+    titleTopBar: {
+        color: '#fff',
+        fontSize: 20,
+        //marginBottom: 8,
+        flex: 1,
+        //textAlign: 'center',
+    },
 });

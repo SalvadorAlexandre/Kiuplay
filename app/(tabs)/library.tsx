@@ -12,7 +12,6 @@ import {
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
-import TopTabBarLibrary from '@/components/mainTopTabBars/topTabBarLibraryScreen';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
 import LocalMusicScreen from '@/components/audioLocalComponent/useMusicLocalList';
@@ -21,8 +20,7 @@ import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
 import { LibraryFeedItem, } from '@/src/types/contentType';
 import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
-
-
+import { Ionicons } from '@expo/vector-icons';
 
 
 const SubTabBar = ({
@@ -112,7 +110,24 @@ export default function LibraryScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
-            <TopTabBarLibrary />
+            
+
+            <View style={styles.containerTopBar}>
+
+                <Text style={styles.titleTopBar}>Musicas</Text>
+
+                {/* Botão de pesquisa*/}
+                <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={styles.button}>
+                    {/* Ícone de notificações*/}
+                    <Ionicons
+                        name='search-outline'
+                        size={26}
+                        color='#fff'
+                    />
+                </TouchableOpacity>
+            </View>
 
             <View>
                 {selectedLibraryContent === 'local' && (
@@ -193,11 +208,11 @@ export default function LibraryScreen() {
                                         keyExtractor={(item) => item.id}
                                         numColumns={2}
                                         columnWrapperStyle={{ justifyContent: 'space-between' }}
-                                        renderItem={({ item }) => (      
+                                        renderItem={({ item }) => (
                                             <LibraryContentCard
                                                 item={item as unknown as LibraryFeedItem}
                                                 onPress={handleCloudItemPress}
-                                            />        
+                                            />
                                         )}
                                         contentContainerStyle={styles.flatListContentContainer}
                                     />
@@ -388,5 +403,26 @@ const styles = StyleSheet.create({
     tabContentText: {
         color: '#fff',
         fontSize: 16,
+    },
+
+    containerTopBar: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
+        borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+    },
+    // Estilo do botão (área clicável)
+    button: {
+        padding: 6,  // Espaçamento interno do botão
+    },
+    titleTopBar: {
+        color: '#fff',
+        fontSize: 20,
+        //marginBottom: 8,
+        flex: 1,
+        //textAlign: 'center',
     },
 });
