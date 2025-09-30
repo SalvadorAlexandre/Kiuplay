@@ -75,12 +75,12 @@ export default function FindBeatByAcapella() {
 
   const texts = [
     {
-      title: "Acelere a busca por instrumentais compatíveis!",
+      title: "Acelere a busca por instrumentais a seu estilo e economize tempo.",
       body: "",
     },
     {
-      title: "",
-      body: "Para obter instrumentais compatíveis com o ritmo da tua voz a capela é necessário encaixar o ritmo dos pulsos ao ritmo da tua voz a capela. Ajuste o valor do BPM até sentir que o ritmo dos pulsos se encaixa ao ritmo da tua voz a capela.",
+      title: "Os melhores instrumentais compatíveis com o teu ritmo estão no Kiuplay!",
+      body: "",
     },
     {
       title: "Comece a cantar!",

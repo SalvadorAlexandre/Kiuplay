@@ -18,7 +18,7 @@ export interface ArtistProfile {
     freeBeatsCount?: number
     exclusiveBeatsCount?: number;
     hasMonetizationEnabled?: boolean; // Novo campo para monetização
-    releaseYear: string;
+    releaseYear: string; //Mostra o ano em que o artista começou a usar no kiuplay
 
     singles?: Single[];
     albums?: Album[];

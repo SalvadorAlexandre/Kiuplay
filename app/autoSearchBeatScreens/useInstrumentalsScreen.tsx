@@ -10,6 +10,7 @@ import {
 import { Stack, useLocalSearchParams } from 'expo-router'; // Importe useLocalSearchParams
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 
 // Defina a interface para a estrutura de um instrumental (exemplo)
 interface Instrumental {

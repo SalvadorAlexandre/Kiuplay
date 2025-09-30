@@ -1,9 +1,7 @@
 // app/(tabs)/profile.tsx
 import React, { useState, useCallback } from 'react';
-
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
 import SingleCard from '@/components/musicItems/singleItem/SingleCard';
 import EpCard from '@/components/musicItems/epItem/EpCard';
@@ -113,7 +111,20 @@ export default function ProfileScreen() {
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
 
       <View style={styles.containerTopBar}>
+
         <Text style={styles.titleTopBar}>Perfil</Text>
+
+        {/* Botão de pesquisa*/}
+        <TouchableOpacity
+          onPress={() => router.push('/searchScreens/searchProfile')}
+          style={styles.buttonTopBar}>
+          {/* Ícone de notificações*/}
+          <Ionicons
+            name='search-outline'
+            size={26}
+            color='#fff'
+          />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -594,6 +605,9 @@ const styles = StyleSheet.create({
     borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
     flexDirection: 'row',            // Organiza os itens em linha (horizontal)
     alignItems: 'center',            // Alinha verticalmente ao centro
+  },
+  buttonTopBar: {
+    padding: 6,  // Espaçamento interno do botão
   },
   titleTopBar: {
     color: '#fff',

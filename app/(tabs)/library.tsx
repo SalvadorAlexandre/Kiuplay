@@ -118,8 +118,8 @@ export default function LibraryScreen() {
 
                 {/* Botão de pesquisa*/}
                 <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={styles.button}>
+                    onPress={() => router.push('/searchScreens/searchLibrary')}
+                    style={styles.buttonTopBar}>
                     {/* Ícone de notificações*/}
                     <Ionicons
                         name='search-outline'
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
         //alignItems: 'center',            // Alinha verticalmente ao centro
     },
     // Estilo do botão (área clicável)
-    button: {
+    buttonTopBar: {
         padding: 6,  // Espaçamento interno do botão
     },
     titleTopBar: {
