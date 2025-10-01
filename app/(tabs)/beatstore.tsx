@@ -74,9 +74,8 @@ export default function BeatStoreScreen() {
 
                 {/* Botão de pesquisa*/}
                 <TouchableOpacity
-                    onPress={() => router.back()}
+                    onPress={() => router.push(`/searchScreens/searchBeatStore`)}
                     style={styles.button}>
-                    {/* Ícone de notificações*/}
                     <Ionicons
                         name='search-outline'
                         size={26}

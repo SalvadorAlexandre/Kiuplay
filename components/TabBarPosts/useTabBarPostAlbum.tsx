@@ -39,13 +39,6 @@ export default function TopTabBarAlbum() {
 
             <Text style={styles.title}>Postar Album</Text>
 
-
-            <TouchableOpacity
-                style={styles.buttonSave}>
-                <Ionicons name="save" size={20} color="#fff" />
-                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Salvar</Text>
-            </TouchableOpacity>
-
         </View>
     );
 }

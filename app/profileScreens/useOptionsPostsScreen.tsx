@@ -81,23 +81,22 @@ export default function OptionsListPostScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Tipo de post',
+                    title: 'Escolha oque quer postar',
                     headerStyle: { backgroundColor: '#191919', },
                     headerTintColor: '#fff',
-                    headerTitleStyle: { fontWeight: 'bold' },
-                    headerShown: false,
+                    //headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: true,
                 }}
             />
             <View style={{ flex: 1, backgroundColor: '#191919' }}>
-                <TopTabBarOptionsPosts />
+                
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
                     contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
-
-                    <View style={{
+                    {/** <View style={{
                         //backgroundColor: '#fff',
                         marginBottom: 10,
                         // marginTop: -20,
@@ -115,7 +114,9 @@ export default function OptionsListPostScreen() {
                             style={{ width: '100%', height: '100%' }} // Preenche toda a View
                             resizeMode='stretch' // Ajusta a imagem para cobrir toda a área
                         />
-                    </View>
+                    </View>*/}
+
+                    
 
 
                     {/*View do botão postar Single-----------------------------------------------------------------*/}

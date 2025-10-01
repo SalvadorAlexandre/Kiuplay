@@ -27,6 +27,9 @@ import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 
 export default function ProfileScreen() {
 
+
+  const [expanded, setExpanded] = useState(false); //Hook para controlar conteudo expandido
+
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
@@ -50,17 +53,16 @@ export default function ProfileScreen() {
   const handlePressInUploads = () => { Animated.spring(scaleValueUploads, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutUploads = () => { Animated.spring(scaleValueUploads, { toValue: 1, useNativeDriver: true }).start(); };
 
-  const [scaleValueInsight] = useState(new Animated.Value(1));
+  {/**const [scaleValueInsight] = useState(new Animated.Value(1));
   const handlePressInInsight = () => { Animated.spring(scaleValueInsight, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutInsight = () => { Animated.spring(scaleValueInsight, { toValue: 1, useNativeDriver: true }).start(); };
+ */ }
 
-  const [scaleValueNotification] = useState(new Animated.Value(1));
-  const handlePressInNotification = () => { Animated.spring(scaleValueNotification, { toValue: 0.96, useNativeDriver: true }).start(); };
-  const handlePressOutNotification = () => { Animated.spring(scaleValueNotification, { toValue: 1, useNativeDriver: true }).start(); };
-
-  const [scaleValueMonetization] = useState(new Animated.Value(1));
+  {/** const [scaleValueMonetization] = useState(new Animated.Value(1));
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
-  const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
+  const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };*/}
+
+
 
   const tabs = ['Single', 'Extended Play', 'Album', 'Beats Comprados', 'Exclusive Beats', 'Free Beats',];
   const [activeTab, setActiveTab] = useState('Single');
@@ -114,17 +116,25 @@ export default function ProfileScreen() {
 
         <Text style={styles.titleTopBar}>Perfil</Text>
 
-        {/* Botão de pesquisa*/}
-        <TouchableOpacity
-          onPress={() => router.push('/searchScreens/searchProfile')}
-          style={styles.buttonTopBar}>
-          {/* Ícone de notificações*/}
-          <Ionicons
-            name='search-outline'
-            size={26}
-            color='#fff'
-          />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8, }}>
+          {/* Botão da tela de notificacoes*/}
+          <TouchableOpacity
+            onPress={() => router.push('/notificationsScreens/notifications')}
+            style={styles.buttonTopBar}>
+            {/* Ícone de notificações*/}
+            <Ionicons name='notifications' size={24} color='#fff' />
+          </TouchableOpacity>
+
+          {/* Botão de pesquisa*/}
+          <TouchableOpacity
+            onPress={() => router.push('/searchScreens/searchProfile')}
+            style={styles.buttonTopBar}>
+            {/* Ícone de notificações*/}
+            <Ionicons name='search-outline' size={25} color='#fff' />
+          </TouchableOpacity>
+        </View>
+
+
       </View>
 
       <ScrollView
@@ -185,114 +195,111 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* View das configurações do perfil */}
-        <Animated.View style={[
-          styles.buttonContainer,
-          { transform: [{ scale: scaleValueConfig }] }
-        ]}>
-          <TouchableOpacity
-            onPressIn={handlePressInConfig}
-            onPressOut={handlePressOutConfig}
-            onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}  //Tela de configurações
-            style={styles.buttonContent}
-          >
-            <Image
-              source={require('@/assets/images/2/icons8_user_settings_120px.png')}
-              style={styles.iconLeft}
-            />
-            <Text style={styles.buttonText}>Configurações</Text>
-            <Ionicons name="chevron-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
+        <View>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+              <Ionicons
+                name={expanded ? "chevron-up" : "chevron-down"}
+                size={24}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
 
-        {/* View do botão para entrar na tela de monetização */}
-        <Animated.View style={[
-          styles.buttonContainer,
-          { transform: [{ scale: scaleValueMonetization }] }
-        ]}>
-          <TouchableOpacity
-            onPressIn={handlePressInMonetization}
-            onPressOut={handlePressOutMonetization}
-            onPress={() => router.push('/profileScreens/useMonetizationScreen')} //Tela de monetização
-            style={styles.buttonContent}
-          >
-            <Image
-              source={require('@/assets/images/2/icons8_euro_money_120px.png')}
-              style={styles.iconLeft}
-            />
-            <Text style={styles.buttonText}>Kiuplay Monetization</Text>
-            <Ionicons name="chevron-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
+          {/* Conteúdo expansível */}
+          {expanded && (
+            <View>
+              {/* View das configurações do perfil */}
+              <Animated.View style={[
+                styles.buttonContainer,
+                { transform: [{ scale: scaleValueConfig }] }
+              ]}>
+                <TouchableOpacity
+                  onPressIn={handlePressInConfig}
+                  onPressOut={handlePressOutConfig}
+                  onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}  //Tela de configurações
+                  style={styles.buttonContent}
+                >
+                  <Image
+                    source={require('@/assets/images/2/icons8_settings_120px.png')}
+                    style={styles.iconLeft}
+                  />
+                  <Text style={styles.buttonText}>Configurações</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#fff" />
+                </TouchableOpacity>
+              </Animated.View>
 
-        {/* View do botão Fazer Uploads */}
-        <Animated.View style={[
-          styles.buttonContainer,
-          { transform: [{ scale: scaleValueUploads }] }
-        ]}>
-          <TouchableOpacity
-            onPressIn={handlePressInUploads}
-            onPressOut={handlePressOutUploads}
-            onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
-            style={styles.buttonContent}
-          >
-            <Image
-              source={require('@/assets/images/2/icons8_upload_to_cloud_120px.png')}
-              style={styles.iconLeft}
-            />
-            <Text style={styles.buttonText}>Fazer Uploads</Text>
-            <Ionicons name="chevron-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
+              {/* View do botão para entrar na tela de monetização 
+              <Animated.View style={[
+                styles.buttonContainer,
+                { transform: [{ scale: scaleValueMonetization }] }
+              ]}>
+                <TouchableOpacity
+                  onPressIn={handlePressInMonetization}
+                  onPressOut={handlePressOutMonetization}
+                  onPress={() => router.push('/profileScreens/useMonetizationScreen')} //Tela de monetização
+                  style={styles.buttonContent}
+                >
+                  <Image
+                    source={require('@/assets/images/2/icons8_euro_money_120px.png')}
+                    style={styles.iconLeft}
+                  />
+                  <Text style={styles.buttonText}>Kiuplay Monetization</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#fff" />
+                </TouchableOpacity>
+              </Animated.View>
 
-        {/* View do botão Insight */}
-        <Animated.View style={[
-          styles.buttonContainer,
-          { transform: [{ scale: scaleValueInsight }] }
-        ]}>
-          <TouchableOpacity
-            onPressIn={handlePressInInsight}
-            onPressOut={handlePressOutInsight}
-            onPress={() => router.push('/profileScreens/useInsightsUserScreen')} //Tela de Insights
-            style={styles.buttonContent}
-          >
-            <Image
-              source={require('@/assets/images/2/icons8_funnel_120px_1.png')}
-              style={styles.iconLeft}
-            />
-            <Text style={styles.buttonText}>Seus Insights</Text>
-            <Ionicons name="chevron-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
+              */}
 
-        {/* View do botão Notificaçoee */}
-        <Animated.View style={[
-          styles.buttonContainer,
-          { transform: [{ scale: scaleValueNotification }] }
-        ]}>
-          <TouchableOpacity
-            onPressIn={handlePressInNotification}
-            onPressOut={handlePressOutNotification}
-            onPress={() => router.push('/notificationsScreens/notifications')} //Tela de noticaões
-            style={styles.buttonContent}
-          >
-            <Image
-              source={require('@/assets/images/2/icons8_notification_120px.png')}
-              style={styles.iconLeft}
-            />
-            <Text style={styles.buttonText}>Notificações</Text>
-            <Ionicons name="chevron-forward" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
+              {/* View do botão Fazer Uploads */}
+              <Animated.View style={[
+                styles.buttonContainer,
+                { transform: [{ scale: scaleValueUploads }] }
+              ]}>
+                <TouchableOpacity
+                  onPressIn={handlePressInUploads}
+                  onPressOut={handlePressOutUploads}
+                  onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
+                  style={styles.buttonContent}
+                >
+                  <Image
+                    source={require('@/assets/images/2/icons8_upload_to_the_cloud_120px.png')}
+                    style={styles.iconLeft}
+                  />
+                  <Text style={styles.buttonText}>Fazer Uploads</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#fff" />
+                </TouchableOpacity>
+              </Animated.View>
+
+              {/* View do botão Insight 
+              <Animated.View style={[
+                styles.buttonContainer,
+                { transform: [{ scale: scaleValueInsight }] }
+              ]}>
+                <TouchableOpacity
+                  onPressIn={handlePressInInsight}
+                  onPressOut={handlePressOutInsight}
+                  onPress={() => router.push('/profileScreens/useInsightsUserScreen')} //Tela de Insights
+                  style={styles.buttonContent}
+                >
+                  <Image
+                    source={require('@/assets/images/2/icons8_funnel_120px_1.png')}
+                    style={styles.iconLeft}
+                  />
+                  <Text style={styles.buttonText}>Seus Insights</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#fff" />
+                </TouchableOpacity>
+              </Animated.View>
+              
+              */}
+
+            </View>
+          )}
+        </View>
 
         {/* View dos conteúdos do usuário */}
         <View>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 20,
-          }}></View>
+          <View style={{ marginTop: 10,}}></View>
 
           <ScrollView
             horizontal
@@ -320,7 +327,7 @@ export default function ProfileScreen() {
             ))}
           </ScrollView>
 
-          <View style={{ marginTop: 20 }}>
+          <View style={{ marginTop: 8 }}>
             {activeTab === 'Single' && (
               <View style={{ flex: 1, paddingHorizontal: 10, }}>
                 <FlatList
@@ -525,9 +532,9 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     paddingHorizontal: 15,
-    backgroundColor: '#1e1e1e',
-    padding: 30,
-    margin: 5,
+    //backgroundColor: '#1e1e1e',
+    padding: 20,
+    //margin: 5,
     width: '100%',
     alignSelf: 'center',
     marginTop: -20,
@@ -547,7 +554,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 5,
     width: '100%',
-    backgroundColor: '#1e1e1e',
+    //backgroundColor: '#1e1e1e',
     overflow: 'hidden',
   },
   buttonContent: {
@@ -557,8 +564,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   iconLeft: {
-    width: 25,
-    height: 25,
+    width: 26,
+    height: 26,
     marginRight: 10,
   },
   buttonText: {
@@ -593,13 +600,14 @@ const styles = StyleSheet.create({
   },
 
   containerTopBar: {
-    backgroundColor: '#1e1e1e',      // Cor de fundo escura
+    //backgroundColor: '#1e1e1e',      // Cor de fundo escura
     paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
     paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
     borderBottomWidth: 1,            // Borda inferior com 1 pixel
     borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
     flexDirection: 'row',            // Organiza os itens em linha (horizontal)
     alignItems: 'center',            // Alinha verticalmente ao centro
+    width: '100%'
   },
   buttonTopBar: {
     padding: 6,  // Espaçamento interno do botão
