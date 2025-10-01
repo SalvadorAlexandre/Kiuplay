@@ -9,101 +9,97 @@ import {
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, Stack, Href } from "expo-router";
-// Importar função debounce para otimização
-import debounce from 'lodash.debounce';
+import { useRouter, Stack } from "expo-router";
+import debounce from "lodash.debounce";
 
-// 1. MELHORIA DE TIPAGEM: Definir um tipo comum
-// Tornamos 'category' opcional e string para maior segurança
 interface ContentItem {
     id: string;
     title?: string;
     name?: string;
-    category?: string; // Pode ser 'undefined' ou uma string como 'single', 'album', 'ep', etc.
+    category?: string;
 }
 
-// Assumindo que MOCKED_CLOUD_FEED_DATA é do tipo ContentItem[]
 import { MOCKED_CLOUD_FEED_DATA } from "@/src/types/contentServer";
 
 export default function LibrarySearch() {
     const [query, setQuery] = useState("");
     const router = useRouter();
-
-    // Estado que só é atualizado após o debounce
     const [searchQuery, setSearchQuery] = useState("");
 
-    // --- LÓGICA DE PESQUISA (Otimizada com useCallback) ---
-
-    // Função de filtro: Memorizada para evitar recriação desnecessária
     const filterData = useCallback((text: string): ContentItem[] => {
         if (!text) return [];
 
         const lowercasedText = text.toLowerCase().trim();
 
         return MOCKED_CLOUD_FEED_DATA.filter((item: ContentItem) => {
-            // Acesso seguro ao campo de pesquisa (title ou name)
-            const searchField = "title" in item && item.title
-                ? item.title
-                : ("name" in item && item.name ? item.name : '');
+            const searchField =
+                "title" in item && item.title
+                    ? item.title
+                    : "name" in item && item.name
+                        ? item.name
+                        : "";
 
             return searchField.toLowerCase().includes(lowercasedText);
         });
     }, []);
 
-    // Função Debounced: Memorizada para garantir que o timer do debounce é mantido
     const debouncedSetSearchQuery = useMemo(
-        // Só executa o setSearchQuery 300ms após a última tecla
         () => debounce((text: string) => setSearchQuery(text), 300),
         []
     );
 
-    // Handler de input: Atualiza o input visualmente e dispara o debounce
     const handleInputChange = (text: string) => {
         setQuery(text);
-        // Chamar a função debounced (não o setSearchQuery diretamente)
         debouncedSetSearchQuery(text);
     };
 
-    // Resultados: Filtra apenas quando searchQuery (debounced) muda
-    const results = useMemo(() => filterData(searchQuery), [searchQuery, filterData]);
-
-    // --- UX HANDLERS ---
+    const results = useMemo(
+        () => filterData(searchQuery),
+        [searchQuery, filterData]
+    );
 
     const handleClear = () => {
         setQuery("");
-        // Imediatamente limpa os resultados
         setSearchQuery("");
     };
 
-    // --- RENDERIZAÇÃO DE ITEM (Correção de Tipagem/Navegação) ---
+    const handleSearchItemPress = (item: ContentItem) => {
+        if (item.category === "single") {
+            router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
+        } else if (item.category === "album") {
+            router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
+        } else if (item.category === "ep") {
+            router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
+        } else if (item.category === "artist" || !item.category) {
+            router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
+        } else {
+            console.warn("Tipo de item desconhecido:", item.category);
+        }
+    };
 
     const renderItem = ({ item }: { item: ContentItem }) => {
-        // Acesso seguro às propriedades para exibição
-        const displayTitle = "title" in item && item.title ? item.title : item.name;
-        const isArtist = !("category" in item) || item.category === undefined;
+        const displayTitle =
+            "title" in item && item.title ? item.title : item.name;
+
+        const isArtist =
+            !item.category || item.category.trim() === "" || item.category === "artist";
+
         const displayType = isArtist ? "Artista" : item.category;
+
+        // 🎨 Ícones personalizados por tipo
+        let iconName: keyof typeof Ionicons.glyphMap = "musical-notes";
+        if (isArtist) iconName = "person-circle";
+        else if (item.category === "single") iconName = "musical-note";
+        else if (item.category === "album") iconName = "albums";
+        else if (item.category === "ep") iconName = "albums";
 
         return (
             <TouchableOpacity
                 style={styles.item}
-                onPress={() => {
-
-                    if (isArtist) {
-                        router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
-                        // Lógica para todos os outros itens que não são Artistas
-                        //router.push(`/` );
-                    } else if (item.category && item.category.trim() !== "") {
-                        // Navegação para Conteúdo (se 'category' existe e tem valor)
-                        router.push(`/contentCardLibraryScreens/${item.category}-details/${item.id}` as Href);
-
-                    } else {
-                        // Fallback para debug ou para ignorar itens malformados
-                        console.warn("Navegação ignorada para item mal formado:", item);
-                    }
-                }}
+                onPress={() => handleSearchItemPress(item)}
             >
                 <Ionicons
-                    name={isArtist ? "person-circle" : "musical-notes"}
+                    name={iconName}
                     size={26}
                     color="#fff"
                     style={styles.itemIcon}
@@ -113,25 +109,25 @@ export default function LibrarySearch() {
                     <Text style={styles.itemText} numberOfLines={1}>
                         {displayTitle}
                     </Text>
-                    <Text style={styles.itemType}>
-                        {displayType}
-                    </Text>
+                    <Text style={styles.itemType}>{displayType}</Text>
                 </View>
             </TouchableOpacity>
         );
     };
-
 
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
 
             <View style={styles.container}>
-                {/* TopBar e Clear Button */}
                 <View style={styles.searchBar}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={styles.backButton}
+                    >
                         <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
+
                     <TextInput
                         style={styles.input}
                         placeholder="Pesquisar na Library..."
@@ -140,9 +136,12 @@ export default function LibrarySearch() {
                         onChangeText={handleInputChange}
                         autoFocus
                     />
-                    {/* Botão de limpar só aparece quando há texto */}
+
                     {query.length > 0 && (
-                        <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
+                        <TouchableOpacity
+                            onPress={handleClear}
+                            style={styles.clearButton}
+                        >
                             <Ionicons name="close-circle" size={24} color="#aaa" />
                         </TouchableOpacity>
                     )}
@@ -155,9 +154,13 @@ export default function LibrarySearch() {
                     keyboardShouldPersistTaps="handled"
                     ListEmptyComponent={() =>
                         searchQuery.length > 0 ? (
-                            <Text style={styles.noResults}>Nenhum resultado encontrado para "{searchQuery}".</Text>
+                            <Text style={styles.noResults}>
+                                Nenhum resultado encontrado para "{searchQuery}".
+                            </Text>
                         ) : (
-                            <Text style={styles.noResults}>Comece a digitar para pesquisar na sua biblioteca.</Text>
+                            <Text style={styles.noResults}>
+                                Comece a digitar para pesquisar na sua biblioteca.
+                            </Text>
                         )
                     }
                 />
@@ -170,8 +173,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#191919",
-        // PADDING: Uso mais explícito do SafeAreaView é recomendado, mas mantendo o seu estilo.
-        paddingTop: Platform.OS === 'android' ? 3 : 3,
+        paddingTop: Platform.OS === "android" ? 3 : 3,
     },
     searchBar: {
         flexDirection: "row",
@@ -200,8 +202,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         padding: 15,
-        //borderBottomWidth: StyleSheet.hairlineWidth,
-        //borderBottomColor: "#2b2b2b",
     },
     itemIcon: {
         marginRight: 10,

@@ -137,11 +137,7 @@ export default function ProfileScreen() {
         <View style={styles.profileContainer}>
           <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <View style={styles.imageContainer}>
-              <Image // Imagem do perfil
-                source={avatarUser}
-                style={styles.profileImage}
-                resizeMode="contain"
-              />
+              <Image source={avatarUser} style={styles.profileImage} resizeMode="contain" />
             </View>
 
             {/* Mostrar o nome e o arroba do utilizador */}
@@ -475,16 +471,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   imageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    overflow: 'hidden',
-    backgroundColor: '#333',
-    marginBottom: 20,
+    flex: 1
   },
   profileImage: {
-    width: '100%',
-    height: '100%',
+    width: 120,
+    height: 120,
+    borderRadius: 75,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#1E90FF',
   },
   statsTable: {
     marginTop: 10,

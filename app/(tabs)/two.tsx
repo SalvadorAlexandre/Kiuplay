@@ -29,7 +29,4 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
-});
-
-*/
-
+});*/
