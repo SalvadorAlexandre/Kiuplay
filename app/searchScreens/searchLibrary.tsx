@@ -178,11 +178,11 @@ const styles = StyleSheet.create({
     searchBar: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#1e1e1e",
+        //backgroundColor: "#1e1e1e",
         paddingHorizontal: 10,
         paddingVertical: 20,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#333",
+        //borderBottomWidth: StyleSheet.hairlineWidth,
+        //borderBottomColor: "#333",
     },
     backButton: {
         padding: 5,

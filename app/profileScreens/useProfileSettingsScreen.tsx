@@ -6,11 +6,13 @@ import {
     StyleSheet,
     Text,
     Image,
+    TouchableOpacity
 } from 'react-native'
-import TopTabBarSettings from '@/components/topTabBarInUserOptions/useTopTabBarSettings'
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function ProfileSettingsScreen() {
-
+    const router = useRouter();
     return (
         <>
             <Stack.Screen
@@ -24,7 +26,22 @@ export default function ProfileSettingsScreen() {
             />
 
             <View style={{ flex: 1, backgroundColor: '#191919' }}>
-                <TopTabBarSettings />
+                <View style={styles.containerBack}>
+                    {/* Botão de pesquisa*/}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={styles.buttonBack}>
+                        {/* Ícone de notificações*/}
+                        <Ionicons
+                            name='arrow-back'
+                            size={24}
+                            color='#fff'
+                        />
+                    </TouchableOpacity>
+
+                    <Text style={styles.titleBack}>Settings</Text>
+                </View>
+             
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
@@ -92,6 +109,28 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 2,
         //marginLeft: 15,
+        //textAlign: 'center',
+    },
+
+    containerBack: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        // paddingHorizontal: 10,           // Espaçamento lateral (esquerda e direita)
+        //borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+        marginBottom: 20,
+    },
+    buttonBack: {
+        //backgroundColor: '#333',
+        marginLeft: 15,
+    },
+    titleBack: {
+        color: '#fff',
+        fontSize: 18,
+        marginLeft: 14,
+        flex: 1,
         //textAlign: 'center',
     },
 })

@@ -2,7 +2,6 @@
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
-import TopTabBarOptionsPosts from '@/components/topTabBarInUserOptions/useTabBarOptionsPosts'
 import {
     ScrollView,
     View,
@@ -277,7 +276,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         width: '100%',
         // borderRadius: 10,
-        backgroundColor: '#1e1e1e',
+        //backgroundColor: '#1e1e1e',
         overflow: 'hidden',
     },
     buttonContent: {

@@ -21,6 +21,8 @@ import { getAudioManager } from '@/src/utils/audioManager'; // Para descarregar 
 // NOVO: Importações para o status da rede
 import NetInfo from '@react-native-community/netinfo'; // Importa NetInfo
 import { setNetworkStatus } from '@/src/redux/networkSlice'; // Importa a ação para definir o status da rede
+import { Card } from 'react-native-paper';
+
 
 export {
   ErrorBoundary,

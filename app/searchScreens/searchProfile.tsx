@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: "#1e1e1e", // Cor de fundo da barra para contraste
+    //backgroundColor: "#1e1e1e", // Cor de fundo da barra para contraste
     paddingHorizontal: 10,
     paddingVertical: 20,
     // borderBottomWidth: StyleSheet.hairlineWidth,

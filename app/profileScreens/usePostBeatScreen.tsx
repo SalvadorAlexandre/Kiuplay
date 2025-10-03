@@ -4,7 +4,6 @@ import { usePostBeat } from '@/hooks/usePostBeat';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
-import TopTabBarBeat from '@/components/TabBarPosts/useTabBarPostBeat'
 import {
     StyleSheet,
     View,
@@ -14,8 +13,10 @@ import {
     TouchableOpacity,
     ScrollView,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function PostBeatScreen() {
+    const router = useRouter()
     const {
         nomeProdutor, setNomeProdutor,
         tituloBeat, setTituloBeat,
@@ -60,14 +61,29 @@ export default function PostBeatScreen() {
                 }}
             />
             <View style={{ flex: 1, backgroundColor: '#191919' }}>
-                <TopTabBarBeat />
+                <View style={styles.containerBack}>
+
+                    {/* Botão de pesquisa*/}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={styles.buttonBack}>
+                        {/* Ícone de notificações*/}
+                        <Ionicons
+                            name='arrow-back'
+                            size={24}
+                            color='#fff'
+                        />
+                    </TouchableOpacity>
+
+                    <Text style={styles.titleBack}>Postar Beat</Text>
+                </View>
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
                     contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
-                    
+
                     <View style={{
                         width: "100%",
                         marginBottom: 10,
@@ -302,5 +318,27 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         marginRight: 10,
+    },
+
+    containerBack: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        // paddingHorizontal: 10,           // Espaçamento lateral (esquerda e direita)
+        //borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        //borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+        marginBottom: 20,
+    },
+    buttonBack: {
+        //backgroundColor: '#333',
+        marginLeft: 15,
+    },
+    titleBack: {
+        color: '#fff',
+        fontSize: 18,
+        marginLeft: 14,
+        flex: 1,
+        //textAlign: 'center',
     },
 })

@@ -27,9 +27,6 @@ import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 
 export default function ProfileScreen() {
 
-
-  const [expanded, setExpanded] = useState(false); //Hook para controlar conteudo expandido
-
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
@@ -61,8 +58,6 @@ export default function ProfileScreen() {
   {/** const [scaleValueMonetization] = useState(new Animated.Value(1));
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };*/}
-
-
 
   const tabs = ['Single', 'Extended Play', 'Album', 'Beats Comprados', 'Exclusive Beats', 'Free Beats',];
   const [activeTab, setActiveTab] = useState('Single');
@@ -195,41 +190,32 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+
+
+        {/* Conteúdo expansível */}
+
         <View>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-              <Ionicons
-                name={expanded ? "chevron-up" : "chevron-down"}
-                size={24}
-                color="#fff"
+          {/* View das configurações do perfil */}
+          <Animated.View style={[
+            styles.buttonContainer,
+            { transform: [{ scale: scaleValueConfig }] }
+          ]}>
+            <TouchableOpacity
+              onPressIn={handlePressInConfig}
+              onPressOut={handlePressOutConfig}
+              onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}  //Tela de configurações
+              style={styles.buttonContent}
+            >
+              <Image
+                source={require('@/assets/images/2/icons8_settings_120px.png')}
+                style={styles.iconLeft}
               />
+              <Text style={styles.buttonText}>Configurações</Text>
+              <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
-          </View>
+          </Animated.View>
 
-          {/* Conteúdo expansível */}
-          {expanded && (
-            <View>
-              {/* View das configurações do perfil */}
-              <Animated.View style={[
-                styles.buttonContainer,
-                { transform: [{ scale: scaleValueConfig }] }
-              ]}>
-                <TouchableOpacity
-                  onPressIn={handlePressInConfig}
-                  onPressOut={handlePressOutConfig}
-                  onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}  //Tela de configurações
-                  style={styles.buttonContent}
-                >
-                  <Image
-                    source={require('@/assets/images/2/icons8_settings_120px.png')}
-                    style={styles.iconLeft}
-                  />
-                  <Text style={styles.buttonText}>Configurações</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#fff" />
-                </TouchableOpacity>
-              </Animated.View>
-
-              {/* View do botão para entrar na tela de monetização 
+          {/* View do botão para entrar na tela de monetização 
               <Animated.View style={[
                 styles.buttonContainer,
                 { transform: [{ scale: scaleValueMonetization }] }
@@ -251,27 +237,27 @@ export default function ProfileScreen() {
 
               */}
 
-              {/* View do botão Fazer Uploads */}
-              <Animated.View style={[
-                styles.buttonContainer,
-                { transform: [{ scale: scaleValueUploads }] }
-              ]}>
-                <TouchableOpacity
-                  onPressIn={handlePressInUploads}
-                  onPressOut={handlePressOutUploads}
-                  onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
-                  style={styles.buttonContent}
-                >
-                  <Image
-                    source={require('@/assets/images/2/icons8_upload_to_the_cloud_120px.png')}
-                    style={styles.iconLeft}
-                  />
-                  <Text style={styles.buttonText}>Fazer Uploads</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#fff" />
-                </TouchableOpacity>
-              </Animated.View>
+          {/* View do botão Fazer Uploads */}
+          <Animated.View style={[
+            styles.buttonContainer,
+            { transform: [{ scale: scaleValueUploads }] }
+          ]}>
+            <TouchableOpacity
+              onPressIn={handlePressInUploads}
+              onPressOut={handlePressOutUploads}
+              onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
+              style={styles.buttonContent}
+            >
+              <Image
+                source={require('@/assets/images/2/icons8_upload_to_the_cloud_120px.png')}
+                style={styles.iconLeft}
+              />
+              <Text style={styles.buttonText}>Fazer Uploads</Text>
+              <Ionicons name="chevron-forward" size={20} color="#fff" />
+            </TouchableOpacity>
+          </Animated.View>
 
-              {/* View do botão Insight 
+          {/* View do botão Insight 
               <Animated.View style={[
                 styles.buttonContainer,
                 { transform: [{ scale: scaleValueInsight }] }
@@ -293,13 +279,12 @@ export default function ProfileScreen() {
               
               */}
 
-            </View>
-          )}
         </View>
+
 
         {/* View dos conteúdos do usuário */}
         <View>
-          <View style={{ marginTop: 10,}}></View>
+          <View style={{ marginTop: 10, }}></View>
 
           <ScrollView
             horizontal
@@ -603,11 +588,11 @@ const styles = StyleSheet.create({
     //backgroundColor: '#1e1e1e',      // Cor de fundo escura
     paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
     paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-    borderBottomWidth: 1,            // Borda inferior com 1 pixel
-    borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+    //borderBottomWidth: 1,            // Borda inferior com 1 pixel
+    //borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
     flexDirection: 'row',            // Organiza os itens em linha (horizontal)
     alignItems: 'center',            // Alinha verticalmente ao centro
-    width: '100%'
+    //width: '100%'
   },
   buttonTopBar: {
     padding: 6,  // Espaçamento interno do botão

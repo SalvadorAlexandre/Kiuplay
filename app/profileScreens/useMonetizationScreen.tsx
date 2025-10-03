@@ -1,6 +1,5 @@
 import React from 'react'
 import { Stack } from 'expo-router';
-import TopTabBarMonetization from '@/components/topTabBarInUserOptions/useTabBarMonetization'
 import {
     View,
     ScrollView,
@@ -9,9 +8,11 @@ import {
     Image,
     TouchableOpacity,
 } from 'react-native'
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MonetizationScreen() {
-
+    const router = useRouter()
     return (
         <>
             <Stack.Screen
@@ -24,14 +25,29 @@ export default function MonetizationScreen() {
                 }}
             />
             <View style={{ flex: 1, backgroundColor: '#191919' }}>
-                <TopTabBarMonetization />
+                <View style={styles.containerBack}>
+
+                    {/* Botão de pesquisa*/}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={styles.buttonBack}>
+                        {/* Ícone de notificações*/}
+                        <Ionicons
+                            name='arrow-back'
+                            size={24}
+                            color='#fff'
+                        />
+                    </TouchableOpacity>
+
+                    <Text style={styles.titleBack}>Monetization panel</Text>
+                </View>
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
                     contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-                >   
-                    <View style={{ justifyContent: 'center', alignItems: 'center',  padding: 20,}}>
+                >
+                    <View style={{ justifyContent: 'center', alignItems: 'center', padding: 20, }}>
                         {/* Ícone do paypal*/}
                         <Image
                             source={require('@/assets/images/4/icons8_paypal_120px_3.png')} // Troque pelo seu ícone
@@ -117,5 +133,28 @@ const styles = StyleSheet.create({
         marginTop: 2,
         //marginLeft: 15,
         textAlign: 'center',
+    },
+
+    // Estilo da barra que envolve o botão
+    containerBack: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        // paddingHorizontal: 10,           // Espaçamento lateral (esquerda e direita)
+        borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+        // marginBottom: 20,
+    },
+    buttonBack: {
+        //backgroundColor: '#333',
+        marginLeft: 10,
+    },
+    titleBack: {
+        color: '#fff',
+        fontSize: 18,
+        marginLeft: 14,
+        flex: 1,
+        //textAlign: 'center',
     },
 })

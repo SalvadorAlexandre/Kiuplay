@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostEP'; // Importa o Hook
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
-import TopTabBarEP from '@/components/TabBarPosts/useTabBarPostEP'
 import {
     View,
     Text,
@@ -15,13 +14,14 @@ import {
     ScrollView,
     Image,
 } from 'react-native';
-
+import { useRouter } from 'expo-router';
 
 /**
  * Componente responsável por renderizar a interface de
  * postagem de EP, usando o Hook usePostEP.
  */
 export default function PostEPScreen() {
+    const router = useRouter()
     // Importa os estados e manipuladores do Hook
     const {
         hasParticipants,
@@ -71,7 +71,23 @@ export default function PostEPScreen() {
                 }}
             />
             <View style={{ flex: 1, backgroundColor: '#191919' }}>
-                <TopTabBarEP />
+                <View style={styles.containerBack}>
+
+                    {/* Botão de pesquisa*/}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={styles.buttonBack}>
+                        {/* Ícone de notificações*/}
+                        <Ionicons
+                            name='arrow-back'
+                            size={24}
+                            color='#fff'
+                        />
+                    </TouchableOpacity>
+
+                    <Text style={styles.titleBack}>Postar EP</Text>
+                </View>
+             
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
@@ -390,6 +406,28 @@ export const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         marginRight: 10,
+    },
+
+    containerBack: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        // paddingHorizontal: 10,           // Espaçamento lateral (esquerda e direita)
+        //borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        //borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        //alignItems: 'center',            // Alinha verticalmente ao centro
+        marginBottom: 20,
+    },
+    buttonBack: {
+        //backgroundColor: '#333',
+        marginLeft: 15,
+    },
+    titleBack: {
+        color: '#fff',
+        fontSize: 18,
+        marginLeft: 14,
+        flex: 1,
+        //textAlign: 'center',
     },
 });
 
