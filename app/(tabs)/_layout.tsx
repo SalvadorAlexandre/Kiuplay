@@ -72,8 +72,7 @@ export default function TabLayout() {
 
           }}
         />
-
-        <Tabs.Screen
+        {/**<Tabs.Screen
           name="chat" // Tela chat
           options={{
             title: 'chat',
@@ -93,8 +92,7 @@ export default function TabLayout() {
               />
             ),
           }}
-        />
-
+        /> */}
 
         <Tabs.Screen
           name="beatstore" //Tela loja de beats

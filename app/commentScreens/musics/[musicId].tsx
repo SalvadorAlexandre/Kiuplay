@@ -15,89 +15,87 @@ import {
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-/* ─── Mock Data para Comentários de Música ────────────────────────── */
-interface Comment {
-  id: string;
-  user: { name: string; avatar: number | string | null };
-  text: string;
-  timestamp: string;
-}
-
-const generateMockComments = (count: number): Comment[] => {
-  return Array.from({ length: count }).map((_, i) => ({
-    id: String(i + 1),
-    user: {
-      name: `Músico Fã ${i + 1}`,
-      avatar: require("@/assets/images/Default_Profile_Icon/unknown_artist.png"), // Usar um avatar padrão
-    },
-    text: `Adorei essa música! Comentário de teste número ${i + 1}.`,
-    timestamp: `${i + 2} min atrás`,
-  }));
-};
-/* ─────────────────────────────────────────────────────────────── */
+// 🔹 [1] IMPORTES DOS MOCKS CENTRALIZADOS
+import { MOCKED_CLOUD_FEED_DATA, MOCKED_BEATSTORE_FEED_DATA } from "@/src/types/contentServer"; // ✅ ajuste
+import { Comment } from "@/src/types/contentType"; // ✅ usa tua interface padronizada
 
 export default function MusicCommentsScreen() {
-  // Recebendo os parâmetros específicos da música
-  const { musicId, musicTitle, artistName, albumArtUrl, commentCount } = useLocalSearchParams<{
+  // 🔹 [2] Recebendo parâmetros da música
+  const {
+    musicId,
+    musicTitle,
+    artistName,
+    albumArtUrl,
+    contentType, // ← pode vir "single" ou "freebeat"
+  } = useLocalSearchParams<{
     musicId: string;
     musicTitle?: string;
     artistName?: string;
-    albumArtUrl?: string; // URL da capa do álbum
-    commentCount?: string; // Contagem de comentários (pode ser um placeholder)
+    albumArtUrl?: string;
+    contentType?: string;
   }>();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Substitua com o avatar do usuário logado
-  const userAvatarUrl: string | null = null; 
+  const userAvatarUrl: string | null = null;
 
   useEffect(() => {
     setIsLoading(true);
-    // Simula o carregamento de comentários da API
-    setTimeout(() => {
-      setComments(generateMockComments(25)); // Gera 25 comentários de exemplo
-      setIsLoading(false);
-    }, 1000);
-  }, [musicId]); // Recarrega se o ID da música mudar
 
+    setTimeout(() => {
+      let mockComments: Comment[] = [];
+
+      if (contentType === "single") {
+        // 🔹 Garante que o item é realmente um "Single"
+        const single = MOCKED_CLOUD_FEED_DATA.find((item) => item.id === musicId);
+        if (single && "comments" in single) {
+          mockComments = (single as { comments?: Comment[] }).comments || [];
+        }
+      } else if (contentType === "freebeat") {
+        // 🔹 Garante que o item é realmente um "FreeBeat"
+        const beat = MOCKED_BEATSTORE_FEED_DATA.find((item) => item.id === musicId);
+        if (beat && "comments" in beat) {
+          mockComments = (beat as { comments?: Comment[] }).comments || [];
+        }
+      }
+
+      setComments(mockComments);
+      setIsLoading(false);
+    }, 800);
+  }, [musicId, contentType]);
+
+  // 🔹 [4] Função de envio local
   function handleSend() {
     const txt = input.trim();
     if (!txt) return;
 
     const avatarSource = userAvatarUrl
-      ? { uri: userAvatarUrl }
-      : require("@/assets/images/Default_Profile_Icon/unknown_artist.png");
+      ? userAvatarUrl
+      : null;
 
-    setComments((prev) => [
-      {
-        id: Date.now().toString(),
-        user: {
-          name: 'Você',
-          avatar: avatarSource,
-        },
-        text: txt,
-        timestamp: 'agora',
-      },
-      ...prev,
-    ]);
-    setInput('');
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      user: { name: "Você", avatar: avatarSource },
+      text: txt,
+      timestamp: "agora",
+    };
+
+    setComments((prev) => [newComment, ...prev]);
+    setInput("");
   }
 
+  // 🔹 [5] Renderização de cada comentário
   const renderCommentItem = ({ item }: { item: Comment }) => (
     <View style={styles.row}>
       <Image
         style={styles.avatar}
         source={
-          typeof item.user.avatar === 'string' && item.user.avatar
+          item.user.avatar
             ? { uri: item.user.avatar }
-            : (item.user.avatar === null
-                ? require("@/assets/images/Default_Profile_Icon/unknown_artist.png")
-                : item.user.avatar
-              )
+            : require("@/assets/images/Default_Profile_Icon/unknown_artist.png")
         }
-        onError={(e) => console.log('Image loading error:', e.nativeEvent.error)}
       />
       <View style={styles.bubble}>
         <Text style={styles.name}>
@@ -119,14 +117,10 @@ export default function MusicCommentsScreen() {
       />
 
       <View style={styles.container}>
-        {/* Seção de informações do cabeçalho da música */}
+        {/* Cabeçalho da música */}
         <View style={styles.headerInfo}>
           {albumArtUrl ? (
-            <Image
-              source={{ uri: albumArtUrl }}
-              style={styles.thumbnail}
-              accessibilityLabel="Capa do álbum"
-            />
+            <Image source={{ uri: albumArtUrl }} style={styles.thumbnail} />
           ) : (
             <View style={styles.thumbnailPlaceholder}>
               <Ionicons name="musical-notes-outline" size={40} color="#555" />
@@ -144,11 +138,14 @@ export default function MusicCommentsScreen() {
               </Text>
             )}
             <Text style={styles.commentCountText}>
-              {commentCount ? `${commentCount} Comentários` : 'Comentários'}
+              {comments.length > 0
+                ? `${comments.length} Comentário${comments.length > 1 ? "s" : ""}`
+                : "Comentários"}
             </Text>
           </View>
         </View>
 
+        {/* Lista de comentários */}
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#1E90FF" />
@@ -161,25 +158,27 @@ export default function MusicCommentsScreen() {
             inverted
             renderItem={renderCommentItem}
             contentContainerStyle={styles.flatListContentContainer}
-            showsVerticalScrollIndicator={false}
             ListEmptyComponent={() => (
-                <Text style={styles.emptyCommentsText}>
-                    Nenhum comentário para esta música ainda. Seja o primeiro!
-                </Text>
+              <Text style={styles.emptyCommentsText}>
+                Nenhum comentário para esta música ainda. Seja o primeiro!
+              </Text>
             )}
           />
         )}
 
-        {/* Barra de input fixa na parte inferior */}
+        {/* Campo de input */}
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
           style={styles.inputBar}
         >
           <Image
-            source={userAvatarUrl ? { uri: userAvatarUrl } : require("@/assets/images/Default_Profile_Icon/unknown_artist.png")}
+            source={
+              userAvatarUrl
+                ? { uri: userAvatarUrl }
+                : require("@/assets/images/Default_Profile_Icon/unknown_artist.png")
+            }
             style={styles.myAvatar}
-            accessibilityLabel="Seu avatar"
           />
 
           <TextInput
@@ -188,15 +187,12 @@ export default function MusicCommentsScreen() {
             placeholderTextColor="#888"
             value={input}
             onChangeText={setInput}
-            //multiline
-            //maxHeight={100}
           />
 
           <TouchableOpacity
             style={styles.sendBtn}
             onPress={handleSend}
             disabled={input.trim().length === 0}
-            accessibilityLabel="Enviar comentário"
           >
             <Ionicons
               name="send"
@@ -212,69 +208,41 @@ export default function MusicCommentsScreen() {
 
 /* -------------------- Styles -------------------- */
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#191919",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#ccc',
-    marginTop: 10,
-    fontSize: 16,
-  },
+  container: { flex: 1, backgroundColor: "#191919" },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  loadingText: { color: "#ccc", marginTop: 10, fontSize: 16 },
   headerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
-    backgroundColor: '#222',
+    borderBottomColor: "#333",
+    backgroundColor: "#222",
   },
   thumbnail: {
     width: 60,
     height: 60,
     borderRadius: 8,
     marginRight: 12,
-    backgroundColor: '#444',
+    backgroundColor: "#444",
   },
   thumbnailPlaceholder: {
     width: 60,
     height: 60,
     borderRadius: 8,
     marginRight: 12,
-    backgroundColor: '#444',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#444",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  headerTextContainer: {
-    flex: 1,
-  },
-  musicTitleInComments: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  artistNameInComments: {
-    color: '#b3b3b3',
-    fontSize: 12,
-    marginTop: 2, // Espaçamento entre o título e o artista
-  },
-  commentCountText: {
-    color: '#aaa',
-    fontSize: 12,
-    marginTop: 4, // Espaçamento abaixo do artista/título
-  },
-  flatListContentContainer: {
-    paddingTop: 80,
-    paddingBottom: 30, // Garante que o último comentário não fique sob a barra de input
-  },
+  headerTextContainer: { flex: 1 },
+  musicTitleInComments: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  artistNameInComments: { color: "#b3b3b3", fontSize: 12, marginTop: 2 },
+  commentCountText: { color: "#aaa", fontSize: 12, marginTop: 4 },
+  flatListContentContainer: { paddingTop: 80, paddingBottom: 30 },
   emptyCommentsText: {
-    color: '#b3b3b3',
-    textAlign: 'center',
+    color: "#b3b3b3",
+    textAlign: "center",
     marginTop: 50,
     fontSize: 16,
   },
@@ -297,22 +265,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
   },
-  name: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  time: {
-    color: "#888",
-    fontSize: 12,
-    fontWeight: "normal",
-    marginLeft: 5,
-  },
-  text: {
-    color: "#ccc",
-    fontSize: 14,
-  },
+  name: { color: "#fff", fontWeight: "bold", fontSize: 14, marginBottom: 4 },
+  time: { color: "#888", fontSize: 12, fontWeight: "normal", marginLeft: 5 },
+  text: { color: "#ccc", fontSize: 14 },
   inputBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -321,7 +276,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#191919",
     borderTopWidth: 1,
     borderTopColor: "#333",
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
@@ -347,6 +302,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 10,
     borderRadius: 20,
-    backgroundColor:"#2a2a2a",
+    backgroundColor: "#2a2a2a",
   },
 });

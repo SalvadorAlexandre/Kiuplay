@@ -71,13 +71,16 @@ export default function feeBeatDetailsScreen() {
 
     const handleOpenComments = useCallback(() => {
         router.push({
-            pathname: '/commentScreens/musics/[musicId]',
+            pathname: '/commentScreens/musics/[musicId]', // 🔹 caminho correto da tela
             params: {
                 musicId: currentFreeBeat.id,
                 musicTitle: currentFreeBeat.title,
                 artistName: currentFreeBeat.artist,
                 albumArtUrl: currentFreeBeat.cover || '',
-                commentCount: currentFreeBeat.commentCount ? currentFreeBeat.commentCount.toString() : '0',
+                commentCount: currentFreeBeat.commentCount
+                    ? currentFreeBeat.commentCount.toString()
+                    : '0',
+                contentType: 'freebeat', // 🔹 identifica o tipo de conteúdo
             },
         });
     }, [router, currentFreeBeat]);
@@ -197,7 +200,7 @@ export default function feeBeatDetailsScreen() {
 
                             <TouchableOpacity
                                 style={styles.actionButtonsRow}
-                                //onPress={handleDownloadPress}
+                            //onPress={handleDownloadPress}
                             >
                                 <Ionicons name="download" size={24} color="#fff" />
                             </TouchableOpacity>

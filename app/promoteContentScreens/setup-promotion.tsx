@@ -284,9 +284,9 @@ export default function SetupPromotionScreen() {
                         style={styles.audienceImage}
                     />
                     <View style={styles.audienceTextContainer}>
-                        <Text style={styles.audienceTitle}>Público Alvo (Seguidores, Amigos e Outros)</Text>
+                        <Text style={styles.audienceTitle}>Será visto por Seguidores...</Text>
                         <Text style={styles.audienceDescription}>
-                            Esta promoção será exibida para mais utilizadores, além de seus amigos e seguidores.
+                            Esta promoção será vista por todos seus Seguidores.
                         </Text>
                     </View>
                 </View>

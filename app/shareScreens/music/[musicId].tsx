@@ -1,6 +1,6 @@
 // app/shareScreens/music/[musicId].tsx
-import React, { useState } from 'react';
-import {
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { // <-- Adicionado useEffect
     View,
     Text,
     StyleSheet,
@@ -9,91 +9,92 @@ import {
     FlatList,
     Image,
     Alert,
-    Share, // <-- Adicionado para o compartilhamento nativo final
+    Share,
 } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import debounce from 'lodash.debounce'; // 💡 IMPORTAÇÃO DO DEBOUNCE
 
-// Dados mockados para demonstração
-interface User {
-    id: string;
-    name: string;
-    profileImage: string;
-}
+// 💡 IMPORTAÇÃO DOS DADOS MOCKADOS E TIPOS
+import { MOCKED_PROFILE } from '@/src/types/contentServer';
+import { ProfileReference } from '@/src/types/contentType';
 
-const mockFollowers: User[] = [
-    { id: '1', name: 'Ana Silva', profileImage: 'https://via.placeholder.com/50/FF5733/FFFFFF?text=AS' },
-    { id: '2', name: 'Bruno Costa', profileImage: 'https://via.placeholder.com/50/33FF57/FFFFFF?text=BC' },
-    { id: '3', name: 'Carla Dias', profileImage: 'https://via.placeholder.com/50/3357FF/FFFFFF?text=CD' },
-    { id: '4', name: 'Daniel Alves', profileImage: 'https://via.placeholder.com/50/FF33A1/FFFFFF?text=DA' },
-];
+// O perfil que estamos 'usando' para simular o usuário logado
+const userProfile = MOCKED_PROFILE[0];
 
-const mockFriends: User[] = [
-    { id: '5', name: 'Eduardo Lima', profileImage: 'https://via.placeholder.com/50/57FF33/FFFFFF?text=EL' },
-    { id: '6', name: 'Fernanda Rocha', profileImage: 'https://via.placeholder.com/50/A133FF/FFFFFF?text=FR' },
-    { id: '7', name: 'Gustavo Santos', profileImage: 'https://via.placeholder.com/50/FFD133/FFFFFF?text=GS' },
-];
+interface User extends ProfileReference { }
 
-const ShareMusicScreen = () => { // Renomeado para ShareMusicScreen
-    // Obtém todos os parâmetros de uma vez
+// EXTRAÇÃO DOS DADOS: Usamos os dados de followers do MOCKED_PROFILE
+const followersData: User[] = userProfile?.followers || [];
+
+
+export default function ShareMusicScreen() {
     const params = useLocalSearchParams();
 
-    // Garante que cada parâmetro seja uma string, tratando o caso de ser um array
-    // O nome dos parâmetros agora reflete o que foi passado do AudioPlayerBar
+    // Tratamento de parâmetros (mantido)
     const musicId = Array.isArray(params.musicId) ? params.musicId[0] : (params.musicId || '');
     const musicTitle = Array.isArray(params.musicTitle) ? params.musicTitle[0] : (params.musicTitle || 'Título Desconhecido');
     const artistName = Array.isArray(params.artistName) ? params.artistName[0] : (params.artistName || 'Artista Desconhecido');
     const albumArtUrl = Array.isArray(params.albumArtUrl)
         ? params.albumArtUrl[0]
-        : (params.albumArtUrl || ''); // Usado 'albumArtUrl' conforme passado do AudioPlayerBar
+        : (params.albumArtUrl || '');
 
-    const [activeTab, setActiveTab] = useState<'followers' | 'friends'>('followers');
-    const [searchText, setSearchText] = useState('');
-    const [selectedUsers, setSelectedUsers] = useState<string[]>([]); // IDs dos usuários selecionados
+    // 1. Estado para o texto de entrada (atualizado em tempo real)
+    const [inputSearchText, setInputSearchText] = useState('');
 
-    const usersToShow = activeTab === 'followers' ? mockFollowers : mockFriends;
+    // 2. Estado para o texto de pesquisa (atualizado apenas pelo debounce)
+    const [debouncedSearchText, setDebouncedSearchText] = useState('');
 
-    const filteredUsers = usersToShow.filter(user =>
-        user.name.toLowerCase().includes(searchText.toLowerCase())
+    // 3. Função debounced: usa useCallback para garantir que a função debounce só seja criada uma vez
+    const handleSearch = useMemo(
+        () => debounce((text: string) => {
+            setDebouncedSearchText(text);
+        }, 300), // Atraso de 300ms
+        [] // Dependências vazias: a função nunca muda
     );
 
-    const toggleSelectUser = (userId: string) => {
-        setSelectedUsers(prev =>
-            prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
-        );
-    };
+    // 4. Efeito para limpar o debounce na desmontagem do componente
+    useEffect(() => {
+        return () => {
+            handleSearch.cancel(); // Limpa o timer do debounce ao sair da tela
+        };
+    }, [handleSearch]);
 
-    const handleShare = async () => { // Adicionado 'async'
-        if (selectedUsers.length === 0) {
-            Alert.alert('Nenhum selecionado', 'Por favor, selecione pelo menos um amigo ou seguidor para compartilhar internamente.');
+
+    // 5. Lógica de filtragem: usa o estado DEBOUNCED
+    const filteredFollowers = useMemo(() => {
+        const searchText = debouncedSearchText;
+        if (!searchText) return followersData;
+
+        const lowercasedSearch = searchText.toLowerCase();
+
+        // Filtra por name OU username
+        return followersData.filter(user =>
+            user.name.toLowerCase().includes(lowercasedSearch) ||
+            user.username.toLowerCase().includes(lowercasedSearch)
+        );
+    }, [debouncedSearchText]); // A lista só é filtrada quando o debouncedSearchText muda
+
+
+    // --- Lógica de Compartilhamento Interno (mantida) ---
+    const handleShare = async () => {
+        if (followersData.length === 0) {
+            Alert.alert('Sem Seguidores', 'Você não tem seguidores para partilhar internamente.');
             return;
         }
 
-        const selectedUserNames = usersToShow
-            .filter(user => selectedUsers.includes(user.id))
-            .map(user => user.name)
-            .join(', ');
-
         Alert.alert(
-            'Música Compartilhada Internamente!',
-            `"${musicTitle}" de ${artistName} compartilhado com: ${selectedUserNames}`
+            'Partilha com Seguidores',
+            `"${musicTitle}" de ${artistName} foi partilhado com todos os seus ${followersData.length} seguidores!`
         );
 
-        // Lógica para compartilhar a música internamente no seu aplicativo
-        // Por exemplo, enviar uma notificação para esses usuários, salvar no banco de dados, etc.
-        console.log('Compartilhando música internamente:', { musicId, selectedUsers });
-
-        // Opcional: Aqui você pode adicionar um pop-up ou outra opção
-        // para o usuário decidir se quer compartilhar externamente também.
-        // Por exemplo, após o compartilhamento interno, perguntar: "Deseja compartilhar em outras plataformas?"
+        console.log(`Compartilhando música internamente com TODOS os ${followersData.length} seguidores.`);
     };
 
-    // ✨ NOVO: Função para o compartilhamento nativo (para fora do app)
+    // --- Lógica de Compartilhamento Nativo (mantida) ---
     const handleNativeShare = async () => {
         try {
-            // Criar um link compartilhável para a música (URL real da música no seu app ou um link genérico)
-            // Exemplo: se suas músicas tiverem uma página web: `https://seusite.com/musica/${musicId}`
-            const shareableLink = `https://kiuplay.com/music/${musicId}`; // Substitua pelo link real da sua música
+            const shareableLink = `https://kiuplay.com/music/${musicId}`;
 
             const result = await Share.share({
                 message: `Ouça agora: ${musicTitle} de ${artistName} na Kiuplay!`,
@@ -102,11 +103,7 @@ const ShareMusicScreen = () => { // Renomeado para ShareMusicScreen
             });
 
             if (result.action === Share.sharedAction) {
-                if (result.activityType) {
-                    console.log(`Compartilhado com o tipo de atividade: ${result.activityType}`);
-                } else {
-                    console.log('Compartilhado com sucesso!');
-                }
+                console.log('Compartilhado com sucesso!');
             } else if (result.action === Share.dismissedAction) {
                 console.log('Compartilhamento nativo cancelado.');
             }
@@ -117,19 +114,19 @@ const ShareMusicScreen = () => { // Renomeado para ShareMusicScreen
     };
 
 
+    // --- Renderização do Item do Usuário (mantida) ---
     const renderUserItem = ({ item }: { item: User }) => (
-        <TouchableOpacity
-            style={styles.userItem}
-            onPress={() => toggleSelectUser(item.id)}
-        >
-            <Image source={{ uri: item.profileImage }} style={styles.userProfileImage} />
-            <Text style={styles.userName}>{item.name}</Text>
-            {selectedUsers.includes(item.id) ? (
-                <Ionicons name="checkmark-circle" size={24} color="#1E90FF" />
-            ) : (
-                <View style={styles.checkboxOutline} />
-            )}
-        </TouchableOpacity>
+        <View style={styles.userItem}>
+            <Image
+                source={{ uri: item.avatar }}
+                style={styles.userProfileImage}
+            />
+            <View style={styles.userInfoText}>
+                <Text style={styles.userName}>{item.name}</Text>
+                <Text style={styles.userUsername}>{item.username}</Text>
+            </View>
+            <Ionicons name="person-outline" size={20} color="#555" />
+        </View>
     );
 
     return (
@@ -137,25 +134,24 @@ const ShareMusicScreen = () => { // Renomeado para ShareMusicScreen
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    title: 'Partilhar Música', // Título adaptado
+                    title: 'Partilhar Música',
                     headerStyle: { backgroundColor: '#1E1E1E' },
                     headerTintColor: '#fff',
                 }}
             />
 
-            <View style={styles.musicInfoCard}> {/* Renomeado para musicInfoCard */}
-                {/* Agora albumArtUrl é garantido ser uma string ou vazia */}
+            {/* ... Music Info Card ... */}
+            <View style={styles.musicInfoCard}>
                 {albumArtUrl ? (
                     <Image source={{ uri: albumArtUrl }} style={styles.albumArt} />
                 ) : (
-                    // Opcional: um placeholder visual caso a capa não esteja disponível
-                    <View style={styles.albumArtPlaceholder}> {/* Renomeado para albumArtPlaceholder */}
+                    <View style={styles.albumArtPlaceholder}>
                         <Ionicons name="image-outline" size={40} color="#888" />
                     </View>
                 )}
-                <View style={styles.musicTextInfo}> {/* Renomeado para musicTextInfo */}
-                    <Text style={styles.musicTitle}>{musicTitle}</Text> {/* Renomeado para musicTitle */}
-                    <Text style={styles.artistName}>{artistName}</Text> {/* Renomeado para artistName */}
+                <View style={styles.musicTextInfo}>
+                    <Text style={styles.musicTitle}>{musicTitle}</Text>
+                    <Text style={styles.artistName}>{artistName}</Text>
                 </View>
             </View>
 
@@ -164,55 +160,46 @@ const ShareMusicScreen = () => { // Renomeado para ShareMusicScreen
                 <Text style={styles.nativeShareButtonText}>Partilhar em outras apps</Text>
             </TouchableOpacity>
 
+            <Text style={styles.sectionTitle}>
+                Seus Seguidores
+            </Text>
+
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Pesquisar seguidores/amigos"
+                    placeholder="Pesquisar seguidores por nome ou @username"
                     placeholderTextColor="#888"
-                    value={searchText}
-                    onChangeText={setSearchText}
+                    // O TextInput agora usa inputSearchText
+                    value={inputSearchText}
+                    // O onChangeText agora chama a função debounced e atualiza o estado de input
+                    onChangeText={(text) => {
+                        setInputSearchText(text);
+                        handleSearch(text); // Chama o debounce
+                    }}
                 />
             </View>
 
-            <View style={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[styles.tabButton, activeTab === 'followers' && styles.activeTab]}
-                    onPress={() => setActiveTab('followers')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'followers' && styles.activeTabText]}>
-                        Seguidores
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tabButton, activeTab === 'friends' && styles.activeTab]}
-                    onPress={() => setActiveTab('friends')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'friends' && styles.activeTabText]}>
-                        Amigos
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
             <FlatList
-                data={filteredUsers}
+                data={filteredFollowers}
                 renderItem={renderUserItem}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContent}
+                ListHeaderComponent={<View style={styles.listSeparator} />}
+                ListEmptyComponent={<Text style={styles.emptyListText}>Nenhum seguidor encontrado.</Text>}
             />
 
             <TouchableOpacity
                 style={styles.shareButton}
                 onPress={handleShare}
-                disabled={selectedUsers.length === 0}
             >
                 <Text style={styles.shareButtonText}>
-                    Partilhar Internamente {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}
+                    Partilhar com TODOS os Seguidores ({followersData.length})
                 </Text>
             </TouchableOpacity>
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -220,7 +207,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#191919',
         padding: 15,
     },
-    // Renomeado para refletir 'música'
+    // ... (restante dos estilos mantidos) ...
+    sectionTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
     musicInfoCard: {
         flexDirection: 'row',
         backgroundColor: '#1a1a1a',
@@ -229,17 +222,16 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         alignItems: 'center',
     },
-    // Renomeado para refletir 'capa do álbum'
     albumArt: {
         width: 80,
-        height: 80, // Capas de álbum costumam ser quadradas
+        height: 80,
         borderRadius: 4,
         marginRight: 10,
         backgroundColor: '#333',
     },
     albumArtPlaceholder: {
         width: 80,
-        height: 80, // Capas de álbum costumam ser quadradas
+        height: 80,
         borderRadius: 4,
         marginRight: 10,
         backgroundColor: '#333',
@@ -276,58 +268,40 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
     },
-    tabContainer: {
-        flexDirection: 'row',
-        marginBottom: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
-    },
-    tabButton: {
-        flex: 1,
-        paddingVertical: 12,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
-    },
-    activeTab: {
-        borderBottomColor: '#1E90FF',
-    },
-    tabText: {
-        color: '#888',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    activeTabText: {
-        color: '#1E90FF',
-    },
     listContent: {
         paddingBottom: 20,
+    },
+    listSeparator: {
+        height: 1,
+        backgroundColor: '#2a2a2a',
+        marginBottom: 10,
     },
     userItem: {
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 8,
         padding: 10,
-        marginBottom: 10,
+        marginBottom: 5,
+        backgroundColor: '#1f1f1f',
     },
     userProfileImage: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 35,
+        height: 35,
+        borderRadius: 17.5,
         marginRight: 10,
         backgroundColor: '#333',
     },
-    userName: {
+    userInfoText: {
         flex: 1,
-        color: '#fff',
-        fontSize: 16,
     },
-    checkboxOutline: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: '#888',
+    userName: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    userUsername: {
+        color: '#aaa',
+        fontSize: 12,
     },
     shareButton: {
         backgroundColor: '#1E90FF',
@@ -341,12 +315,11 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    // NOVO: Estilos para o botão de compartilhamento nativo
     nativeShareButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#34A853', // Um verde para destacar o compartilhamento externo
+        backgroundColor: '#34A853',
         paddingVertical: 12,
         borderRadius: 8,
         marginBottom: 15,
@@ -357,6 +330,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    emptyListText: {
+        color: '#888',
+        textAlign: 'center',
+        marginTop: 20,
+    }
 });
-
-export default ShareMusicScreen;
+//export default ShareMusicScreen;

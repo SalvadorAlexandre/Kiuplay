@@ -79,6 +79,7 @@ export default function SingleDetailsScreen() {
         artistName: currentSingle.artist,
         albumArtUrl: currentSingle.cover || '',
         commentCount: currentSingle.commentCount ? currentSingle.commentCount.toString() : '0',
+        contentType: 'single', // 🔹 importante para o carregamento correto dos comentários
       },
     });
   }, [router, currentSingle]);
@@ -141,8 +142,8 @@ export default function SingleDetailsScreen() {
           </View>
 
           <View style={styles.viewContent}>
-            <TouchableOpacity style={{width: '100%',}} onPress={handlePlaySingle}>
-            
+            <TouchableOpacity style={{ width: '100%', }} onPress={handlePlaySingle}>
+
               <View style={styles.coverContainer}>
                 <Image source={coverSource} style={styles.coverImage} />
               </View>
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   containerBtnActionsRow: {
-    width:'100%',
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

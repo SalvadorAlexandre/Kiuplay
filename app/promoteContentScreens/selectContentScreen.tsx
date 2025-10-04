@@ -1,5 +1,5 @@
 // components/promoteContentScreen/selectContentScreen.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { router, Stack } from 'expo-router';
 import {
   View,
@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import { useAppSelector } from '@/src/redux/hooks';
+import debounce from 'lodash.debounce'; // ✅ Importado o debounce
 
 // Assume que o MOCKED_PROFILE é uma array e pegamos o primeiro item
 const userProfile = MOCKED_PROFILE[0];
@@ -41,10 +42,34 @@ const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown
 export default function SelectContentScreen() {
   const [activeTab, setActiveTab] = useState<TabName>('Singles');
   const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  // 1. Estado para o texto digitado (feedback visual imediato)
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // 2. Estado para o termo de busca DEBOUNCED (usado para o filtro)
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
 
   // Lógica de verificação de conexão
   const isConnected = useAppSelector((state) => state.network.isConnected);
+
+  // Função interna que atualiza o estado de busca 'lento'
+  const filterContent = (term: string) => {
+    setDebouncedSearchTerm(term);
+  };
+
+  // ✅ Cria a função DEBOUNCED uma única vez usando useMemo
+  const debouncedFilter = useMemo(
+    // Atraso de 300ms é um bom padrão
+    () => debounce(filterContent, 300),
+    []
+  );
+
+  // Lógica para lidar com a mudança no TextInput
+  const handleSearchChange = (text: string) => {
+    setSearchQuery(text); // Atualiza o TextInput imediatamente
+    debouncedFilter(text); // Chama a versão debounce da função de filtro
+  };
+
 
   const handleContinue = () => {
     if (!selectedContentId) {
@@ -95,10 +120,21 @@ export default function SelectContentScreen() {
     );
   }, [selectedContentId, isConnected]); // Adicionado isConnected às dependências
 
-  // Lógica de filtro para o conteúdo
-  const filteredContent = (contentTabs[activeTab] as ContentItem[]).filter(item =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // ✅ Otimização: Usa useMemo para recalcular o filtro APENAS quando a tab ou o termo debounced mudam
+  const filteredContent = useMemo(() => {
+    const currentContent = contentTabs[activeTab] as ContentItem[];
+
+    if (!debouncedSearchTerm) {
+      return currentContent;
+    }
+
+    const lowercasedTerm = debouncedSearchTerm.toLowerCase();
+
+    return currentContent.filter(item =>
+      item.title.toLowerCase().includes(lowercasedTerm)
+    );
+  }, [activeTab, debouncedSearchTerm]);
+
 
   return (
     <>
@@ -118,8 +154,10 @@ export default function SelectContentScreen() {
             style={styles.searchInput}
             placeholder="Buscar por título..."
             placeholderTextColor="#888"
-            onChangeText={setSearchTerm}
-            value={searchTerm}
+            // ✅ Usa o novo handler debounced
+            onChangeText={handleSearchChange}
+            // ✅ Usa o estado rápido para manter o texto atualizado
+            value={searchQuery}
           />
         </View>
 
@@ -141,7 +179,10 @@ export default function SelectContentScreen() {
                 onPress={() => {
                   setActiveTab(tab);
                   setSelectedContentId(null);
-                  setSearchTerm('');
+                  // ✅ Limpa AMBOS os estados de busca e cancela o debounce pendente
+                  setSearchQuery('');
+                  setDebouncedSearchTerm('');
+                  debouncedFilter.cancel();
                 }}
               >
                 <Text

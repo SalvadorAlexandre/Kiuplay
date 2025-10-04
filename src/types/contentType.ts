@@ -24,7 +24,16 @@ export interface ArtistProfile {
     albums?: Album[];
     eps?: ExtendedPlayEP[];
     freeBeats?: FreeBeat[];
-    exclusiveBeats?: ExclusiveBeat[];
+    exclusiveBeats?: ExclusiveBeat[]; 
+    followers?: ProfileReference[];
+    following?: ProfileReference[];
+}
+
+export interface ProfileReference {
+    id: string;
+    name: string; // Nome de exibição
+    username: string; // Username (@exemplo)
+    avatar: string; // URL do avatar
 }
 
 export interface Single {
@@ -48,6 +57,8 @@ export interface Single {
     releaseYear: string; // Propriedade para ano de lançamento
     category: 'single'; // Categoria específica
     source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites';
+
+    comments?: Comment[]
 }
 
 // Interface para um EP
@@ -138,6 +149,8 @@ export interface FreeBeat {
     shareCount?: number
     downloadCount?: number
     source: 'beatstore-feeds' | 'beatstore-favorites';
+
+    comments?: Comment[]
 }
 
 
@@ -159,7 +172,7 @@ export interface Promotion {
     category: 'promotion';
 }
 
-export type NotificationType = 'upload' | 'like' | 'comment' | 'follow' | 'purchase' | 'promotion' | 'message' | 'friend_request';
+export type NotificationType = 'upload' | 'like' | 'comment' | 'follow' | 'purchase' | 'promotion';
 export interface Notification {
     id: string;
     type: NotificationType;
@@ -172,6 +185,21 @@ export interface Notification {
     contentType?: 'single' | 'ep' | 'album' | 'freebeat' | 'exclusive_beat' | 'message' | 'artist' | 'promotion';
     avatarUrl?: string;
     category: 'notification';
+}
+
+// NOVO: Interface para um Usuário simplificado em um comentário
+export interface CommentUserReference {
+    name: string;
+    // Usamos string para URL externa (avatar)
+    avatar: string | null;
+}
+// NOVO: Interface para o objeto Comentário
+export interface Comment {
+    id: string;
+    user: CommentUserReference;
+    text: string;
+    timestamp: string; // Ex: '2 min atrás', 'Ontem', '2024-05-01'
+    // Você pode adicionar mais campos aqui se necessário, como 'likesCount', 'userId', etc.
 }
 
 

@@ -1,5 +1,4 @@
 //src/types/contentServer.ts
-
 import { LibraryFeedItem, BeatStoreFeedItem, Album, ArtistProfile, Single, ExtendedPlayEP, ExclusiveBeat, FreeBeat, } from '@/src/types/contentType';
 
 import { Notification } from '@/src/types/contentType';
@@ -20,6 +19,32 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         genre: 'Hip Hop',
         releaseYear: '2024', // Alterado 'viewsNumber' para 'releaseYear' ou similar
         viewsCount: 271, // Adicionada viewsCount se for relevante para Single
+        comments: [
+            {
+                id: 'c1',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c2',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+            {
+                id: 'c3',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c4',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+        ],
     } as Single,
     {
         id: 'album-1',
@@ -58,7 +83,7 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
                 category: 'single', // Alterado 'type' para 'category' para consistência
                 genre: 'Hip Hop',
                 releaseYear: '2024', // Alterado 'viewsNumber' para 'releaseYear' ou similar
-                viewsCount: 271, // Adicionada viewsCount se for relevante para Single 
+                viewsCount: 271, // Adicionada viewsCount se for relevante para Single
             },
             {
                 id: 'single-3',
@@ -265,7 +290,6 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
                 releaseYear: '2023', // Adicionado releaseYear
             },
         ],
-
     } as ArtistProfile,
     //--------------------------------------------------------------------------------------
     {
@@ -327,6 +351,32 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         genre: 'Soul',
         releaseYear: '2024',
         viewsCount: 1000,
+        comments: [
+            {
+                id: 'c1',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c2',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+            {
+                id: 'c3',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c4',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+        ],
     } as Single,
     {
         id: 'artist-2',
@@ -488,6 +538,33 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 87,
         releaseYear: '2022', // Adicionado releaseYear
+
+        comments: [
+            {
+                id: 'c1',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c2',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+            {
+                id: 'c3',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c4',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+        ],
     } as FreeBeat,
     {
         id: 'beat-store-3',
@@ -522,6 +599,32 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 90,
         releaseYear: '2023', // Adicionado releaseYear
+        comments: [
+            {
+                id: 'c1',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c2',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+            {
+                id: 'c3',
+                user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                text: '🔥🔥 esse beat tá incrível!',
+                timestamp: '2 min atrás',
+            },
+            {
+                id: 'c4',
+                user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                text: 'Boom bap raiz, do jeito que gosto!',
+                timestamp: '10 min atrás',
+            },
+        ],
     } as FreeBeat,
     {
         id: 'beat-store-5',
@@ -632,6 +735,32 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 genre: "Trap",
                 releaseYear: "2024",
                 viewsCount: 1050,
+                comments: [
+                    {
+                        id: 'c1',
+                        user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                        text: '🔥🔥 esse beat tá incrível!',
+                        timestamp: '2 min atrás',
+                    },
+                    {
+                        id: 'c2',
+                        user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                        text: 'Boom bap raiz, do jeito que gosto!',
+                        timestamp: '10 min atrás',
+                    },
+                    {
+                        id: 'c3',
+                        user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                        text: '🔥🔥 esse beat tá incrível!',
+                        timestamp: '2 min atrás',
+                    },
+                    {
+                        id: 'c4',
+                        user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                        text: 'Boom bap raiz, do jeito que gosto!',
+                        timestamp: '10 min atrás',
+                    },
+                ],
             },
             {
                 id: 'single-2',
@@ -646,6 +775,32 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 genre: 'Hip Hop',
                 releaseYear: '2024', // Alterado 'viewsNumber' para 'releaseYear' ou similar
                 viewsCount: 271, // Adicionada viewsCount se for relevante para Single
+                comments: [
+                    {
+                        id: 'c1',
+                        user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                        text: '🔥🔥 esse beat tá incrível!',
+                        timestamp: '2 min atrás',
+                    },
+                    {
+                        id: 'c2',
+                        user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                        text: 'Boom bap raiz, do jeito que gosto!',
+                        timestamp: '10 min atrás',
+                    },
+                    {
+                        id: 'c3',
+                        user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                        text: '🔥🔥 esse beat tá incrível!',
+                        timestamp: '2 min atrás',
+                    },
+                    {
+                        id: 'c4',
+                        user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                        text: 'Boom bap raiz, do jeito que gosto!',
+                        timestamp: '10 min atrás',
+                    },
+                ],
             },
         ],
 
@@ -667,7 +822,6 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 ], // pode linkar os singles mockados aqui
             },
         ],
-
         // 🔥 EPs
         eps: [
             {
@@ -721,6 +875,32 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 category: "beat",
                 bpm: 90,
                 releaseYear: "2021",
+                comments: [
+                    {
+                        id: 'c1',
+                        user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                        text: '🔥🔥 esse beat tá incrível!',
+                        timestamp: '2 min atrás',
+                    },
+                    {
+                        id: 'c2',
+                        user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                        text: 'Boom bap raiz, do jeito que gosto!',
+                        timestamp: '10 min atrás',
+                    },
+                    {
+                        id: 'c3',
+                        user: { name: 'Saag Weelli Boy', avatar: 'https://i.pravatar.cc/150?img=20' },
+                        text: '🔥🔥 esse beat tá incrível!',
+                        timestamp: '2 min atrás',
+                    },
+                    {
+                        id: 'c4',
+                        user: { name: 'Producer X', avatar: 'https://i.pravatar.cc/150?img=21' },
+                        text: 'Boom bap raiz, do jeito que gosto!',
+                        timestamp: '10 min atrás',
+                    },
+                ],
             },
         ],
 
@@ -745,5 +925,92 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 isBuyed: false,
             },
         ],
+
+        // ✅ DADOS DE EXEMPLO PARA FOLLOWERS
+        followers: [
+            {
+                id: "user-alice",
+                name: "Alice Faria",
+                username: "@faria_alice",
+                avatar: "https://i.pravatar.cc/150?img=2",
+            },
+            {
+                id: "user-bob",
+                name: "Bob Manuel",
+                username: "@bob_m_beats",
+                avatar: "https://i.pravatar.cc/150?img=5",
+            },
+            {
+                id: "user-carol",
+                name: "Carla Diniz",
+                username: "@carla_oficial",
+                avatar: "https://i.pravatar.cc/150?img=3",
+            },
+            {
+                id: "artist-x",
+                name: "BeatMaster Pro",
+                username: "@master_pro_beats",
+                avatar: "https://i.pravatar.cc/150?img=10",
+            },
+            {
+                id: "artist-y",
+                name: "Zara Vibes",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+            {
+                id: "artist-z",
+                name: "Daniel Dennis",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+            {
+                id: "artist-h",
+                name: "Kalahari Dié",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+            {
+                id: "artist-o",
+                name: "TrappStar Go edition",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+        ],
+
+        // ✅ DADOS DE EXEMPLO PARA FOLLOWING
+        following: [
+            {
+                id: "artist-x",
+                name: "BeatMaster Pro",
+                username: "@master_pro_beats",
+                avatar: "https://i.pravatar.cc/150?img=10",
+            },
+            {
+                id: "artist-y",
+                name: "Zara Vibes",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+            {
+                id: "artist-z",
+                name: "Daniel Dennis",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+            {
+                id: "artist-h",
+                name: "Kalahari Dié",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+            {
+                id: "artist-o",
+                name: "TrappStar Go edition",
+                username: "@zara_vibes",
+                avatar: "https://i.pravatar.cc/150?img=15",
+            },
+        ],
+
     },
 ];
