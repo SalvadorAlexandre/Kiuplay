@@ -113,7 +113,7 @@ export default function ArtistProfileScreen() {
         )}
 
         {currentArtist.followersCount !== undefined && (
-          <Text style={styles.artistFollowers}>{currentArtist.followersCount?.toLocaleString()} Seguidores • {currentArtist.followingCount?.toLocaleString()} Seguindo</Text>
+          <Text style={styles.artistFollowers}>{currentArtist.followersCount} Seguidores • {currentArtist.followingCount} Seguindo</Text>
         )}
 
         <View style={{ flexDirection: 'row' }}>
@@ -170,7 +170,9 @@ export default function ArtistProfileScreen() {
               )}
               contentContainerStyle={{ paddingBottom: 20 }}
               ListEmptyComponent={() => (
-                <Text style={styles.texto}>Nenhum single publicado ainda.</Text>
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>Nenhum single publicado ainda.</Text>
+                </View>
               )}
             />
           )}
@@ -190,7 +192,9 @@ export default function ArtistProfileScreen() {
                 />
               )}
               ListEmptyComponent={() => (
-                <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                </View>
               )}
             />
           )}
@@ -209,7 +213,10 @@ export default function ArtistProfileScreen() {
                 />
               )}
               ListEmptyComponent={() => (
-                <Text style={styles.texto}>Nenhum EP publicado ainda.</Text>
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>Nenhum EP publicado ainda.</Text>
+                </View>
+
               )}
             />
           )}
@@ -228,7 +235,9 @@ export default function ArtistProfileScreen() {
                 />
               )}
               ListEmptyComponent={() => (
-                <Text style={styles.texto}>Nenhum Free Beat publicado ainda.</Text>
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>Nenhum Free Beat publicado ainda.</Text>
+                </View>
               )}
             />
           )}
@@ -247,7 +256,9 @@ export default function ArtistProfileScreen() {
                 />
               )}
               ListEmptyComponent={() => (
-                <Text style={styles.texto}>Nenhum Beat publicado ainda.</Text>
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>Nenhum Beat publicado ainda.</Text>
+                </View>
               )}
             />
           )}
@@ -405,6 +416,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
 
 
   tabsContainer: {
@@ -430,4 +447,5 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: '#fff',
   },
+
 });

@@ -69,6 +69,8 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
         epsCount: 7,
         freeBeatsCount: 20,
         exclusiveBeatsCount: 40,
+        followersCount: 450906,
+        followingCount: 13,
 
         singles: [
             {

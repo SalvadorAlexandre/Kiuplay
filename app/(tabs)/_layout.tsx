@@ -14,15 +14,6 @@ export default function TabLayout() {
 
       <Tabs
         screenOptions={{
-          /*
-          headerLeft: () => ( // define o icone na tab superior
-            <View style = {{marginLeft: 15}}>
-              <Image source={require('@/assets/images/kiuplay_icon_1024.png')} 
-              style = {{width: 70, height: 60}}
-              />
-            </View>
-          ),
-          */
           headerTitleStyle: { color: '#fff' },
           tabBarShowLabel: true, // Remove texto das abas
           headerShown: false, // Mostra o cabeçalho superior
@@ -49,7 +40,7 @@ export default function TabLayout() {
       >
 
         <Tabs.Screen
-          name="profile" //Tela Perfil
+          name="index" //Tela Perfil
           options={{
             title: 'Perfil',
             tabBarLabel: 'Perfil',
@@ -72,28 +63,6 @@ export default function TabLayout() {
 
           }}
         />
-        {/**<Tabs.Screen
-          name="chat" // Tela chat
-          options={{
-            title: 'chat',
-            tabBarLabel: 'Chat',
-            tabBarIcon: ({ focused }) => (
-              <Image
-                source={
-                  focused
-                    ? require('@/assets/images/1/icons8_messaging_120px_1.png') // Ícone quando ativo
-                    : require('@/assets/images/1/icons8_messaging_120px.png') // Ícone quando inativo
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  opacity: focused ? 1 : 0.5,
-                }}
-              />
-            ),
-          }}
-        /> */}
-
         <Tabs.Screen
           name="beatstore" //Tela loja de beats
           options={{
@@ -139,7 +108,6 @@ export default function TabLayout() {
         />
 
       </Tabs>
-
     </>
   );
 }
@@ -206,101 +174,6 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
-/*
-
-import React from 'react';
-import { Tabs } from 'expo-router';
-import {
-  Image,
-} from 'react-native'; //Importando os elementos do react native
-
-
-export default function TabLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarShowLabel: false,
-        headerShown: true,
-      }}>
-
-
-      <Tabs.Screen //Tab for screen profile (aba para a tela profile)
-        name="profile"
-        options={{
-          title: 'Profile',
-          //tabBarLabel: 'Profile',
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={require('@/assets/images/icons8_account_120px.png')} // substitua com o caminho do seu ícone
-              style={{
-                width: 30,
-                height: 30,
-                opacity: focused ? 1 : 0.5,
-              }}
-            />
-          ),
-        
-        }}
-      /> 
-      
-      <Tabs.Screen // Tab for castings screen
-        name="castings"
-        options={{
-          title: 'Castings',
-          tabBarLabel: 'Castings',
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={require('@/assets/images/icons8_video_playlist_120px.png')}
-              style={{
-                width: 30,
-                height: 30,
-                opacity: focused ? 1 : 0.5,
-              }}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen //Tab for beat store screen
-        name="beatstore"
-        options={{
-          title: 'Beat Store',
-          tabBarLabel: 'Beat Store',
-          tabBarIcon: ({ focused }) => (
-            <Image
-              source={require('@/assets/images/icons8_sample_rate_120px.png')}
-              style={{
-                width: 30,
-                height: 30,
-                opacity: focused ? 1 : 0.5,
-              }}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen //Tab for library screen
-        name="library"
-        options={{
-          title: 'Library',
-          tabBarLabel: 'Library',
-         tabBarIcon: ({ focused }) =>(
-           <Image 
-            source={require('@/assets/images/icons8_music_library_120px.png')}
-            style={{
-            width: 30,
-            height: 30,
-            opacity: focused ? 1 : 0.5,
-          }}
-          />
-        ),
-       }}
-      />
-    </Tabs>
-  );
-}
-
 */
 
 
