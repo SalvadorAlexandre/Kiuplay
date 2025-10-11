@@ -81,9 +81,9 @@ export default function SingleCard({ item, onPress }: SingleCardProps) {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: "48%",
+    width: "49%",
     height: 240,
-    marginHorizontal: 3,
+    marginHorizontal: 2,
     marginBottom: 5,
     backgroundColor: "#282828",
     borderRadius: 8,

@@ -90,9 +90,9 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
 
 const styles = StyleSheet.create({
     cardContainer: {
-        width: '48%',
+        width: '49%',
         height: 260,
-        marginHorizontal: 3,
+        //marginHorizontal: 2,
         marginBottom: 5,
         backgroundColor: '#282828',
         borderRadius: 8,

@@ -57,7 +57,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
                     <Text numberOfLines={1} style={styles.artistName}>
                         {music.artist
                             ? `${(music.artist)}`
-                            : 'Artista desconhecido'}   
+                            : 'Artista desconhecido'}
                     </Text>
                     <Text style={styles.musicSize}>
                         {music.size
@@ -104,8 +104,13 @@ export default function LocalMusicScreen() {
 
                     if (metadata.common.picture && metadata.common.picture.length > 0) {
                         const picture = metadata.common.picture[0];
-                        const coverBlob = new Blob([picture.data], { type: picture.format });
+
+                        // Converte o buffer para ArrayBuffer explicitamente
+                        const arrayBuffer = picture.data.buffer as ArrayBuffer;
+
+                        const coverBlob = new Blob([arrayBuffer], { type: picture.format });
                         coverUri = URL.createObjectURL(coverBlob);
+
                         console.log("Cover URI:", coverUri);
                     }
 
@@ -152,7 +157,7 @@ export default function LocalMusicScreen() {
                 style={styles.button}
                 testID="select-music-button"
             >
-                <Text style={styles.buttonText}>Selecionar músicas</Text>
+                <Text style={styles.buttonText}>Clica para selecionar músicas</Text>
             </TouchableOpacity>
 
             {playlist.length === 0 ? (
@@ -184,7 +189,7 @@ const styles = StyleSheet.create({
         padding: 12,
     },
     button: {
-        backgroundColor: '#1e90ff',
+        //backgroundColor: '#1e90ff',
         paddingVertical: 12,
         borderRadius: 10,
         marginBottom: 20,

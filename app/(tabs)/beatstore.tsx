@@ -86,23 +86,35 @@ export default function BeatStoreScreen() {
             </View>
 
             <View style={styles.tabsContainer}>
-                {['feeds', 'curtidas', 'seguindo'].map((tab) => (
+                {[
+                    { key: 'feeds', label: 'Feeds', icon: 'musical-notes' },
+                    { key: 'curtidas', label: 'Curtidas', icon: 'heart' },
+                    { key: 'seguindo', label: 'Seguindo', icon: 'people' },
+                ].map((tab) => (
                     <TouchableOpacity
-                        key={tab}
-                        onPress={() => handleTabChange(tab as 'feeds' | 'curtidas' | 'seguindo')}
+                        key={tab.key}
+                        onPress={() => handleTabChange(tab.key as 'feeds' | 'curtidas' | 'seguindo')}
                         style={[
                             styles.tabButton,
-                            activeTab === tab && styles.activeTabButton,
+                            activeTab === tab.key && styles.activeTabButton,
                         ]}
                     >
-                        <Text
-                            style={[
-                                styles.tabText,
-                                activeTab === tab && styles.activeTabText,
-                            ]}
-                        >
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                        </Text>
+                        <View style={styles.tabContent}>
+                            <Ionicons
+                                name={tab.icon as any}
+                                size={18}
+                                color={activeTab === tab.key ? '#fff' : '#aaa'}
+                                style={{ marginRight: 6 }}
+                            />
+                            <Text
+                                style={[
+                                    styles.tabText,
+                                    activeTab === tab.key && styles.activeTabText,
+                                ]}
+                            >
+                                {tab.label}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -231,6 +243,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         //marginLeft: 10,
         paddingVertical: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        
     },
     tabButton: {
         paddingVertical: 8,
@@ -340,5 +355,11 @@ const styles = StyleSheet.create({
         //marginBottom: 8,
         flex: 1,
         //textAlign: 'center',
+    },
+
+    tabContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

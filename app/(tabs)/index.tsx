@@ -319,7 +319,7 @@ export default function ProfileScreen() {
                   data={userProfile.singles} // pega os singles do artista
                   keyExtractor={(item) => item.id}
                   numColumns={2}
-                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  columnWrapperStyle={styles.columnWrapper}
                   renderItem={({ item }) => (
                     <SingleCard
                       item={item}
@@ -345,7 +345,7 @@ export default function ProfileScreen() {
                   data={userProfile.eps}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
-                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  columnWrapperStyle={styles.columnWrapper}
                   renderItem={({ item }) => (
                     <EpCard
                       item={item}
@@ -368,7 +368,7 @@ export default function ProfileScreen() {
                   data={userProfile.albums}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
-                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  columnWrapperStyle={styles.columnWrapper}
                   renderItem={({ item }) => (
                     <AlbumCard
                       item={item}
@@ -396,7 +396,7 @@ export default function ProfileScreen() {
                   data={userProfile.exclusiveBeats}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
-                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  columnWrapperStyle={styles.columnWrapper}
                   renderItem={({ item }) => (
                     <ExclusiveBeatCard
                       item={item}
@@ -419,7 +419,7 @@ export default function ProfileScreen() {
                   data={userProfile.freeBeats}
                   keyExtractor={(item) => item.id}
                   numColumns={2}
-                  columnWrapperStyle={{ justifyContent: "space-between" }}
+                  columnWrapperStyle={styles.columnWrapper}
                   renderItem={({ item }) => (
                     <FreeBeatCard
                       item={item}
@@ -619,6 +619,9 @@ const styles = StyleSheet.create({
     flex: 1,
     //textAlign: 'center',
   },
+   columnWrapper:{
+    justifyContent: 'space-between',
+   }
 
 
 });

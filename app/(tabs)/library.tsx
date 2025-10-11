@@ -34,8 +34,18 @@ const SubTabBar = ({
     isSelectedSubTab: (group: 'local' | 'cloud', tab: TypeSubTab) => boolean;
     selectSubTab: (group: 'local' | 'cloud', tab: TypeSubTab) => void;
 }) => {
+    // Mapeamento de ícones para cada aba
+    const iconMap: Record<TypeSubTab, keyof typeof Ionicons.glyphMap> = {
+        tudo: 'musical-notes',
+        pastas: 'folder',
+        downloads: 'download',
+        feeds: 'cloud',
+        curtidas: 'heart',
+        seguindo: 'people',
+    };
+
     return (
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
             {tabs.map((tab) => (
                 <TouchableOpacity
                     key={tab}
@@ -45,14 +55,22 @@ const SubTabBar = ({
                     ]}
                     onPress={() => selectSubTab(group, tab)}
                 >
-                    <Text
-                        style={[
-                            styles.tabText,
-                            isSelectedSubTab(group, tab) && styles.activeTabText,
-                        ]}
-                    >
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                    </Text>
+                    <View style={styles.tabContent}>
+                        <Ionicons
+                            name={iconMap[tab]}
+                            size={18}
+                            color={isSelectedSubTab(group, tab) ? '#fff' : '#aaa'}
+                            style={{ marginRight: 6 }}
+                        />
+                        <Text
+                            style={[
+                                styles.tabText,
+                                isSelectedSubTab(group, tab) && styles.activeTabText,
+                            ]}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </Text>
+                    </View>
                 </TouchableOpacity>
             ))}
         </View>
@@ -110,7 +128,7 @@ export default function LibraryScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
-            
+
 
             <View style={styles.containerTopBar}>
 
@@ -182,7 +200,7 @@ export default function LibraryScreen() {
                                     data={MOCKED_CLOUD_FEED_DATA}
                                     keyExtractor={(item) => item.id}
                                     numColumns={2}
-                                    columnWrapperStyle={{ justifyContent: 'space-between' }}
+                                    columnWrapperStyle={styles.flatlistColun}
                                     renderItem={({ item }) => (
                                         <LibraryContentCard
                                             item={item}
@@ -425,4 +443,13 @@ const styles = StyleSheet.create({
         flex: 1,
         //textAlign: 'center',
     },
+
+    tabContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    flatlistColun:{
+        justifyContent: 'space-between',
+    }
 });

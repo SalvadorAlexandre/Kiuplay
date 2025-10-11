@@ -78,9 +78,9 @@ function CardContent({
 
 const styles = StyleSheet.create({
     cardContainer: {
-        width: "48%",
+        width: "49%",
         height: 250,
-        marginHorizontal: 3,
+        marginHorizontal: 2,
         marginBottom: 8,
         backgroundColor: "#282828",
         borderRadius: 8,
