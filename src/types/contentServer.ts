@@ -536,7 +536,7 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         isFree: true, // Para FreeBeat
         typeUse: 'free', // Usar typeUse
         category: 'beat', // Categoria é 'beat'
-        bpm: 87,
+        bpm: 120,
         releaseYear: '2022', // Adicionado releaseYear
 
         comments: [

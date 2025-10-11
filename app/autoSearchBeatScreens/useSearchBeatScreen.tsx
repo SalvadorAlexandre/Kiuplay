@@ -44,7 +44,7 @@ export default function FindBeatByAcapella() {
   // NOVO: Função para lidar com o clique no botão "Buscar Instrumental"
   const handleSearchInstrumentals = () => {
     router.push({
-      pathname: '/autoSearchBeatScreens/useInstrumentalsScreen', // Rota para a sua nova tela de instrumentais
+      pathname: '/autoSearchBeatScreens/useInstrumentalsResultsScreen', // Rota para a sua nova tela de instrumentais
       params: { bpm: bpm.toString() }, // Passa o BPM atual como parâmetro
     });
   };

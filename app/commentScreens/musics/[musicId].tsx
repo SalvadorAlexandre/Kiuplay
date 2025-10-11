@@ -155,7 +155,7 @@ export default function MusicCommentsScreen() {
           <FlatList
             data={comments}
             keyExtractor={(item) => item.id}
-            inverted
+            //inverted
             renderItem={renderCommentItem}
             contentContainerStyle={styles.flatListContentContainer}
             ListEmptyComponent={() => (
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   musicTitleInComments: { color: "#fff", fontSize: 16, fontWeight: "bold" },
   artistNameInComments: { color: "#b3b3b3", fontSize: 12, marginTop: 2 },
   commentCountText: { color: "#aaa", fontSize: 12, marginTop: 4 },
-  flatListContentContainer: { paddingTop: 80, paddingBottom: 30 },
+  flatListContentContainer: { paddingTop: 10, paddingBottom: 30 },
   emptyCommentsText: {
     color: "#b3b3b3",
     textAlign: "center",

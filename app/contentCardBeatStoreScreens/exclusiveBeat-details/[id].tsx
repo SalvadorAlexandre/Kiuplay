@@ -1,4 +1,4 @@
-// app/contentCardBeatStoreScreens/album-details/[id].tsx
+// app/contentCardBeatStoreScreens/exclusiveBeat-details/[id].tsx
 import React, { useCallback } from 'react';
 import {
     View,
