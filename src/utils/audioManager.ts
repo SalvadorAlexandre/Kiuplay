@@ -126,7 +126,7 @@ class AudioManager {
       }
     }
 
-    console.log(`AudioManager: Carregando ${track.name || track.title || 'música desconhecida'} (${track.uri})`);
+    console.log(`AudioManager: Carregando ${track.title || track.title || 'música desconhecida'} (${track.uri})`);
     try {
       const { sound: newSound } = await Audio.Sound.createAsync(
         typeof track.uri === 'string' ? { uri: track.uri } : track.uri,

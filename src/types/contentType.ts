@@ -56,7 +56,7 @@ export interface Single {
     genre: string; // NOVO: Adicionado para o gênero
     releaseYear: string; // Propriedade para ano de lançamento
     category: 'single'; // Categoria específica
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites';
+    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-server';
 
     comments?: Comment[]
 }

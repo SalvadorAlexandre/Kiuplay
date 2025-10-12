@@ -5,7 +5,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getAudioManager, } from '../utils/audioManager'; // Renomear para evitar conflito
 import { AVPlaybackStatus, AVPlaybackStatusSuccess } from 'expo-av';
 import { PlayableContent } from '@/src/types/contentType'; // Importe o novo tipo PlayableContent
-import {shuffleArray} from '@/src/utils/arrayUtils'
+import { shuffleArray } from '@/src/utils/arrayUtils'
 
 import type { RootState, AppDispatch } from './store';
 
@@ -25,6 +25,7 @@ export type Track = PlayableContent & {
   | 'beatstore-feeds'
   | 'beatstore-favorites'
   | 'user-profile'
+  | 'library-server'
   | 'unknown'
   // Adicione outras propriedades específicas do player se houver (ex: `isPlaying`, `progress`, etc. - mas essas geralmente vão para o estado do slice, não na Track interface em si)
 }
@@ -115,6 +116,7 @@ export const setPlaylistAndPlayThunk = createAsyncThunk<
 
 // --- NOVA THUNK: playTrackThunk ---
 // Usada para tocar uma música específica da playlist (ou definir uma nova playlist e tocar)
+// Thunk para tocar uma música específica da playlist
 export const playTrackThunk = createAsyncThunk<
   void,
   number, // Payload: index da música na playlist atual do Redux
@@ -135,20 +137,26 @@ export const playTrackThunk = createAsyncThunk<
       // Se já é a música atual e está carregada
       if (state.currentTrack?.id === trackToPlay.id && await audioManager.isSoundLoaded()) {
         if (!state.isPlaying) {
-          await audioManager.play(); // Passa o Track completo
+          await audioManager.play();
+          dispatch(_setPlaying(true)); // 💡 CORREÇÃO 1: Atualiza isPlaying se apenas deu play
         }
         dispatch(_setIndex(targetIndex));
         dispatch(setError(null));
         return;
       }
 
+      // 1. ATUALIZA O ÍNDICE E TRACK ANTES DE TUDO (Correto)
       dispatch(_setIndex(targetIndex));
       dispatch(setLoading(true));
       dispatch(setError(null));
 
       try {
         await audioManager.stop();
-        await audioManager.loadAndPlay(trackToPlay, true); // Passa o Track completo
+        await audioManager.loadAndPlay(trackToPlay, true);
+
+        // 💡 CORREÇÃO 2: Define isPlaying como TRUE assim que a função assíncrona
+        // (que assume que a reprodução vai começar) retornar.
+        dispatch(_setPlaying(true));
       } catch (error: any) {
         console.error("Erro ao carregar e tocar a faixa:", error);
         dispatch(setError(error.message || 'Erro ao carregar e tocar a música.'));
