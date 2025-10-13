@@ -1,7 +1,16 @@
 // app/(auth)/sign-in.tsx
 // app/(auth)/sign-in.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  SafeAreaView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform
+} from 'react-native';
 import { Stack, Link, useRouter } from 'expo-router';
 import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
 import { useAuth } from '@/hooks/Auth/useAuth';
