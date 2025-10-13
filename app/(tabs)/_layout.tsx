@@ -40,7 +40,7 @@ export default function TabLayout() {
       >
 
         <Tabs.Screen
-          name="index" //Tela Perfil
+          name="index" //Tela Perfil está em /app/(tabs)/index.tsx
           options={{
             title: 'Perfil',
             tabBarLabel: 'Perfil',
@@ -64,7 +64,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="beatstore" //Tela loja de beats
+          name="beatstore" //Tela loja de beats está em /app/(tabs)/beatstore.tsx
           options={{
             title: 'Loja de beats',
             tabBarLabel: 'Loja de beats',
@@ -86,7 +86,7 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="library" // Tela Musicas
+          name="library" // Tela Musicas está em /app/(tabs)/library.tsx
           options={{
             title: 'Músicas',
             tabBarLabel: 'Músicas',

@@ -186,8 +186,14 @@ export default function LibraryScreen() {
                                 <LocalMusicScreen />
                             </View>
                         }
-                        {getSelectedSubTab('local') === 'pastas' && <Text style={styles.text}>Mostrando pastas</Text>}
-                        {getSelectedSubTab('local') === 'downloads' && <Text style={styles.text}>Mostrando downloads</Text>}
+                        {getSelectedSubTab('local') === 'pastas' &&
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={styles.text}>Pastas Indisponíveis...</Text>
+                            </View>}
+                        {getSelectedSubTab('local') === 'downloads' &&
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={styles.text}>Downloads Indisponíveis...</Text>
+                            </View>}
                     </>
                 )}
 
@@ -449,7 +455,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    flatlistColun:{
+    flatlistColun: {
         justifyContent: 'space-between',
     }
 });
