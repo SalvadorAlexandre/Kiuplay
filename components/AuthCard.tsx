@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { Ionicons, FontAwesome, AntDesign } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/Auth/useAuth';
 
 interface AuthCardProps {
   type: 'login' | 'register';

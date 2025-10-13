@@ -22,7 +22,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { setNetworkStatus } from '@/src/redux/networkSlice';
 
 // IMPORTAÇÕES DE AUTENTICAÇÃO
-import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { AuthProvider, useAuth } from '@/hooks/Auth/useAuth';
 import { View } from 'react-native';
 
 export {

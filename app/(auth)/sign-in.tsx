@@ -1,83 +1,142 @@
 // app/(auth)/sign-in.tsx
-import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, StatusBar, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AuthCard from '@/components/AuthCard'; // Ajuste o caminho conforme sua estrutura
-
-// IMPORTANTE: Adicione a sua imagem de fundo. 
-// Exemplo: crie um arquivo 'cloud-bg.jpg' em 'assets/'
-const BACKGROUND_IMAGE = require('../../assets/images/background-login.jpg'); 
+// app/(auth)/sign-in.tsx
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { Stack, Link, useRouter } from 'expo-router';
+import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
+import { useAuth } from '@/hooks/Auth/useAuth';
 
 export default function SignInScreen() {
-  const isWeb = Platform.OS === 'web';
-  const insets = useSafeAreaInsets(); // Obtém insets para evitar sobreposição em telas mobile
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { signIn } = useAuth();
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    // ⚠️ Implementar lógica de autenticação real aqui ⚠️
+    console.log('Attempting login with:', email, password);
+
+    // Simulação de sucesso (deve ser chamada após sucesso da API)
+    await signIn('mock_token_123');
+
+    // Redireciona para a home e remove login da pilha
+    router.replace('/');
+  };
 
   return (
-    <ImageBackground
-      source={BACKGROUND_IMAGE}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <StatusBar barStyle="dark-content" />
-      
-      {/* 1. Camada de Blur/Overlay (Ocupa a tela inteira) */}
-      {isWeb ? (
-        // Para Web/PWA, usamos uma View simples com transparência (o blur nativo é complexo)
-        <View style={styles.blurOverlayWeb} />
-      ) : (
-        // Para iOS/Android, usamos o expo-blur nativo
-        <BlurView intensity={50} style={StyleSheet.absoluteFill} />
-      )}
-      
-      {/* 2. Container Principal (Simula SafeAreaView e Centraliza) */}
-      <View style={[styles.mainContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-          
-          {/* Cabeçalho com Logo (ajustado para Web/Mobile) */}
-          <View style={styles.header}>
-            <Text style={styles.logoText}>⚡ Ebolt</Text>
-          </View>
-          
-          {/* Container para Centralizar o Cartão */}
-          <View style={styles.cardContainer}>
-            <AuthCard type="login" />
-          </View>
+    // Oculta o cabeçalho (apenas para garantir)
+    <SafeAreaView style={styles.safeArea}>
+      <Stack.Screen options={{ headerShown: false }} />
 
-      </View>
-      
-    </ImageBackground>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Text style={styles.title}>Welcome to Kiuplay!</Text>
+        <Text style={styles.subtitle}>Log in to continue...</Text>
+
+        {/* 1. INPUT DE EMAIL */}
+        <TextInput
+          style={styles.input}
+          placeholder="Email Address"
+          placeholderTextColor="#999"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+        />
+
+        {/* 2. INPUT DE SENHA */}
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#999"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        {/* 3. BOTÃO DE LOGIN GRADIENTE */}
+        <GradientButton
+          title="Log In"
+          onPress={handleLogin}
+        />
+
+        {/* 4. ESQUECEU A SENHA */}
+        <Link href="/forgot-password" asChild>
+          <TouchableOpacity style={styles.forgotPasswordContainer}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </Link>
+
+        {/* 5. LINK PARA CADASTRO */}
+        <View style={styles.signUpContainer}>
+          <Text style={styles.signUpText}>Don't have an account? </Text>
+          <Link href="/sign-up" asChild>
+            <TouchableOpacity>
+              <Text style={styles.signUpLink}>Sign up</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  // Fundo deve ocupar 100% da tela/viewport em todos os dispositivos
-  background: {
-    flex: 1, 
-    width: '100%',
-    height: '100%',
-  },
-  // Overlay de blur para web/PWA
-  blurOverlayWeb: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', 
-  },
-  mainContainer: {
+  safeArea: {
     flex: 1,
+    backgroundColor: '#000', // Fundo preto sólido
   },
-  header: {
-    paddingHorizontal: Platform.OS === 'web' ? 50 : 20, // Maior padding em telas maiores
-    paddingTop: Platform.OS === 'web' ? 20 : 10,
-    marginBottom: Platform.OS === 'web' ? 40 : 20,
+  container: {
+    flex: 1,
+    paddingHorizontal: 25,
+    justifyContent: 'center',
   },
-  logoText: {
-    fontSize: 28,
+  title: {
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#fff',
+    marginBottom: 10,
   },
-  cardContainer: {
-    flex: 1,
-    justifyContent: 'center', // Centraliza verticalmente
-    alignItems: 'center',     // Centraliza horizontalmente
-    paddingHorizontal: 20,
+  subtitle: {
+    fontSize: 16,
+    color: '#aaa',
+    marginBottom: 40,
+  },
+  input: {
+    backgroundColor: '#1c1c1c', // Fundo de input escuro
+    color: '#fff',
+    height: 55,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#333', // Borda sutil
+  },
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 15,
+    marginBottom: 40,
+  },
+  forgotPasswordText: {
+    color: '#aaa',
+    fontSize: 14,
+  },
+  signUpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 50,
+  },
+  signUpText: {
+    color: '#aaa',
+    fontSize: 16,
+  },
+  signUpLink: {
+    color: '#00ffff', // Cor ciano vibrante para o link
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
