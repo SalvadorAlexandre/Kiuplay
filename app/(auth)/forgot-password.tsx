@@ -1,7 +1,18 @@
 // app/(auth)/forgot-password.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    SafeAreaView,
+    TouchableOpacity,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView, // 🛑 Adicionado ScrollView
+} from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons'; // 🛑 Importação do Ionicons
 import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
 
 export default function ForgotPasswordScreen() {
@@ -20,48 +31,97 @@ export default function ForgotPasswordScreen() {
         <SafeAreaView style={styles.safeArea}>
             <Stack.Screen options={{ headerShown: false }} />
 
+            {/* Container principal para o KeyboardAvoidingView */}
             <KeyboardAvoidingView
-                style={styles.container}
+                style={styles.keyboardContainer}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-                <Text style={styles.title}>Forgot Password</Text>
-                <Text style={styles.subtitle}>Enter your email address below. We will send you a password reset email.</Text>
+                {/* ScrollView para centralização vertical e rolagem */}
+                <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                {/* INPUT EMAIL */}
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email address"
-                    placeholderTextColor="#999"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                />
+                    {/* Bloco do ÍCONE e TÍTULO */}
+                    <View style={styles.contentBlock}>
+                        {/* 🛑 ÍCONE: Chave para redefinição de senha */}
+                        <Ionicons
+                            name="key"
+                            size={80}
+                            color="#ff00ff" // Usando a cor magenta para destaque
+                            style={styles.authIcon}
+                        />
 
-                {/* BOTÃO GRADIENTE */}
-                <GradientButton
-                    title="Send Password Reset"
-                    onPress={handleSendResetLink}
-                />
+                        <Text style={styles.title}>Forgot Password</Text>
+                        <Text style={styles.subtitle}>
+                            Enter your email address below. We will send you a password reset email.
+                        </Text>
+                    </View>
 
-                {/* LINK PARA LOGIN */}
-                <View style={styles.loginContainer}>
-                    <Text style={styles.loginText}>Already have an account? </Text>
-                    <TouchableOpacity onPress={() => router.replace('/sign-in')}>
-                        <Text style={styles.loginLink}>Log In</Text>
-                    </TouchableOpacity>
-                </View>
+                    {/* INPUT EMAIL */}
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your email address"
+                        placeholderTextColor="#999"
+                        keyboardType="email-address"
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                    />
 
+                    {/* BOTÃO GRADIENTE */}
+                    <GradientButton
+                        title="Send Password Reset"
+                        onPress={handleSendResetLink}
+                    />
+
+                    {/* LINK PARA LOGIN */}
+                    <View style={styles.loginContainer}>
+                        <Text style={styles.loginText}>Already have an account? </Text>
+                        <TouchableOpacity onPress={() => router.replace('/sign-in')}>
+                            <Text style={styles.loginLink}>Log In</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: '#000' },
-    container: { flex: 1, paddingHorizontal: 25, justifyContent: 'center' },
-    title: { fontSize: 32, fontWeight: 'bold', color: '#fff', marginBottom: 10 },
-    subtitle: { fontSize: 16, color: '#aaa', marginBottom: 40 },
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#000'
+    },
+    keyboardContainer: {
+        flex: 1,
+    },
+    // Estilo para centralizar e dar padding ao conteúdo
+    scrollContent: {
+        flexGrow: 1,
+        paddingHorizontal: 25,
+        justifyContent: 'center', // Centraliza verticalmente
+        paddingVertical: 40,
+    },
+    contentBlock: {
+        marginBottom: 40,
+        alignItems: 'center', // Centraliza o ícone e os textos
+    },
+    // 🛑 Novo estilo para o ícone
+    authIcon: {
+        marginBottom: 20, // Espaço após o ícone
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 5, // Aproxima o título do subtítulo
+        textAlign: 'center'
+    },
+    subtitle: {
+        fontSize: 16,
+        color: '#aaa',
+        marginBottom: 30, // 🛑 Margem ajustada para aproximar do input
+        textAlign: 'center'
+    },
     input: {
         backgroundColor: '#1c1c1c',
         color: '#fff',
@@ -73,7 +133,18 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#333',
     },
-    loginContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 50 },
-    loginText: { color: '#aaa', fontSize: 16 },
-    loginLink: { color: '#00ffff', fontSize: 16, fontWeight: 'bold' },
+    loginContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 50
+    },
+    loginText: {
+        color: '#aaa',
+        fontSize: 16
+    },
+    loginLink: {
+        color: '#00ffff',
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
 });

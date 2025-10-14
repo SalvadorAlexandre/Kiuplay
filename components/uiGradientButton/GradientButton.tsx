@@ -19,7 +19,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({ title, onPress, 
         >
             <LinearGradient
                 // Cores do gradiente (referência da imagem: ciano para rosa/magenta)
-                colors={['#00ffff', '#ff00ff']} 
+                colors={['#00ffff', '#1e90ff']} 
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
                 style={styles.gradient}
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
-        textTransform: 'uppercase',
+        //textTransform: 'uppercase',
     },
     disabled: {
         opacity: 0.6,
