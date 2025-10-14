@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // MOCK: Defina o estado de login como false (para exibir o login)
-        const persistedToken = false; // Mude para um valor se quiser testar o AppStack
+        const persistedToken = true; // Mude para um valor se quiser testar o AppStack
         if (persistedToken) {
           setIsLoggedIn(true);
         } else {
