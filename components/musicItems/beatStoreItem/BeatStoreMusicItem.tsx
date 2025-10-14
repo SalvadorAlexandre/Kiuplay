@@ -1,5 +1,5 @@
 // components/musicItems/beatStoreItem/BeatStoreMusicItem.tsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     View,
     Text,
@@ -9,21 +9,28 @@ import {
     ImageBackground,
     Platform,
 } from 'react-native';
-//import { Track } from '@/src/redux/playerSlice';
 import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
-// Importe os tipos específicos de beats para uma tipagem mais precisa
-import { ExclusiveBeat, FreeBeat } from '@/src/types/contentType'; // Ajuste o caminho conforme necessário
+import { ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
+
+// 🛑 NOVOS IMPORTS
+import {
+    selectUserLocale,
+    selectUserCurrencyCode
+} from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors
+import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
 
 interface BeatStoreMusicItemProps {
-    // Definimos o item como uma união de ExclusiveBeat ou FreeBeat,
-    // pois este componente é específico da BeatStore.
     item: ExclusiveBeat | FreeBeat;
     onPress: (track: ExclusiveBeat | FreeBeat) => void;
 }
 
 export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItemProps) {
     const isConnected = useAppSelector((state) => state.network.isConnected);
+
+    // 🛑 1. BUSCAR LOCALE E CURRENCY CODE DO REDUX
+    const userLocale = useAppSelector(selectUserLocale);
+    const userCurrencyCode = useAppSelector(selectUserCurrencyCode);
 
     const getDynamicCoverSource = () => {
         if (isConnected === false || !item.cover || item.cover.trim() === '') {
@@ -33,17 +40,20 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
     };
 
     const coverSource = getDynamicCoverSource();
-    const titleText = item.title; // 'title' é obrigatório, então não precisa de || 'Sem título'
-    const artistText = item.artist; // 'artist' é obrigatório
-    const genreText = item.genre;   // 'genre' é obrigatório
-
-    // Para beats, a categoria é sempre 'beat', então simplificamos:
+    const titleText = item.title;
+    const genreText = item.genre;
     const typeText = "Beat";
-
-    // Adicione propriedades específicas de beat
-    const producerText = item.producer;
     const bpmText = `${item.bpm} BPM`;
-    const priceText = (item as ExclusiveBeat).price ? `R$ ${(item as ExclusiveBeat).price.toFixed(2)}` : 'Free';
+
+    // 🛑 2. LÓGICA DE PREÇO DINÂMICA
+    const priceText = useMemo(() => {
+        // Se o item for um ExclusiveBeat (tem a propriedade 'price')
+        if ('price' in item && item.price !== undefined && item.price !== null && item.price > 0) {
+            return formatPrice(item.price, userLocale, userCurrencyCode);
+        }
+        // Caso contrário, é um FreeBeat ou o preço é 0
+        return 'Free';
+    }, [item, userLocale, userCurrencyCode]);
 
 
     return (

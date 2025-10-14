@@ -4,7 +4,7 @@ import { persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux';
 
 import playerReducer from './playerSlice';
-import usersReducer from './userSlice';
+import usersReducer from './userSessionAndCurrencySlice';
 import followedArtistsReducer from './followedArtistsSlice'; // <-- IMPORTANTE: Novo import
 
 import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃO: Seu slice de músicas favoritas

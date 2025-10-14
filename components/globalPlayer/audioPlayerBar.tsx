@@ -9,6 +9,7 @@ import {
   ImageBackground,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -110,7 +111,7 @@ export default function AudioPlayerBar() {
     const seconds = totalSeconds % 60;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-  
+
 
   const [sliderValue, setSliderValue] = useState(positionMillis);
   useEffect(() => {
@@ -247,7 +248,11 @@ export default function AudioPlayerBar() {
           resizeMode="cover"
         >
           <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}> {/* ADICIONADO: Blur cross-plataforma */}
-            <View style={styles.expandedContent}>
+            <ScrollView
+              contentContainerStyle={styles.expandedScrollContent}
+              style={styles.expandedScrollView}
+              showsVerticalScrollIndicator = {false}
+            >
               <View style={styles.expandedHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                   <Image source={artistAvatarSrc} style={styles.profileImage} />
@@ -357,7 +362,7 @@ export default function AudioPlayerBar() {
                   <Ionicons name="share-social-outline" size={24} color="#fff" />
                 </TouchableOpacity>
               </View>
-            </View>
+            </ScrollView>
 
           </BlurView>
         </ImageBackground>
@@ -524,5 +529,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     justifyContent: 'flex-start',
+  },
+  expandedScrollView: {
+    flex: 1,
+  },
+  expandedScrollContent: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    // Adicionando um padding na parte inferior para garantir que o último botão seja visível
+    paddingBottom: 40,
   },
 });

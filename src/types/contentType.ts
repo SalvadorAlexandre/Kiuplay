@@ -1,7 +1,23 @@
 // src/types/contentType.ts
 
+
+// 🛑 NOVA: Interface Base para Perfis de Usuários (Artistas ou Comuns)
+export interface UserProfile {
+    id: string;
+    name: string; // Ex: Saag weelli boy
+    username: string // Ex: '@saag_swb_oficial'
+    avatar: string; // URL para o avatar (ou avatarUrl no Redux)
+    bio?: string;
+    location?: string; // Ex: "Luanda, Angola"
+    followersCount?: number;
+    followingCount?: number
+    isArtist?: boolean; // Se o usuário tem um perfil de artista
+    hasMonetizationEnabled?: boolean;
+    // Adicione outros campos comuns se houverem
+}
+
 // Interface para um Perfil de Artista
-export interface ArtistProfile {
+export interface ArtistProfile extends UserProfile {
     id: string;
     name: string; // Saag weelli boy
     username: string //'@saag_swb_oficial'
@@ -19,12 +35,13 @@ export interface ArtistProfile {
     exclusiveBeatsCount?: number;
     hasMonetizationEnabled?: boolean; // Novo campo para monetização
     releaseYear: string; //Mostra o ano em que o artista começou a usar no kiuplay
+    location?: string; // Ex: "Luanda, Angola"
 
     singles?: Single[];
     albums?: Album[];
     eps?: ExtendedPlayEP[];
     freeBeats?: FreeBeat[];
-    exclusiveBeats?: ExclusiveBeat[]; 
+    exclusiveBeats?: ExclusiveBeat[];
     followers?: ProfileReference[];
     following?: ProfileReference[];
 }

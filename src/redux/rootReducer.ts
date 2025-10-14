@@ -1,7 +1,7 @@
 //src/redux/rootReducer.ts
 import { combineReducers } from 'redux';
 import playerReducer from './playerSlice';
-import usersReducer from './userSlice';
+import usersReducer from './userSessionAndCurrencySlice';
 import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃO: Seu novo slice de músicas favoritas
 import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer
 import promotionsReducer from './promotionsSlice';

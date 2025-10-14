@@ -20,10 +20,22 @@ import { BlurView } from 'expo-blur';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { ExclusiveBeat } from '@/src/types/contentType';
 
+// 🛑 NOVOS IMPORTS PARA A MOEDA
+import {
+    selectUserLocale,
+    selectUserCurrencyCode
+} from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors do seu novo Slice
+import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
+
+
 export default function exclusiveBeatDetailsScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
+
+    // 🛑 1. BUSCAR LOCALE E CURRENCY CODE DO REDUX
+    const userLocale = useAppSelector(selectUserLocale);
+    const userCurrencyCode = useAppSelector(selectUserCurrencyCode);
 
     const exclusiveBeatData = MOCKED_BEATSTORE_FEED_DATA.find(
         (item) => item.id === id && item.typeUse === 'exclusive'
@@ -42,6 +54,13 @@ export default function exclusiveBeatDetailsScreen() {
     }
 
     const currentExclusiveBeat: ExclusiveBeat = exclusiveBeatData;
+
+    // 🛑 2. FORMATAR O PREÇO ASSIM QUE O BEAT ESTIVER DISPONÍVEL
+    const formattedPrice = formatPrice(
+        currentExclusiveBeat.price,
+        userLocale,
+        userCurrencyCode
+    );
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const isCurrentSingleFavorited = favoritedMusics.some((music) => music.id === currentExclusiveBeat.id);
@@ -144,10 +163,11 @@ export default function exclusiveBeatDetailsScreen() {
 
                             <TouchableOpacity
                                 style={styles.buttonBuy}
-                                //onPress={handleDownloadPress}
+                            //onPress={handleDownloadPress}
                             >
-                                <Text  style={styles.textBuy}>
-                                   Comprar por {currentExclusiveBeat.price.toString()} R$
+                                {/* 🛑 3. USAR O PREÇO FORMATADO */}
+                                <Text style={styles.textBuy}>
+                                    Comprar por {formattedPrice}
                                 </Text>
                             </TouchableOpacity>
 
@@ -158,7 +178,7 @@ export default function exclusiveBeatDetailsScreen() {
                                     color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
                                 />
                                 {currentExclusiveBeat.favoritesCount !== undefined && (
-                                    <Text style={styles.btnActionCountText}>{currentExclusiveBeat.favoritesCount.toString()}</Text>
+                                    <Text style={styles.btnActionCountText}>{currentExclusiveBeat.favoritesCount.toLocaleString()}</Text>
                                 )}
                             </TouchableOpacity>
 

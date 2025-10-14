@@ -10,11 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
-  ScrollView, // 🛑 Adicionado ScrollView para melhor manuseio de conteúdo
+  ScrollView,
 } from 'react-native';
 import { Stack, Link, useRouter } from 'expo-router';
-import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
-import { useAuth } from '@/hooks/Auth/useAuth';
+import { GradientButton } from '@/components/uiGradientButton/GradientButton';
+import { useAuth } from '@/hooks/Auth/useAuth'; // Onde o signIn foi atualizado
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SignInScreen() {
@@ -27,26 +27,54 @@ export default function SignInScreen() {
     // ⚠️ Implementar lógica de autenticação real aqui ⚠️
     console.log('Attempting login with:', email, password);
 
-    // Simulação de sucesso (deve ser chamada após sucesso da API)
-    await signIn('mock_token_123');
+    // =========================================================================
+    // 🛑 LÓGICA DE LOGIN COM INFORMAÇÕES DE MOEDA
+    // =========================================================================
+    try {
+      // 1. CHAME SUA API DE LOGIN AQUI (Ex: const response = await fetch('/login', ...))
 
-    // Redireciona para a home e remove login da pilha
-    router.replace('/');
+      // 2. SIMULAÇÃO DE RESPOSTA DA API (Assumindo Sucesso e a API retorna estes campos)
+      const apiResponseData = {
+        token: 'mock_token_123',
+        userId: 'user-id-abc',
+        // Estes dados VÃO determinar como o preço será exibido em todo o app.
+        // Exemplo 1: Usuário de Angola
+        locale: 'pt-AO',
+        currencyCode: 'AOA',
+
+        // Exemplo 2: Usuário do Brasil
+        // locale: 'pt-BR', 
+        // currencyCode: 'BRL', 
+      };
+
+      // 3. Chamar signIn com o token E os dados de sessão/moeda
+      await signIn(apiResponseData.token, {
+        userId: apiResponseData.userId,
+        locale: apiResponseData.locale,
+        currencyCode: apiResponseData.currencyCode,
+      });
+
+      // 4. Redireciona para a home e remove login da pilha
+      router.replace('/');
+
+    } catch (error) {
+      console.error("Login failed:", error);
+      // Mostrar erro na tela
+      alert("Falha no login. Verifique suas credenciais.");
+    }
   };
+  // =========================================================================
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* 🛑 Mudança 1: Removendo flex: 1 do container e envolvendo tudo em um ScrollView 
-                 para melhor layout em telas menores e centralização vertical. */}
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
 
-          {/* 🛑 Mudança 2: Imagem e Texto como um bloco */}
           <View style={styles.contentBlock}>
             <Ionicons
               name="person-circle"
@@ -114,32 +142,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  // Novo container para a KeyboardAvoidingView
   keyboardContainer: {
     flex: 1,
   },
-  // 🛑 Estilo para centralizar e dar padding ao conteúdo
   scrollContent: {
-    flexGrow: 1, // Permite que o ScrollView cresça
+    flexGrow: 1,
     paddingHorizontal: 25,
-    justifyContent: 'center', // Centraliza o conteúdo verticalmente
-    //paddingVertical: 10, // Adiciona um padding para o topo e base
+    justifyContent: 'center',
   },
   contentBlock: {
-    marginBottom: 20, // 🛑 Diminui a margem inferior para aproximar dos inputs
+    marginBottom: 20,
     alignItems: 'center',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 5, // Diminuída
+    marginBottom: 5,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#aaa',
-    marginBottom: 30, // 🛑 Ajustada para diminuir o espaço
+    marginBottom: 30,
     textAlign: 'center'
   },
   input: {
@@ -177,6 +202,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   profileIcon: {
-    marginBottom: 10, // Aproxima o ícone do título
+    marginBottom: 10,
   },
 });
