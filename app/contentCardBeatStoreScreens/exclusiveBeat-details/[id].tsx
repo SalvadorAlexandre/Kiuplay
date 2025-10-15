@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     },
     textBuy: {
         color: '#fff',
-        fontSize: 15,
+        fontSize: 19,
     },
     buttonText: {
         color: '#fff',

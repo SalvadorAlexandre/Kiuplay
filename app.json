@@ -29,7 +29,8 @@
       "favicon": "./assets/images/Kiuplay.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

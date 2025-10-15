@@ -1,0 +1,14 @@
+{
+  "general": {
+    "welcome": "Welcome to Kiuplay!",
+    "appName": "Kiuplay",
+    "free": "Free",
+    "settings": "Settings",
+    "language": "Language",
+    "producer": "Producer"
+  },
+  "screens": {
+    "beatStoreTitle": "Beat Store",
+    "homeTitle": "Home"
+  }
+}
