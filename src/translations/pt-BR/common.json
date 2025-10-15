@@ -1,14 +1,43 @@
 {
-  "general": {
-    "welcome": "Bem-vindo ao Kiuplay!",
-    "appName": "Kiuplay",
-    "free": "Grátis",
-    "settings": "Configurações",
-    "language": "Idioma",
-    "producer": "Produtor"
-  },
-  "screens": {
-    "beatStoreTitle": "Loja de Beats",
-    "homeTitle": "Início"
-  }
+    "general": {
+        "welcome": "Bem-vindo ao Kiuplay!",
+        "appName": "Kiuplay",
+        "free": "Grátis",
+        "settings": "Configurações",
+        "language": "Idioma",
+        "producer": "Produtor"
+    },
+    "screens": {
+        "beatStoreTitle": "Loja de Beats",
+        "homeTitle": "Início",
+        "profileTitle": "Perfil"
+    },
+    "stats": {
+        "following": "Seguindo",
+        "followers": "Seguidores",
+        "singles": "Singles",
+        "eps": "EPs",
+        "albums": "Álbuns"
+    },
+    "profile": {
+        "makeUploads": "Fazer Uploads",
+        "emptySingle": "Nenhum single publicado ainda.",
+        "emptyEP": "Nenhum EP publicado ainda.",
+        "emptyAlbum": "Nenhum Álbum publicado ainda.",
+        "emptyPurchasedBeats": "Você ainda não comprou nenhum beat.",
+        "emptyExclusiveBeats": "Nenhum Exclusive Beat publicado ainda.",
+        "emptyFreeBeats": "Nenhum Free Beat publicado ainda."
+    },
+    "tabs": {
+        "single": "Single",
+        "extendedPlay": "Extended Play",
+        "album": "Álbum",
+        "purchasedBeats": "Beats Comprados",
+        "exclusiveBeats": "Exclusive Beats",
+        "freeBeats": "Free Beats"
+    },
+    "alerts": {
+        "error": "Erro",
+        "noTracksAvailable": "Não há faixas disponíveis nesta aba."
+    }
 }

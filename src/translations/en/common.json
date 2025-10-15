@@ -9,6 +9,35 @@
   },
   "screens": {
     "beatStoreTitle": "Beat Store",
-    "homeTitle": "Home"
+    "homeTitle": "Home",
+    "profileTitle": "Profile"
+  },
+  "stats": {
+    "following": "Following",
+    "followers": "Followers",
+    "singles": "Singles",
+    "eps": "EPs",
+    "albums": "Albums"
+  },
+  "profile": {
+    "makeUploads": "Make Uploads",
+    "emptySingle": "No singles published yet.",
+    "emptyEP": "No EPs published yet.",
+    "emptyAlbum": "No Albums published yet.",
+    "emptyPurchasedBeats": "You haven't purchased any beats yet.",
+    "emptyExclusiveBeats": "No Exclusive Beats published yet.",
+    "emptyFreeBeats": "No Free Beats published yet."
+  },
+  "tabs": {
+    "single": "Single",
+    "extendedPlay": "Extended Play",
+    "album": "Album",
+    "purchasedBeats": "Purchased Beats",
+    "exclusiveBeats": "Exclusive Beats",
+    "freeBeats": "Free Beats"
+  },
+  "alerts": {
+    "error": "Error",
+    "noTracksAvailable": "No tracks available in this tab."
   }
 }

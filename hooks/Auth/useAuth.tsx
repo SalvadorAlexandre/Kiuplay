@@ -12,11 +12,19 @@ import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
 // =========================================================================
 // 1. DEFINIÇÃO DA INTERFACE DO CONTEXTO
 // =========================================================================
+export interface AuthUserData { // Crie uma interface para o payload de dados do usuário
+  userId: string;
+  locale: string;
+  currencyCode: string;
+  accountRegion: string; // <--- CORREÇÃO 1: Adicione accountRegion aqui
+}
+
+
 export interface AuthContextType {
   isLoggedIn: boolean;
   isLoading: boolean;
   // O signIn agora pode receber dados mais complexos, como a resposta da API, além do token.
-  signIn: (token: string, userData: { userId: string, locale: string, currencyCode: string }) => Promise<void>;
+  signIn: (token: string, userData: AuthUserData) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -56,20 +64,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // **FUNÇÕES DE AUTENTICAÇÃO**
 
-  // 🛑 MUDANÇA: signIn agora aceita os dados de moeda.
-  const signIn = async (token: string, userData: { userId: string, locale: string, currencyCode: string }) => {
-    // 1. Lógica real: Salvar token no AsyncStorage
+  // 🛑 CORREÇÃO 3: O parâmetro 'userData' agora é do tipo AuthUserData
+  const signIn = async (token: string, userData: AuthUserData) => {
     console.log("Usuário logado. Token:", token);
-    // await AsyncStorage.setItem('userToken', token);
 
-    // 2. 🛑 ENVIAR DADOS DE SESSÃO E MOEDA PARA O REDUX
+    // 🛑 ENVIAR DADOS DE SESSÃO, MOEDA E REGIÃO PARA O REDUX
     dispatch(setAuthSession({
       userId: userData.userId,
       locale: userData.locale,
       currencyCode: userData.currencyCode,
+      accountRegion: userData.accountRegion, // <--- CORREÇÃO 4: PASSANDO A REGIÃO
     }));
 
-    // 3. Definir o estado de login
     setIsLoggedIn(true);
   };
 
@@ -100,12 +106,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const mockUserId = 'user-123';
           const mockLocale = 'en-US'; // Ex: Pode vir do token ou do dispositivo
           const mockCurrencyCode = 'USD'; // Ex: Pode vir do token ou do backend
+          const mockAccountRegion = 'US'; // <--- CORREÇÃO 5: NOVO MOCK PARA REGIÃO DA CONTA
+
 
           // 🛑 ENVIAR DADOS DE SESSÃO E MOEDA PARA O REDUX (no carregamento inicial)
           dispatch(setAuthSession({
             userId: mockUserId,
             locale: mockLocale,
             currencyCode: mockCurrencyCode,
+            accountRegion: mockAccountRegion, // <--- CORREÇÃO 6: PASSANDO A REGIÃO NO MOCK
           }));
 
           setIsLoggedIn(true);

@@ -23,10 +23,12 @@ import {
 import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
+import { useTranslation } from '@/src/translations/useTranslation';
 
 
 export default function ProfileScreen() {
 
+  const { t } = useTranslation(); // Hook de tradução
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
@@ -59,8 +61,16 @@ export default function ProfileScreen() {
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };*/}
 
-  const tabs = ['Single', 'Extended Play', 'Album', 'Beats Comprados', 'Exclusive Beats', 'Free Beats',];
-  const [activeTab, setActiveTab] = useState('Single');
+  const tabs = [
+    t('tabs.single'),
+    t('tabs.extendedPlay'),
+    t('tabs.album'),
+    t('tabs.purchasedBeats'),
+    t('tabs.exclusiveBeats'),
+    t('tabs.freeBeats'),
+  ];
+  const [activeTab, setActiveTab] = useState(t('tabs.single'));
+
 
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
@@ -106,30 +116,24 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
-
       <View style={styles.containerTopBar}>
+        <Text style={styles.titleTopBar}>{t('screens.profileTitle')}</Text>
 
-        <Text style={styles.titleTopBar}>Perfil</Text>
-
-        <View style={{ flexDirection: 'row', gap: 8, }}>
-          {/* Botão da tela de notificacoes*/}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity
             onPress={() => router.push('/notificationsScreens/notifications')}
-            style={styles.buttonTopBar}>
-            {/* Ícone de notificações*/}
-            <Ionicons name='notifications' size={24} color='#fff' />
+            style={styles.buttonTopBar}
+          >
+            <Ionicons name="notifications" size={24} color="#fff" />
           </TouchableOpacity>
 
-          {/* Botão de pesquisa*/}
           <TouchableOpacity
             onPress={() => router.push('/searchScreens/searchProfile')}
-            style={styles.buttonTopBar}>
-            {/* Ícone de notificações*/}
-            <Ionicons name='search-outline' size={25} color='#fff' />
+            style={styles.buttonTopBar}
+          >
+            <Ionicons name="search-outline" size={25} color="#fff" />
           </TouchableOpacity>
         </View>
-
-
       </View>
 
       <ScrollView
@@ -138,307 +142,211 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.container}
         showsHorizontalScrollIndicator={false}
       >
-        {/* View da visão Geral do perfil */}
         <View style={styles.profileContainer}>
-          <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ alignItems: 'center' }}>
             <View style={styles.imageContainer}>
               <Image source={avatarUser} style={styles.profileImage} resizeMode="contain" />
             </View>
-
-            {/* Mostrar o nome e o arroba do utilizador */}
-            <View>
-              <Text style={styles.userName}>{userProfile.name}</Text>
-              <Text style={styles.userHandle}>{userProfile.username}</Text>
-            </View>
+            <Text style={styles.userName}>{userProfile.name}</Text>
+            <Text style={styles.userHandle}>{userProfile.username}</Text>
           </View>
 
-          {/* Estatísticas: seguindo, seguidores, singles, EPs, álbuns, vídeos */}
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userProfile.followingCount}</Text>
-              <Text style={styles.statLabel}>Seguindo</Text>
+              <Text style={styles.statLabel}>{t('stats.following')}</Text>
             </View>
 
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userProfile.followersCount}</Text>
-              <Text style={styles.statLabel}>Seguidores</Text>
+              <Text style={styles.statLabel}>{t('stats.followers')}</Text>
             </View>
 
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userProfile.singlesCount}</Text>
-              <Text style={styles.statLabel}>Singles</Text>
+              <Text style={styles.statLabel}>{t('stats.singles')}</Text>
             </View>
 
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userProfile.epsCount}</Text>
-              <Text style={styles.statLabel}>EPs</Text>
+              <Text style={styles.statLabel}>{t('stats.eps')}</Text>
             </View>
 
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{userProfile.albumsCount}</Text>
-              <Text style={styles.statLabel}>Álbuns</Text>
+              <Text style={styles.statLabel}>{t('stats.albums')}</Text>
             </View>
-
-            {/* Novo stat para Vídeos 
-             <View style={styles.statBox}>
-              <Text style={styles.statValue}>{userProfile.videosCount}</Text>
-              <Text style={styles.statLabel}>Vídeos</Text>
-            </View>r
-            
-            */}
-
           </View>
         </View>
 
-
-
-        {/* Conteúdo expansível */}
-
         <View>
-          {/* View das configurações do perfil */}
-          <Animated.View style={[
-            styles.buttonContainer,
-            { transform: [{ scale: scaleValueConfig }] }
-          ]}>
+          <Animated.View
+            style={[styles.buttonContainer, { transform: [{ scale: scaleValueConfig }] }]}
+          >
             <TouchableOpacity
               onPressIn={handlePressInConfig}
               onPressOut={handlePressOutConfig}
-              onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}  //Tela de configurações
+              onPress={() => router.push('/profileScreens/useProfileSettingsScreen')}
               style={styles.buttonContent}
             >
               <Image
                 source={require('@/assets/images/2/icons8_settings_120px.png')}
                 style={styles.iconLeft}
               />
-              <Text style={styles.buttonText}>Configurações</Text>
+              <Text style={styles.buttonText}>{t('general.settings')}</Text>
               <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
           </Animated.View>
 
-          {/* View do botão para entrar na tela de monetização 
-              <Animated.View style={[
-                styles.buttonContainer,
-                { transform: [{ scale: scaleValueMonetization }] }
-              ]}>
-                <TouchableOpacity
-                  onPressIn={handlePressInMonetization}
-                  onPressOut={handlePressOutMonetization}
-                  onPress={() => router.push('/profileScreens/useMonetizationScreen')} //Tela de monetização
-                  style={styles.buttonContent}
-                >
-                  <Image
-                    source={require('@/assets/images/2/icons8_euro_money_120px.png')}
-                    style={styles.iconLeft}
-                  />
-                  <Text style={styles.buttonText}>Kiuplay Monetization</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#fff" />
-                </TouchableOpacity>
-              </Animated.View>
-
-              */}
-
-          {/* View do botão Fazer Uploads */}
-          <Animated.View style={[
-            styles.buttonContainer,
-            { transform: [{ scale: scaleValueUploads }] }
-          ]}>
+          <Animated.View
+            style={[styles.buttonContainer, { transform: [{ scale: scaleValueUploads }] }]}
+          >
             <TouchableOpacity
               onPressIn={handlePressInUploads}
               onPressOut={handlePressOutUploads}
-              onPress={() => router.push('/profileScreens/useOptionsPostsScreen')} //Tela de Tipo de posts
+              onPress={() => router.push('/profileScreens/useOptionsPostsScreen')}
               style={styles.buttonContent}
             >
               <Image
                 source={require('@/assets/images/2/icons8_upload_to_the_cloud_120px.png')}
                 style={styles.iconLeft}
               />
-              <Text style={styles.buttonText}>Fazer Uploads</Text>
+              <Text style={styles.buttonText}>{t('profile.makeUploads')}</Text>
               <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
           </Animated.View>
-
-          {/* View do botão Insight 
-              <Animated.View style={[
-                styles.buttonContainer,
-                { transform: [{ scale: scaleValueInsight }] }
-              ]}>
-                <TouchableOpacity
-                  onPressIn={handlePressInInsight}
-                  onPressOut={handlePressOutInsight}
-                  onPress={() => router.push('/profileScreens/useInsightsUserScreen')} //Tela de Insights
-                  style={styles.buttonContent}
-                >
-                  <Image
-                    source={require('@/assets/images/2/icons8_funnel_120px_1.png')}
-                    style={styles.iconLeft}
-                  />
-                  <Text style={styles.buttonText}>Seus Insights</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#fff" />
-                </TouchableOpacity>
-              </Animated.View>
-              
-              */}
-
         </View>
 
+        <View style={{ marginTop: 10 }} />
 
-        {/* View dos conteúdos do usuário */}
-        <View>
-          <View style={{ marginTop: 10, }}></View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.tabsContainer}
-          >
-            {tabs.map((tab) => (
-              <TouchableOpacity
-                key={tab}
-                style={[
-                  styles.tabButton,
-                  activeTab === tab && styles.activeTabButton,
-                ]}
-                onPress={() => setActiveTab(tab)}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text
+                style={[styles.tabText, activeTab === tab && styles.activeTabText]}
               >
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === tab && styles.activeTabText,
-                  ]}
-                >
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-          <View style={{ marginTop: 8 }}>
-            {activeTab === 'Single' && (
-              <View style={{ flex: 1, paddingHorizontal: 10, }}>
-                <FlatList
-                  data={userProfile.singles} // pega os singles do artista
-                  keyExtractor={(item) => item.id}
-                  numColumns={2}
-                  columnWrapperStyle={styles.columnWrapper}
-                  renderItem={({ item }) => (
-                    <SingleCard
-                      item={item}
-                      onPress={(selected) =>
-                        router.push(`/contentCardLibraryScreens/single-details/${selected.id}`)
-                      }
-                    />
-                  )}
-                  contentContainerStyle={{ paddingBottom: 20 }}
-                  ListEmptyComponent={() => (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.texto}>Nenhum single publicado ainda.</Text>
-                    </View>
-                  )}
+        <View style={{ marginTop: 8 }}>
+          {activeTab === t('tabs.single') && (
+            <FlatList
+              data={userProfile.singles}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={({ item }) => (
+                <SingleCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardLibraryScreens/single-details/${selected.id}`)
+                  }
                 />
-              </View>
-            )}
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>{t('profile.emptySingle')}</Text>
+                </View>
+              )}
+            />
+          )}
 
-            {activeTab === 'Extended Play' && (
-              <View style={{ flex: 1, paddingHorizontal: 10, }}>
-                {/**<Text style={styles.texto}>🎧 Mostrando Extended Plays</Text>*/}
-                <FlatList
-                  data={userProfile.eps}
-                  keyExtractor={(item) => item.id}
-                  numColumns={2}
-                  columnWrapperStyle={styles.columnWrapper}
-                  renderItem={({ item }) => (
-                    <EpCard
-                      item={item}
-                      onPress={(selected) =>
-                        router.push(`/contentCardLibraryScreens/ep-details/${selected.id}`)
-                      }
-                    />
-                  )}
-                  ListEmptyComponent={() => (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.texto}>Nenhum EP publicado ainda.</Text>
-                    </View>
-                  )}
+          {activeTab === t('tabs.extendedPlay') && (
+            <FlatList
+              data={userProfile.eps}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={({ item }) => (
+                <EpCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardLibraryScreens/ep-details/${selected.id}`)
+                  }
                 />
-              </View>
-            )}
-            {activeTab === 'Album' && (
-              <View style={{ flex: 1, paddingHorizontal: 10, }}>
-                <FlatList
-                  data={userProfile.albums}
-                  keyExtractor={(item) => item.id}
-                  numColumns={2}
-                  columnWrapperStyle={styles.columnWrapper}
-                  renderItem={({ item }) => (
-                    <AlbumCard
-                      item={item}
-                      onPress={(selected) =>
-                        router.push(`/contentCardLibraryScreens/album-details/${selected.id}`)
-                      }
-                    />
-                  )}
-                  ListEmptyComponent={() => (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.texto}>Nenhum Álbum publicado ainda.</Text>
-                    </View>
-                  )}
-                />
-              </View>
-            )}
-            {activeTab === 'Beats Comprados' && ( //beats comprados
-              <View>
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>{t('profile.emptyEP')}</Text>
+                </View>
+              )}
+            />
+          )}
 
-              </View>
-            )}
-            {activeTab === 'Exclusive Beats' && (
-              <View style={{ flex: 1, paddingHorizontal: 10, }}>
-                <FlatList
-                  data={userProfile.exclusiveBeats}
-                  keyExtractor={(item) => item.id}
-                  numColumns={2}
-                  columnWrapperStyle={styles.columnWrapper}
-                  renderItem={({ item }) => (
-                    <ExclusiveBeatCard
-                      item={item}
-                      onPress={(selected) =>
-                        router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/ ${selected.id}`)
-                      }
-                    />
-                  )}
-                  ListEmptyComponent={() => (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.texto}>Nenhum Exclusive Beat publicado ainda.</Text>
-                    </View>
-                  )}
+          {activeTab === t('tabs.album') && (
+            <FlatList
+              data={userProfile.albums}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={({ item }) => (
+                <AlbumCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardLibraryScreens/album-details/${selected.id}`)
+                  }
                 />
-              </View>
-            )}
-            {activeTab === 'Free Beats' && (
-              <View style={{ flex: 1, paddingHorizontal: 10, }}>
-                <FlatList
-                  data={userProfile.freeBeats}
-                  keyExtractor={(item) => item.id}
-                  numColumns={2}
-                  columnWrapperStyle={styles.columnWrapper}
-                  renderItem={({ item }) => (
-                    <FreeBeatCard
-                      item={item}
-                      onPress={(selected) =>
-                        router.push(`/contentCardBeatStoreScreens/freeBeat-details/${selected.id}`)
-                      }
-                    />
-                  )}
-                  ListEmptyComponent={() => (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.texto}>Nenhum Free Beat publicado ainda.</Text>
-                    </View>
-                  )}
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>{t('profile.emptyAlbum')}</Text>
+                </View>
+              )}
+            />
+          )}
+
+          {activeTab === t('tabs.exclusiveBeats') && (
+            <FlatList
+              data={userProfile.exclusiveBeats}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={({ item }) => (
+                <ExclusiveBeatCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
+                  }
                 />
-              </View>
-            )}
-          </View>
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>{t('profile.emptyExclusiveBeats')}</Text>
+                </View>
+              )}
+            />
+          )}
+
+          {activeTab === t('tabs.freeBeats') && (
+            <FlatList
+              data={userProfile.freeBeats}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={({ item }) => (
+                <FreeBeatCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardBeatStoreScreens/freeBeat-details/${selected.id}`)
+                  }
+                />
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>{t('profile.emptyFreeBeats')}</Text>
+                </View>
+              )}
+            />
+          )}
         </View>
-        <View style={{ height: 130 }}></View>
+        <View style={{ height: 130 }} />
       </ScrollView>
     </View>
   );
@@ -619,9 +527,7 @@ const styles = StyleSheet.create({
     flex: 1,
     //textAlign: 'center',
   },
-   columnWrapper:{
+  columnWrapper: {
     justifyContent: 'space-between',
-   }
-
-
+  },
 });
