@@ -1,24 +1,27 @@
+//app/autoSearchBeatScreens/useInstrumentalsResultsScreen
 import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
   Image,
+  StyleSheet
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { MOCKED_BEATSTORE_FEED_DATA } from "@/src/types/contentServer";
 import { FreeBeat, ExclusiveBeat } from "@/src/types/contentType";
+import { useTranslation } from "@/src/translations/useTranslation"; // ✅ Hook de idioma
 
 type BeatItem = FreeBeat | ExclusiveBeat;
 
 export default function InstrumentalsScreen() {
   const { bpm } = useLocalSearchParams();
   const router = useRouter();
+  const { t } = useTranslation(); // ✅ Hook de tradução
 
   const [loading, setLoading] = useState(true);
   const [beats, setBeats] = useState<BeatItem[]>([]);
@@ -43,7 +46,7 @@ export default function InstrumentalsScreen() {
         setBeats(filtered);
       } catch (err) {
         console.error("Erro ao buscar instrumentais:", err);
-        setError("Não foi possível carregar os instrumentais.");
+        setError(t("screens.instrumentals.errorLoading"));
       } finally {
         setLoading(false);
       }
@@ -52,7 +55,7 @@ export default function InstrumentalsScreen() {
     if (bpm) fetchInstrumentals();
     else {
       setLoading(false);
-      setError("Nenhum BPM especificado para a busca.");
+      setError(t("screens.instrumentals.noBpmSpecified"));
     }
   }, [bpm]);
 
@@ -103,7 +106,9 @@ export default function InstrumentalsScreen() {
               size={14}
             />
             <Text style={styles.badgeText}>
-              {item.typeUse === "exclusive" ? "Exclusive" : "Free"}
+              {item.typeUse === "exclusive"
+                ? t("screens.instrumentals.exclusiveLabel")
+                : t("screens.instrumentals.freeLabel")}
             </Text>
           </View>
 
@@ -117,7 +122,8 @@ export default function InstrumentalsScreen() {
     <>
       <Stack.Screen
         options={{
-          title: `Resultados para (${bpm || "—"} BPM)`,
+          title: `${t("screens.instrumentals.resultsTitle")} ${bpm ? `${bpm} BPM` : ""
+            }`,
           headerTintColor: "#fff",
           headerStyle: { backgroundColor: "#191C40" },
         }}
@@ -126,13 +132,16 @@ export default function InstrumentalsScreen() {
         {loading ? (
           <View style={styles.centeredView}>
             <ActivityIndicator size="large" color="#1E90FF" />
-            <Text style={styles.loadingText}>Buscando instrumentais...</Text>
+            <Text style={styles.loadingText}>
+              {t("screens.instrumentals.loading")}
+            </Text>
           </View>
         ) : error ? (
           <Text style={styles.errorText}>{error}</Text>
         ) : beats.length === 0 ? (
           <Text style={styles.noResultsText}>
-            Nenhum beat encontrado próximo a {bpm} BPM.
+            {t("screens.instrumentals.noResults")}{" "}
+            {bpm ? `${bpm} BPM` : ""}
           </Text>
         ) : (
           <FlatList

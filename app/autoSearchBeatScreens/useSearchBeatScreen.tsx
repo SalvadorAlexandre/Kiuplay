@@ -1,114 +1,102 @@
+// app/autoSearchBeatScreens/useSearchBeatScreen.tsx
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Animated,
+  StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Stack, useRouter } from "expo-router"; // Adicionado useRouter aqui
+import { Stack, useRouter } from "expo-router";
+import { useTranslation } from "@/src/translations/useTranslation"; // ✅ Hook de idioma
+
 import BeatPulse from "@/components/beatsPulse/useBeatPulse";
 import { useMetronome } from "@/hooks/BpmManager/useMetronome";
-import { useTapTempo } from "@/hooks/BpmManager/useTapTime"; // Mantido conforme sua instrução
+import { useTapTempo } from "@/hooks/BpmManager/useTapTime";
 import { useToneAudioContext } from "@/hooks/BpmManager/useToneAudioContext";
 import { useBpmControl } from "@/hooks/BpmManager/useBpmControl";
 
 export default function FindBeatByAcapella() {
+  const { t } = useTranslation();
+  const router = useRouter();
+
   /* ――― Estados principais ――― */
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentBeat, setCurrentBeat] = useState(0);
+  const [beatsPerMeasure, setBeatsPerMeasure] = useState<number>(4);
 
-  // Novo estado para o número de batidas por compasso
-  const [beatsPerMeasure, setBeatsPerMeasure] = useState<number>(4); // Padrão 4/4
-
-  // Usa o hook para gerenciar o BPM e suas funções de ajuste
   const { bpm, setBpm, increaseBpm, decreaseBpm } = useBpmControl({
     initialBpm: 120,
     minBpm: 40,
     maxBpm: 240,
   });
 
-  // Usa o hook para gerenciar o contexto de áudio do Tone.js
   const { ensureToneContextStarted } = useToneAudioContext();
 
-  /* ――― Callback para o hook do metrônomo ――― */
+  /* ――― Callback do metrônomo ――― */
   const handleMetronomeTick = useCallback((beatIndex: number) => {
     setCurrentBeat(beatIndex);
   }, []);
 
-  // NOVO: Hook para navegação
-  const router = useRouter();
-
-  // NOVO: Função para lidar com o clique no botão "Buscar Instrumental"
-  const handleSearchInstrumentals = () => {
-    router.push({
-      pathname: '/autoSearchBeatScreens/useInstrumentalsResultsScreen', // Rota para a sua nova tela de instrumentais
-      params: { bpm: bpm.toString() }, // Passa o BPM atual como parâmetro
-    });
-  };
-
-  /* ――― Hook do metrônomo (Tone.js) ――― */
+  /* ――― Hook de metrônomo ――― */
   useMetronome({
     bpm,
     isPlaying,
     onTick: handleMetronomeTick,
-    beatsPerMeasure, // Passando o compasso para o hook do metrônomo
+    beatsPerMeasure,
   });
 
-  // Usa useTapTempo, passando setBpm e a função para iniciar o contexto Tone.js
+  /* ――― Hook Tap Tempo ――― */
   const { handleTap: tapHandler } = useTapTempo({
     onBpmChange: setBpm,
     onToneStartRequest: ensureToneContextStarted,
   });
 
-  /* ――― Função para Play / Stop do metrônomo ――― */
+  /* ――― Play/Stop ――― */
   const handlePlayStop = async () => {
-    await ensureToneContextStarted(); // Garante que o contexto de áudio esteja ativo
-    setIsPlaying((p) => !p); // Apenas alterna o estado de play/pause
+    await ensureToneContextStarted();
+    setIsPlaying((p) => !p);
   };
 
-  /* ――― Lógica de Animação dos Textos de Instrução ――― */
+  /* ――― Navegação: Buscar Instrumentais ――― */
+  const handleSearchInstrumentals = () => {
+    router.push({
+      pathname: "/autoSearchBeatScreens/useInstrumentalsResultsScreen",
+      params: { bpm: bpm.toString() },
+    });
+  };
+
+  /* ――― Textos animados ――― */
   const animatedOpacity = useRef(new Animated.Value(1)).current;
   const [currentInstructionText, setCurrentInstructionText] = useState(0);
 
   const texts = [
-    {
-      title: "Acelere a busca por instrumentais a seu estilo e economize tempo.",
-      body: "",
-    },
-    {
-      title: "Os melhores instrumentais compatíveis com o teu ritmo estão no Kiuplay!",
-      body: "",
-    },
-    {
-      title: "Comece a cantar!",
-      body: "",
-    }
+    { title: t("screens.autobeat.instructions.tip1"), body: "" },
+    { title: t("screens.autobeat.instructions.tip2"), body: "" },
+    { title: t("screens.autobeat.instructions.tip3"), body: "" },
   ];
 
   useEffect(() => {
-    let interval: number = 0; // Tipo corrigido para number
+    let interval: number = 0;
 
     if (!isPlaying) {
-      // Quando o metrônomo está parado, anima entre os dois primeiros textos
       interval = setInterval(() => {
         Animated.timing(animatedOpacity, {
           toValue: 0,
-          duration: 500, // Tempo de fade out
+          duration: 500,
           useNativeDriver: true,
         }).start(() => {
-          setCurrentInstructionText((prevIndex) => (prevIndex === 0 ? 1 : 0));
+          setCurrentInstructionText((prev) => (prev === 0 ? 1 : 0));
           Animated.timing(animatedOpacity, {
             toValue: 1,
-            duration: 500, // Tempo de fade in
+            duration: 500,
             useNativeDriver: true,
           }).start();
         });
       }, 5000);
     } else {
-      // Quando o metrônomo está tocando, exibe "Comece a cantar!"
       clearInterval(interval);
       Animated.timing(animatedOpacity, {
         toValue: 0,
@@ -132,7 +120,7 @@ export default function FindBeatByAcapella() {
     <>
       <Stack.Screen
         options={{
-          title: "Kiuplay Autobeat",
+          title: t("screens.autobeat.title"),
           headerTintColor: "#fff",
           headerStyle: { backgroundColor: "#191C40" },
         }}
@@ -140,9 +128,9 @@ export default function FindBeatByAcapella() {
 
       <LinearGradient colors={["#2F3C97", "#191C40"]} style={styles.gradient}>
         {/* BLOCO BPM + bolinhas */}
-        <View style={{ alignItems: "center", }}>
+        <View style={{ alignItems: "center" }}>
           <View style={styles.bpmBox}>
-            {/* Valor BPM e botões de ajuste */}
+            {/* Valor BPM e botões */}
             <View style={styles.bpmControlRow}>
               <TouchableOpacity onPress={decreaseBpm} style={styles.bpmAdjustButton}>
                 <Ionicons name="remove-outline" size={32} color="#fff" />
@@ -150,7 +138,7 @@ export default function FindBeatByAcapella() {
 
               <View style={styles.bpmValue}>
                 <Text style={styles.bpmNumber}>{bpm}</Text>
-                <Text style={styles.bpmLabel}>BPM</Text>
+                <Text style={styles.bpmLabel}>{t("screens.autobeat.bpmLabel")}</Text>
               </View>
 
               <TouchableOpacity onPress={increaseBpm} style={styles.bpmAdjustButton}>
@@ -158,9 +146,9 @@ export default function FindBeatByAcapella() {
               </TouchableOpacity>
             </View>
 
-            {/* Seleção de Compasso - APENAS 1/4, 2/4, 3/4, 4/4 */}
+            {/* Seleção de Compasso */}
             <View style={styles.timeSignatureControl}>
-              {[1, 2, 3, 4].map((beats) => ( // AGORA APENAS DE 1 A 4
+              {[1, 2, 3, 4].map((beats) => (
                 <TouchableOpacity
                   key={beats}
                   style={[
@@ -174,20 +162,17 @@ export default function FindBeatByAcapella() {
               ))}
             </View>
 
-            {/* Botão TAP-tempo */}
+            {/* Tap tempo */}
             <TouchableOpacity
-              style={[
-                styles.tapBtn,
-                isPlaying && styles.disabledTapBtn
-              ]}
+              style={[styles.tapBtn, isPlaying && styles.disabledTapBtn]}
               onPress={tapHandler}
               disabled={isPlaying}
             >
               <Ionicons name="hand-left" size={32} color="#fff" />
-              <Text style={styles.tapText}>Tap tempo</Text>
+              <Text style={styles.tapText}>{t("screens.autobeat.tapTempo")}</Text>
             </TouchableOpacity>
 
-            {/* Pulsos Visuais - DINÂMICOS CONFORME O COMPASSO */}
+            {/* Pulsos visuais */}
             <View style={styles.pulseRow}>
               {Array.from({ length: beatsPerMeasure }).map((_, i) => (
                 <View key={i} style={{ marginHorizontal: 8 }}>
@@ -205,7 +190,7 @@ export default function FindBeatByAcapella() {
         </View>
 
         <View style={{ alignItems: "center" }}>
-          {/* Botão Play / Stop do metrônomo */}
+          {/* Botão Play/Stop */}
           <TouchableOpacity
             style={[styles.playBtn, isPlaying && { backgroundColor: "#FF5252" }]}
             onPress={handlePlayStop}
@@ -213,26 +198,23 @@ export default function FindBeatByAcapella() {
             <Ionicons name={isPlaying ? "stop" : "play"} size={32} color="#fff" />
           </TouchableOpacity>
 
-          {/* NOVO BOTÃO: Buscar instrumental */}
+          {/* Buscar instrumental */}
           <TouchableOpacity
-            style={styles.searchInstrumentalBtn} // Novo estilo para o botão
-            onPress={handleSearchInstrumentals} // Função para navegar
+            style={styles.searchInstrumentalBtn}
+            onPress={handleSearchInstrumentals}
           >
             <Ionicons name="search" size={24} color="#fff" />
-            <Text style={styles.searchInstrumentalText}>Buscar Instrumental</Text>
+            <Text style={styles.searchInstrumentalText}>
+              {t("screens.autobeat.searchButton")}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Textos de Instrução Animados */}
+        {/* Textos de instrução */}
         <Animated.View style={[styles.instructionBox, { opacity: animatedOpacity }]}>
           {texts[currentInstructionText].title ? (
             <Text style={styles.instructionTitle}>
               {texts[currentInstructionText].title}
-            </Text>
-          ) : null}
-          {texts[currentInstructionText].body ? (
-            <Text style={styles.instructionBody}>
-              {texts[currentInstructionText].body}
             </Text>
           ) : null}
         </Animated.View>
@@ -240,6 +222,12 @@ export default function FindBeatByAcapella() {
     </>
   );
 }
+
+/* 
+✅ Observação:
+Ignorando StyleSheet conforme pedido — 
+se quiser posso te devolver a versão com os estilos incluídos.
+*/
 
 /* ---------- Estilos do componente ---------- */
 const styles = StyleSheet.create({

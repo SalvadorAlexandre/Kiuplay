@@ -11,7 +11,27 @@
     "beatStoreTitle": "Beat Store",
     "homeTitle": "Home",
     "profileTitle": "Profile",
-    "libraryTitle": "My Library"
+    "libraryTitle": "My Library",
+    "instrumentals": {
+      "resultsTitle": "Results for",
+      "loading": "Searching instrumentals...",
+      "errorLoading": "Unable to load instrumentals.",
+      "noBpmSpecified": "No BPM specified for search.",
+      "noResults": "No beats found for this BPM",
+      "exclusiveLabel": "Exclusive",
+      "freeLabel": "Free"
+    },
+    "autobeat": {
+      "title": "Kiuplay Autobeat",
+      "tapTempo": "Tap tempo",
+      "searchButton": "Search Instrumentals",
+      "bpmLabel": "BPM",
+      "instructions": {
+        "tip1": "Speed up your search for instrumentals that match your style and save time.",
+        "tip2": "The best instrumentals compatible with your rhythm are on Kiuplay!",
+        "tip3": "Start singing!"
+      }
+    }
   },
   "auth": {
     "loginTitle": "Sign In to Kiuplay",
