@@ -21,6 +21,19 @@ import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryConte
 import { LibraryFeedItem, } from '@/src/types/contentType';
 import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Ionicons } from '@expo/vector-icons';
+// ✅ 1. Importa o hook de tradução
+import { useTranslation } from '@/src/translations/useTranslation';
+
+
+// Mapeamento das chaves da aba para o caminho do JSON de tradução
+const tabTranslationKeys: Record<TypeSubTab, string> = {
+    tudo: 'tabs.all',
+    pastas: 'tabs.folders',
+    downloads: 'tabs.downloads',
+    feeds: 'tabs.feeds',
+    curtidas: 'tabs.likes',
+    seguindo: 'tabs.following',
+};
 
 
 const SubTabBar = ({
@@ -28,13 +41,15 @@ const SubTabBar = ({
     group,
     isSelectedSubTab,
     selectSubTab,
+    t, // ✅ 2. Recebe a função de tradução
 }: {
     tabs: TypeSubTab[];
     group: 'local' | 'cloud';
     isSelectedSubTab: (group: 'local' | 'cloud', tab: TypeSubTab) => boolean;
     selectSubTab: (group: 'local' | 'cloud', tab: TypeSubTab) => void;
+    t: (path: string) => string; // ✅ 2. Define o tipo para a função de tradução
 }) => {
-    // Mapeamento de ícones para cada aba
+    // Mapeamento de ícones (permanece o mesmo)
     const iconMap: Record<TypeSubTab, keyof typeof Ionicons.glyphMap> = {
         tudo: 'musical-notes',
         pastas: 'folder',
@@ -68,7 +83,8 @@ const SubTabBar = ({
                                 isSelectedSubTab(group, tab) && styles.activeTabText,
                             ]}
                         >
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            {/* ✅ 3. Usa a tradução da aba */}
+                            {t(tabTranslationKeys[tab])}
                         </Text>
                     </View>
                 </TouchableOpacity>
@@ -79,7 +95,9 @@ const SubTabBar = ({
 
 export default function LibraryScreen() {
     const router = useRouter();
-    //const dispatch = useAppDispatch();
+    // ✅ 4. Inicializa o hook de tradução
+    const { t } = useTranslation();
+
     const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const {
         isSelectedSubTab,
@@ -92,7 +110,7 @@ export default function LibraryScreen() {
 
     const favoritedCloudTracks: Track[] = favoritedMusics.filter(
         (music) =>
-            music.category === 'single' && ( // Manteve music.category, corrigi para 'single'
+            music.category === 'single' && (
                 music.source === 'library-cloud-feeds' ||
                 music.source === 'library-cloud-favorites' ||
                 music.source === 'library-local'
@@ -106,8 +124,8 @@ export default function LibraryScreen() {
     const localTabs: TypeSubTab[] = ['tudo', 'pastas', 'downloads'];
     const cloudTabs: TypeSubTab[] = ['feeds', 'curtidas', 'seguindo'];
 
+    // ... (Funções de navegação permanecem inalteradas)
     const handleCloudItemPress = (item: LibraryFeedItem) => {
-        // Agora, LibraryContentCard só lida com 'single', 'album', 'ep', 'artist'
         if (item.category === 'single') {
             router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
         } else if (item.category === 'album') {
@@ -129,16 +147,15 @@ export default function LibraryScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
 
-
             <View style={styles.containerTopBar}>
-
-                <Text style={styles.titleTopBar}>Musicas</Text>
+                {/* ✅ 5. Traduz o título principal */}
+                <Text style={styles.titleTopBar}>{t('screens.libraryTitle')}</Text>
 
                 {/* Botão de pesquisa*/}
                 <TouchableOpacity
                     onPress={() => router.push('/searchScreens/searchLibrary')}
                     style={styles.buttonTopBar}>
-                    {/* Ícone de notificações*/}
+                    {/* Ícone de pesquisa*/}
                     <Ionicons
                         name='search-outline'
                         size={26}
@@ -150,24 +167,24 @@ export default function LibraryScreen() {
             <View>
                 {selectedLibraryContent === 'local' && (
                     <View style={{ paddingVertical: 15, }}>
-
                         <SubTabBar
                             tabs={localTabs}
                             group="local"
                             isSelectedSubTab={isSelectedSubTab}
                             selectSubTab={selectSubTab}
+                            t={t} // ✅ 6. Passa a função 't' para o SubTabBar
                         />
                     </View>
                 )}
 
                 {selectedLibraryContent === 'cloud' && (
                     <View style={{ paddingVertical: 15, }}>
-
                         <SubTabBar
                             tabs={cloudTabs}
                             group="cloud"
                             isSelectedSubTab={isSelectedSubTab}
                             selectSubTab={selectSubTab}
+                            t={t} // ✅ 6. Passa a função 't' para o SubTabBar
                         />
                     </View>
                 )}
@@ -188,18 +205,20 @@ export default function LibraryScreen() {
                         }
                         {getSelectedSubTab('local') === 'pastas' &&
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.text}>Pastas Indisponíveis...</Text>
+                                {/* ✅ 7. Traduz a mensagem de indisponibilidade de Pastas */}
+                                <Text style={styles.text}>{t('alerts.foldersUnavailable')}</Text>
                             </View>}
                         {getSelectedSubTab('local') === 'downloads' &&
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.text}>Downloads Indisponíveis...</Text>
+                                {/* ✅ 7. Traduz a mensagem de indisponibilidade de Downloads */}
+                                <Text style={styles.text}>{t('alerts.downloadsUnavailable')}</Text>
                             </View>}
                     </>
                 )}
 
                 {selectedLibraryContent === 'cloud' && (
                     <>
-                        {/* Aba 'Feeds' da Cloud: Exibe todos os tipos de conteúdo */}
+                        {/* Aba 'Feeds' da Cloud */}
                         {getSelectedSubTab('cloud') === 'feeds' && (
                             <View style={styles.cloudMusicListContainer}>
                                 <FlatList
@@ -215,17 +234,23 @@ export default function LibraryScreen() {
                                     )}
                                     contentContainerStyle={styles.flatListContentContainer}
                                     ListEmptyComponent={() => (
-                                        <Text style={styles.emptyListText}>Nenhum conteúdo no feed da cloud.</Text>
+                                        <Text style={styles.emptyListText}>
+                                            {/* ✅ 8. Traduz a mensagem de lista vazia do Feed */}
+                                            {t('alerts.noCloudFeedContent')}
+                                        </Text>
                                     )}
                                 />
                             </View>
                         )}
 
-                        {/* Aba 'Curtidas' da Cloud: Exibe apenas músicas/singles curtidos */}
+                        {/* Aba 'Curtidas' da Cloud */}
                         {getSelectedSubTab('cloud') === 'curtidas' && (
                             <View style={styles.cloudMusicListContainer}>
                                 {favoritedCloudTracks.length === 0 ? (
-                                    <Text style={styles.emptyListText}>Nenhuma música curtida na cloud ainda.</Text>
+                                    <Text style={styles.emptyListText}>
+                                        {/* ✅ 9. Traduz a mensagem de lista vazia de Curtidas */}
+                                        {t('alerts.noLikedTracks')}
+                                    </Text>
                                 ) : (
                                     <FlatList
                                         data={favoritedCloudTracks}
@@ -244,12 +269,15 @@ export default function LibraryScreen() {
                             </View>
                         )}
 
-                        {/* Aba 'Seguindo' da Cloud: Exibe artistas seguidos */}
+                        {/* Aba 'Seguindo' da Cloud */}
                         {getSelectedSubTab('cloud') === 'seguindo' && (
                             <View style={styles.followedArtistsContainer}>
                                 {followedArtists.length === 0 ? (
                                     <View style={styles.tabContentTextContainer}>
-                                        <Text style={styles.tabContentText}>Você não está seguindo nenhum artista.</Text>
+                                        <Text style={styles.tabContentText}>
+                                            {/* ✅ 10. Traduz a mensagem de lista vazia de Artistas Seguidos */}
+                                            {t('alerts.noFollowedArtistsLibrary')}
+                                        </Text>
                                     </View>
                                 ) : (
                                     <FlatList
@@ -278,6 +306,7 @@ export default function LibraryScreen() {
                 <View style={{ height: 110, }}></View>
             </ScrollView>
 
+            {/* Botões Locais/Cloud permanecem sem tradução de texto, pois são ícones/imagens */}
             <View style={styles.floatingBox}>
                 <TouchableOpacity
                     style={[

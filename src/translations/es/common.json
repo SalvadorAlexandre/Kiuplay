@@ -34,10 +34,16 @@
     "album": "Álbum",
     "purchasedBeats": "Beats Comprados",
     "exclusiveBeats": "Beats Exclusivos",
-    "freeBeats": "Beats Gratuitos"
+    "freeBeats": "Beats Gratuitos",
+    "feeds": "Feeds",
+    "likes": "Me gusta",
+    "following": "Siguiendo"
   },
   "alerts": {
     "error": "Error",
-    "noTracksAvailable": "No hay pistas disponibles en esta pestaña."
+    "noTracksAvailable": "No hay pistas disponibles en esta pestaña.",
+    "noBeatsInFeed": "No hay beats en los feeds de la Tienda de Beats.",
+    "noLikedBeats": "Aún no has dado 'me gusta' a ningún beat en la Tienda de Beats.",
+    "noFollowedArtists": "No estás siguiendo a ningún artista."
   }
 }

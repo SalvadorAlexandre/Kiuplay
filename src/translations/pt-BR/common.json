@@ -15,7 +15,7 @@
     "stats": {
         "following": "Seguindo",
         "followers": "Seguidores",
-        "singles": "Singles",
+        "singles": "Faixas",
         "eps": "EPs",
         "albums": "Álbuns"
     },
@@ -29,15 +29,21 @@
         "emptyFreeBeats": "Nenhum Free Beat publicado ainda."
     },
     "tabs": {
-        "single": "Single",
+        "single": "Faixas",
         "extendedPlay": "Extended Play",
         "album": "Álbum",
         "purchasedBeats": "Beats Comprados",
-        "exclusiveBeats": "Exclusive Beats",
-        "freeBeats": "Free Beats"
+        "exclusiveBeats": "Beats Exclusivos",
+        "freeBeats": "Beats Grátis",
+        "feeds": "Feeds",
+        "likes": "Curtidas",
+        "following": "Seguindo"
     },
     "alerts": {
         "error": "Erro",
-        "noTracksAvailable": "Não há faixas disponíveis nesta aba."
+        "noTracksAvailable": "Não há faixas disponíveis nesta aba.",
+        "noBeatsInFeed": "Nenhum beat nos feeds da Beat Store.",
+        "noLikedBeats": "Nenhum beat curtido ainda na Beat Store.",
+        "noFollowedArtists": "Você não está seguindo nenhum artista."
     }
 }

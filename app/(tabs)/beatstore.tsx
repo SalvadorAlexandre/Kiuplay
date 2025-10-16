@@ -4,39 +4,31 @@ import {
     ScrollView,
     View,
     Text,
-    StyleSheet,
     TouchableOpacity,
     Image,
     FlatList,
+    StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 
-
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
-import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-//import { Track, playTrackThunk, setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
-//import { addFavoriteMusic, removeFavoriteMusic, FavoritedMusic } from '@/src/redux/favoriteMusicSlice'; // Importar FavoritedMusic
+import { useAppSelector } from '@/src/redux/hooks';
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
-
 import { Ionicons } from '@expo/vector-icons';
 
-// Dados mockados para beats da Beat Store (Feeds e Seguindo) - ATUALIZADO COM TIPAGEM E PROPRIEDADES CORRETAS
-// O tipo agora é uma união de ExclusiveBeat e FreeBeat
-
+// ✅ Importa o hook de tradução personalizado (não o react-i18next)
+import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function BeatStoreScreen() {
     const router = useRouter();
-    //const dispatch = useAppDispatch();
+    const { t } = useTranslation(); // Usa o hook customizado de tradução
     const { activeTab, handleTabChange } = useBeatStoreTabs();
 
-
-
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    //const { currentTrack, currentIndex, playlist } = useAppSelector((state) => state.player);
     const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
 
     // O filtro aqui já funciona, pois FavoritedMusic estende Track, que por sua vez inclui ExclusiveBeat e FreeBeat
@@ -48,14 +40,13 @@ export default function BeatStoreScreen() {
             )
     ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
 
-    const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => { // Tipagem atualizada
+    const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
         // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
         if (item.typeUse === 'free') {
             router.push(`/contentCardBeatStoreScreens/freeBeat-details/${item.id}`);
         } else if (item.typeUse === 'exclusive') {
             router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${item.id}`);
-        }
-        else {
+        } else {
             console.warn('Tipo de item desconhecido ou não suportado para navegação...');
         }
     };
@@ -69,10 +60,9 @@ export default function BeatStoreScreen() {
 
             {/**TopBar customizada */}
             <View style={styles.containerTopBar}>
+                <Text style={styles.titleTopBar}>{t('screens.beatStoreTitle')}</Text>
 
-                <Text style={styles.titleTopBar}>Loja</Text>
-
-                {/* Botão de pesquisa*/}
+                {/* Botão de pesquisa */}
                 <TouchableOpacity
                     onPress={() => router.push(`/searchScreens/searchBeatStore`)}
                     style={styles.button}>
@@ -82,14 +72,13 @@ export default function BeatStoreScreen() {
                         color='#fff'
                     />
                 </TouchableOpacity>
-
             </View>
 
             <View style={styles.tabsContainer}>
                 {[
-                    { key: 'feeds', label: 'Feeds', icon: 'musical-notes' },
-                    { key: 'curtidas', label: 'Curtidas', icon: 'heart' },
-                    { key: 'seguindo', label: 'Seguindo', icon: 'people' },
+                    { key: 'feeds', label: t('tabs.feeds'), icon: 'musical-notes' },
+                    { key: 'curtidas', label: t('tabs.likes'), icon: 'heart' },
+                    { key: 'seguindo', label: t('tabs.following'), icon: 'people' },
                 ].map((tab) => (
                     <TouchableOpacity
                         key={tab.key}
@@ -127,7 +116,6 @@ export default function BeatStoreScreen() {
             >
                 {activeTab === 'feeds' && (
                     <View style={styles.beatStoreMusicListContainer}>
-
                         <FlatList
                             data={MOCKED_BEATSTORE_FEED_DATA}
                             keyExtractor={(item) => item.id}
@@ -135,13 +123,15 @@ export default function BeatStoreScreen() {
                             columnWrapperStyle={styles.row}
                             renderItem={({ item }) => (
                                 <BeatStoreMusicItem
-                                    item={item} // Passa o item completo
+                                    item={item}
                                     onPress={handleBeatStoreItemPress}
                                 />
                             )}
                             contentContainerStyle={{ paddingBottom: 20 }}
                             ListEmptyComponent={() => (
-                                <Text style={styles.emptyListText}>Nenhum beat nos feeds da Beat Store.</Text>
+                                <Text style={styles.emptyListText}>
+                                    {t('alerts.noBeatsInFeed')}
+                                </Text>
                             )}
                         />
                     </View>
@@ -150,7 +140,9 @@ export default function BeatStoreScreen() {
                 {activeTab === 'curtidas' && (
                     <View style={styles.favoritedMusicListContainer}>
                         {favoritedBeatStoreMusics.length === 0 ? (
-                            <Text style={styles.emptyListText}>Nenhum beat curtido ainda na Beat Store.</Text>
+                            <Text style={styles.emptyListText}>
+                                {t('alerts.noLikedBeats')}
+                            </Text>
                         ) : (
                             <FlatList
                                 data={favoritedBeatStoreMusics}
@@ -159,7 +151,7 @@ export default function BeatStoreScreen() {
                                 columnWrapperStyle={styles.row}
                                 renderItem={({ item }) => (
                                     <BeatStoreMusicItem
-                                        item={item} // Passa o item completo
+                                        item={item}
                                         onPress={handleBeatStoreItemPress}
                                     />
                                 )}
@@ -176,7 +168,9 @@ export default function BeatStoreScreen() {
                         keyExtractor={(item) => item.id}
                         ListEmptyComponent={() => (
                             <View style={styles.tabContentTextContainer}>
-                                <Text style={styles.tabContentText}>Você não está seguindo nenhum artista.</Text>
+                                <Text style={styles.tabContentText}>
+                                    {t('alerts.noFollowedArtists')}
+                                </Text>
                             </View>
                         )}
                         renderItem={({ item }) => (
@@ -185,7 +179,11 @@ export default function BeatStoreScreen() {
                                 onPress={() => handleNavigateToArtistProfile(item.id)}
                             >
                                 <Image
-                                    source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
+                                    source={
+                                        item.profileImageUrl
+                                            ? { uri: item.profileImageUrl }
+                                            : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')
+                                    }
                                     style={styles.followedArtistProfileImage}
                                 />
                                 <Text style={styles.followedArtistName}>{item.name}</Text>
@@ -196,6 +194,7 @@ export default function BeatStoreScreen() {
                         scrollEnabled={false}
                     />
                 )}
+
                 <View style={{ height: 110 }}></View>
             </ScrollView>
 
@@ -214,7 +213,6 @@ export default function BeatStoreScreen() {
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     scroll: {
         flex: 1,
@@ -245,7 +243,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        
+
     },
     tabButton: {
         paddingVertical: 8,

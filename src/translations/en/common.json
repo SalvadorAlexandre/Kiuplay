@@ -10,7 +10,17 @@
   "screens": {
     "beatStoreTitle": "Beat Store",
     "homeTitle": "Home",
-    "profileTitle": "Profile"
+    "profileTitle": "Profile",
+    "libraryTitle": "My Library"
+  },
+  "auth": {
+    "loginTitle": "Sign In to Kiuplay",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Sign In",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign Up"
   },
   "stats": {
     "following": "Following",
@@ -23,7 +33,7 @@
     "makeUploads": "Make Uploads",
     "emptySingle": "No singles published yet.",
     "emptyEP": "No EPs published yet.",
-    "emptyAlbum": "No Albums published yet.",
+    "emptyAlbum": "No albums published yet.",
     "emptyPurchasedBeats": "You haven't purchased any beats yet.",
     "emptyExclusiveBeats": "No Exclusive Beats published yet.",
     "emptyFreeBeats": "No Free Beats published yet."
@@ -34,10 +44,24 @@
     "album": "Album",
     "purchasedBeats": "Purchased Beats",
     "exclusiveBeats": "Exclusive Beats",
-    "freeBeats": "Free Beats"
+    "freeBeats": "Free Beats",
+    "feeds": "Feeds",
+    "likes": "Likes",
+    "following": "Following",
+    "all": "All",
+    "folders": "Folders",
+    "downloads": "Downloads"
   },
   "alerts": {
     "error": "Error",
-    "noTracksAvailable": "No tracks available in this tab."
+    "noTracksAvailable": "No tracks available in this tab.",
+    "noBeatsInFeed": "No beats in the Beat Store feeds.",
+    "noLikedBeats": "No liked beats yet in the Beat Store.",
+    "noFollowedArtists": "You're not following any artist yet.",
+    "foldersUnavailable": "Folders Unavailable...",
+    "downloadsUnavailable": "Downloads Unavailable...",
+    "noCloudFeedContent": "No content in the cloud feed.",
+    "noLikedTracks": "No liked tracks in the cloud yet.",
+    "noFollowedArtistsLibrary": "You're not following any artist."
   }
 }
