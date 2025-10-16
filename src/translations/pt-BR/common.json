@@ -10,12 +10,42 @@
     "screens": {
         "beatStoreTitle": "Loja de Beats",
         "homeTitle": "Início",
-        "profileTitle": "Perfil"
+        "profileTitle": "Perfil",
+        "libraryTitle": "Minha Biblioteca",
+        "instrumentals": {
+            "resultsTitle": "Resultados para",
+            "loading": "Buscando instrumentais...",
+            "errorLoading": "Não foi possível carregar os instrumentais.",
+            "noBpmSpecified": "Nenhum BPM especificado para busca.",
+            "noResults": "Nenhum beat encontrado para este BPM.",
+            "exclusiveLabel": "Exclusivo",
+            "freeLabel": "Grátis"
+        },
+        "autobeat": {
+            "title": "Kiuplay Autobeat",
+            "tapTempo": "Toque o ritmo",
+            "searchButton": "Buscar Instrumentais",
+            "bpmLabel": "BPM",
+            "instructions": {
+                "tip1": "Acelere sua busca por instrumentais que combinam com seu estilo e economize tempo.",
+                "tip2": "Os melhores instrumentais compatíveis com o seu ritmo estão no Kiuplay!",
+                "tip3": "Comece a cantar!"
+            }
+        }
+    },
+    "auth": {
+        "loginTitle": "Entrar no Kiuplay",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Senha",
+        "loginButton": "Entrar",
+        "forgotPassword": "Esqueceu sua senha?",
+        "noAccount": "Não tem uma conta?",
+        "signUpLink": "Cadastre-se"
     },
     "stats": {
         "following": "Seguindo",
         "followers": "Seguidores",
-        "singles": "Faixas",
+        "singles": "Singles",
         "eps": "EPs",
         "albums": "Álbuns"
     },
@@ -23,13 +53,13 @@
         "makeUploads": "Fazer Uploads",
         "emptySingle": "Nenhum single publicado ainda.",
         "emptyEP": "Nenhum EP publicado ainda.",
-        "emptyAlbum": "Nenhum Álbum publicado ainda.",
+        "emptyAlbum": "Nenhum álbum publicado ainda.",
         "emptyPurchasedBeats": "Você ainda não comprou nenhum beat.",
-        "emptyExclusiveBeats": "Nenhum Exclusive Beat publicado ainda.",
-        "emptyFreeBeats": "Nenhum Free Beat publicado ainda."
+        "emptyExclusiveBeats": "Nenhum Beat Exclusivo publicado ainda.",
+        "emptyFreeBeats": "Nenhum Beat Grátis publicado ainda."
     },
     "tabs": {
-        "single": "Faixas",
+        "single": "Single",
         "extendedPlay": "Extended Play",
         "album": "Álbum",
         "purchasedBeats": "Beats Comprados",
@@ -37,13 +67,26 @@
         "freeBeats": "Beats Grátis",
         "feeds": "Feeds",
         "likes": "Curtidas",
-        "following": "Seguindo"
+        "following": "Seguindo",
+        "all": "Tudo",
+        "folders": "Pastas",
+        "downloads": "Downloads"
     },
     "alerts": {
         "error": "Erro",
-        "noTracksAvailable": "Não há faixas disponíveis nesta aba.",
-        "noBeatsInFeed": "Nenhum beat nos feeds da Beat Store.",
-        "noLikedBeats": "Nenhum beat curtido ainda na Beat Store.",
-        "noFollowedArtists": "Você não está seguindo nenhum artista."
+        "noTracksAvailable": "Nenhuma faixa disponível nesta aba.",
+        "noBeatsInFeed": "Nenhum beat nos feeds da Loja.",
+        "noLikedBeats": "Nenhum beat curtido ainda na Loja.",
+        "noFollowedArtists": "Você ainda não segue nenhum artista.",
+        "foldersUnavailable": "Pastas indisponíveis...",
+        "downloadsUnavailable": "Downloads indisponíveis...",
+        "noCloudFeedContent": "Nenhum conteúdo no feed da nuvem.",
+        "noLikedTracks": "Nenhuma faixa curtida na nuvem ainda.",
+        "noFollowedArtistsLibrary": "Você não segue nenhum artista."
+    },
+    "settings": {
+        "title": "Configurações",
+        "languageTitle": "Selecione o seu idioma",
+        "bankInfo": "Os dados de transação bancária são necessários e serão utilizados pelo Kiuplay para te possibilitar comprar e vender instrumentais de uso exclusivo!"
     }
 }

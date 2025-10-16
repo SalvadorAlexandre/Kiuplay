@@ -3,47 +3,90 @@
     "welcome": "¡Bienvenido a Kiuplay!",
     "appName": "Kiuplay",
     "free": "Gratis",
-    "settings": "Ajustes",
+    "settings": "Configuraciones",
     "language": "Idioma",
     "producer": "Productor"
   },
   "screens": {
     "beatStoreTitle": "Tienda de Beats",
     "homeTitle": "Inicio",
-    "profileTitle": "Perfil"
+    "profileTitle": "Perfil",
+    "libraryTitle": "Mi Biblioteca",
+    "instrumentals": {
+      "resultsTitle": "Resultados para",
+      "loading": "Buscando instrumentales...",
+      "errorLoading": "No se pudieron cargar los instrumentales.",
+      "noBpmSpecified": "No se especificó BPM para la búsqueda.",
+      "noResults": "No se encontraron beats para este BPM.",
+      "exclusiveLabel": "Exclusivo",
+      "freeLabel": "Gratis"
+    },
+    "autobeat": {
+      "title": "Kiuplay Autobeat",
+      "tapTempo": "Toca el ritmo",
+      "searchButton": "Buscar Instrumentales",
+      "bpmLabel": "BPM",
+      "instructions": {
+        "tip1": "Acelera tu búsqueda de instrumentales que se adapten a tu estilo y ahorra tiempo.",
+        "tip2": "¡Los mejores instrumentales compatibles con tu ritmo están en Kiuplay!",
+        "tip3": "¡Empieza a cantar!"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Iniciar sesión en Kiuplay",
+    "emailLabel": "Correo electrónico",
+    "passwordLabel": "Contraseña",
+    "loginButton": "Iniciar sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes una cuenta?",
+    "signUpLink": "Regístrate"
   },
   "stats": {
     "following": "Siguiendo",
     "followers": "Seguidores",
-    "singles": "Sencillos",
+    "singles": "Singles",
     "eps": "EPs",
     "albums": "Álbumes"
   },
   "profile": {
-    "makeUploads": "Subir Contenido",
-    "emptySingle": "Ningún sencillo publicado aún.",
-    "emptyEP": "Ningún EP publicado aún.",
-    "emptyAlbum": "Ningún álbum publicado aún.",
+    "makeUploads": "Hacer Subidas",
+    "emptySingle": "Aún no se han publicado singles.",
+    "emptyEP": "Aún no se han publicado EPs.",
+    "emptyAlbum": "Aún no se han publicado álbumes.",
     "emptyPurchasedBeats": "Aún no has comprado ningún beat.",
-    "emptyExclusiveBeats": "Ningún Beat Exclusivo publicado aún.",
-    "emptyFreeBeats": "Ningún Beat Gratuito publicado aún."
+    "emptyExclusiveBeats": "Aún no se han publicado Beats Exclusivos.",
+    "emptyFreeBeats": "Aún no se han publicado Beats Gratis."
   },
   "tabs": {
-    "single": "Sencillo",
-    "extendedPlay": "Reproducción Extendida",
+    "single": "Single",
+    "extendedPlay": "Extended Play",
     "album": "Álbum",
     "purchasedBeats": "Beats Comprados",
     "exclusiveBeats": "Beats Exclusivos",
-    "freeBeats": "Beats Gratuitos",
+    "freeBeats": "Beats Gratis",
     "feeds": "Feeds",
     "likes": "Me gusta",
-    "following": "Siguiendo"
+    "following": "Siguiendo",
+    "all": "Todo",
+    "folders": "Carpetas",
+    "downloads": "Descargas"
   },
   "alerts": {
     "error": "Error",
     "noTracksAvailable": "No hay pistas disponibles en esta pestaña.",
-    "noBeatsInFeed": "No hay beats en los feeds de la Tienda de Beats.",
-    "noLikedBeats": "Aún no has dado 'me gusta' a ningún beat en la Tienda de Beats.",
-    "noFollowedArtists": "No estás siguiendo a ningún artista."
+    "noBeatsInFeed": "No hay beats en los feeds de la Tienda.",
+    "noLikedBeats": "Aún no has dado me gusta a ningún beat.",
+    "noFollowedArtists": "Aún no sigues a ningún artista.",
+    "foldersUnavailable": "Carpetas no disponibles...",
+    "downloadsUnavailable": "Descargas no disponibles...",
+    "noCloudFeedContent": "No hay contenido en el feed de la nube.",
+    "noLikedTracks": "Aún no hay pistas favoritas en la nube.",
+    "noFollowedArtistsLibrary": "No sigues a ningún artista."
+  },
+  "settings": {
+    "title": "Configuraciones",
+    "languageTitle": "Selecciona tu idioma",
+    "bankInfo": "Los datos de transacción bancaria son necesarios y serán utilizados por Kiuplay para permitirte comprar y vender instrumentales de uso exclusivo."
   }
 }

@@ -83,5 +83,10 @@
     "noCloudFeedContent": "No content in the cloud feed.",
     "noLikedTracks": "No liked tracks in the cloud yet.",
     "noFollowedArtistsLibrary": "You're not following any artist."
+  },
+  "settings": {
+    "title": "Settings",
+    "languageTitle": "Select your language",
+    "bankInfo": "Bank transaction data are required and will be used by Kiuplay to allow you to buy and sell exclusive-use instrumentals!"
   }
 }
