@@ -19,6 +19,7 @@ import {
 } from '@/src/redux/playerSlice';
 import { useAppDispatch, useAppSelector } from '@/src/redux/hooks';
 import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader';
+import { useTranslation } from '@/src/translations/useTranslation';
 
 // REMOÇÃO: Removida a interface 'Music' local. Agora usamos 'Track' de playerSlice.ts
 interface MusicItemProps {
@@ -30,6 +31,8 @@ interface MusicItemProps {
 
 // Componente para exibir uma música na lista
 const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
+
+    const { t, language, setLanguage} = useTranslation();
     const imageSource = music.cover
         ? { uri: music.cover }
         : require('@/assets/images/Default_Profile_Icon/unknown_track.png'); // imagem de fallback
@@ -57,12 +60,12 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
                     <Text numberOfLines={1} style={styles.artistName}>
                         {music.artist
                             ? `${(music.artist)}`
-                            : 'Artista desconhecido'}
+                            : t("screens.localMusic.unknownArtist")}
                     </Text>
                     <Text style={styles.musicSize}>
                         {music.size
                             ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
-                            : 'Tamanho desconhecido'}
+                            : t("screens.localMusic.unknownSize")}
                     </Text>
                 </View>
             </View>
@@ -72,6 +75,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
 
 // Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
+    const { t, language, setLanguage} = useTranslation();
     const dispatch = useAppDispatch();
     const {
         currentIndex: reduxCurrentIndex,
@@ -95,8 +99,8 @@ export default function LocalMusicScreen() {
                     const blob = await response.blob();
                     const metadata = await parseBlob(blob);
 
-                    const title = metadata.common.title || file.name.split('.').slice(0, -1).join('.') || 'Título Desconhecido';
-                    const artist = metadata.common.artist || 'Artista Desconhecido';
+                    const title = metadata.common.title || file.name.split('.').slice(0, -1).join('.') || t("screens.localMusic.unknownTitle");
+                    const artist = metadata.common.artist || t("screens.localMusic.unknownArtist");
 
                     let coverUri: string | undefined = undefined;
 
@@ -157,11 +161,11 @@ export default function LocalMusicScreen() {
                 style={styles.button}
                 testID="select-music-button"
             >
-                <Text style={styles.buttonText}>Clica para selecionar músicas</Text>
+                <Text style={styles.buttonText}>{t("screens.localMusic.selectMusicButton")}</Text>
             </TouchableOpacity>
 
             {playlist.length === 0 ? (
-                <Text style={styles.empty}>Nenhuma música na playlist. Selecione para começar!</Text>
+                <Text style={styles.empty}>{t("screens.localMusic.emptyPlaylist")}</Text>
             ) : (
                 <FlatList
                     data={playlist}

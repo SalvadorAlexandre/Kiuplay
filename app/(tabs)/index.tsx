@@ -28,7 +28,7 @@ import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function ProfileScreen() {
 
-  const { t } = useTranslation(); // Hook de tradução
+  const { t, language, setLanguage} = useTranslation(); // Hook de tradução
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);

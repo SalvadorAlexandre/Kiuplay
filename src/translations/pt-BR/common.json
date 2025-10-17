@@ -1,4 +1,9 @@
 {
+    "(tabs)_layout": {
+        "profile": "Perfil",
+        "beatStore": "Loja de Beats",
+        "library": "Músicas"
+    },
     "general": {
         "welcome": "Bem-vindo ao Kiuplay!",
         "appName": "Kiuplay",
@@ -31,6 +36,20 @@
                 "tip2": "Os melhores instrumentais compatíveis com o seu ritmo estão no Kiuplay!",
                 "tip3": "Comece a cantar!"
             }
+        },
+        "localMusic": {
+            "selectMusicButton": "Clica para selecionar músicas",
+            "emptyPlaylist": "Nenhuma música na playlist. Selecione para começar!",
+            "unknownArtist": "Artista desconhecido",
+            "unknownSize": "Tamanho desconhecido",
+            "unknownTitle": "Título desconhecido"
+        },
+        "notifications": {
+            "title": "Notificações",
+            "unread": "Não vistas",
+            "emptyUnread": "Nenhuma notificação nova",
+            "read": "Vistas",
+            "emptyRead": "Nenhuma notificação lida"
         }
     },
     "auth": {
@@ -59,9 +78,9 @@
         "emptyFreeBeats": "Nenhum Beat Grátis publicado ainda."
     },
     "tabs": {
-        "single": "Single",
-        "extendedPlay": "Extended Play",
-        "album": "Álbum",
+        "single": "Faixas",
+        "extendedPlay": "Minhas EP's",
+        "album": "Álbuns",
         "purchasedBeats": "Beats Comprados",
         "exclusiveBeats": "Beats Exclusivos",
         "freeBeats": "Beats Grátis",

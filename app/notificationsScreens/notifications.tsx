@@ -15,11 +15,11 @@ import { markAsRead, setNotifications } from '@/src/redux/notificationsSlice';
 import { Notification } from '@/src/types/contentType';
 import { useRouter } from 'expo-router';
 import { MOCKED_NOTIFICATIONS } from '@/src/types/contentServer'
-
-
-
+import { useTranslation } from '@/src/translations/useTranslation'
 
 export default function NotificationScreen() {
+
+  const { t, language, setLanguage } = useTranslation()
   const dispatch = useDispatch();
   const notifications = useSelector((state: RootState) => state.notifications.items);
 
@@ -38,12 +38,13 @@ export default function NotificationScreen() {
     <>
       <Stack.Screen
         options={{
-          title: 'Notificações',
+          title: t('screens.notifications.title'),
           headerStyle: { backgroundColor: '#191919' },
           headerTintColor: '#fff',
           headerShown: true,
         }}
       />
+
       <View style={{ flex: 1, backgroundColor: '#191919' }}>
         <ScrollView
           horizontal={false}
@@ -51,9 +52,9 @@ export default function NotificationScreen() {
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.sectionTitle}>🔔 Não vistas</Text>
+          <Text style={styles.sectionTitle}>{t('screens.notifications.unread')}</Text>
           {unread.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhuma notificação nova</Text>
+            <Text style={styles.emptyText}>{t('screens.notifications.emptyUnread')}</Text>
           ) : (
             unread.map(notification => (
               <NotificationCard
@@ -64,9 +65,9 @@ export default function NotificationScreen() {
             ))
           )}
 
-          <Text style={[styles.sectionTitle, { marginTop: 30 }]}>📁 Vistas</Text>
+          <Text style={[styles.sectionTitle, { marginTop: 30 }]}>{t('screens.notifications.read')}</Text>
           {read.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhuma notificação lida</Text>
+            <Text style={styles.emptyText}>{t('screens.notifications.emptyRead')}</Text>
           ) : (
             read.map(notification => (
               <NotificationCard
@@ -108,7 +109,7 @@ function NotificationCard({
 
     if (pathname) {
       router.push({
-        pathname,
+        pathname: pathname as any, // 🔧 força compatibilidade de tipo
         params: { id: notification.contentId },
       });
     }
@@ -123,7 +124,6 @@ function NotificationCard({
       case 'upload': return '🎵';
       case 'promotion': return '📢';
       case 'message': return '💬';
-      case 'friend_request': return '🤝';
       case 'purchase': return '🛒';
       default: return '🔔';
     }

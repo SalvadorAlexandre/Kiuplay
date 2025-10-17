@@ -1,4 +1,9 @@
 {
+  "(tabs)_layout": {
+    "profile": "Profile",
+    "beatStore": "Beat Store",
+    "library": "Library"
+  },
   "general": {
     "welcome": "Welcome to Kiuplay!",
     "appName": "Kiuplay",
@@ -31,6 +36,20 @@
         "tip2": "The best instrumentals compatible with your rhythm are on Kiuplay!",
         "tip3": "Start singing!"
       }
+    },
+    "localMusic": {
+      "selectMusicButton": "Click to select songs",
+      "emptyPlaylist": "No songs in the playlist. Select some to start!",
+      "unknownArtist": "Unknown artist",
+      "unknownSize": "Unknown size",
+      "unknownTitle": "Unknown title"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "unread": "Unread",
+      "emptyUnread": "No new notifications",
+      "read": "Read",
+      "emptyRead": "No read notifications"
     }
   },
   "auth": {

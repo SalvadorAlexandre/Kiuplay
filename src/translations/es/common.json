@@ -1,4 +1,9 @@
 {
+  "(tabs)_layout": {
+    "profile": "Perfil",
+    "beatStore": "Tienda de Beats",
+    "library": "Mi Biblioteca"
+  },
   "general": {
     "welcome": "¡Bienvenido a Kiuplay!",
     "appName": "Kiuplay",

@@ -175,7 +175,7 @@ export interface Promotion {
     id: string; // ID único da promoção
     contentId: string; // ID da obra promovida
     artistAvatar?: string;
-    contentType: 'single' | 'album' | 'ep' | 'video' | 'freebeat' | 'exclusive_beat' | 'message';
+    contentType: 'single' | 'album' | 'ep' | 'freebeat' | 'exclusive_beat';
     status: 'active' | 'expired' | 'pending' | 'removed';
     promoterId: string; // Quem promoveu (usuário ou artista)
     title: string; // Título do anúncio ou conteúdo
@@ -183,25 +183,29 @@ export interface Promotion {
     thumbnail?: string; // Imagem ou capa do conteúdo
     startDate: string; // Início da campanha de promoção (ISO date)
     endDate: string; // Fim da campanha
-    targetAudience?: 'followers' | 'friends' | 'all'; // Público alvo
-    notify: boolean; // Se deve disparar notificação push
+    targetAudience?: 'followers' | 'all'; // Público alvo
     createdAt: string;
     category: 'promotion';
+    notify: boolean
 }
 
-export type NotificationType = 'upload' | 'like' | 'comment' | 'follow' | 'purchase' | 'promotion';
+// Tipos de notificações possíveis no Kiuplay
+export type NotificationType = 'upload' | 'like' | 'comment' | 'follow' | 'purchase' | 'promotion' | 'share' | 'message';
 export interface Notification {
-    id: string;
-    type: NotificationType;
-    title: string;
-    message: string;
-    timestamp: string; // ISO format date
-    isRead: boolean;
-    userId?: string; // quem gerou a notificação
-    contentId?: string; // conteúdo relacionado (beat, single, etc.)
-    contentType?: 'single' | 'ep' | 'album' | 'freebeat' | 'exclusive_beat' | 'message' | 'artist' | 'promotion';
-    avatarUrl?: string;
+    id: string; // ID único da notificação
+    type: NotificationType; // Tipo da notificação
+    title: string; // Título exibido na notificação
+    message: string; // Mensagem detalhada
+    timestamp: string; // ISO format date, quando a notificação foi criada
+    isRead: boolean; // Status de leitura
+    readAt?: string; // Data/hora em que foi lida
+    userId?: string; // Quem gerou a notificação
+    targetUserId?: string; // Quem deve receber a notificação
+    contentId?: string; // Conteúdo relacionado (beat, single, EP, álbum, promoção)
+    contentType?: 'single' | 'ep' | 'album' | 'freebeat' | 'exclusive_beat' | 'promotion' | 'artist' | 'message';
+    avatarUrl?: string; // Avatar do usuário que gerou a notificação
     category: 'notification';
+    extraData?: Record<string, any>; // Informações adicionais específicas (ex: valor da compra, link do beat, etc.)
 }
 
 // NOVO: Interface para um Usuário simplificado em um comentário

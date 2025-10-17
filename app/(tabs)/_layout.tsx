@@ -4,8 +4,11 @@ import { Tabs, } from 'expo-router';
 import { Image, } from 'react-native';
 import Colors from '@/constants/Colors'; // Usaremos para definir cor do fundo
 import AudioPlayerBar from '@/components/globalPlayer/audioPlayerBar';
+import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function TabLayout() {
+
+  const { t, language, setLanguage } = useTranslation();
   // Tema fixo como 'dark'
   const scheme = 'dark';
   return (
@@ -42,8 +45,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index" //Tela Perfil está em /app/(tabs)/index.tsx
           options={{
-            title: 'Perfil',
-            tabBarLabel: 'Perfil',
+            title: t('(tabs)_layout.profile'),
+            tabBarLabel:  t('(tabs)_layout.profile'),
             tabBarIcon: ({ focused }) => (
               <Image
                 source={
@@ -66,8 +69,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="beatstore" //Tela loja de beats está em /app/(tabs)/beatstore.tsx
           options={{
-            title: 'Loja de beats',
-            tabBarLabel: 'Loja de beats',
+            title: t('(tabs)_layout.beatStore'),
+            tabBarLabel: t('(tabs)_layout.beatStore'),
             tabBarIcon: ({ focused }) => (
               <Image
                 source={
@@ -88,8 +91,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="library" // Tela Musicas está em /app/(tabs)/library.tsx
           options={{
-            title: 'Músicas',
-            tabBarLabel: 'Músicas',
+            title: t('(tabs)_layout.library'),
+            tabBarLabel: t('(tabs)_layout.library'),
             tabBarIcon: ({ focused }) => (
               <Image
                 source={

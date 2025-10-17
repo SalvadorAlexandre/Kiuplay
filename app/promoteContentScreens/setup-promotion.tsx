@@ -29,7 +29,6 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale("pt-br");
 
-
 // IMPORTAÇÕES DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
 import { addPromotion } from '@/src/redux/promotionsSlice';
