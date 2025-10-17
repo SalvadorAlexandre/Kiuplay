@@ -116,6 +116,12 @@ export interface Album {
     source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'library-artistProfile';
 }
 
+// Beat comprado (derivado de ExclusiveBeat)
+export interface PurchasedBeat extends ExclusiveBeat {
+    buyerId: string; // Quem comprou o beat
+    purchaseDate: string; // Data da compra (útil para histórico)
+}
+
 // Interface para um Beat Exclusivo (da BeatStore)
 export interface ExclusiveBeat {
     id: string;

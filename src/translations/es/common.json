@@ -64,9 +64,9 @@
     "emptyFreeBeats": "Aún no se han publicado Beats Gratis."
   },
   "tabs": {
-    "single": "Single",
-    "extendedPlay": "Extended Play",
-    "album": "Álbum",
+    "single": "Mis Sencillos",
+    "extendedPlay": "Mis EP's",
+    "album": "Mis Álbumes",
     "purchasedBeats": "Beats Comprados",
     "exclusiveBeats": "Beats Exclusivos",
     "freeBeats": "Beats Gratis",

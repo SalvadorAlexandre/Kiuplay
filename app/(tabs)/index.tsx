@@ -28,7 +28,7 @@ import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function ProfileScreen() {
 
-  const { t, language, setLanguage} = useTranslation(); // Hook de tradução
+  const { t, language, setLanguage } = useTranslation(); // Hook de tradução
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
@@ -62,15 +62,15 @@ export default function ProfileScreen() {
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };*/}
 
   const tabs = [
-    t('tabs.single'),
-    t('tabs.extendedPlay'),
-    t('tabs.album'),
-    t('tabs.purchasedBeats'),
-    t('tabs.exclusiveBeats'),
-    t('tabs.freeBeats'),
+    { key: 'single', label: t('tabs.single') },
+    { key: 'extendedPlay', label: t('tabs.extendedPlay') },
+    { key: 'album', label: t('tabs.album') },
+    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') },
+    { key: 'exclusiveBeats', label: t('tabs.exclusiveBeats') },
+    { key: 'freeBeats', label: t('tabs.freeBeats') },
   ];
-  const [activeTab, setActiveTab] = useState(t('tabs.single'));
 
+  const [activeTab, setActiveTab] = useState('single');
 
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
@@ -222,21 +222,21 @@ export default function ProfileScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer}>
           {tabs.map((tab) => (
             <TouchableOpacity
-              key={tab}
-              style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
-              onPress={() => setActiveTab(tab)}
+              key={tab.key}
+              style={[styles.tabButton, activeTab === tab.key && styles.activeTabButton]}
+              onPress={() => setActiveTab(tab.key)}
             >
               <Text
-                style={[styles.tabText, activeTab === tab && styles.activeTabText]}
+                style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}
               >
-                {tab}
+                {tab.label}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
         <View style={{ marginTop: 8 }}>
-          {activeTab === t('tabs.single') && (
+          {activeTab === 'single' && (
             <FlatList
               data={userProfile.singles}
               keyExtractor={(item) => item.id}
@@ -258,7 +258,7 @@ export default function ProfileScreen() {
             />
           )}
 
-          {activeTab === t('tabs.extendedPlay') && (
+          {activeTab === 'extendedPlay' && (
             <FlatList
               data={userProfile.eps}
               keyExtractor={(item) => item.id}
@@ -280,7 +280,7 @@ export default function ProfileScreen() {
             />
           )}
 
-          {activeTab === t('tabs.album') && (
+          {activeTab === 'album' && (
             <FlatList
               data={userProfile.albums}
               keyExtractor={(item) => item.id}
@@ -302,7 +302,7 @@ export default function ProfileScreen() {
             />
           )}
 
-          {activeTab === t('tabs.exclusiveBeats') && (
+          {activeTab === 'exclusiveBeats' && (
             <FlatList
               data={userProfile.exclusiveBeats}
               keyExtractor={(item) => item.id}
@@ -324,7 +324,7 @@ export default function ProfileScreen() {
             />
           )}
 
-          {activeTab === t('tabs.freeBeats') && (
+          {activeTab === 'freeBeats' && (
             <FlatList
               data={userProfile.freeBeats}
               keyExtractor={(item) => item.id}
