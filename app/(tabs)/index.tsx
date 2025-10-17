@@ -111,8 +111,10 @@ export default function ProfileScreen() {
       startIndex: 0,
       shouldPlay: true,
     }));
-  }, [dispatch, activeTab, userProfile]);
-  //Terminou aqui
+  }, [dispatch, activeTab, userProfile]); //Terminou aqui
+
+
+  const purchasedBeats = useAppSelector((state) => state.beatStore.purchasedBeats);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
@@ -297,6 +299,28 @@ export default function ProfileScreen() {
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
                   <Text style={styles.texto}>{t('profile.emptyAlbum')}</Text>
+                </View>
+              )}
+            />
+          )}
+
+          {activeTab === 'purchasedBeats' && (
+            <FlatList
+              data={purchasedBeats}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.columnWrapper}
+              renderItem={({ item }) => (
+                <ExclusiveBeatCard
+                  item={item}
+                  onPress={(selected) =>
+                    router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
+                  }
+                />
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.texto}>{t('profile.emptyPurchasedBeats')}</Text>
                 </View>
               )}
             />

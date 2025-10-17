@@ -109,47 +109,77 @@ export default function exclusiveBeatDetailsScreen() {
     const artistAvatarSrc = getDynamicUserAvatar();
 
     const handlePurchase = useCallback(() => {
-        Alert.alert(
-            "Confirmar Compra",
-            `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: "Confirmar",
-                    onPress: () => {
-                        // 1️⃣ Cria objeto atualizado do beat
-                        const purchasedBeat = {
-                            ...currentExclusiveBeat,
-                            isBuyed: true,
-                            buyerId: 'mock-user-id', // depois virá do backend
-                            purchaseDate: new Date().toISOString(), // ✅ campo obrigatório
-                        };
-                        // 2️⃣ Adiciona aos comprados
-                        dispatch(addPurchasedBeat(purchasedBeat));
+        // 💬 Detecta se é Web (PWA)
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm(
+                `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`
+            );
+            if (!confirmed) return;
 
-                        // 3️⃣ Remove das listas da loja e curtidos
-                        dispatch(removeBeatFromAll(currentExclusiveBeat.id));
+            // 👉 Mesmo fluxo que o onPress do Alert no mobile
+            const purchasedBeat = {
+                ...currentExclusiveBeat,
+                isBuyed: true,
+                buyerId: 'mock-user-id',
+                purchaseDate: new Date().toISOString(),
+            };
 
-                        // 4️⃣ Adiciona uma notificação mock
-                        dispatch(addNotification({
-                            id: `${Date.now()}`,
-                            title: 'Compra concluída 🎧',
-                            message: `Você comprou o beat "${currentExclusiveBeat.title}".`,
-                            type: 'purchase',
-                            contentType: 'exclusive_beat',
-                            contentId: currentExclusiveBeat.id,
-                            category: 'transaction', // ✅ nova propriedade obrigatória
-                            isRead: false,
-                            timestamp: new Date().toISOString(),
-                        }));
+            dispatch(addPurchasedBeat(purchasedBeat));
+            dispatch(removeBeatFromAll(currentExclusiveBeat.id));
 
-                        // 5️⃣ Mensagem visual de sucesso
-                        Alert.alert('Compra concluída', 'O beat foi adicionado à sua biblioteca!');
-                        router.back();
+            dispatch(addNotification({
+                id: `${Date.now()}`,
+                title: 'Compra concluída 🎧',
+                message: `Você comprou o beat "${currentExclusiveBeat.title}".`,
+                type: 'purchase',
+                contentType: 'exclusive_beat',
+                contentId: currentExclusiveBeat.id,
+                category: 'transaction',
+                isRead: false,
+                timestamp: new Date().toISOString(),
+            }));
+
+            window.alert('Compra concluída! O beat foi adicionado à sua biblioteca.');
+            router.back();
+        } else {
+            // 📱 MOBILE (Android/iOS)
+            Alert.alert(
+                "Confirmar Compra",
+                `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`,
+                [
+                    { text: "Cancelar", style: "cancel" },
+                    {
+                        text: "Confirmar",
+                        onPress: () => {
+                            const purchasedBeat = {
+                                ...currentExclusiveBeat,
+                                isBuyed: true,
+                                buyerId: 'mock-user-id',
+                                purchaseDate: new Date().toISOString(),
+                            };
+
+                            dispatch(addPurchasedBeat(purchasedBeat));
+                            dispatch(removeBeatFromAll(currentExclusiveBeat.id));
+
+                            dispatch(addNotification({
+                                id: `${Date.now()}`,
+                                title: 'Compra concluída 🎧',
+                                message: `Você comprou o beat "${currentExclusiveBeat.title}".`,
+                                type: 'purchase',
+                                contentType: 'exclusive_beat',
+                                contentId: currentExclusiveBeat.id,
+                                category: 'transaction',
+                                isRead: false,
+                                timestamp: new Date().toISOString(),
+                            }));
+
+                            Alert.alert('Compra concluída', 'O beat foi adicionado à sua biblioteca!');
+                            router.back();
+                        },
                     },
-                },
-            ]
-        );
+                ]
+            );
+        }
     }, [dispatch, currentExclusiveBeat, formattedPrice, router]);
 
     return (
@@ -206,10 +236,9 @@ export default function exclusiveBeatDetailsScreen() {
                         {/* FIM DO LAYOUT */}
 
                         <View style={styles.containerBtnActionsRow}>
-
                             <TouchableOpacity
                                 style={styles.buttonBuy}
-                            //onPress={handleDownloadPress}
+                                onPress={handlePurchase}
                             >
                                 {/* 🛑 3. USAR O PREÇO FORMATADO */}
                                 <Text style={styles.textBuy}>

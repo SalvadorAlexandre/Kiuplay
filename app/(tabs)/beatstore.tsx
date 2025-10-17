@@ -1,5 +1,5 @@
 // app/(tabs)/beatstore.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     ScrollView,
     View,
@@ -22,6 +22,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 // ✅ Importa o hook de tradução personalizado (não o react-i18next)
 import { useTranslation } from '@/src/translations/useTranslation';
+
+import { setFeeds } from '@/src/redux/beatStoreSlice';
+
+
 
 export default function BeatStoreScreen() {
     const router = useRouter();
