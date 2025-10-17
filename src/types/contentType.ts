@@ -196,22 +196,38 @@ export interface Promotion {
 }
 
 // Tipos de notificações possíveis no Kiuplay
-export type NotificationType = 'upload' | 'like' | 'comment' | 'follow' | 'purchase' | 'promotion' | 'share' | 'message';
+// Tipos de notificações possíveis no Kiuplay
+export type NotificationType =
+    | 'upload'
+    | 'like'
+    | 'comment'
+    | 'follow'
+    | 'purchase'
+    | 'promotion'
+    | 'share'
+    | 'message'
+    | 'sale'
+    | 'refund'
+    | 'system';
+
+// Tipos de categorias principais
+export type NotificationCategory = 'notification' | 'transaction';
+
 export interface Notification {
     id: string; // ID único da notificação
     type: NotificationType; // Tipo da notificação
     title: string; // Título exibido na notificação
     message: string; // Mensagem detalhada
-    timestamp: string; // ISO format date, quando a notificação foi criada
+    timestamp: string; // ISO date (quando a notificação foi criada)
     isRead: boolean; // Status de leitura
     readAt?: string; // Data/hora em que foi lida
     userId?: string; // Quem gerou a notificação
     targetUserId?: string; // Quem deve receber a notificação
-    contentId?: string; // Conteúdo relacionado (beat, single, EP, álbum, promoção)
+    contentId?: string; // Conteúdo relacionado (beat, single, EP, álbum, etc.)
     contentType?: 'single' | 'ep' | 'album' | 'freebeat' | 'exclusive_beat' | 'promotion' | 'artist' | 'message';
     avatarUrl?: string; // Avatar do usuário que gerou a notificação
-    category: 'notification';
-    extraData?: Record<string, any>; // Informações adicionais específicas (ex: valor da compra, link do beat, etc.)
+    category: NotificationCategory; // 'notification' | 'transaction'
+    extraData?: Record<string, any>; // Informações adicionais (ex: valor, link, etc.)
 }
 
 // NOVO: Interface para um Usuário simplificado em um comentário

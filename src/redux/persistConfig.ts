@@ -13,14 +13,19 @@ import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer
 import notificationsReducer from '../redux/notificationsSlice';
 import promotionsReducer from '../redux/promotionsSlice';
 
+import purchasesReducer from './purchasesSlice';
+import beatStoreReducer from './beatStoreSlice'
+
 const rootReducer = combineReducers({
   player: playerReducer,
   users: usersReducer,
   followedArtists: followedArtistsReducer,
   favoriteMusic: favoriteMusicReducer, // <-- NOVA ADIÇÃO: Para suas músicas favoritas
-  network: networkReducer,  
+  network: networkReducer,
   notifications: notificationsReducer,
   promotions: promotionsReducer,
+  purchases: purchasesReducer,
+  beatStore: beatStoreReducer,
 });
 
 const persistConfig = {
@@ -32,6 +37,8 @@ const persistConfig = {
     'network',
     'notifications',
     'promotions',
+    'purchases',
+    'beatStore',
   ], // Persistir apenas favoritos
 };
 

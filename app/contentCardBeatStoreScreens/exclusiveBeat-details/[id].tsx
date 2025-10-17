@@ -21,11 +21,13 @@ import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { ExclusiveBeat } from '@/src/types/contentType';
 
 // 🛑 NOVOS IMPORTS PARA A MOEDA
-import {
-    selectUserLocale,
-    selectUserCurrencyCode
-} from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors do seu novo Slice
+import { selectUserLocale, selectUserCurrencyCode } from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors do seu novo Slice
 import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
+
+// 🛒 Imports para compra simulada
+import { addPurchasedBeat } from '@/src/redux/purchasesSlice';
+import { removeBeatFromAll } from '@/src/redux/beatStoreSlice';
+import { addNotification } from '@/src/redux/notificationsSlice';
 
 
 export default function exclusiveBeatDetailsScreen() {
@@ -105,6 +107,50 @@ export default function exclusiveBeatDetailsScreen() {
         return { uri: currentExclusiveBeat.artistAvatar };
     };
     const artistAvatarSrc = getDynamicUserAvatar();
+
+    const handlePurchase = useCallback(() => {
+        Alert.alert(
+            "Confirmar Compra",
+            `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`,
+            [
+                { text: "Cancelar", style: "cancel" },
+                {
+                    text: "Confirmar",
+                    onPress: () => {
+                        // 1️⃣ Cria objeto atualizado do beat
+                        const purchasedBeat = {
+                            ...currentExclusiveBeat,
+                            isBuyed: true,
+                            buyerId: 'mock-user-id', // depois virá do backend
+                            purchaseDate: new Date().toISOString(), // ✅ campo obrigatório
+                        };
+                        // 2️⃣ Adiciona aos comprados
+                        dispatch(addPurchasedBeat(purchasedBeat));
+
+                        // 3️⃣ Remove das listas da loja e curtidos
+                        dispatch(removeBeatFromAll(currentExclusiveBeat.id));
+
+                        // 4️⃣ Adiciona uma notificação mock
+                        dispatch(addNotification({
+                            id: `${Date.now()}`,
+                            title: 'Compra concluída 🎧',
+                            message: `Você comprou o beat "${currentExclusiveBeat.title}".`,
+                            type: 'purchase',
+                            contentType: 'exclusive_beat',
+                            contentId: currentExclusiveBeat.id,
+                            category: 'transaction', // ✅ nova propriedade obrigatória
+                            isRead: false,
+                            timestamp: new Date().toISOString(),
+                        }));
+
+                        // 5️⃣ Mensagem visual de sucesso
+                        Alert.alert('Compra concluída', 'O beat foi adicionado à sua biblioteca!');
+                        router.back();
+                    },
+                },
+            ]
+        );
+    }, [dispatch, currentExclusiveBeat, formattedPrice, router]);
 
     return (
         <ImageBackground
