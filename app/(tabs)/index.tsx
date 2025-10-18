@@ -24,24 +24,43 @@ import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
+// 🆕 NOVO IMPORT: Importa o tipo ExclusiveBeat
+import { ExclusiveBeat } from '@/src/types/contentType';
 
 
 export default function ProfileScreen() {
 
-  const { t, language, setLanguage } = useTranslation(); // Hook de tradução
+  const { t, language, setLanguage } = useTranslation();
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
+
   // --- DADOS MOCADOS DO PERFIL ---
   const userProfile = MOCKED_PROFILE[0]
   // ------------------------------
 
-  /**
-   * Função auxiliar que verifica se um tipo de conteúdo está atualmente selecionado.
-   * @param current - Conteúdo atualmente selecionado.
-   * @param type - Tipo a ser verificado.
-   * @returns true se for o mesmo tipo, false caso contrário.
-   */
+  // 🛑 AJUSTE 1: USAR O SLICE CORRETO PARA BEATS COMPRADOS
+  // Agora puxamos diretamente do purchasesSlice, que é a biblioteca do usuário comprador.
+  const purchasedBeats = useAppSelector((state) => state.purchases.items);
+
+  // Lista de IDs dos beats comprados para FILTRAGEM. 
+  // Em uma aplicação real, você usaria o beatStoreSlice (com a ação markBeatAsSold) para saber quais beats
+  // deste artista foram marcados como 'vendidos' ou 'não disponíveis'.
+  // Para esta simulação, vamos usar a lista de beats COMPRADOS pelo *próprio* usuário como mock para beats vendidos (embora a lógica real seja inversa).
+  const soldBeatIds = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
+
+
+  // ---------------------------------------------------------
+  // 🆕 LÓGICA DE FILTRAGEM
+  // Filtra os beats exclusivos do artista (a venda) para remover aqueles que já foram comprados
+  // (A compra por A deve remover o beat da aba 'a venda' do perfil do VENDEDOR B, mas aqui estamos assumindo
+  // que o MOCKED_PROFILE[0] *é* o utilizador logado e vamos usar a lista de IDs comprados como um mock.
+  // O ideal seria usar o estado global do BeatStore filtrado por artistId.)
+
+  // Garante que 'userProfile.exclusiveBeats' seja um array antes de chamar '.filter'
+  const exclusiveBeatsForSale = (userProfile.exclusiveBeats ?? [])
+    .filter((beat) => !soldBeatIds.includes(beat.id));
+  // ---------------------------------------------------------
 
   // Hooks para os botões de animação (mantidos do seu código original)
   const [scaleValueConfig] = useState(new Animated.Value(1));
@@ -52,21 +71,14 @@ export default function ProfileScreen() {
   const handlePressInUploads = () => { Animated.spring(scaleValueUploads, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutUploads = () => { Animated.spring(scaleValueUploads, { toValue: 1, useNativeDriver: true }).start(); };
 
-  {/**const [scaleValueInsight] = useState(new Animated.Value(1));
-  const handlePressInInsight = () => { Animated.spring(scaleValueInsight, { toValue: 0.96, useNativeDriver: true }).start(); };
-  const handlePressOutInsight = () => { Animated.spring(scaleValueInsight, { toValue: 1, useNativeDriver: true }).start(); };
- */ }
 
-  {/** const [scaleValueMonetization] = useState(new Animated.Value(1));
-  const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
-  const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };*/}
-
+  // 🛑 AJUSTE 2: NOVAS ABAS DE BEATS
   const tabs = [
     { key: 'single', label: t('tabs.single') },
     { key: 'extendedPlay', label: t('tabs.extendedPlay') },
     { key: 'album', label: t('tabs.album') },
-    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') },
-    { key: 'exclusiveBeats', label: t('tabs.exclusiveBeats') },
+    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') }, // 🎧 Beats comprados por mim
+    { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') }, // 💰 Beats A VENDA (vendidos por mim)
     { key: 'freeBeats', label: t('tabs.freeBeats') },
   ];
 
@@ -86,11 +98,11 @@ export default function ProfileScreen() {
   //Logica para carrar lista de audio no player baseando se na aba ativa
   const getTracksForActiveTab = () => {
     switch (activeTab) {
-      case "Single":
+      case "single":
         return userProfile.singles;
-      case "Exclusive Beats":
-        return userProfile.exclusiveBeats;
-      case "Free Beats":
+      case "exclusiveBeatsForSale": // 🛑 Novo case para a aba A VENDA
+        return exclusiveBeatsForSale;
+      case "freeBeats":
         return userProfile.freeBeats;
       default:
         // Se o utilizador estiver noutra aba → usa Singles como padrão
@@ -99,7 +111,7 @@ export default function ProfileScreen() {
   };
 
   const handlePlayFromTab = useCallback(() => {
-    const tracks = getTracksForActiveTab();
+    const tracks = getTracksForActiveTab() as ExclusiveBeat[] | any; // Tipo corrigido
 
     if (!tracks || tracks.length === 0) {
       Alert.alert("Erro", "Não há faixas disponíveis nesta aba.");
@@ -111,13 +123,12 @@ export default function ProfileScreen() {
       startIndex: 0,
       shouldPlay: true,
     }));
-  }, [dispatch, activeTab, userProfile]); //Terminou aqui
+  }, [dispatch, activeTab, userProfile, exclusiveBeatsForSale]); // Dependência atualizada
 
-
-  const purchasedBeats = useAppSelector((state) => state.beatStore.purchasedBeats);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#191919' }}>
+      {/* ... (containerTopBar e ScrollView de configuração) */}
       <View style={styles.containerTopBar}>
         <Text style={styles.titleTopBar}>{t('screens.profileTitle')}</Text>
 
@@ -138,12 +149,14 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+
       <ScrollView
         horizontal={false}
         style={styles.scroll}
         contentContainerStyle={styles.container}
         showsHorizontalScrollIndicator={false}
       >
+        {/* ... (Perfil e Stats) ... */}
         <View style={styles.profileContainer}>
           <View style={{ alignItems: 'center' }}>
             <View style={styles.imageContainer}>
@@ -181,6 +194,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* ... (Botões de Configurações e Uploads) ... */}
         <View>
           <Animated.View
             style={[styles.buttonContainer, { transform: [{ scale: scaleValueConfig }] }]}
@@ -221,6 +235,7 @@ export default function ProfileScreen() {
 
         <View style={{ marginTop: 10 }} />
 
+        {/* --- ABA DE NAVEGAÇÃO --- */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer}>
           {tabs.map((tab) => (
             <TouchableOpacity
@@ -237,8 +252,10 @@ export default function ProfileScreen() {
           ))}
         </ScrollView>
 
+        {/* --- CONTEÚDO DA ABA ATIVA --- */}
         <View style={{ marginTop: 8 }}>
           {activeTab === 'single' && (
+            // ... (FlatList de Singles)
             <FlatList
               data={userProfile.singles}
               keyExtractor={(item) => item.id}
@@ -261,6 +278,7 @@ export default function ProfileScreen() {
           )}
 
           {activeTab === 'extendedPlay' && (
+            // ... (FlatList de EPs)
             <FlatList
               data={userProfile.eps}
               keyExtractor={(item) => item.id}
@@ -283,6 +301,7 @@ export default function ProfileScreen() {
           )}
 
           {activeTab === 'album' && (
+            // ... (FlatList de Álbums)
             <FlatList
               data={userProfile.albums}
               keyExtractor={(item) => item.id}
@@ -304,16 +323,18 @@ export default function ProfileScreen() {
             />
           )}
 
+          {/* 🎧 NOVO CONTEÚDO DA ABA: BEATS COMPRADOS */}
           {activeTab === 'purchasedBeats' && (
             <FlatList
-              data={purchasedBeats}
+              data={purchasedBeats} // 🛑 Dados do purchasesSlice
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={styles.columnWrapper}
               renderItem={({ item }) => (
-                <ExclusiveBeatCard
+                <ExclusiveBeatCard // Usamos o ExclusiveBeatCard para renderizar
                   item={item}
                   onPress={(selected) =>
+                    // Navega para a tela de detalhes (agora com o botão Baixar)
                     router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
                   }
                 />
@@ -326,9 +347,10 @@ export default function ProfileScreen() {
             />
           )}
 
-          {activeTab === 'exclusiveBeats' && (
+          {/* 💰 CONTEÚDO DA ABA: BEATS A VENDA (Ex-exclusiveBeats) */}
+          {activeTab === 'exclusiveBeatsForSale' && (
             <FlatList
-              data={userProfile.exclusiveBeats}
+              data={exclusiveBeatsForSale} // 🛑 Lista FILTRADA
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={styles.columnWrapper}
@@ -336,6 +358,7 @@ export default function ProfileScreen() {
                 <ExclusiveBeatCard
                   item={item}
                   onPress={(selected) =>
+                    // Mantém a navegação para os detalhes do beat
                     router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
                   }
                 />
@@ -349,6 +372,7 @@ export default function ProfileScreen() {
           )}
 
           {activeTab === 'freeBeats' && (
+            // ... (FlatList de FreeBeats)
             <FlatList
               data={userProfile.freeBeats}
               keyExtractor={(item) => item.id}
@@ -375,6 +399,8 @@ export default function ProfileScreen() {
     </View>
   );
 }
+
+// ... (seus estilos omitidos para brevidade)
 
 {/* Estilos dos componentes (mantidos inalterados) */ }
 const styles = StyleSheet.create({

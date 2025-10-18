@@ -78,9 +78,9 @@
     "emptyFreeBeats": "No Free Beats published yet."
   },
   "tabs": {
-    "single": "Single",
-    "extendedPlay": "Extended Play",
-    "album": "Album",
+    "single": "My Singles",
+    "extendedPlay": "My Extended Play",
+    "album": "My Albums",
     "purchasedBeats": "Purchased Beats",
     "exclusiveBeats": "Exclusive Beats",
     "freeBeats": "Free Beats",
@@ -89,7 +89,8 @@
     "following": "Following",
     "all": "All",
     "folders": "Folders",
-    "downloads": "Downloads"
+    "downloads": "Downloads",
+    "exclusiveBeatsForSale": "Beats for sale"
   },
   "alerts": {
     "error": "Error",

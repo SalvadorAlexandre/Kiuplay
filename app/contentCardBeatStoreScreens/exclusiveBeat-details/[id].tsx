@@ -24,11 +24,12 @@ import { ExclusiveBeat } from '@/src/types/contentType';
 import { selectUserLocale, selectUserCurrencyCode } from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors do seu novo Slice
 import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
 
-// 🛒 Imports para compra simulada
-import { addPurchasedBeat } from '@/src/redux/purchasesSlice';
-import { removeBeatFromAll } from '@/src/redux/beatStoreSlice';
+// 🛒 Imports de LÓGICA DE COMPRA
+// REMOVER: addPurchasedBeat (agora no Thunk)
+// REMOVER: removeBeatFromAll (agora no Thunk)
 import { addNotification } from '@/src/redux/notificationsSlice';
-
+// 🆕 NOVO: Importa o Thunk que coordena a compra
+import { processBeatPurchaseThunk } from '@/src/redux/beatPurchaseThunks';
 
 export default function exclusiveBeatDetailsScreen() {
     const { id } = useLocalSearchParams();
@@ -54,8 +55,15 @@ export default function exclusiveBeatDetailsScreen() {
             </View>
         );
     }
-
     const currentExclusiveBeat: ExclusiveBeat = exclusiveBeatData;
+
+    // 🛑 NOVO: 1. Acessa a lista de beats comprados do purchasesSlice
+    const purchasedBeats = useAppSelector((state) => state.purchases.items);
+
+    // 🛑 NOVO: 2. Verifica se o beat atual já está na lista de comprados
+    const isBoughtByCurrentUser = purchasedBeats.some(
+        (beat) => beat.id === currentExclusiveBeat.id
+    );
 
     // 🛑 2. FORMATAR O PREÇO ASSIM QUE O BEAT ESTIVER DISPONÍVEL
     const formattedPrice = formatPrice(
@@ -109,38 +117,32 @@ export default function exclusiveBeatDetailsScreen() {
     const artistAvatarSrc = getDynamicUserAvatar();
 
     const handlePurchase = useCallback(() => {
-        // 💬 Detecta se é Web (PWA)
+        const beatToBuy = currentExclusiveBeat;
+
+        const performPurchase = () => {
+            // Dispara o thunk que coordena: (1) Adicionar a Purchased, (2) Remover da BeatStore, (3) Notificação
+            dispatch(processBeatPurchaseThunk(beatToBuy))
+                .unwrap()
+                .then(() => {
+                    // A compra foi um sucesso
+                    Alert.alert('Compra concluída', 'O beat foi adicionado à sua biblioteca!');
+                    // Não é necessário chamar router.back() se você quiser que o usuário veja o botão Baixar imediatamente.
+                })
+                .catch((error) => {
+                    // Lidar com falhas (erros de API, etc.)
+                    Alert.alert("Falha na Compra", "Não foi possível processar a transação. Tente novamente.");
+                    console.error("Erro no Thunk de compra:", error);
+                });
+        };
+
+        // 💬 Lógica de Confirmação (Web/Mobile)
         if (Platform.OS === 'web') {
             const confirmed = window.confirm(
                 `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`
             );
-            if (!confirmed) return;
-
-            // 👉 Mesmo fluxo que o onPress do Alert no mobile
-            const purchasedBeat = {
-                ...currentExclusiveBeat,
-                isBuyed: true,
-                buyerId: 'mock-user-id',
-                purchaseDate: new Date().toISOString(),
-            };
-
-            dispatch(addPurchasedBeat(purchasedBeat));
-            dispatch(removeBeatFromAll(currentExclusiveBeat.id));
-
-            dispatch(addNotification({
-                id: `${Date.now()}`,
-                title: 'Compra concluída 🎧',
-                message: `Você comprou o beat "${currentExclusiveBeat.title}".`,
-                type: 'purchase',
-                contentType: 'exclusive_beat',
-                contentId: currentExclusiveBeat.id,
-                category: 'transaction',
-                isRead: false,
-                timestamp: new Date().toISOString(),
-            }));
-
-            window.alert('Compra concluída! O beat foi adicionado à sua biblioteca.');
-            router.back();
+            if (confirmed) {
+                performPurchase();
+            }
         } else {
             // 📱 MOBILE (Android/iOS)
             Alert.alert(
@@ -148,39 +150,11 @@ export default function exclusiveBeatDetailsScreen() {
                 `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`,
                 [
                     { text: "Cancelar", style: "cancel" },
-                    {
-                        text: "Confirmar",
-                        onPress: () => {
-                            const purchasedBeat = {
-                                ...currentExclusiveBeat,
-                                isBuyed: true,
-                                buyerId: 'mock-user-id',
-                                purchaseDate: new Date().toISOString(),
-                            };
-
-                            dispatch(addPurchasedBeat(purchasedBeat));
-                            dispatch(removeBeatFromAll(currentExclusiveBeat.id));
-
-                            dispatch(addNotification({
-                                id: `${Date.now()}`,
-                                title: 'Compra concluída 🎧',
-                                message: `Você comprou o beat "${currentExclusiveBeat.title}".`,
-                                type: 'purchase',
-                                contentType: 'exclusive_beat',
-                                contentId: currentExclusiveBeat.id,
-                                category: 'transaction',
-                                isRead: false,
-                                timestamp: new Date().toISOString(),
-                            }));
-
-                            Alert.alert('Compra concluída', 'O beat foi adicionado à sua biblioteca!');
-                            router.back();
-                        },
-                    },
+                    { text: "Confirmar", onPress: performPurchase },
                 ]
             );
         }
-    }, [dispatch, currentExclusiveBeat, formattedPrice, router]);
+    }, [dispatch, currentExclusiveBeat, formattedPrice]);
 
     return (
         <ImageBackground
@@ -236,28 +210,42 @@ export default function exclusiveBeatDetailsScreen() {
                         {/* FIM DO LAYOUT */}
 
                         <View style={styles.containerBtnActionsRow}>
-                            <TouchableOpacity
-                                style={styles.buttonBuy}
-                                onPress={handlePurchase}
-                            >
-                                {/* 🛑 3. USAR O PREÇO FORMATADO */}
-                                <Text style={styles.textBuy}>
-                                    Comprar por {formattedPrice}
-                                </Text>
-                            </TouchableOpacity>
+                            {isBoughtByCurrentUser ? (
+                                // 🎧 ESTADO PÓS-COMPRA: Botão BAIXAR
+                                <TouchableOpacity
+                                    style={[styles.buttonBuy, styles.buttonDownload]}
+                                    onPress={() => Alert.alert("Download", "A função de download será implementada aqui.")}
+                                >
+                                    <Ionicons name="download-outline" size={20} color="#000" style={{ marginRight: 8 }} />
+                                    <Text style={styles.textBuy}>Baixar Beat (Comprado)</Text>
+                                </TouchableOpacity>
+                            ) : (
+                                // 💰 ESTADO PRÉ-COMPRA: Botão COMPRAR
+                                <TouchableOpacity
+                                    style={styles.buttonBuy}
+                                    onPress={handlePurchase}
+                                >
+                                    <Text style={styles.textBuy}>
+                                        Comprar por {formattedPrice}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
 
-                            <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
-                                <Ionicons
-                                    name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
-                                    size={24}
-                                    color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
-                                />
-                                {currentExclusiveBeat.favoritesCount !== undefined && (
-                                    <Text style={styles.btnActionCountText}>{currentExclusiveBeat.favoritesCount.toLocaleString()}</Text>
-                                )}
-                            </TouchableOpacity>
-
+                            {/* Botão CURTIR: Visível APENAS se o beat NÃO foi comprado */}
+                            {!isBoughtByCurrentUser && (
+                                <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
+                                    <Ionicons
+                                        name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
+                                        size={24}
+                                        color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
+                                    />
+                                    {currentExclusiveBeat.favoritesCount !== undefined && (
+                                        <Text style={styles.btnActionCountText}>{currentExclusiveBeat.favoritesCount.toLocaleString()}</Text>
+                                    )}
+                                </TouchableOpacity>
+                            )}
                         </View>
+
                     </View>
 
                 </SafeAreaView>
@@ -405,5 +393,12 @@ const styles = StyleSheet.create({
     backButtonText: {
         color: '#fff',
         fontSize: 16,
+    },
+    buttonDownload: {
+        backgroundColor: '#4CAF50', // Por exemplo, verde para download
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1, // Para que ele preencha o espaço quando o botão Curtir estiver oculto
     },
 });

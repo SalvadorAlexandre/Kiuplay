@@ -13,8 +13,13 @@ export interface UserProfile {
     followingCount?: number
     isArtist?: boolean; // Se o usuário tem um perfil de artista
     hasMonetizationEnabled?: boolean;
+    // 🛑 NOVO: Lista de beats comprados (útil para a aba "Beats Comprados")
+    purchasedBeats?: PurchasedBeat[];
     // Adicione outros campos comuns se houverem
 }
+
+
+// ArtistProfile herda de UserProfile e, portanto, também terá `purchasedBeats`.
 
 // Interface para um Perfil de Artista
 export interface ArtistProfile extends UserProfile {
@@ -117,37 +122,45 @@ export interface Album {
 }
 
 // Beat comprado (derivado de ExclusiveBeat)
+// Beat comprado (derivado de ExclusiveBeat)
 export interface PurchasedBeat extends ExclusiveBeat {
-    buyerId: string; // Quem comprou o beat
+    // Todos os campos de ExclusiveBeat
+    buyerId: string; // Quem comprou o beat (deve ser igual ao currentOwnerId após a compra)
+    sellerId: string; // 🛑 NOVO: Quem vendeu o beat (igual ao artistId)
     purchaseDate: string; // Data da compra (útil para histórico)
+    downloadUrl: string; // 🛑 NOVO: URL/URI real para o comprador baixar o arquivo de alta qualidade
 }
 
+// Interface para um Beat Exclusivo (da BeatStore)
 // Interface para um Beat Exclusivo (da BeatStore)
 export interface ExclusiveBeat {
     id: string;
     title: string;
     artist: string; // Artista principal (pode ser o produtor)
-    artistId?: string;
+    artistId: string; // 🛑 NOVO: ID do artista/vendedor, OBRIGATÓRIO para a lógica de compra/venda
     producer: string // Nome do produtor
     cover: string; // Capa do beat
     artistAvatar?: string;
-    uri: string; // Caminho para o arquivo de áudio (MUDEI DE 'url' PARA 'uri' PARA CONSISTÊNCIA COM TRACK)
+    uri: string; // Caminho para o arquivo de áudio
     genre: string;
     bpm: number;
     size?: number;
     price: number; // Preço obrigatório para ExclusiveBeat
-    isBuyed: boolean // Se foi comprado
+    // isBuyed: boolean; // 🛑 REMOVIDO/SUBSTITUÍDO: A lógica de venda será gerenciada por 'currentOwnerId'
+    currentOwnerId: string; // 🛑 NOVO: ID do usuário que atualmente possui o beat (Vendedor se estiver à venda)
+    isAvailableForSale: boolean; // 🛑 NOVO: Se está disponível para ser comprado na BeatStore
+    isExclusiveSale: boolean; // 🛑 NOVO: Se a venda é exclusiva (só pode ser vendido uma vez)
+
     typeUse: 'exclusive' // Tipo de uso
     duration?: number;
     category: 'beat'; // Categoria específica
     releaseYear: string;
     source: 'beatstore-feeds' | 'beatstore-favorites' | 'user-profile';
-    viewsCount?: number; // Adicionei para consistência
-    favoritesCount?: number; // Adicionei para consistência
-    commentCount?: number; // Adicionei para consistência
-    shareCount?: number; // Adicionei para consistência
+    viewsCount?: number;
+    favoritesCount?: number;
+    commentCount?: number;
+    shareCount?: number;
 }
-
 // Interface para um Beat Gratuito (da BeatStore)
 export interface FreeBeat {
     id: string;

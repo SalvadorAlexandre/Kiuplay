@@ -28,6 +28,14 @@ import { setFeeds } from '@/src/redux/beatStoreSlice';
 
 
 export default function BeatStoreScreen() {
+
+    // 🛑 SELETOR DE ESTADO DE POSSE
+    const purchasedBeatIds = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
+    // 🆕 FILTRAGEM DOS BEATS DO FEED
+    const filteredFeedData = MOCKED_BEATSTORE_FEED_DATA.filter(
+        (item) => !purchasedBeatIds.includes(item.id)
+    );
+
     const router = useRouter();
     const { t } = useTranslation(); // Usa o hook customizado de tradução
     const { activeTab, handleTabChange } = useBeatStoreTabs();
@@ -43,6 +51,11 @@ export default function BeatStoreScreen() {
                 music.source === 'beatstore-feeds'
             )
     ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
+
+    // 🆕 FILTRAGEM FINAL: Remove os beats que foram comprados.
+    const filteredFavoritedBeats = favoritedBeatStoreMusics.filter(
+        (beat) => !purchasedBeatIds.includes(beat.id)
+    );
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
         // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
@@ -121,7 +134,8 @@ export default function BeatStoreScreen() {
                 {activeTab === 'feeds' && (
                     <View style={styles.beatStoreMusicListContainer}>
                         <FlatList
-                            data={MOCKED_BEATSTORE_FEED_DATA}
+                            // 🛑 USAR A LISTA FILTRADA
+                            data={filteredFeedData}
                             keyExtractor={(item) => item.id}
                             numColumns={2}
                             columnWrapperStyle={styles.row}
@@ -149,7 +163,8 @@ export default function BeatStoreScreen() {
                             </Text>
                         ) : (
                             <FlatList
-                                data={favoritedBeatStoreMusics}
+                                // 🛑 USAR A LISTA FILTRADA
+                                data={filteredFavoritedBeats}
                                 keyExtractor={(item) => item.id}
                                 numColumns={2}
                                 columnWrapperStyle={styles.row}

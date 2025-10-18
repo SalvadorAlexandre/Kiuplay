@@ -1,21 +1,21 @@
-//src/redux/beatStoreSlice.ts
+// src/redux/beatStoreSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ExclusiveBeat } from '../types/contentType';
 
-// ✅ Interface do estado global da BeatStore
+// ✅ Interface do estado global da BeatStore (REVISADA)
 interface BeatStoreState {
     feeds: ExclusiveBeat[];
     exclusiveBeats: ExclusiveBeat[];
     favorites: ExclusiveBeat[];
-    purchasedBeats: ExclusiveBeat[]; // 🆕 novo campo para beats comprados
+    // 🛑 REMOVIDO: purchasedBeats (Movido para o purchasesSlice.ts)
 }
 
-// ✅ Estado inicial
+// ✅ Estado inicial (REVISADO)
 const initialState: BeatStoreState = {
     feeds: [],
     exclusiveBeats: [],
     favorites: [],
-    purchasedBeats: [], // 🆕 inicializa vazio
+    // 🛑 REMOVIDO: purchasedBeats: [],
 };
 
 // ✅ Slice principal
@@ -33,34 +33,30 @@ const beatStoreSlice = createSlice({
             state.favorites = action.payload;
         },
 
-        // 🧹 Remove um beat de todas as listas (inclui os comprados também)
-        removeBeatFromAll(state, action: PayloadAction<string>) {
+        // 🆕 AÇÃO PRINCIPAL: Remove o beat das listas 'À VENDA'
+        // Será usada após o sucesso da compra para limpar o feed e favoritos.
+        markBeatAsSold(state, action: PayloadAction<string>) {
             const beatId = action.payload;
 
-            // ✅ Removendo o beat de todas as categorias
+            // ✅ Removendo o beat de todas as categorias de venda
             state.feeds = state.feeds.filter(beat => beat.id !== beatId);
             state.exclusiveBeats = state.exclusiveBeats.filter(beat => beat.id !== beatId);
             state.favorites = state.favorites.filter(beat => beat.id !== beatId);
-            state.purchasedBeats = state.purchasedBeats.filter(beat => beat.id !== beatId); // 🆕 linha adicionada
+
+            // 🛑 NOTA: Linha 'state.purchasedBeats = ...' FOI REMOVIDA.
         },
 
-        // 🛒 Adiciona um beat comprado (evita duplicações)
-        addPurchasedBeat(state, action: PayloadAction<ExclusiveBeat>) {
-            const alreadyExists = state.purchasedBeats.some(b => b.id === action.payload.id);
-            if (!alreadyExists) {
-                state.purchasedBeats.unshift(action.payload); // adiciona no início da lista
-            }
-        },
+        // 🛑 REMOVIDO: removeBeatFromAll (substituído por markBeatAsSold e focado na remoção de venda)
+        // 🛑 REMOVIDO: addPurchasedBeat (Movido para o purchasesSlice.ts)
     },
 });
 
-// ✅ Exportações das actions e do reducer
+// ✅ Exportações das actions e do reducer (REVISADO)
 export const {
     setFeeds,
     setExclusiveBeats,
     setFavorites,
-    removeBeatFromAll,
-    addPurchasedBeat, // 🆕 exportado para usar em outras telas
+    markBeatAsSold, // 🆕 markBeatAsSold é a nova action chave
 } = beatStoreSlice.actions;
 
 export default beatStoreSlice.reducer;
