@@ -1,3 +1,4 @@
+//app/profileScreens/usePostAlbumScreen
 import React, { useState } from 'react';
 import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -15,11 +16,16 @@ import {
     TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+
+import { useTranslation } from '@/src/translations/useTranslation'
 /**
  * Componente responsável por renderizar a interface de
  * postagem de Album, usando o Hook usePostAlbum.
 */
 export default function PostAlbumScreen() {
+
+    const { t } = useTranslation()
+
     const router = useRouter()
     // Importa os estados e manipuladores do Hook
     const {
@@ -40,7 +46,7 @@ export default function PostAlbumScreen() {
     const [numFaixas, setNumFaixas] = useState<number | null>(null);  // Correção: Tipo number | null para permitir seleção única
     const [numFaixasItems, setNumFaixasItems] = useState<{ label: string; value: number }[]>(
         Array.from({ length: 30 - 8 + 1 }, (_, i) => ({
-            label: `${i + 8} faixas`,  // Correção: label tipado como string
+            label: t('postAlbum.trackCountOption', { count: i + 8 }),  // Correção: label tipado como string
             value: i + 8,              // Correção: value tipado como number
         }))
     );
@@ -98,7 +104,7 @@ export default function PostAlbumScreen() {
                         />
                     </TouchableOpacity>
 
-                    <Text style={styles.titleBack}>Postar Album</Text>
+                    <Text style={styles.titleBack}>{t('postAlbum.headerTitle')}</Text>
 
                 </View>
                 <ScrollView
@@ -137,14 +143,13 @@ export default function PostAlbumScreen() {
                                 <Ionicons name="camera" size={40} color="#fff" />
                             )}
                         </TouchableOpacity>
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>Album de Saag Weelli Boy</Text>
-                        <Text style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>Rap • Pegasus • 2025 </Text>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postAlbum.uploadCover')}</Text>
                     </View>
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Informações do Album</Text>
+                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{t('postAlbum.sectionInfoTitle')}</Text>
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Nome do Artista"
+                        placeholder={t('postAlbum.artistNamePlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     //value={nomeArtistaAlbum}
@@ -153,7 +158,7 @@ export default function PostAlbumScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Título do Album"
+                        placeholder={t('postAlbum.albumTitlePlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     //value={tituloAlbum}
@@ -163,7 +168,7 @@ export default function PostAlbumScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Gênero principal"
+                        placeholder={t('postAlbum.mainGenrePlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     //value={generoAlbum}
@@ -181,7 +186,7 @@ export default function PostAlbumScreen() {
                         setValue={setNumFaixas}  // Correção principal: adicionar setValue para gerenciar a seleção
                         setItems={setNumFaixasItems}
 
-                        placeholder="Seleciona o número de faixas"
+                        placeholder={t('postAlbum.numTracksPlaceholder')}
                         style={{
                             backgroundColor: '#2a2a2a',
                             marginBottom: 10,
@@ -217,7 +222,7 @@ export default function PostAlbumScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Ano de lançamento"
+                        placeholder={t('postAlbum.releaseYearPlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     // value={anoLancamentoAlbum}
@@ -227,7 +232,7 @@ export default function PostAlbumScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Número do Álbum"
+                        placeholder={t('postAlbum.albumNumberPlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     // value={numeroAlbum}
@@ -237,7 +242,8 @@ export default function PostAlbumScreen() {
 
                     {/*Aqui vem o botao salvar, Equanto o utilizador nao salvar os componentes abaixo comtinuarao desable podes fazer isso companheiro*/}
                     <TouchableOpacity style={styles.uploadArea}>
-                        <Text style={styles.uploadText}>Salvar dados do album</Text>
+                        <Text style={styles.uploadText}>{t('postAlbum.saveAlbumButton')}</Text>
+                        <Ionicons name='save' size={20} color={'#fff'} />
                     </TouchableOpacity>
                     <View
                         style={{
@@ -249,19 +255,19 @@ export default function PostAlbumScreen() {
                             flex: 1
                         }}
                     >
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginTop: 10 }}>Faixa Single</Text>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginTop: 10 }}>{t('postAlbum.singleTrackTitle')}</Text>
                         {/*QUANDO O UTILIZADOR ESCOLHER O NUMERO DE FAIXAS A POSTAR ESSE TESTO SERA EXIBIDO* */}
                         {numFaixas !== null && (
-                            <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5, marginTop: 10 }}>(Faixas a postar: {numFaixas}...postadas: {postedFaixa})</Text>
+                            <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5, marginTop: 10 }}>{t('postEP.trackCountLabel', { total: numFaixas, posted: postedFaixa })}</Text>
                         )}
                     </View>
 
-                    <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>Há participações nesta faixa?</Text>
+                    <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>{t('postAlbum.hasParticipantsQuestion')}</Text>
 
                     {/* Checkbox Sim / Não */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Checkbox.Item
-                            label="Sim"
+                            label={t('postAlbum.yes')}
                             status={hasParticipants ? 'checked' : 'unchecked'}
                             onPress={handleHasParticipants}
                             labelStyle={{ color: '#fff', fontSize: 14 }}
@@ -269,7 +275,7 @@ export default function PostAlbumScreen() {
                             position='leading'
                         />
                         <Checkbox.Item
-                            label="Não"
+                            label={t('postAlbum.no')}
                             status={noParticipants ? 'checked' : 'unchecked'}
                             onPress={handleNoParticipants}
                             labelStyle={{ color: '#fff', fontSize: 14 }}
@@ -285,7 +291,7 @@ export default function PostAlbumScreen() {
                                 open={dropdownParticipantsOpen}
                                 value={numParticipants}
                                 items={Array.from({ length: 20 }, (_, i) => ({
-                                    label: `${i + 1} participante${i + 1 > 1 ? 's' : ''}`,
+                                    label: t('postAlbum.participantName', { count: i + 1 }),
                                     value: i + 1,
                                 }))}
                                 setOpen={setDropdownParticipantsOpen}
@@ -293,7 +299,7 @@ export default function PostAlbumScreen() {
                                     const value = callback(numParticipants);
                                     handleNumParticipantsChange(value as number);
                                 }}
-                                placeholder="Quantos participantes?"
+                                placeholder={t('postAlbum.numParticipantsPlaceholder')}
                                 style={{
                                     backgroundColor: '#2a2a2a',
                                     marginBottom: 10,
@@ -333,7 +339,7 @@ export default function PostAlbumScreen() {
                                     style={styles.inputTextBox}
                                     value={name}
                                     onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                    placeholder={`Nome do participante ${index + 1}`}
+                                    placeholder={t('postAlbum.participantNamePlaceholder', { index: index + 1 })}
                                     placeholderTextColor="#FFFF"
                                 />
                             ))}
@@ -341,19 +347,19 @@ export default function PostAlbumScreen() {
                     )}
 
                     {/* Campos comuns*/}
-                    <TextInput style={styles.inputTextBox} placeholder="Nome do Artista" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Ano de lançamento" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Número da faixa" placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postAlbum.artistNameSong')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postAlbum.songTitlePlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postAlbum.songGenrePlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postAlbum.producerPlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postAlbum.trackYearPlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postAlbum.trackNumberPlaceholder')} placeholderTextColor="#FFFF" />
 
                     {/*Quadro onde a capa é carregada a capa da faixa* ------------------------------------------------------------------------------*/}
 
                     {/* Botão para upload do auddio */}
                     <TouchableOpacity style={styles.uploadArea}>
-                        <Text style={styles.uploadText}>Carregar audio</Text>
-                        <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
+                        <Text style={styles.uploadText}>{t('postAlbum.uploadAudioButton')}</Text>
+                        <Ionicons name="cloud-upload" size={20} color="#fff" />
                     </TouchableOpacity>
 
                 </ScrollView>

@@ -216,8 +216,8 @@ export default function exclusiveBeatDetailsScreen() {
                                     style={[styles.buttonBuy, styles.buttonDownload]}
                                     onPress={() => Alert.alert("Download", "A função de download será implementada aqui.")}
                                 >
-                                    <Ionicons name="download-outline" size={20} color="#000" style={{ marginRight: 8 }} />
-                                    <Text style={styles.textBuy}>Baixar Beat (Comprado)</Text>
+                                    <Ionicons name="download" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                    <Text style={styles.textBuy}>Baixar Beat</Text>
                                 </TouchableOpacity>
                             ) : (
                                 // 💰 ESTADO PRÉ-COMPRA: Botão COMPRAR

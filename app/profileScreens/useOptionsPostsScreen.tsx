@@ -1,5 +1,5 @@
 {/*TELA ONDE APARECEM A LISTA DOS TIPOS DE POSTAGEM*/ }
-import React, { useState } from 'react'
+import React, { useState, useTransition } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import {
@@ -12,8 +12,11 @@ import {
     Animated,
 } from 'react-native';
 
+import { useTranslation } from '@/src/translations/useTranslation'
 
 export default function OptionsListPostScreen() {
+
+    const { t } = useTranslation()
 
     //hooks para o btn postar single----------------------------------------------
     const [scaleValuePostSingle] = useState(new Animated.Value(1))
@@ -80,7 +83,7 @@ export default function OptionsListPostScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Escolha oque quer postar',
+                    title: t('screens.optionsListPostTitle'),
                     headerStyle: { backgroundColor: '#191919', },
                     headerTintColor: '#fff',
                     //headerTitleStyle: { fontWeight: 'bold' },
@@ -88,7 +91,7 @@ export default function OptionsListPostScreen() {
                 }}
             />
             <View style={{ flex: 1, backgroundColor: '#191919' }}>
-                
+
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
@@ -115,7 +118,7 @@ export default function OptionsListPostScreen() {
                         />
                     </View>*/}
 
-                    
+
 
 
                     {/*View do botão postar Single-----------------------------------------------------------------*/}
@@ -136,7 +139,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Postar uma faixa single</Text>
+                            <Text style={styles.buttonText}>{t('screens.buttons.postSingle')}</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -163,7 +166,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Postar um Extended Play (EP)</Text>
+                            <Text style={styles.buttonText}>{t('screens.buttons.postEP')}</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -190,8 +193,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Postar um Album</Text>
-
+                            <Text style={styles.buttonText}>{t('screens.buttons.postAlbum')}</Text>
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
                         </TouchableOpacity>
@@ -216,7 +218,8 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Postar um instrumental</Text>
+                            <Text style={styles.buttonText}>{t('screens.buttons.postBeat')}</Text>
+
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -243,7 +246,7 @@ export default function OptionsListPostScreen() {
                             />
 
                             {/* Texto do botão */}
-                            <Text style={styles.buttonText}>Promover uma postagem</Text>
+                            < Text style={styles.buttonText} >{t('screens.buttons.postPromote')}</Text>
 
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />

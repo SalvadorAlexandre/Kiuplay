@@ -50,6 +50,14 @@
             "emptyUnread": "Nenhuma notificação nova",
             "read": "Vistas",
             "emptyRead": "Nenhuma notificação lida"
+        },
+        "optionsListPostTitle": "Escolha o que quer postar",
+        "buttons": {
+            "postSingle": "Postar uma faixa single",
+            "postEP": "Postar um Extended Play (EP)",
+            "postAlbum": "Postar um Album",
+            "postBeat": "Postar um instrumental",
+            "postPromote": "Promover uma postagem"
         }
     },
     "auth": {
@@ -108,5 +116,115 @@
         "title": "Configurações",
         "languageTitle": "Selecione o seu idioma",
         "bankInfo": "Os dados de transação bancária são necessários e serão utilizados pelo Kiuplay para te possibilitar comprar e vender instrumentais de uso exclusivo!"
+    },
+    "postFaixaScreen": {
+        "title": "Postar Single",
+        "uploadCover": "Carrega capa para esta faixa!",
+        "newTrack": "Nova Faixa",
+        "hasParticipantsQuestion": "Há participações nesta faixa?",
+        "yes": "Sim",
+        "no": "Não",
+        "participantsDropdown": "Quantos participantes?",
+        "participant": {
+            "singular": "{{count}} participante",
+            "plural": "{{count}} participantes"
+        },
+        "participantNamePlaceholder": "Nome do participante {{index}}",
+        "fields": {
+            "artistName": "Nome do Artista",
+            "title": "Título da música",
+            "genre": "Gênero musical",
+            "producer": "Produtor",
+            "year": "Ano de lançamento",
+            "trackNumber": "Número da faixa"
+        },
+        "uploadAudio": "Carregar áudio",
+        "goBack": "Voltar"
+    },
+    "postEP": {
+        "headerTitle": "Postar EP",
+        "uploadCover": "Carregar capa para esta EP",
+        "sectionInfoTitle": "Informações do EP",
+        "artistNamePlaceholder": "Nome do Artista",
+        "epTitlePlaceholder": "Título do EP",
+        "mainGenrePlaceholder": "Gênero principal",
+        "numTracksPlaceholder": "Seleciona o número de faixas",
+        "releaseYearPlaceholder": "Ano de lançamento",
+        "epNumberPlaceholder": "Número do EP",
+        "saveEPButton": "Salvar dados do EP",
+        "singleTrackTitle": "Faixa Single",
+        "trackCountLabel": "(Faixas a postar: {{total}}... postadas: {{posted}})",
+        "hasParticipantsQuestion": "Há participações nesta faixa?",
+        "yes": "Sim",
+        "no": "Não",
+        "numParticipantsPlaceholder": "Quantos participantes?",
+        "participantName": {
+            "singular": "{{count}} participante",
+            "plural": "{{count}} participantes"
+        },
+        "trackCountOption": {
+            "singular": "{{count}} faixa",
+            "plural": "{{count}} faixas"
+        },
+        "artistNameSong": "Name do Artista",
+        "participantNamePlaceholder": "Nome do participante {{index}}",
+        "songTitlePlaceholder": "Título da música",
+        "songGenrePlaceholder": "Gênero musical",
+        "producerPlaceholder": "Produtor",
+        "trackYearPlaceholder": "Ano de lançamento",
+        "trackNumberPlaceholder": "Número da faixa",
+        "uploadAudioButton": "Carregar áudio"
+    },
+    "postAlbum": {
+        "headerTitle": "Postar Álbum",
+        "uploadCover": "Carregar capa para este Álbum",
+        "sectionInfoTitle": "Informações do Álbum",
+        "artistNamePlaceholder": "Nome do Artista",
+        "albumTitlePlaceholder": "Título do Álbum",
+        "mainGenrePlaceholder": "Gênero Principal",
+        "numTracksPlaceholder": "Seleciona o número de faixas",
+        "releaseYearPlaceholder": "Ano de lançamento",
+        "albumNumberPlaceholder": "Número do Álbum",
+        "saveAlbumButton": "Salvar dados do Álbum",
+        "singleTrackTitle": "Faixa Single",
+        "trackCountLabel": "(Faixas a postar: {{total}}... postadas: {{posted}})",
+        "hasParticipantsQuestion": "Há participações nesta faixa?",
+        "yes": "Sim",
+        "no": "Não",
+        "numParticipantsPlaceholder": "Quantos participantes?",
+        "participantName": {
+            "singular": "{{count}} participante",
+            "plural": "{{count}} participantes"
+        },
+        "trackCountOption": {
+            "singular": "{{count}} faixa",
+            "plural": "{{count}} faixas"
+        },
+        "artistNameSong": "Nome do Artista",
+        "participantNamePlaceholder": "Nome do participante {{index}}",
+        "songTitlePlaceholder": "Título da música",
+        "songGenrePlaceholder": "Gênero musical",
+        "producerPlaceholder": "Produzido por",
+        "trackYearPlaceholder": "Ano de lançamento",
+        "trackNumberPlaceholder": "Número da faixa",
+        "uploadAudioButton": "Carregar áudio"
+    },
+    "postBeat": {
+        "headerTitle": "Postar Beat",
+        "uploadCover": "Carregar capa para este beat",
+        "producerNamePlaceholder": "Nome do produtor",
+        "beatTitlePlaceholder": "Título do beat",
+        "beatGenrePlaceholder": "Gênero do beat",
+        "selectLicenseTypePlaceholder": "Selecione o tipo de uso",
+        "licenseTypes": {
+            "exclusive": "Uso Exclusivo",
+            "free": "Uso Livre"
+        },
+        "pricePlaceholder": "Preço (ex: $0,00)",
+        "exclusiveInfo": "🔴O Kiuplay valoriza a exclusividade! Se você está postando um beat para vender aqui, ele não pode estar disponível em outras plataformas ou com outros compradores. Isso protege seus direitos e a confiança dos nossos artistas.",
+        "freeInfo": "🟢Este beat será disponibilizado para uso não exclusivo. Outros artistas poderão adquiri-lo sem custos e utilizá-lo.",
+        "selectFileButton": "Selecionar arquivo",
+        "uploadingFileLabel": "Upload: {{fileName}}",
+        "publishButton": "Publicar beat"
     }
 }

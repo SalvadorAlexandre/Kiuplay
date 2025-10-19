@@ -50,6 +50,14 @@
       "emptyUnread": "No new notifications",
       "read": "Read",
       "emptyRead": "No read notifications"
+    },
+    "optionsListPostTitle": "Choose what you want to post",
+    "buttons": {
+      "postSingle": "Post a single track",
+      "postEP": "Post an Extended Play (EP)",
+      "postAlbum": "Post an Album",
+      "postBeat": "Post an instrumental",
+      "postPromote": "Promote a post"
     }
   },
   "auth": {
@@ -108,5 +116,115 @@
     "title": "Settings",
     "languageTitle": "Select your language",
     "bankInfo": "Bank transaction data are required and will be used by Kiuplay to allow you to buy and sell exclusive-use instrumentals!"
+  },
+  "postFaixaScreen": {
+    "title": "Post Single",
+    "uploadCover": "Upload a cover for this track!",
+    "newTrack": "New Track",
+    "hasParticipantsQuestion": "Are there any featured artists on this track?",
+    "yes": "Yes",
+    "no": "No",
+    "participantsDropdown": "How many participants?",
+    "participant": {
+      "singular": "{{count}} participant",
+      "plural": "{{count}} participants"
+    },
+    "participantNamePlaceholder": "Participant name {{index}}",
+    "fields": {
+      "artistName": "Artist name",
+      "title": "Track title",
+      "genre": "Music genre",
+      "producer": "Producer",
+      "year": "Release year",
+      "trackNumber": "Track number"
+    },
+    "uploadAudio": "Upload audio",
+    "goBack": "Go back"
+  },
+  "postEP": {
+    "headerTitle": "Post EP",
+    "uploadCover": "Upload cover for this EP",
+    "sectionInfoTitle": "EP Information",
+    "artistNamePlaceholder": "Artist Name",
+    "epTitlePlaceholder": "EP Title",
+    "mainGenrePlaceholder": "Main Genre",
+    "numTracksPlaceholder": "Select number of tracks",
+    "releaseYearPlaceholder": "Release Year",
+    "epNumberPlaceholder": "EP Number",
+    "saveEPButton": "Save EP Data",
+    "singleTrackTitle": "Single Track",
+    "trackCountLabel": "(Tracks to post: {{total}}... posted: {{posted}})",
+    "hasParticipantsQuestion": "Are there any featured artists on this track?",
+    "yes": "Yes",
+    "no": "No",
+    "numParticipantsPlaceholder": "How many participants?",
+    "participantName": {
+      "singular": "{{count}} participant",
+      "plural": "{{count}} participants"
+    },
+    "trackCountOption": {
+      "singular": "{{count}} track",
+      "plural": "{{count}} tracks"
+    },
+    "artistNameSong": "Artist Name",
+    "participantNamePlaceholder": "Participant Name {{index}}",
+    "songTitlePlaceholder": "Song Title",
+    "songGenrePlaceholder": "Music Genre",
+    "producerPlaceholder": "Produced by",
+    "trackYearPlaceholder": "Release Year",
+    "trackNumberPlaceholder": "Track Number",
+    "uploadAudioButton": "Upload Audio"
+  },
+  "postAlbum": {
+    "headerTitle": "Post Album",
+    "uploadCover": "Upload cover for this Album",
+    "sectionInfoTitle": "Album Information",
+    "artistNamePlaceholder": "Artist Name",
+    "albumTitlePlaceholder": "Album Title",
+    "mainGenrePlaceholder": "Main Genre",
+    "numTracksPlaceholder": "Select number of tracks",
+    "releaseYearPlaceholder": "Release Year",
+    "albumNumberPlaceholder": "Album Number",
+    "saveAlbumButton": "Save Album Data",
+    "singleTrackTitle": "Single Track",
+    "trackCountLabel": "(Tracks to post: {{total}}... posted: {{posted}})",
+    "hasParticipantsQuestion": "Are there any featured artists on this track?",
+    "yes": "Yes",
+    "no": "No",
+    "numParticipantsPlaceholder": "How many participants?",
+    "participantName": {
+      "singular": "{{count}} participant",
+      "plural": "{{count}} participants"
+    },
+    "trackCountOption": {
+      "singular": "{{count}} track",
+      "plural": "{{count}} tracks"
+    },
+    "artistNameSong": "Artist Name",
+    "participantNamePlaceholder": "Participant Name {{index}}",
+    "songTitlePlaceholder": "Song Title",
+    "songGenrePlaceholder": "Music Genre",
+    "producerPlaceholder": "Produced by",
+    "trackYearPlaceholder": "Release Year",
+    "trackNumberPlaceholder": "Track Number",
+    "uploadAudioButton": "Upload Audio"
+  },
+  "postBeat": {
+    "headerTitle": "Post Beat",
+    "uploadCover": "Upload cover for this beat",
+    "producerNamePlaceholder": "Producer name",
+    "beatTitlePlaceholder": "Beat title",
+    "beatGenrePlaceholder": "Beat genre",
+    "selectLicenseTypePlaceholder": "Select license type",
+    "licenseTypes": {
+      "exclusive": "Exclusive use",
+      "free": "free use"
+    },
+    "pricePlaceholder": "Price (e.g. $0.00)",
+    "exclusiveInfo": "🔴Kiuplay values exclusivity! If you’re posting a beat for sale here, it cannot be available on other platforms or for other buyers. This protects your rights and builds trust with our artists.",
+    "freeInfo": "🟢This beat will be available for non-exclusive use. Other artists may download and use it for free.",
+    "selectFileButton": "Select file",
+    "uploadingFileLabel": "Upload: {{fileName}}",
+    "publishButton": "Publish beat"
   }
 }

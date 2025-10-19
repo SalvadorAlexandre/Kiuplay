@@ -1,3 +1,4 @@
+//app/profileScreens/usePostEPScreen
 import React, { useState } from 'react';
 import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -16,11 +17,16 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { useTranslation } from '@/src/translations/useTranslation'
+
 /**
  * Componente responsável por renderizar a interface de
  * postagem de EP, usando o Hook usePostEP.
  */
 export default function PostEPScreen() {
+
+    const { t } = useTranslation()
+
     const router = useRouter()
     // Importa os estados e manipuladores do Hook
     const {
@@ -41,7 +47,7 @@ export default function PostEPScreen() {
     const [numFaixas, setNumFaixas] = useState<number | null>(null);  // Correção: Tipo number | null para permitir seleção única
     const [numFaixasItems, setNumFaixasItems] = useState<{ label: string; value: number }[]>(
         Array.from({ length: 6 - 3 + 1 }, (_, i) => ({
-            label: `${i + 3} faixas`,  // Correção: label tipado como string
+            label: t('postEP.trackCountOption', { count: i + 3 }),  // Correção: label tipado como string
             value: i + 3,              // Correção: value tipado como number
         }))
     );
@@ -63,7 +69,7 @@ export default function PostEPScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Postar EP',
+                    title: t('postEP.headerTitle'),
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     headerShown: false, // Mostra o cabeçalho superior
@@ -85,17 +91,15 @@ export default function PostEPScreen() {
                         />
                     </TouchableOpacity>
 
-                    <Text style={styles.titleBack}>Postar EP</Text>
+                    <Text style={styles.titleBack}>{t('postEP.headerTitle')}</Text>
                 </View>
-             
+
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
                     style={styles.scroll} // Aplica o estilo de fundo escuro
                     contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
-
-
                     <View style={{
                         width: "100%",
                         marginBottom: 10,
@@ -126,15 +130,14 @@ export default function PostEPScreen() {
                                 <Ionicons name="camera" size={40} color="#fff" />
                             )}
                         </TouchableOpacity>
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>Extended Play de Saag Weelli Boy</Text>
-                        <Text style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>Rap • Pegasus • 2025 </Text>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postEP.uploadCover')}</Text>
                     </View>
 
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Informações do EP</Text>
+                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{t('postEP.sectionInfoTitle')}</Text>
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Nome do Artista"
+                        placeholder={t('postEP.artistNamePlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     //value={nomeArtistaAlbum}
@@ -143,7 +146,7 @@ export default function PostEPScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Título do EP"
+                        placeholder={t('postEP.epTitlePlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     //value={tituloAlbum}
@@ -153,7 +156,7 @@ export default function PostEPScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Gênero principal"
+                        placeholder={t('postEP.mainGenrePlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     //value={generoAlbum}
@@ -171,7 +174,7 @@ export default function PostEPScreen() {
                         setValue={setNumFaixas}  // Correção principal: adicionar setValue para gerenciar a seleção
                         setItems={setNumFaixasItems}
 
-                        placeholder="Seleciona o número de faixas"
+                        placeholder={t('postEP.numTracksPlaceholder')}
                         style={{
                             backgroundColor: '#2a2a2a',
                             marginBottom: 10,
@@ -207,7 +210,7 @@ export default function PostEPScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Ano de lançamento"
+                        placeholder={t('postEP.releaseYearPlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     // value={anoLancamentoAlbum}
@@ -217,7 +220,7 @@ export default function PostEPScreen() {
 
                     <TextInput
                         style={styles.inputTextBox}
-                        placeholder="Número do EP"
+                        placeholder={t('postEP.epNumberPlaceholder')}
                         placeholderTextColor="#FFFF"
 
                     // value={numeroAlbum}
@@ -227,7 +230,8 @@ export default function PostEPScreen() {
 
                     {/*Aqui vem o botao salvar, Equanto o utilizador nao salvar os componentes abaixo comtinuarao desable podes fazer isso companheiro*/}
                     <TouchableOpacity style={styles.uploadArea}>
-                        <Text style={styles.uploadText}>Salvar dados do EP</Text>
+                        <Text style={styles.uploadText}>{t('postEP.saveEPButton')}</Text>
+                        <Ionicons name = 'save' size={20} color={'#fff'}/>
                     </TouchableOpacity>
 
                     <View
@@ -240,19 +244,21 @@ export default function PostEPScreen() {
                             flex: 1
                         }}
                     >
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', }}>Faixa Single</Text>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', }}>{t('postEP.singleTrackTitle')}</Text>
                         {/*QUANDO O UTILIZADOR ESCOLHER O NUMERO DE FAIXAS A POSTAR ESSE TESTO SERA EXIBIDO* */}
                         {numFaixas !== null && (
-                            <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>(Faixas a postar: {numFaixas}...postadas: {postedFaixa})</Text>
+                            <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>
+                                {t('postEP.trackCountLabel', { total: numFaixas, posted: postedFaixa })}
+                            </Text>
                         )}
                     </View>
 
-                    <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>Há participações nesta faixa?</Text>
+                    <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>{t('postEP.hasParticipantsQuestion')}</Text>
 
                     {/* Checkbox Sim / Não */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Checkbox.Item
-                            label="Sim"
+                            label={t('postEP.yes')}
                             status={hasParticipants ? 'checked' : 'unchecked'}
                             onPress={handleHasParticipants}
                             labelStyle={{ color: '#fff', fontSize: 14 }}
@@ -260,7 +266,7 @@ export default function PostEPScreen() {
                             position='leading'
                         />
                         <Checkbox.Item
-                            label="Não"
+                            label={t('postEP.no')}
                             status={noParticipants ? 'checked' : 'unchecked'}
                             onPress={handleNoParticipants}
                             labelStyle={{ color: '#fff', fontSize: 14 }}
@@ -276,7 +282,7 @@ export default function PostEPScreen() {
                                 open={dropdownOpen}
                                 value={numParticipants}
                                 items={Array.from({ length: 20 }, (_, i) => ({
-                                    label: `${i + 1} participante${i + 1 > 1 ? 's' : ''}`,
+                                    label: t('postEP.participantName', { count: i + 1 }),
                                     value: i + 1,
                                 }))}
                                 setOpen={setDropdownOpen}
@@ -284,7 +290,7 @@ export default function PostEPScreen() {
                                     const value = callback(numParticipants);
                                     handleNumParticipantsChange(value as number);
                                 }}
-                                placeholder="Quantos participantes?"
+                                placeholder={t('postEP.numParticipantsPlaceholder')}
                                 style={{
                                     backgroundColor: '#2a2a2a',
                                     marginBottom: 10,
@@ -324,7 +330,7 @@ export default function PostEPScreen() {
                                     style={styles.inputTextBox}
                                     value={name}
                                     onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                    placeholder={`Nome do participante ${index + 1}`}
+                                    placeholder={t('postEP.participantNamePlaceholder', { index: index + 1 })}
                                     placeholderTextColor="#FFFF"
                                 />
                             ))}
@@ -332,18 +338,17 @@ export default function PostEPScreen() {
                     )}
 
                     {/* Campos comuns*/}
-                    <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Ano de lançamento" placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder="Número da faixa" placeholderTextColor="#FFFF" />
-
-
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.artistNameSong')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.songTitlePlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.songGenrePlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.producerPlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.trackYearPlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.trackNumberPlaceholder')} placeholderTextColor="#FFFF" />
 
                     {/* Botão para upload do auddio */}
                     <TouchableOpacity style={styles.uploadArea}>
-                        <Text style={styles.uploadText}>Carregar audio</Text>
-                        <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
+                        <Text style={styles.uploadText}>{t('postEP.uploadAudioButton')}</Text>
+                        <Ionicons name="cloud-upload" size={20} color="#fff" />
                     </TouchableOpacity>
                 </ScrollView>
             </View>

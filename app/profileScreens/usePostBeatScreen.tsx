@@ -1,3 +1,4 @@
+//app/profileScreen/usePostBeatScreen.tsx
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { usePostBeat } from '@/hooks/usePostBeat';
@@ -15,7 +16,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { useTranslation } from '@/src/translations/useTranslation'
+
 export default function PostBeatScreen() {
+
+    const { t } = useTranslation()
+
     const router = useRouter()
     const {
         nomeProdutor, setNomeProdutor,
@@ -53,7 +59,7 @@ export default function PostBeatScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Postar beat',
+                    title: t('postBeat.headerTitle'),
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     //headerTitleStyle: { fontWeight: 'bold' },
@@ -75,7 +81,7 @@ export default function PostBeatScreen() {
                         />
                     </TouchableOpacity>
 
-                    <Text style={styles.titleBack}>Postar Beat</Text>
+                    <Text style={styles.titleBack}>{t('postBeat.headerTitle')}</Text>
                 </View>
                 <ScrollView
                     horizontal={false} // Garante que esta rolagem seja vertical
@@ -114,15 +120,14 @@ export default function PostBeatScreen() {
                                 <Ionicons name="camera" size={40} color="#fff" />
                             )}
                         </TouchableOpacity>
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>Beat de Saag Weelli Boy</Text>
-                        <Text style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>Rap • Pegasus • 2025 </Text>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postBeat.uploadCover')}</Text>
                     </View>
 
                     <TextInput
                         value={nomeProdutor}
                         onChangeText={setNomeProdutor}
                         style={styles.inputTextBox}
-                        placeholder="Nome do produtor"
+                        placeholder = {t('postBeat.producerNamePlaceholder')}
                         placeholderTextColor="#FFFF"
                     //value={nomeArtistaAlbum}
                     //onChangeText={setNomeArtistaAlbum}
@@ -131,7 +136,7 @@ export default function PostBeatScreen() {
                         value={tituloBeat}
                         onChangeText={setTituloBeat}
                         style={styles.inputTextBox}
-                        placeholder="Título do beat"
+                        placeholder={t('postBeat.beatTitlePlaceholder')}
                         placeholderTextColor="#FFFF"
                     />
 
@@ -139,7 +144,7 @@ export default function PostBeatScreen() {
                         value={generoBeat}
                         onChangeText={setGeneroBeat}
                         style={styles.inputTextBox}
-                        placeholder="Gênero do beat"
+                        placeholder={t('postBeat.beatGenrePlaceholder')}
                         placeholderTextColor="#FFFF"
                     />
                     <DropDownPicker
@@ -149,7 +154,7 @@ export default function PostBeatScreen() {
                         setOpen={setTipoLicencaOpen}
                         setValue={setTipoLicenca}
                         setItems={setTipoLicencaItems}
-                        placeholder="Selecione o tipo de uso"
+                        placeholder={t('postBeat.selectLicenseTypePlaceholder')}
 
                         style={{
                             backgroundColor: '#2a2a2a',
@@ -192,34 +197,14 @@ export default function PostBeatScreen() {
                                 placeholderTextColor="FFF"
                                 keyboardType='numeric'
                             />
-                            <Text
-                                style={{
-                                    color: '#aaa',
-                                    fontSize: 15,
-                                    marginBottom: 10
-                                }}>
-                                O Kiuplay valoriza a exclusividade!
-                                Se você está postando um beat para vender aqui,
-                                ele não pode estar disponível em outras plataformas
-                                ou com outros compradores. Isso protege seus direitos
-                                e a confiança dos nossos artistas.🎼
-
-                            </Text>
+                            <Text style={{color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.exclusiveInfo')}</Text>
 
                         </>
 
                     )}
 
                     {tipoLicenca === 'livre' && (
-                        <Text
-                            style={{
-                                color: '#aaa',
-                                fontSize: 15,
-                                marginBottom: 10
-                            }}>
-                            Este beat será disponibilizado para uso não exclusivo.
-                            Outros artistas poderão adquiri-lo sem custos e utilizá-lo.🎵
-                        </Text>
+                        <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10}}>{t('postBeat.freeInfo')}</Text>
                     )}
                     {beatFile && <Text
                         numberOfLines={1}
@@ -230,7 +215,7 @@ export default function PostBeatScreen() {
                             marginBottom: 5,
                             maxWidth: '100%'
                         }}>
-                        Upload: {beatFile.name}
+                        {t('postBeat.uploadingFileLabel', {fileName: beatFile.name})}
                     </Text>}
                     <TouchableOpacity
                         style={{
@@ -243,11 +228,13 @@ export default function PostBeatScreen() {
                             borderRadius: 8,
                             borderWidth: 1,
                             borderColor: '#555',
-                            marginBottom: 10
+                            marginBottom: 10,
+                            gap: 10,
                         }}
                         onPress={pickBeatFile}
                     >
-                        <Text style={{ color: '#fff', fontSize: 16 }}>Selecionar arquivo</Text>
+                        <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
+                        <Ionicons name='save' size={20} color={'#fff'}/>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -261,11 +248,13 @@ export default function PostBeatScreen() {
                             borderRadius: 8,
                             borderWidth: 1,
                             borderColor: '#555',
-                            marginBottom: 10
+                            marginBottom: 10,
+                            gap: 10,
                             // alignSelf: 'flex-start',
                             //marginBottom: 12,
                         }}>
-                        <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Publicar beat</Text>
+                        <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>{t('postBeat.publishButton')}</Text>
+                        <Ionicons name='cloud-upload' size={20} color={'#fff'}/>
                     </TouchableOpacity>
 
                 </ScrollView>

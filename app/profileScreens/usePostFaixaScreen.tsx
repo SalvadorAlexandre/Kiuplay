@@ -16,11 +16,16 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { useTranslation } from '@/src/translations/useTranslation'
+
 /**
  * Componente responsável por renderizar a interface de
  * postagem de Faixa Single, usando o Hook usePostFaixa.
  */
 export default function PostFaixaScreen() {
+
+    const { t } = useTranslation()
+
     const router = useRouter();
     // Importa os estados e manipuladores do Hook
     const {
@@ -50,7 +55,7 @@ export default function PostFaixaScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Postar Single',
+                    title: t('postFaixaScreen.title'),
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     headerShown: false, // Mostra o cabeçalho superior
@@ -72,7 +77,7 @@ export default function PostFaixaScreen() {
                         />
                     </TouchableOpacity>
 
-                    <Text style={styles.titleBack}>Postar Single</Text>
+                    <Text style={styles.titleBack}>{t('postFaixaScreen.title')}</Text>
                 </View>
 
                 <ScrollView
@@ -112,13 +117,12 @@ export default function PostFaixaScreen() {
                                 <Ionicons name="camera" size={40} color="#fff" />
                             )}
                         </TouchableOpacity>
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>Faixa de Saag Weelli Boy</Text>
-                        <Text style={{ color: '#fff', fontSize: 15, marginBottom: 10 }}>Rap • Pegasus • 2025 </Text>
+                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postFaixaScreen.uploadCover')}</Text>
                     </View>
 
 
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Faixa Single</Text>
-                    <Text style={styles.texto}>Há participações nesta faixa?</Text>
+                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{t('postFaixaScreen.newTrack')}</Text>
+                    <Text style={styles.texto}>{t('postFaixaScreen.hasParticipantsQuestion')}</Text>
                     <KeyboardAvoidingView
                         style={{ flex: 1, }}
                         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -126,7 +130,7 @@ export default function PostFaixaScreen() {
                         {/* Checkbox Sim / Não */}
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Checkbox.Item
-                                label="Sim"
+                                label={t('postFaixaScreen.yes')}
                                 status={hasParticipants ? 'checked' : 'unchecked'}
                                 onPress={handleHasParticipants}
                                 labelStyle={{ color: '#fff', fontSize: 14 }}
@@ -134,7 +138,7 @@ export default function PostFaixaScreen() {
                                 position='leading'
                             />
                             <Checkbox.Item
-                                label="Não"
+                                label={t('postFaixaScreen.no')}
                                 status={noParticipants ? 'checked' : 'unchecked'}
                                 onPress={handleNoParticipants}
                                 labelStyle={{ color: '#fff', fontSize: 14 }}
@@ -150,7 +154,7 @@ export default function PostFaixaScreen() {
                                     open={dropdownOpen}
                                     value={numParticipants}
                                     items={Array.from({ length: 20 }, (_, i) => ({
-                                        label: `${i + 1} participante${i + 1 > 1 ? 's' : ''}`,
+                                        label: t('postFaixaScreen.participant', { count: i + 1 }),
                                         value: i + 1,
                                     }))}
                                     setOpen={setDropdownOpen}
@@ -158,7 +162,7 @@ export default function PostFaixaScreen() {
                                         const value = callback(numParticipants);
                                         handleNumParticipantsChange(value as number);
                                     }}
-                                    placeholder="Quantos participantes?"
+                                    placeholder={t('postFaixaScreen.participantsDropdown')}
                                     style={{
                                         backgroundColor: '#2a2a2a',
                                         marginBottom: 10,
@@ -199,7 +203,7 @@ export default function PostFaixaScreen() {
                                         style={styles.inputTextBox}
                                         value={name}
                                         onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                        placeholder={`Nome do participante ${index + 1}`}
+                                        placeholder={t('postFaixaScreen.participantNamePlaceholder', {index: index + 1})}
                                         placeholderTextColor="#FFFF"
                                     />
                                 ))}
@@ -208,16 +212,17 @@ export default function PostFaixaScreen() {
 
 
                         {/* Campos comuns*/}
-                        <TextInput style={styles.inputTextBox} placeholder="Título da músca" placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder="Gênero musical" placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder="Produtor" placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder="Ano de lançamento" placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder="Número da faixa" placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.artistName')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.title')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.genre')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.producer')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.year')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.trackNumber')} placeholderTextColor="#FFFF" />
 
                         {/* Botão para upload do auddio */}
                         <TouchableOpacity style={styles.uploadArea}>
-                            <Text style={styles.uploadText}>Carregar audio</Text>
-                            <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
+                            <Text style={styles.uploadText}>{t('postFaixaScreen.uploadAudio')}</Text>
+                            <Ionicons name="cloud-upload" size={20} color="#fff" />
                         </TouchableOpacity>
                     </KeyboardAvoidingView>
                 </ScrollView>

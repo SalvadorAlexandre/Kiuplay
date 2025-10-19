@@ -522,7 +522,10 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 120,
         releaseYear: '2023', // Adicionado releaseYear
-        isBuyed: true,
+        artistId: 'artist-1',
+        currentOwnerId: 'artist-2',
+        isAvailableForSale: true,
+        isExclusiveSale: true,
     } as ExclusiveBeat,
     {
         id: 'beat-store-2',
@@ -583,7 +586,10 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 102,
         releaseYear: '2024', // Adicionado releaseYear
-        isBuyed: true,
+        artistId: 'artist-1',
+        currentOwnerId: 'artist-2',
+        isAvailableForSale: true,
+        isExclusiveSale: true,
     } as ExclusiveBeat,
     {
         id: 'beat-store-4',
@@ -644,7 +650,10 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         category: 'beat', // Categoria é 'beat'
         bpm: 85,
         releaseYear: '2024', // Adicionado releaseYear
-        isBuyed: false,
+        artistId: "artist-saag-001",
+        currentOwnerId: 'artist-2',
+        isAvailableForSale: true,
+        isExclusiveSale: true,
     } as ExclusiveBeat,
 ];
 
