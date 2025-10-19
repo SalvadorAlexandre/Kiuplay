@@ -1,4 +1,5 @@
 //app/profileScreen/usePostBeatScreen.tsx
+import React, { useRef, useEffect } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { usePostBeat } from '@/hooks/usePostBeat';
@@ -13,12 +14,18 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
+    Animated,
+    Easing,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useTranslation } from '@/src/translations/useTranslation'
 
+import CurrencyInput from 'react-native-currency-input'; // ✅ Importamos o novo componente
+
 export default function PostBeatScreen() {
+
+
 
     const { t } = useTranslation()
 
@@ -27,13 +34,16 @@ export default function PostBeatScreen() {
         nomeProdutor, setNomeProdutor,
         tituloBeat, setTituloBeat,
         generoBeat, setGeneroBeat,
-        preco, setPreco,
+        preco, handlePrecoChange,
         tipoLicencaOpen, setTipoLicencaOpen,
         tipoLicenca, setTipoLicenca,
         tipoLicencaItems, setTipoLicencaItems,
         capaBeat, setCapaBeat,
         beatFile, setBeatFile,
+        precoPlaceholder,
+        precoError, setPreco
     } = usePostBeat();
+
 
     const pickBeatFile = async () => {
         let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
@@ -54,6 +64,7 @@ export default function PostBeatScreen() {
         });
         if (!result.canceled) setCapaBeat(result.assets[0]);
     };
+
 
     return (
         <>
@@ -127,7 +138,7 @@ export default function PostBeatScreen() {
                         value={nomeProdutor}
                         onChangeText={setNomeProdutor}
                         style={styles.inputTextBox}
-                        placeholder = {t('postBeat.producerNamePlaceholder')}
+                        placeholder={t('postBeat.producerNamePlaceholder')}
                         placeholderTextColor="#FFFF"
                     //value={nomeArtistaAlbum}
                     //onChangeText={setNomeArtistaAlbum}
@@ -189,22 +200,32 @@ export default function PostBeatScreen() {
                     />
                     {tipoLicenca === 'exclusivo' && (
                         <>
-                            <TextInput
-                                style={styles.inputTextBox}
-                                //value='preco'
-                                onChangeText={setPreco}
-                                placeholder='$0,00'
-                                placeholderTextColor="FFF"
-                                keyboardType='numeric'
-                            />
-                            <Text style={{color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.exclusiveInfo')}</Text>
+                            <CurrencyInput
+                                value={preco} // ✅ Passamos o valor NUMÉRICO (number | null)
+                                onChangeValue={handlePrecoChange} // ✅ Receberá o valor numérico limpo
 
+                                // --- Opções de Formatação de Moeda (USD) ---
+                                prefix="$"
+                                delimiter="." // Separador de milhar (ex: 1.000)
+                                separator="," // Separador decimal (ex: 0,00)
+                                precision={2} // Duas casas decimais
+
+                                // Props visuais
+                                keyboardType="numeric"
+                                placeholder={precoPlaceholder}
+                                style={[
+                                    styles.inputTextBox,
+                                    { borderColor: precoError ? 'red' : '#555' }
+                                ]}
+                            />
+                            {precoError && <Text style={styles.errorText}>{precoError}</Text>}
+                            <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.exclusiveInfo')}</Text>
                         </>
 
                     )}
 
                     {tipoLicenca === 'livre' && (
-                        <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10}}>{t('postBeat.freeInfo')}</Text>
+                        <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.freeInfo')}</Text>
                     )}
                     {beatFile && <Text
                         numberOfLines={1}
@@ -215,7 +236,7 @@ export default function PostBeatScreen() {
                             marginBottom: 5,
                             maxWidth: '100%'
                         }}>
-                        {t('postBeat.uploadingFileLabel', {fileName: beatFile.name})}
+                        {t('postBeat.uploadingFileLabel', { fileName: beatFile.name })}
                     </Text>}
                     <TouchableOpacity
                         style={{
@@ -234,7 +255,7 @@ export default function PostBeatScreen() {
                         onPress={pickBeatFile}
                     >
                         <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
-                        <Ionicons name='save' size={20} color={'#fff'}/>
+                        <Ionicons name='save' size={20} color={'#fff'} />
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -254,7 +275,7 @@ export default function PostBeatScreen() {
                             //marginBottom: 12,
                         }}>
                         <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>{t('postBeat.publishButton')}</Text>
-                        <Ionicons name='cloud-upload' size={20} color={'#fff'}/>
+                        <Ionicons name='cloud-upload' size={20} color={'#fff'} />
                     </TouchableOpacity>
 
                 </ScrollView>
@@ -280,14 +301,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     inputTextBox: {
-        backgroundColor: '#2a2a2a',
-        paddingHorizontal: 11,
-        height: 35,
-        borderRadius: 6,
+        backgroundColor: '#2a2a2a',   // mantém o fundo escuro elegante
+        paddingHorizontal: 14,        // mais espaço interno horizontal
+        paddingVertical: 10,          // aumenta a altura sem forçar o height fixo
+        borderRadius: 8,              // cantos mais suaves
         borderWidth: 1,
-        borderColor: '#555',
-        color: '#fff',
-        marginBottom: 10,
+        borderColor: '#555',          // cor neutra quando sem erro
+        color: '#fff',                // texto branco para contraste
+        fontSize: 16,                 // tamanho de fonte confortável
+        marginBottom: 12,             // espaçamento entre campos
         width: '100%',
     },
     uploadArea: {
@@ -329,5 +351,12 @@ const styles = StyleSheet.create({
         marginLeft: 14,
         flex: 1,
         //textAlign: 'center',
+    },
+    errorText: {
+        color: '#FF4D4D',
+        fontSize: 16,
+        marginTop: 4,
+        marginBottom: 5,
+        fontStyle: 'italic',
     },
 })

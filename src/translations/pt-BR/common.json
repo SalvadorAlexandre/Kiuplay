@@ -220,11 +220,17 @@
             "exclusive": "Uso Exclusivo",
             "free": "Uso Livre"
         },
-        "pricePlaceholder": "Preço (ex: $0,00)",
+        "pricePlaceholder": "Digite o preço",
         "exclusiveInfo": "🔴O Kiuplay valoriza a exclusividade! Se você está postando um beat para vender aqui, ele não pode estar disponível em outras plataformas ou com outros compradores. Isso protege seus direitos e a confiança dos nossos artistas.",
         "freeInfo": "🟢Este beat será disponibilizado para uso não exclusivo. Outros artistas poderão adquiri-lo sem custos e utilizá-lo.",
         "selectFileButton": "Selecionar arquivo",
         "uploadingFileLabel": "Upload: {{fileName}}",
-        "publishButton": "Publicar beat"
+        "publishButton": "Publicar beat",
+        "errors": {
+            "onlyNumbers": "⚠️Somente números são permitidos",
+            "minValue": "O valor mínimo permitido é",
+            "maxValue": "O valor máximo permitido é"
+        }
+       
     }
 }

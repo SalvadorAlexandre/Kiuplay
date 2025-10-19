@@ -104,10 +104,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (persistedToken) {
           // 🛑 SIMULAÇÃO DOS DADOS DE MOEDA VINDO DA SESSÃO/TOKEN
           const mockUserId = 'user-123';
-          const mockLocale = 'en-US'; // Ex: Pode vir do token ou do dispositivo
-          const mockCurrencyCode = 'USD'; // Ex: Pode vir do token ou do backend
+          const mockLocale = 'pt-AO'; // Ex: IDIOMA PARA DEFINIR A MOEDA
+          const mockCurrencyCode = 'AOA'; // Ex: REGIÃO PARA DEFINIR A MOEDA, O IDIOMA E A REGIA SAO COMBINADOS PARA DEFINIR A MOEDA
           const mockAccountRegion = 'US'; // <--- CORREÇÃO 5: NOVO MOCK PARA REGIÃO DA CONTA
 
+        {/** EXEMPLO DE CODIGOS PARA TROCAR A MOED
+           pt-AO, AOA
+           pt-PT, EUR
+           pt-BR, BRL
+           en-US, USD
+           en-GB, GBP
+           ja-JP, JPY
+          */}
 
           // 🛑 ENVIAR DADOS DE SESSÃO E MOEDA PARA O REDUX (no carregamento inicial)
           dispatch(setAuthSession({
