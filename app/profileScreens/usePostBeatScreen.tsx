@@ -166,11 +166,23 @@ export default function PostBeatScreen() {
                         placeholder={t('postBeat.beatGenrePlaceholder')}
                         placeholderTextColor="#FFFF"
                     />
+
+                    {/* ✅ Combo box de seleção de tipo de licensa */}
                     <DropDownPicker
                         open={tipoLicencaOpen}
                         value={tipoLicenca}
                         items={tipoLicencaItems}
-                        setOpen={setTipoLicencaOpen}
+                        // ✅ Ajuste do setOpen para TypeScript + fechar o outro picker
+                        setOpen={(stateOrCallback) => {
+                            const newState = typeof stateOrCallback === 'function'
+                                ? stateOrCallback(tipoLicencaOpen)
+                                : stateOrCallback;
+
+                            setTipoLicencaOpen(newState);
+
+                            // Se este picker abrir, fecha o picker de moeda
+                            if (newState) setCurrencyPickerOpen(false);
+                        }}
                         setValue={setTipoLicenca}
                         setItems={setTipoLicencaItems}
                         placeholder={t('postBeat.selectLicenseTypePlaceholder')}
@@ -187,6 +199,8 @@ export default function PostBeatScreen() {
                             backgroundColor: '#2a2a2a',
                             borderColor: '#fff',
                             borderWidth: 1,
+                            zIndex: 1000,
+                            elevation: 1000,
                         }}
                         TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
                         ArrowDownIconComponent={() => (
@@ -213,12 +227,21 @@ export default function PostBeatScreen() {
                                 open={currencyPickerOpen}
                                 value={selectedCurrency}
                                 items={availableCurrencies.map(opt => ({ label: opt.label, value: opt.value }))}
-                                setOpen={setCurrencyPickerOpen} // (podes implementar se quiser animar)
+                                //setOpen={setCurrencyPickerOpen} // (podes implementar se quiser animar)
                                 // ✅ CORREÇÃO: Repasse o valor diretamente para handleCurrencyChange
                                 // A função de setValue do DropDownPicker espera uma função que aceita o valor.
                                 // Usamos um callback simples para satisfazer o tipo e chamar sua função.
+                                setOpen={(stateOrCallback) => {
+                                    const newState = typeof stateOrCallback === 'function'
+                                        ? stateOrCallback(currencyPickerOpen)
+                                        : stateOrCallback;
+
+                                    setCurrencyPickerOpen(newState);
+
+                                    // Se este picker abrir, fecha o picker de licença
+                                    if (newState) setTipoLicencaOpen(false);
+                                }}
                                 setValue={(callbackOrValue) => {
-                                    // Se for um callback (como setEstado), resolvemos. Senão, usamos o valor.
                                     const newValue = typeof callbackOrValue === 'function'
                                         ? callbackOrValue(selectedCurrency)
                                         : callbackOrValue;
@@ -240,6 +263,8 @@ export default function PostBeatScreen() {
                                     backgroundColor: '#2a2a2a',
                                     borderColor: '#fff',
                                     borderWidth: 1,
+                                    zIndex: 1000,
+                                    elevation: 1000,
                                 }}
                                 TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
                                 ArrowDownIconComponent={() => (

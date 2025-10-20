@@ -93,6 +93,8 @@ export const usePostBeat = () => {
 
     // ✅ Estado 'preco' para o valor NUMÉRICO (necessário para CurrencyInput)
     const [preco, setPreco] = useState<number | null>(null);
+    // ✅ NOVO ESTADO: Para controlar se o DropDownPicker está aberto
+    const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
 
     const [tipoLicencaOpen, setTipoLicencaOpen] = useState(false)
     const [tipoLicenca, setTipoLicenca] = useState<string | null>(null);
@@ -101,8 +103,7 @@ export const usePostBeat = () => {
     const [beatFile, setBeatFile] = useState<any>(null);
     const [precoError, setPrecoError] = useState<string | null>(null);
 
-    // ✅ NOVO ESTADO: Para controlar se o DropDownPicker está aberto
-    const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
+
 
 
     // ✅ Atualiza os textos das opções sempre que o idioma mudar (Sem Alteração)
