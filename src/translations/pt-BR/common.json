@@ -226,11 +226,22 @@
         "selectFileButton": "Selecionar arquivo",
         "uploadingFileLabel": "Upload: {{fileName}}",
         "publishButton": "Publicar beat",
+        "selectCurrencyPlaceholder": "Selecione a moeda",
         "errors": {
             "onlyNumbers": "⚠️Somente números são permitidos",
             "minValue": "O valor mínimo permitido é",
             "maxValue": "O valor máximo permitido é"
+        },
+        "currency": {
+            "global": "Global",
+            "local": "Local"
+        },
+        "currencyNames": {
+            "USD": "Dólar Americano",
+            "EUR": "Euro",
+            "AOA": "Kwanza Angolano",
+            "BRL": "Real Brasileiro",
+            "MZN": "Metical Moçambicano"
         }
-       
     }
 }

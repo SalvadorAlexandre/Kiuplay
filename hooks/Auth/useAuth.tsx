@@ -8,6 +8,8 @@ import { useAppDispatch } from '@/src/redux/hooks';
 import { setAuthSession, logoutUser } from '@/src/redux/userSessionAndCurrencySlice';
 import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
 
+import { getCurrencyByLocale } from '@/src/utils/currencyMapper';
+
 
 // =========================================================================
 // 1. DEFINIÇÃO DA INTERFACE DO CONTEXTO
@@ -105,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // 🛑 SIMULAÇÃO DOS DADOS DE MOEDA VINDO DA SESSÃO/TOKEN
           const mockUserId = 'user-123';
           const mockLocale = 'pt-AO'; // Ex: IDIOMA PARA DEFINIR A MOEDA
-          const mockCurrencyCode = 'AOA'; // Ex: REGIÃO PARA DEFINIR A MOEDA, O IDIOMA E A REGIA SAO COMBINADOS PARA DEFINIR A MOEDA
+          const mockCurrencyCode = getCurrencyByLocale(mockLocale); // Ex: REGIÃO PARA DEFINIR A MOEDA, O IDIOMA E A REGIA SAO COMBINADOS PARA DEFINIR A MOEDA
           const mockAccountRegion = 'US'; // <--- CORREÇÃO 5: NOVO MOCK PARA REGIÃO DA CONTA
 
         {/** EXEMPLO DE CODIGOS PARA TROCAR A MOED
@@ -115,6 +117,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
            en-US, USD
            en-GB, GBP
            ja-JP, JPY
+           const mockLocale = 'pt-AO'; // Ex: IDIOMA PARA DEFINIR A MOEDA
+          const mockCurrencyCode = 'AOA'; // Ex: REGIÃO PARA DEFINIR A MOEDA, O IDIOMA E A REGIA SAO COMBINADOS PARA DEFINIR A MOEDA
           */}
 
           // 🛑 ENVIAR DADOS DE SESSÃO E MOEDA PARA O REDUX (no carregamento inicial)

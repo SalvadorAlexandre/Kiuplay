@@ -41,7 +41,15 @@ export default function PostBeatScreen() {
         capaBeat, setCapaBeat,
         beatFile, setBeatFile,
         precoPlaceholder,
-        precoError, setPreco
+        precoError, setPreco,
+
+        // 👇 ADICIONA ESTES NOVOS RETORNOS:
+        availableCurrencies,
+        selectedCurrency,
+        handleCurrencyChange,
+        currentCurrencySymbol,
+
+        setCurrencyPickerOpen, currencyPickerOpen
     } = usePostBeat();
 
 
@@ -200,33 +208,75 @@ export default function PostBeatScreen() {
                     />
                     {tipoLicenca === 'exclusivo' && (
                         <>
+                            {/* ✅ Combo box de seleção de moeda */}
+                            <DropDownPicker
+                                open={currencyPickerOpen}
+                                value={selectedCurrency}
+                                items={availableCurrencies.map(opt => ({ label: opt.label, value: opt.value }))}
+                                setOpen={setCurrencyPickerOpen} // (podes implementar se quiser animar)
+                                // ✅ CORREÇÃO: Repasse o valor diretamente para handleCurrencyChange
+                                // A função de setValue do DropDownPicker espera uma função que aceita o valor.
+                                // Usamos um callback simples para satisfazer o tipo e chamar sua função.
+                                setValue={(callbackOrValue) => {
+                                    // Se for um callback (como setEstado), resolvemos. Senão, usamos o valor.
+                                    const newValue = typeof callbackOrValue === 'function'
+                                        ? callbackOrValue(selectedCurrency)
+                                        : callbackOrValue;
+
+                                    if (typeof newValue === 'string') {
+                                        handleCurrencyChange(newValue);
+                                    }
+                                }}
+                                placeholder={t('postBeat.selectCurrencyPlaceholder')}
+                                style={{
+                                    backgroundColor: '#2a2a2a',
+                                    marginBottom: 10,
+                                    borderWidth: 1,
+                                    borderColor: '#555',
+                                }}
+                                textStyle={{ color: '#fff' }}
+                                placeholderStyle={{ color: '#ccc' }}
+                                dropDownContainerStyle={{
+                                    backgroundColor: '#2a2a2a',
+                                    borderColor: '#fff',
+                                    borderWidth: 1,
+                                }}
+                                TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                                ArrowDownIconComponent={() => (
+                                    <Ionicons name="chevron-down" size={20} color="#fff" />
+                                )}
+                                ArrowUpIconComponent={() => (
+                                    <Ionicons name="chevron-up" size={20} color="#fff" />
+                                )}
+                            />
+
+                            {/* ✅ Campo de preço com símbolo dinâmico */}
                             <CurrencyInput
-                                value={preco} // ✅ Passamos o valor NUMÉRICO (number | null)
-                                onChangeValue={handlePrecoChange} // ✅ Receberá o valor numérico limpo
-
-                                // --- Opções de Formatação de Moeda (USD) ---
-                                prefix="$"
-                                delimiter="." // Separador de milhar (ex: 1.000)
-                                separator="," // Separador decimal (ex: 0,00)
-                                precision={2} // Duas casas decimais
-
-                                // Props visuais
+                                value={preco}
+                                onChangeValue={handlePrecoChange}
+                                prefix={`${currentCurrencySymbol} `}
+                                delimiter="."
+                                separator=","
+                                precision={2}
                                 keyboardType="numeric"
                                 placeholder={precoPlaceholder}
                                 style={[
                                     styles.inputTextBox,
-                                    { borderColor: precoError ? 'red' : '#555' }
+                                    { borderColor: precoError ? 'red' : '#555' },
                                 ]}
                             />
                             {precoError && <Text style={styles.errorText}>{precoError}</Text>}
-                            <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.exclusiveInfo')}</Text>
+
+                            <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>
+                                {t('postBeat.exclusiveInfo')}
+                            </Text>
                         </>
-
                     )}
-
                     {tipoLicenca === 'livre' && (
                         <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.freeInfo')}</Text>
                     )}
+
+
                     {beatFile && <Text
                         numberOfLines={1}
                         ellipsizeMode='tail'

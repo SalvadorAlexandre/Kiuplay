@@ -385,14 +385,15 @@ export const styles = StyleSheet.create({
         fontSize: 16,
     },
     inputTextBox: {
-        backgroundColor: '#2a2a2a',
-        paddingHorizontal: 11,
-        height: 35,
-        borderRadius: 6,
+        backgroundColor: '#2a2a2a',   // mantém o fundo escuro elegante
+        paddingHorizontal: 14,        // mais espaço interno horizontal
+        paddingVertical: 10,          // aumenta a altura sem forçar o height fixo
+        borderRadius: 8,              // cantos mais suaves
         borderWidth: 1,
-        borderColor: '#555',
-        color: '#fff',
-        marginBottom: 10,
+        borderColor: '#555',          // cor neutra quando sem erro
+        color: '#fff',                // texto branco para contraste
+        fontSize: 16,                 // tamanho de fonte confortável
+        marginBottom: 12,             // espaçamento entre campos
         width: '100%',
     },
     uploadArea: {
