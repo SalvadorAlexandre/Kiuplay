@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (persistedToken) {
           // 🛑 SIMULAÇÃO DOS DADOS DE MOEDA VINDO DA SESSÃO/TOKEN
           const mockUserId = 'user-123';
-          const mockLocale = 'pt-AO'; // Ex: IDIOMA PARA DEFINIR A MOEDA
+          const mockLocale = 'en-GB'; // Ex: IDIOMA PARA DEFINIR A MOEDA
           const mockCurrencyCode = getCurrencyByLocale(mockLocale); // Ex: REGIÃO PARA DEFINIR A MOEDA, O IDIOMA E A REGIA SAO COMBINADOS PARA DEFINIR A MOEDA
           const mockAccountRegion = 'US'; // <--- CORREÇÃO 5: NOVO MOCK PARA REGIÃO DA CONTA
 

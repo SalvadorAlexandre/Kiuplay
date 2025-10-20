@@ -168,140 +168,153 @@ export default function PostBeatScreen() {
                     />
 
                     {/* ✅ Combo box de seleção de tipo de licensa */}
-                    <DropDownPicker
-                        open={tipoLicencaOpen}
-                        value={tipoLicenca}
-                        items={tipoLicencaItems}
-                        // ✅ Ajuste do setOpen para TypeScript + fechar o outro picker
-                        setOpen={(stateOrCallback) => {
-                            const newState = typeof stateOrCallback === 'function'
-                                ? stateOrCallback(tipoLicencaOpen)
-                                : stateOrCallback;
-
-                            setTipoLicencaOpen(newState);
-
-                            // Se este picker abrir, fecha o picker de moeda
-                            if (newState) setCurrencyPickerOpen(false);
-                        }}
-                        setValue={setTipoLicenca}
-                        setItems={setTipoLicencaItems}
-                        placeholder={t('postBeat.selectLicenseTypePlaceholder')}
-
-                        style={{
-                            backgroundColor: '#2a2a2a',
-                            marginBottom: 10,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                        }}
-                        textStyle={{ color: '#fff' }}
-                        placeholderStyle={{ color: '#ccc' }}
-                        dropDownContainerStyle={{
-                            backgroundColor: '#2a2a2a',
-                            borderColor: '#fff',
-                            borderWidth: 1,
-                            zIndex: 1000,
-                            elevation: 1000,
-                        }}
-                        TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                        ArrowDownIconComponent={() => (
-                            <Ionicons
-                                name='chevron-down'
-                                size={20}
-                                color='#fff'
-                                style={{ transform: [{ rotate: tipoLicencaOpen ? '180deg' : '0deg' }] }}
-                            />
-                        )}
-                        ArrowUpIconComponent={() => (
-                            <Ionicons
-                                name='chevron-up'
-                                size={20}
-                                color='#fff'
-                                style={{ transform: [{ rotate: tipoLicencaOpen ? '0deg' : '180deg' }] }}
-                            />
-                        )}
-                    />
-                    {tipoLicenca === 'exclusivo' && (
-                        <>
-                            {/* ✅ Combo box de seleção de moeda */}
-                            <DropDownPicker
-                                open={currencyPickerOpen}
-                                value={selectedCurrency}
-                                items={availableCurrencies.map(opt => ({ label: opt.label, value: opt.value }))}
-                                //setOpen={setCurrencyPickerOpen} // (podes implementar se quiser animar)
-                                // ✅ CORREÇÃO: Repasse o valor diretamente para handleCurrencyChange
-                                // A função de setValue do DropDownPicker espera uma função que aceita o valor.
-                                // Usamos um callback simples para satisfazer o tipo e chamar sua função.
-                                setOpen={(stateOrCallback) => {
-                                    const newState = typeof stateOrCallback === 'function'
-                                        ? stateOrCallback(currencyPickerOpen)
+                    {/* ✅ Envolve tudo em uma View para controlar o empilhamento */}
+                    <View style={{ zIndex: 2000 }}>
+                        {/* ✅ Combo box de seleção de tipo de licença */}
+                        <DropDownPicker
+                            open={tipoLicencaOpen}
+                            value={tipoLicenca}
+                            items={tipoLicencaItems}
+                            // ✅ Ajuste do setOpen para TypeScript + fechar o outro picker
+                            setOpen={(stateOrCallback) => {
+                                const newState =
+                                    typeof stateOrCallback === 'function'
+                                        ? stateOrCallback(tipoLicencaOpen)
                                         : stateOrCallback;
 
-                                    setCurrencyPickerOpen(newState);
+                                setTipoLicencaOpen(newState);
 
-                                    // Se este picker abrir, fecha o picker de licença
-                                    if (newState) setTipoLicencaOpen(false);
-                                }}
-                                setValue={(callbackOrValue) => {
-                                    const newValue = typeof callbackOrValue === 'function'
-                                        ? callbackOrValue(selectedCurrency)
-                                        : callbackOrValue;
+                                // Se este picker abrir, fecha o picker de moeda
+                                if (newState) setCurrencyPickerOpen(false);
+                            }}
+                            setValue={setTipoLicenca}
+                            setItems={setTipoLicencaItems}
+                            placeholder={t('postBeat.selectLicenseTypePlaceholder')}
+                            style={{
+                                backgroundColor: '#2a2a2a',
+                                marginBottom: 10,
+                                borderWidth: 1,
+                                borderColor: '#555',
+                            }}
+                            textStyle={{ color: '#fff' }}
+                            placeholderStyle={{ color: '#ccc' }}
+                            dropDownContainerStyle={{
+                                backgroundColor: '#2a2a2a',
+                                borderColor: '#fff',
+                                borderWidth: 1,
+                                zIndex: 3000, // ⬆️ prioridade mais alta
+                                elevation: 3000,
+                            }}
+                            TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                            ArrowDownIconComponent={() => (
+                                <Ionicons
+                                    name='chevron-down'
+                                    size={20}
+                                    color='#fff'
+                                    style={{ transform: [{ rotate: tipoLicencaOpen ? '180deg' : '0deg' }] }}
+                                />
+                            )}
+                            ArrowUpIconComponent={() => (
+                                <Ionicons
+                                    name='chevron-up'
+                                    size={20}
+                                    color='#fff'
+                                    style={{ transform: [{ rotate: tipoLicencaOpen ? '0deg' : '180deg' }] }}
+                                />
+                            )}
+                        />
 
-                                    if (typeof newValue === 'string') {
-                                        handleCurrencyChange(newValue);
-                                    }
-                                }}
-                                placeholder={t('postBeat.selectCurrencyPlaceholder')}
-                                style={{
-                                    backgroundColor: '#2a2a2a',
-                                    marginBottom: 10,
-                                    borderWidth: 1,
-                                    borderColor: '#555',
-                                }}
-                                textStyle={{ color: '#fff' }}
-                                placeholderStyle={{ color: '#ccc' }}
-                                dropDownContainerStyle={{
-                                    backgroundColor: '#2a2a2a',
-                                    borderColor: '#fff',
-                                    borderWidth: 1,
-                                    zIndex: 1000,
-                                    elevation: 1000,
-                                }}
-                                TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                                ArrowDownIconComponent={() => (
-                                    <Ionicons name="chevron-down" size={20} color="#fff" />
-                                )}
-                                ArrowUpIconComponent={() => (
-                                    <Ionicons name="chevron-up" size={20} color="#fff" />
-                                )}
-                            />
+                        {tipoLicenca === 'exclusivo' && (
+                            <View style={{ zIndex: 1000 }}> {/* 🔹 prioridade menor, mas ainda acima do resto */}
+                                {/* ✅ Combo box de seleção de moeda */}
+                                <DropDownPicker
+                                    open={currencyPickerOpen}
+                                    value={selectedCurrency}
+                                    items={availableCurrencies.map(opt => ({
+                                        label: opt.label,
+                                        value: opt.value,
+                                    }))}
+                                    setOpen={(stateOrCallback) => {
+                                        const newState =
+                                            typeof stateOrCallback === 'function'
+                                                ? stateOrCallback(currencyPickerOpen)
+                                                : stateOrCallback;
 
-                            {/* ✅ Campo de preço com símbolo dinâmico */}
-                            <CurrencyInput
-                                value={preco}
-                                onChangeValue={handlePrecoChange}
-                                prefix={`${currentCurrencySymbol} `}
-                                delimiter="."
-                                separator=","
-                                precision={2}
-                                keyboardType="numeric"
-                                placeholder={precoPlaceholder}
-                                style={[
-                                    styles.inputTextBox,
-                                    { borderColor: precoError ? 'red' : '#555' },
-                                ]}
-                            />
-                            {precoError && <Text style={styles.errorText}>{precoError}</Text>}
+                                        setCurrencyPickerOpen(newState);
 
+                                        // Se este picker abrir, fecha o picker de licença
+                                        if (newState) setTipoLicencaOpen(false);
+                                    }}
+                                    setValue={(callbackOrValue) => {
+                                        const newValue =
+                                            typeof callbackOrValue === 'function'
+                                                ? callbackOrValue(selectedCurrency)
+                                                : callbackOrValue;
+
+                                        if (typeof newValue === 'string') {
+                                            handleCurrencyChange(newValue);
+                                        }
+                                    }}
+                                    placeholder={t('postBeat.selectCurrencyPlaceholder')}
+                                    style={{
+                                        backgroundColor: '#2a2a2a',
+                                        marginBottom: 10,
+                                        borderWidth: 1,
+                                        borderColor: '#555',
+                                    }}
+                                    textStyle={{ color: '#fff' }}
+                                    placeholderStyle={{ color: '#ccc' }}
+                                    dropDownContainerStyle={{
+                                        backgroundColor: '#2a2a2a',
+                                        borderColor: '#fff',
+                                        borderWidth: 1,
+                                        zIndex: 2000,
+                                        elevation: 2000,
+                                    }}
+                                    TickIconComponent={() => (
+                                        <Ionicons name='checkmark' size={20} color={'#fff'} />
+                                    )}
+                                    ArrowDownIconComponent={() => (
+                                        <Ionicons name='chevron-down' size={20} color='#fff' />
+                                    )}
+                                    ArrowUpIconComponent={() => (
+                                        <Ionicons name='chevron-up' size={20} color='#fff' />
+                                    )}
+                                />
+
+                                {/* ✅ Campo de preço com símbolo dinâmico */}
+                                <CurrencyInput
+                                    value={preco}
+                                    onChangeValue={handlePrecoChange}
+                                    prefix={`${currentCurrencySymbol} `}
+                                    delimiter='.'
+                                    separator=','
+                                    precision={2}
+                                    keyboardType='numeric'
+                                    placeholder={precoPlaceholder}
+                                    style={[
+                                        styles.inputTextBox,
+                                        { borderColor: precoError ? 'red' : '#555' },
+                                    ]}
+                                />
+                                {precoError && <Text style={styles.errorText}>{precoError}</Text>}
+
+                                <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>
+                                    {t('postBeat.exclusiveInfo')}
+                                </Text>
+                            </View>
+                        )}
+
+                        {tipoLicenca === 'livre' && (
                             <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>
-                                {t('postBeat.exclusiveInfo')}
+                                {t('postBeat.freeInfo')}
                             </Text>
-                        </>
-                    )}
+                        )}
+                    </View>
+                    {/** 
                     {tipoLicenca === 'livre' && (
                         <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.freeInfo')}</Text>
-                    )}
-
-
+                    )}*/}
                     {beatFile && <Text
                         numberOfLines={1}
                         ellipsizeMode='tail'
