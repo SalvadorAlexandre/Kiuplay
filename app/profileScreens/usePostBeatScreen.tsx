@@ -14,9 +14,8 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
-    Animated,
-    Easing,
 } from 'react-native';
+import { Checkbox } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
 import { useTranslation } from '@/src/translations/useTranslation'
@@ -239,18 +238,21 @@ export default function PostBeatScreen() {
                                             typeof stateOrCallback === 'function'
                                                 ? stateOrCallback(currencyPickerOpen)
                                                 : stateOrCallback;
-
+                                        console.log('DropdownPicker estado aberto/fechado', newState)
                                         setCurrencyPickerOpen(newState);
 
                                         // Se este picker abrir, fecha o picker de licença
-                                        if (newState) setTipoLicencaOpen(false);
+                                        if (newState) {
+                                            console.log('Picker de licença foi fechado')
+                                            setTipoLicencaOpen(false);
+                                        }
                                     }}
                                     setValue={(callbackOrValue) => {
                                         const newValue =
                                             typeof callbackOrValue === 'function'
                                                 ? callbackOrValue(selectedCurrency)
                                                 : callbackOrValue;
-
+                                        console.log('Valor selecionado', newValue)
                                         if (typeof newValue === 'string') {
                                             handleCurrencyChange(newValue);
                                         }
@@ -285,7 +287,12 @@ export default function PostBeatScreen() {
                                 {/* ✅ Campo de preço com símbolo dinâmico */}
                                 <CurrencyInput
                                     value={preco}
-                                    onChangeValue={handlePrecoChange}
+                                    onChangeValue={(value) => {
+                                        console.log('💰 [CurrencyInput] onChangeValue → valor digitado:', value);
+                                        console.log('💲 [CurrencyInput] Símbolo atual:', currentCurrencySymbol);
+                                        console.log('🪙 [CurrencyInput] Moeda selecionada:', selectedCurrency);
+                                        handlePrecoChange(value)
+                                    }}
                                     prefix={`${currentCurrencySymbol} `}
                                     delimiter='.'
                                     separator=','
@@ -315,6 +322,7 @@ export default function PostBeatScreen() {
                     {tipoLicenca === 'livre' && (
                         <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.freeInfo')}</Text>
                     )}*/}
+
                     {beatFile && <Text
                         numberOfLines={1}
                         ellipsizeMode='tail'

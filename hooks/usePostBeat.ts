@@ -9,8 +9,6 @@ import { selectUserCurrencyCode, selectUserAccountRegion } from '@/src/redux/use
 import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from '@/src/constants/regions';
 
 
-
-
 export const usePostBeat = () => {
 
     const { t } = useTranslation();
@@ -29,13 +27,35 @@ export const usePostBeat = () => {
     const userCurrency = useSelector(selectUserCurrencyCode);
     const userRegion = useSelector(selectUserAccountRegion);
 
+    console.log('🌍 [Redux] Região do usuário:', userRegion);
+    console.log('💰 [Redux] Moeda preferida do usuário:', userCurrency);
 
+    // --- Campos básicos (Sem Alteração) ---
+    const [nomeProdutor, setNomeProdutor] = useState('');
+    const [tituloBeat, setTituloBeat] = useState('');
+    const [generoBeat, setGeneroBeat] = useState('');
+
+    // ✅ Estado 'preco' para o valor NUMÉRICO (necessário para CurrencyInput)
+    const [preco, setPreco] = useState<number | null>(null);
+    // ✅ NOVO ESTADO: Para controlar se o DropDownPicker está aberto
+    const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
+
+    const [tipoLicencaOpen, setTipoLicencaOpen] = useState(false)
+    const [tipoLicenca, setTipoLicenca] = useState<string | null>(null);
+    const [tipoLicencaItems, setTipoLicencaItems] = useState<any[]>([]);
+    const [capaBeat, setCapaBeat] = useState<any>(null);
+    const [beatFile, setBeatFile] = useState<any>(null);
+    const [precoError, setPrecoError] = useState<string | null>(null);
     // 2. ✅ NOVO ESTADO: Moeda selecionada para a transação
     const [selectedCurrency, setSelectedCurrency] = useState(userCurrency || 'USD');
 
     // 3. ✅ NOVA LÓGICA: Calcula a lista de moedas disponíveis para o produtor.
     // Usamos useMemo para otimizar, dependendo apenas da região do usuário e do idioma.
+
+    // 1️⃣ Calcular moedas disponíveis
     const availableCurrencies = useMemo(() => {
+
+        console.log('🧮 [useMemo] Recalculando availableCurrencies para região:', userRegion);
         // Opções padrão: Global (USD)
         const options = [{
             label: `USD - ${CURRENCY_INFO_MAP['USD'].name} (${t('postBeat.currency.global')})`,
@@ -79,35 +99,16 @@ export const usePostBeat = () => {
     }, [userRegion, t]);
 
 
-    // 4. ✅ NOVO CÁLCULO: Obtém o símbolo da moeda selecionada dinamicamente
+    // 4. ✅ NOVO CÁLCULO: Obtém o símbolo da moeda selecionada dinamicamente (Moeda atual)
     const currentCurrency = useMemo(() => {
-        // Usa o mapa para buscar as informações, com USD como fallback
-        return CURRENCY_INFO_MAP[selectedCurrency] || CURRENCY_INFO_MAP['USD'];
+        const found = CURRENCY_INFO_MAP[selectedCurrency] || CURRENCY_INFO_MAP['USD'];
+        console.log('💱 [useMemo] Moeda selecionada mudou:', selectedCurrency, '| Símbolo:', found.symbol);
+        return found;
     }, [selectedCurrency]);
 
-
-    // --- Campos básicos (Sem Alteração) ---
-    const [nomeProdutor, setNomeProdutor] = useState('');
-    const [tituloBeat, setTituloBeat] = useState('');
-    const [generoBeat, setGeneroBeat] = useState('');
-
-    // ✅ Estado 'preco' para o valor NUMÉRICO (necessário para CurrencyInput)
-    const [preco, setPreco] = useState<number | null>(null);
-    // ✅ NOVO ESTADO: Para controlar se o DropDownPicker está aberto
-    const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
-
-    const [tipoLicencaOpen, setTipoLicencaOpen] = useState(false)
-    const [tipoLicenca, setTipoLicenca] = useState<string | null>(null);
-    const [tipoLicencaItems, setTipoLicencaItems] = useState<any[]>([]);
-    const [capaBeat, setCapaBeat] = useState<any>(null);
-    const [beatFile, setBeatFile] = useState<any>(null);
-    const [precoError, setPrecoError] = useState<string | null>(null);
-
-
-
-
-    // ✅ Atualiza os textos das opções sempre que o idioma mudar (Sem Alteração)
+    // ✅  // 3️⃣ Quando o idioma mudar, atualizar os tipos de licença 
     useEffect(() => {
+        console.log('🌐 [useEffect] Atualizando tipos de licença (mudança de idioma detectada)');
         setTipoLicencaItems([
             { label: t('postBeat.licenseTypes.exclusive'), value: 'exclusivo' },
             { label: t('postBeat.licenseTypes.free'), value: 'livre' },
@@ -117,10 +118,11 @@ export const usePostBeat = () => {
     // --- Placeholder padrão ---
     // ✅ Agora o placeholder usa o símbolo da moeda selecionada
     const precoPlaceholder = `${currentCurrency.symbol} ${t('postBeat.pricePlaceholder') || '0.00'}`;
+    console.log('📋 [Placeholder Atual]:', precoPlaceholder);
 
-
-    // 5. ✅ NOVA FUNÇÃO: Altera a moeda selecionada (para o Picker)
+     // 4️⃣ Ao trocar moeda no Picker
     const handleCurrencyChange = (currencyValue: string) => {
+        console.log('🪙 [handleCurrencyChange] Moeda selecionada no Picker:', currencyValue);
         setSelectedCurrency(currencyValue);
         // Resetar preço e erro para evitar confusão na mudança de moeda.
         setPreco(null);
@@ -167,9 +169,6 @@ export const usePostBeat = () => {
             return;
         }
     };
-
-    // ... useEffect de licença (Sem Alteração) ...
-
 
     return {
         // --- Campos básicos ---

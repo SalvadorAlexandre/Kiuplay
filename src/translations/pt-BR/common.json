@@ -228,9 +228,9 @@
         "publishButton": "Publicar beat",
         "selectCurrencyPlaceholder": "Selecione a moeda",
         "errors": {
-            "onlyNumbers": "⚠️Somente números são permitidos",
-            "minValue": "O valor mínimo permitido é",
-            "maxValue": "O valor máximo permitido é"
+            "onlyNumbers": "⚠️ Somente números são permitidos",
+            "minValue": "⚠️ O valor mínimo permitido é",
+            "maxValue": "⚠️ O valor máximo permitido é"
         },
         "currency": {
             "global": "Global",
