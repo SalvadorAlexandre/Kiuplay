@@ -8,8 +8,6 @@ import { useAppDispatch } from '@/src/redux/hooks';
 import { setAuthSession, logoutUser } from '@/src/redux/userSessionAndCurrencySlice';
 import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
 
-import { getCurrencyByLocale } from '@/src/utils/currencyMapper';
-
 
 // =========================================================================
 // 1. DEFINIÇÃO DA INTERFACE DO CONTEXTO
@@ -109,8 +107,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           //Estas linhas devem ser atualizadas corretamene para que a moeda seja definida corretamente
           const mockLocale = 'cy-CY'; //IDIOMA PARA DEFINIR A MOEDA
-          const mockCurrencyCode = 'EUR' //  Código da moeda (ISO)
-          const mockAccountRegion = 'CY'; // MOCK PARA REGIÃO DA CONTA
+          const mockCurrencyCode = 'AOA' //  Código da moeda (ISO)
+          const mockAccountRegion = 'AO'; // MOCK PARA REGIÃO DA CONTA
 
           {/** EXEMPLO DE CODIGOS PARA TROCAR A MOED
            pt-AO, AOA
