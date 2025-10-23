@@ -17,6 +17,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import { Promotion } from '@/src/types/contentType';
 
+import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // ✅ IMPORTA O HOOK
+
+import { useTranslation } from '@/src/translations/useTranslation'
+
 // Importações para a biblioteca de data
 import { Calendar } from 'react-native-calendars';
 import dayjs, { Dayjs } from 'dayjs';
@@ -24,10 +28,12 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import "dayjs/locale/pt-br"; // localização em português
 
+
 // Estenda o Day.js com os plugins necessários
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
-dayjs.locale("pt-br");
+//dayjs.locale("pt-br");
+
 
 // IMPORTAÇÕES DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
@@ -42,6 +48,17 @@ type ContentItem = { id: string; title: string; cover?: string | null };
 const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
 
 export default function SetupPromotionScreen() {
+
+    const { t } = useTranslation()
+
+    // ✅ Usa o hook de localização aqui
+    const { locale } = useUserLocation();
+
+    // Aplica a localização dinâmica ao dayjs
+    const local = dayjs.locale(locale?.toLowerCase?.() || "pt-br");
+    console.log('Língua atual:', local)
+
+
     const router = useRouter();
     const { contentId, contentType } = useLocalSearchParams();
     const dispatch = useAppDispatch();
@@ -153,8 +170,15 @@ export default function SetupPromotionScreen() {
     if (!selectedContent) {
         return (
             <View style={styles.container}>
-                <Stack.Screen options={{ title: 'Erro' }} />
-                <Text style={styles.errorText}>Conteúdo não encontrado para promoção.</Text>
+                <Stack.Screen
+                    options={{
+                        title: t('setupPromotion.errorTitle'),
+                        headerStyle: { backgroundColor: '#191919' },
+                        headerTintColor: '#fff',
+                        headerShown: true,
+                    }}
+                />
+                <Text style={styles.errorText}>{t('setupPromotion.errorContentNotFound')}</Text>
             </View>
         );
     }
@@ -214,7 +238,7 @@ export default function SetupPromotionScreen() {
         <View style={styles.container}>
             <Stack.Screen
                 options={{
-                    title: 'Configurar Promoção',
+                    title: t('setupPromotion.title'),
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                 }}
@@ -225,17 +249,17 @@ export default function SetupPromotionScreen() {
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* 1. Informações da Promoção */}
-                <Text style={styles.sectionTitle}>1. Informações da Promoção</Text>
+                <Text style={styles.sectionTitle}>{t('setupPromotion.section1')}</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Título do anúncio (ex: Novo Single: 'Ritmo Urbano')"
+                    placeholder={t('setupPromotion.adTitlePlaceholder')}
                     placeholderTextColor="#888"
                     value={adTitle}
                     onChangeText={setAdTitle}
                 />
                 <TextInput
                     style={[styles.input, styles.messageInput]}
-                    placeholder="Mensagem personalizada (opcional)"
+                    placeholder={t('setupPromotion.messagePlaceholder')}
                     placeholderTextColor="#888"
                     multiline
                     numberOfLines={3}
@@ -244,19 +268,19 @@ export default function SetupPromotionScreen() {
                 />
 
                 {/* 2. Configuração da Campanha */}
-                <Text style={styles.sectionTitle}>2. Configurar início e término da Campanha</Text>
+                <Text style={styles.sectionTitle}>{t('setupPromotion.section2')}</Text>
                 <View style={styles.startEndContainerData}>
                     <View style={styles.dateView}>
-                        <Ionicons name="calendar-outline" size={28} color="#fff" />
+                        <Ionicons name="calendar" size={28} color="#fff" />
                         <Text style={{ color: "#1E90FF", marginTop: 5, fontSize: 16 }}>
-                            Início: {startDate ? startDate.format("DD/MM/YYYY") : "—"}
+                             {t('setupPromotion.startDateLabel')}: {startDate ? startDate.format("DD/MM/YYYY") : "—"}
                         </Text>
                     </View>
 
                     <View style={styles.dateView}>
-                        <Ionicons name="calendar-outline" size={28} color="#fff" />
+                        <Ionicons name="calendar" size={28} color="#fff" />
                         <Text style={{ color: "#FF6347", marginTop: 5, fontSize: 16, marginBottom: 10 }}>
-                            Fim: {endDate ? endDate.format("DD/MM/YYYY") : "—"}
+                             {t('setupPromotion.endDateLabel')}: {endDate ? endDate.format("DD/MM/YYYY") : "—"}
                         </Text>
                     </View>
                 </View>
@@ -283,22 +307,19 @@ export default function SetupPromotionScreen() {
                         style={styles.audienceImage}
                     />
                     <View style={styles.audienceTextContainer}>
-                        <Text style={styles.audienceTitle}>Será visto por Seguidores...</Text>
-                        <Text style={styles.audienceDescription}>
-                            Esta promoção será vista por todos seus Seguidores.
-                        </Text>
+                        <Text style={styles.audienceTitle}>{t('setupPromotion.audienceDescription')}</Text>
                     </View>
                 </View>
 
                 {/* 3. Resumo da Promoção (Preview) */}
-                <Text style={styles.sectionTitle}>3. Resumo da Promoção</Text>
+                <Text style={styles.sectionTitle}>{t('setupPromotion.section3')}</Text>
                 <View style={styles.previewContainer}>
                     <View style={styles.previewHeader}>
                         <Image source={getCoverSource()} style={styles.previewAvatar} />
                         <View>
                             {/* adTitle agora reflete o campo Promotion.title */}
                             <Text style={styles.previewTitle} numberOfLines={1}>
-                                {adTitle || 'Prévia do Título da Promoção'}
+                                {adTitle || t('setupPromotion.previewTitlePlaceholder')}
                             </Text>
                             <Text style={styles.previewArtist}>{userProfile.name}</Text>
                         </View>
@@ -312,16 +333,17 @@ export default function SetupPromotionScreen() {
                             <Text style={styles.previewMessage}>{customMessage}</Text>
                         ) : (
                             <Text style={styles.previewMessagePlaceholder}>
-                                Sua mensagem personalizada aparecerá aqui.
+                                {t('setupPromotion.previewMessagePlaceholder')}
                             </Text>
                         )}
 
                         <Text style={[styles.previewDates, isDateRangeInvalid && styles.errorDates]}>
-                            {isDateRangeInvalid ? (
-                                "A data de término não pode ser igual ou anterior à de início."
-                            ) : (
-                                `Promoção ativa de ${startDate?.format('DD/MM/YYYY')} a ${endDate?.format('DD/MM/YYYY')}`
-                            )}
+                            {isDateRangeInvalid
+                                ? t('setupPromotion.invalidDateRange')
+                                : t('setupPromotion.promotionActiveRange', {
+                                    startDate: startDate?.format('DD/MM/YYYY'),
+                                    endDate: endDate?.format('DD/MM/YYYY')
+                                })}
                         </Text>
                     </View>
                 </View>
@@ -335,7 +357,7 @@ export default function SetupPromotionScreen() {
                     disabled={isButtonDisabled || publishStatus === 'success'}
                 >
                     {publishStatus === 'idle' && (
-                        <Text style={styles.publishButtonText}>Publicar Promoção</Text>
+                        <Text style={styles.publishButtonText}>{t('setupPromotion.publishButton')}</Text>
                     )}
                     {publishStatus === 'publishing' && (
                         <ActivityIndicator color="#fff" size="small" />
@@ -360,7 +382,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
         color: '#fff',
         marginTop: 20,
         marginBottom: 5,
@@ -436,7 +458,7 @@ const styles = StyleSheet.create({
     previewTitle: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
         flexShrink: 1,
     },
     previewArtist: {
@@ -491,7 +513,7 @@ const styles = StyleSheet.create({
     publishButtonText: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
     },
     disabledButton: {
         backgroundColor: '#555',
@@ -540,12 +562,8 @@ const styles = StyleSheet.create({
     },
     audienceTitle: {
         fontSize: 16,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
         color: '#fff',
         marginBottom: 4,
-    },
-    audienceDescription: {
-        fontSize: 14,
-        color: '#aaa',
     },
 });

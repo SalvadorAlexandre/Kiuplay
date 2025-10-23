@@ -279,5 +279,24 @@
         "button": {
             "continue": "Continuar"
         }
+    },
+    "setupPromotion": {
+        "title": "Configurar Promoção",
+        "section1": "1. Informações da Promoção",
+        "adTitlePlaceholder": "Título do anúncio (ex: Novo Single: 'Ritmo Urbano')",
+        "messagePlaceholder": "Mensagem personalizada (opcional)",
+        "section2": "2. Configurar início e término da Campanha",
+        "startDateLabel": "Início",
+        "endDateLabel": "Fim",
+        "audienceTitle": "Será visto por Seguidores...",
+        "audienceDescription": "Esta promoção será vista por todos seus Seguidores.",
+        "section3": "3. Resumo da Promoção",
+        "previewTitlePlaceholder": "Prévia do Título da Promoção",
+        "previewMessagePlaceholder": "Sua mensagem personalizada aparecerá aqui.",
+        "invalidDateRange": "A data de término não pode ser igual ou anterior à de início.",
+        "promotionActiveRange": "Promoção ativa de {{startDate}} a {{endDate}}",
+        "publishButton": "Publicar Promoção",
+        "errorTitle": "Erro",
+        "errorContentNotFound": "Conteúdo não encontrado para promoção."
     }
 }

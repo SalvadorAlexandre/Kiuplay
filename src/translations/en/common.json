@@ -279,5 +279,24 @@
     "button": {
       "continue": "Continue"
     }
+  },
+  "setupPromotion": {
+    "title": "Set Up Promotion",
+    "section1": "1. Promotion Information",
+    "adTitlePlaceholder": "Ad title (e.g., New Single: 'Urban Rhythm')",
+    "messagePlaceholder": "Custom message (optional)",
+    "section2": "2. Set Campaign Start and End Dates",
+    "startDateLabel": "Start:",
+    "endDateLabel": "End:",
+    "audienceTitle": "Will be seen by Followers...",
+    "audienceDescription": "This promotion will be visible to all your followers.",
+    "section3": "3. Promotion Preview",
+    "previewTitlePlaceholder": "Promotion Title Preview",
+    "previewMessagePlaceholder": "Your custom message will appear here.",
+    "invalidDateRange": "End date cannot be equal to or earlier than the start date.",
+    "promotionActiveRange": "Active promotion from {{startDate}} to {{endDate}}",
+    "publishButton": "Publish Promotion",
+    "errorTitle": "Error",
+    "errorContentNotFound": "Content not found for promotion."
   }
 }
