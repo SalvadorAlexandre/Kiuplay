@@ -3,7 +3,6 @@ import React, { useRef, useEffect } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { usePostBeat } from '@/hooks/usePostBeat';
-import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
 import {
@@ -15,16 +14,12 @@ import {
     TouchableOpacity,
     ScrollView,
 } from 'react-native';
-import { Checkbox } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
 import { useTranslation } from '@/src/translations/useTranslation'
-
 import CurrencyInput from 'react-native-currency-input'; // ✅ Importamos o novo componente
 
 export default function PostBeatScreen() {
-
-
 
     const { t } = useTranslation()
 
@@ -48,9 +43,10 @@ export default function PostBeatScreen() {
         handleCurrencyChange,
         currentCurrencySymbol,
 
-        setCurrencyPickerOpen, currencyPickerOpen
-    } = usePostBeat();
+        setCurrencyPickerOpen, currencyPickerOpen,
 
+        userRegion
+    } = usePostBeat();
 
     const pickBeatFile = async () => {
         let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
@@ -323,6 +319,8 @@ export default function PostBeatScreen() {
                         <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.freeInfo')}</Text>
                     )}*/}
 
+
+
                     {beatFile && <Text
                         numberOfLines={1}
                         ellipsizeMode='tail'
@@ -454,5 +452,36 @@ const styles = StyleSheet.create({
         marginTop: 4,
         marginBottom: 5,
         fontStyle: 'italic',
+    },
+
+
+    // ... outros estilos
+
+    // Estilo para o emoji das exceções (Globo/Euro)
+    flagIconEmoji: {
+        fontSize: 20,
+    },
+    // Estilo para o contêiner do item selecionado (Header do Picker)
+    selectedLabelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // Adicione padding ou margem conforme necessário
+    },
+    dropdownLabel: {
+        color: '#fff',
+        marginLeft: 8, // Espaço entre a bandeira e o texto
+    },
+    // Estilo para o contêiner de cada item na lista suspensa
+    currencyItemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 15,
+    },
+    // Estilo para o label de cada item na lista
+    dropdownItemLabel: {
+        color: '#E0E0E0',
+        marginLeft: 10,
+        fontSize: 16,
     },
 })

@@ -7,6 +7,7 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useAppDispatch } from '@/src/redux/hooks';
 import { setAuthSession, logoutUser } from '@/src/redux/userSessionAndCurrencySlice';
 import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
+import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // ✅ IMPORTA O HOOK
 
 
 // =========================================================================
@@ -62,6 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ✅ Usa o hook de localização aqui
+  const { countryCode, locale, currency, loading: locationLoading } = useUserLocation();
+
+
   // **FUNÇÕES DE AUTENTICAÇÃO**
 
   // 🛑 CORREÇÃO 3: O parâmetro 'userData' agora é do tipo AuthUserData
@@ -101,55 +106,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // MOCK: Lógica para verificar token persistido
         const persistedToken = true; // Mude para false para testar o fluxo de deslogado
 
-        if (persistedToken) {
-          // 🛑 SIMULAÇÃO DOS DADOS DE MOEDA VINDO DA SESSÃO/TOKEN
-          const mockUserId = 'user-123'; //Mock de contexto de conta (usuario logado isso vira do back-end)
+        if (persistedToken && !locationLoading) {
+          const mockUserId = 'user-123';
+          const accountRegion = countryCode || 'US';
+          const userLocale = locale || 'en-US';
+          const userCurrency = currency || 'USD';
 
-          //Estas linhas devem ser atualizadas corretamene para que a moeda seja definida corretamente
-          const mockLocale = 'cy-CY'; //IDIOMA PARA DEFINIR A MOEDA
-          const mockCurrencyCode = 'AOA' //  Código da moeda (ISO)
-          const mockAccountRegion = 'AO'; // MOCK PARA REGIÃO DA CONTA
-
-          {/** EXEMPLO DE CODIGOS PARA TROCAR A MOED
-           pt-AO, AOA
-           pt-PT, EUR
-           pt-BR, BRL
-           en-US, USD
-           en-GB, GBP
-           ja-JP, JPY
-
-           
-          'AT': 'de-AT', // 🇦🇹 Áustria — Alemão (Áustria)
-          'BE': 'nl-BE', // 🇧🇪 Bélgica — Neerlandês (Bélgica)
-          'CY': 'el-CY', // 🇨🇾 Chipre — Grego (Chipre)
-          'EE': 'et-EE', // 🇪🇪 Estónia — Estoniano
-          'FI': 'fi-FI', // 🇫🇮 Finlândia — Finlandês
-          'FR': 'fr-FR', // 🇫🇷 França — Francês
-          'DE': 'de-DE', // 🇩🇪 Alemanha — Alemão
-          'GR': 'el-GR', // 🇬🇷 Grécia — Grego
-          'IE': 'en-IE', // 🇮🇪 Irlanda — Inglês (Irlanda)
-          'IT': 'it-IT', // 🇮🇹 Itália — Italiano
-          'LV': 'lv-LV', // 🇱🇻 Letónia — Letão
-          'LT': 'lt-LT', // 🇱🇹 Lituânia — Lituano
-          'LU': 'fr-LU', // 🇱🇺 Luxemburgo — Francês (Luxemburgo)
-          'MT': 'mt-MT', // 🇲🇹 Malta — Maltês
-          'NL': 'nl-NL', // 🇳🇱 Países Baixos — Neerlandês
-          'PT': 'pt-PT', // 🇵🇹 Portugal — Português (Portugal)
-          'SK': 'sk-SK', // 🇸🇰 Eslováquia — Eslovaco
-          'SI': 'sl-SI', // 🇸🇮 Eslovénia — Esloveno
-          'ES': 'es-ES', // 🇪🇸 Espanha — Espanhol (Espanha)
-          'HR': 'hr-HR', // 🇭🇷 Croácia — Croata
-
-           const mockLocale = 'pt-AO'; // Ex: IDIOMA PARA DEFINIR A MOEDA
-          const mockCurrencyCode = 'AOA'; // Ex: REGIÃO PARA DEFINIR A MOEDA, O IDIOMA E A REGIA SAO COMBINADOS PARA DEFINIR A MOEDA
-          */}
-
-          // 🛑 ENVIAR DADOS DE SESSÃO E MOEDA PARA O REDUX (no carregamento inicial)
           dispatch(setAuthSession({
             userId: mockUserId,
-            locale: mockLocale,
-            currencyCode: mockCurrencyCode,
-            accountRegion: mockAccountRegion, // <--- CORREÇÃO 6: PASSANDO A REGIÃO NO MOCK
+            locale: userLocale,
+            currencyCode: userCurrency,
+            accountRegion,
           }));
 
           setIsLoggedIn(true);
@@ -159,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       } catch (error) {
         console.error("Erro ao verificar status de autenticação:", error);
-        dispatch(logoutUser()); // Garantir limpeza em caso de erro
+        dispatch(logoutUser());
         setIsLoggedIn(false);
       } finally {
         setIsLoading(false);
@@ -167,17 +134,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuthStatus();
-    // NOTA: Adicione 'dispatch' às dependências se estiver usando React 18+
-  }, [dispatch]);
-
+  }, [dispatch, countryCode, locale, currency, locationLoading]);
 
   const value = useMemo(() => ({
     isLoggedIn,
     isLoading,
     signIn,
     signOut
-  }), [isLoggedIn, isLoading, signIn, signOut]);
-
+  }), [isLoggedIn, isLoading]);
 
   return (
     <AuthContext.Provider value={value}>
@@ -185,6 +149,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
 // Exporte a interface para ser usada em outros lugares (como no seu RootLayout)
 // O export de cima já garante isso: export interface AuthContextType

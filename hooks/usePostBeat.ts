@@ -2,12 +2,9 @@
 import { useState, useEffect, useMemo } from 'react'; // Importamos useMemo
 import { useTranslation } from '@/src/translations/useTranslation';
 import { Vibration } from 'react-native';
-
 import { useSelector } from 'react-redux';
 import { selectUserCurrencyCode, selectUserAccountRegion } from '@/src/redux/userSessionAndCurrencySlice';
-
 import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from '@/src/constants/regions';
-
 
 export const usePostBeat = () => {
 
@@ -51,6 +48,7 @@ export const usePostBeat = () => {
 
     // 3. ✅ NOVA LÓGICA: Calcula a lista de moedas disponíveis para o produtor.
     // Usamos useMemo para otimizar, dependendo apenas da região do usuário e do idioma.
+
 
     // 1️⃣ Calcular moedas disponíveis
     const availableCurrencies = useMemo(() => {
@@ -98,7 +96,6 @@ export const usePostBeat = () => {
         return options;
     }, [userRegion, t]);
 
-
     // 4. ✅ NOVO CÁLCULO: Obtém o símbolo da moeda selecionada dinamicamente (Moeda atual)
     const currentCurrency = useMemo(() => {
         const found = CURRENCY_INFO_MAP[selectedCurrency] || CURRENCY_INFO_MAP['USD'];
@@ -120,7 +117,7 @@ export const usePostBeat = () => {
     const precoPlaceholder = `${currentCurrency.symbol} ${t('postBeat.pricePlaceholder') || '0.00'}`;
     console.log('📋 [Placeholder Atual]:', precoPlaceholder);
 
-     // 4️⃣ Ao trocar moeda no Picker
+    // 4️⃣ Ao trocar moeda no Picker
     const handleCurrencyChange = (currencyValue: string) => {
         console.log('🪙 [handleCurrencyChange] Moeda selecionada no Picker:', currencyValue);
         setSelectedCurrency(currencyValue);
@@ -193,6 +190,8 @@ export const usePostBeat = () => {
         tipoLicencaItems, setTipoLicencaItems,
         capaBeat, setCapaBeat,
         beatFile, setBeatFile,
-        setCurrencyPickerOpen, currencyPickerOpen
+        setCurrencyPickerOpen, currencyPickerOpen,
+
+        userRegion,
     };
 };
