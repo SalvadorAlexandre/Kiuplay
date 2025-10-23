@@ -221,8 +221,8 @@
       "free": "Free use"
     },
     "pricePlaceholder": "Enter the price",
-    "exclusiveInfo": "🔴Kiuplay values exclusivity! If you’re posting a beat for sale here, it cannot be available on other platforms or for other buyers. This protects your rights and builds trust with our artists.",
-    "freeInfo": "🟢This beat will be available for non-exclusive use. Other artists may download and use it for free.",
+    "exclusiveInfo": "🟢 Kiuplay values exclusivity! If you’re posting a beat for sale here, it cannot be available on other platforms or for other buyers. This protects your rights and builds trust with our artists.",
+    "freeInfo": "🔴 This beat will be available for non-exclusive use. Other artists may download and use it for free.",
     "selectFileButton": "Select file",
     "uploadingFileLabel": "Upload: {{fileName}}",
     "publishButton": "Publish beat",
@@ -242,6 +242,42 @@
       "AOA": "Angolan Kwanza",
       "BRL": "Brazilian Real",
       "MZN": "Mozambican Metical"
+    }
+  },
+  "promoteScreen": {
+    "title": "Promote Post",
+    "tab": {
+      "configure": "Set Up Promotion",
+      "active": "Active Promotions"
+    },
+    "configure": {
+      "instruction": "Select the content you want to promote...",
+      "button": "Choose song or instrumental"
+    },
+    "active": {
+      "empty": "No active promotions at the moment.",
+      "start": "Start: {{date}}",
+      "end": "End: {{date}}"
+    },
+    "delete": "Remove promotion"
+  },
+  "selectContentScreen": {
+    "title": "Select Content",
+    "searchPlaceholder": "Search by title...",
+    "tabs": {
+      "singles": "Singles",
+      "extendedPlay": "Extended Play",
+      "albums": "Albums",
+      "exclusiveBeats": "Exclusive Beats",
+      "freeBeats": "Free Beats"
+    },
+    "alert": {
+      "title": "Attention",
+      "message": "Please select a content item to continue."
+    },
+    "emptyList": "No content found.",
+    "button": {
+      "continue": "Continue"
     }
   }
 }

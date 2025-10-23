@@ -17,30 +17,45 @@ import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import { useAppSelector } from '@/src/redux/hooks';
 import debounce from 'lodash.debounce'; // ✅ Importado o debounce
 
-// Assume que o MOCKED_PROFILE é uma array e pegamos o primeiro item
-const userProfile = MOCKED_PROFILE[0];
+import { useTranslation } from '@/src/translations/useTranslation'
+
+
 
 // Tipagem para os itens de conteúdo
 type ContentItem = { id: string; title: string; cover?: string };
-type TabName = 'Singles' | 'Extended Play' | 'Álbuns' | 'Exclusive Beats' | 'Free Beats';
+//type TabName = 'Singles' | 'Extended Play' | 'Álbuns' | 'Exclusive Beats' | 'Free Beats';
 
-// Dados de navegação para as tabs, usando os dados do perfil mockado
-const contentTabs = {
-  'Singles': userProfile.singles || [],
-  'Extended Play': userProfile.eps || [],
-  'Álbuns': userProfile.albums || [],
-  'Exclusive Beats': userProfile.exclusiveBeats || [],
-  'Free Beats': userProfile.freeBeats || [],
-};
-
-const tabs: TabName[] = ['Singles', 'Extended Play', 'Álbuns', 'Exclusive Beats', 'Free Beats'];
 
 // Imagem padrão
 const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
 
 
 export default function SelectContentScreen() {
-  const [activeTab, setActiveTab] = useState<TabName>('Singles');
+
+  const { t } = useTranslation()
+
+  // Assume que o MOCKED_PROFILE é uma array e pegamos o primeiro item
+  const userProfile = MOCKED_PROFILE[0];
+
+
+  // Dados de navegação para as tabs, usando os dados do perfil mockado
+  const contentTabs = useMemo(() => ({
+    [t('selectContentScreen.tabs.singles')]: userProfile.singles || [],
+    [t('selectContentScreen.tabs.extendedPlay')]: userProfile.eps || [],
+    [t('selectContentScreen.tabs.albums')]: userProfile.albums || [],
+    [t('selectContentScreen.tabs.exclusiveBeats')]: userProfile.exclusiveBeats || [],
+    [t('selectContentScreen.tabs.freeBeats')]: userProfile.freeBeats || [],
+  }), [t]);
+
+  const tabs: string[] = useMemo(() => [
+    t('selectContentScreen.tabs.singles'),
+    t('selectContentScreen.tabs.extendedPlay'),
+    t('selectContentScreen.tabs.albums'),
+    t('selectContentScreen.tabs.exclusiveBeats'),
+    t('selectContentScreen.tabs.freeBeats'),
+  ], [t]);
+
+  const [activeTab, setActiveTab] = useState<string>(t('selectContentScreen.tabs.singles'));
   const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
   // 1. Estado para o texto digitado (feedback visual imediato)
@@ -140,7 +155,7 @@ export default function SelectContentScreen() {
     <>
       <Stack.Screen
         options={{
-          title: 'Selecionar conteúdo',
+          title: t('selectContentScreen.title'),
           headerStyle: { backgroundColor: '#191919' },
           headerTintColor: '#fff',
           headerShown: true,
@@ -152,7 +167,7 @@ export default function SelectContentScreen() {
           <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar por título..."
+            placeholder={t('selectContentScreen.searchPlaceholder')}
             placeholderTextColor="#888"
             // ✅ Usa o novo handler debounced
             onChangeText={handleSearchChange}
@@ -210,7 +225,7 @@ export default function SelectContentScreen() {
         ) : (
           <View style={styles.emptyListContainer}>
             <Text style={styles.emptyListText}>
-              Nenhum conteúdo encontrado.
+              {t('selectContentScreen.emptyList')}
             </Text>
           </View>
         )}
@@ -226,7 +241,7 @@ export default function SelectContentScreen() {
             disabled={!selectedContentId}
           >
             <Text style={styles.buttonText}>
-              Continuar
+              {t('selectContentScreen.button.continue')}
             </Text>
           </TouchableOpacity>
         </View>

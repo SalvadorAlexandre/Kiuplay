@@ -99,14 +99,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // **EFEITO PARA CARREGAMENTO E VERIFICAÇÃO INICIAL**
   useEffect(() => {
     const checkAuthStatus = async () => {
+      // Espera a localização estar pronta
+      if (locationLoading) return;
+
       try {
-        // MOCK para simular o tempo de verificação (500ms)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-        // MOCK: Lógica para verificar token persistido
-        const persistedToken = true; // Mude para false para testar o fluxo de deslogado
+        const persistedToken = true; // MOCK temporário
 
-        if (persistedToken && !locationLoading) {
+        if (persistedToken) {
           const mockUserId = 'user-123';
           const accountRegion = countryCode || 'US';
           const userLocale = locale || 'en-US';
@@ -123,7 +124,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setIsLoggedIn(false);
         }
-
       } catch (error) {
         console.error("Erro ao verificar status de autenticação:", error);
         dispatch(logoutUser());
@@ -134,7 +134,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuthStatus();
-  }, [dispatch, countryCode, locale, currency, locationLoading]);
+    // 🔥 REMOVE 'dispatch' e 'currency' das dependências diretas
+  }, [countryCode, locale, locationLoading]);
+
 
   const value = useMemo(() => ({
     isLoggedIn,

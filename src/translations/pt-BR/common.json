@@ -221,8 +221,8 @@
             "free": "Uso Livre"
         },
         "pricePlaceholder": "Digite o preço",
-        "exclusiveInfo": "🔴O Kiuplay valoriza a exclusividade! Se você está postando um beat para vender aqui, ele não pode estar disponível em outras plataformas ou com outros compradores. Isso protege seus direitos e a confiança dos nossos artistas.",
-        "freeInfo": "🟢Este beat será disponibilizado para uso não exclusivo. Outros artistas poderão adquiri-lo sem custos e utilizá-lo.",
+        "exclusiveInfo": "🟢 O Kiuplay valoriza a exclusividade! Se você está postando um beat para vender aqui, ele não pode estar disponível em outras plataformas ou com outros compradores. Isso protege seus direitos e a confiança dos nossos artistas.",
+        "freeInfo": "🔴 Este beat será disponibilizado para uso não exclusivo. Outros artistas poderão adquiri-lo sem custos e utilizá-lo.",
         "selectFileButton": "Selecionar arquivo",
         "uploadingFileLabel": "Upload: {{fileName}}",
         "publishButton": "Publicar beat",
@@ -242,6 +242,42 @@
             "AOA": "Kwanza Angolano",
             "BRL": "Real Brasileiro",
             "MZN": "Metical Moçambicano"
+        }
+    },
+    "promoteScreen": {
+        "title": "Promover postagem",
+        "tab": {
+            "configure": "Configurar Promoção",
+            "active": "Promoções Ativas"
+        },
+        "configure": {
+            "instruction": "Seleciona o conteúdo que desejas promover...",
+            "button": "Escolher música ou instrumental"
+        },
+        "active": {
+            "empty": "Nenhuma promoção ativa no momento.",
+            "start": "Início: {{date}}",
+            "end": "Término: {{date}}"
+        },
+        "delete": "Remover promoção"
+    },
+    "selectContentScreen": {
+        "title": "Selecionar conteúdo",
+        "searchPlaceholder": "Buscar por título...",
+        "tabs": {
+            "singles": "Faixas",
+            "extendedPlay": "Extended Play",
+            "albums": "Álbuns",
+            "exclusiveBeats": "Exclusive Beats",
+            "freeBeats": "Free Beats"
+        },
+        "alert": {
+            "title": "Atenção",
+            "message": "Selecione um conteúdo para continuar."
+        },
+        "emptyList": "Nenhum conteúdo encontrado.",
+        "button": {
+            "continue": "Continuar"
         }
     }
 }

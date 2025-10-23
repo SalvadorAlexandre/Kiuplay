@@ -15,10 +15,14 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { removePromotion } from '@/src/redux/promotionsSlice';
 import { Promotion } from '@/src/types/contentType';
 
+import { useTranslation } from '@/src/translations/useTranslation'
+
 export default function PromoteUserScreen() {
   const [activeTab, setActiveTab] = useState<'configurar' | 'ativas'>('configurar');
   const dispatch = useAppDispatch();
   const activePromotions = useAppSelector((state) => state.promotions.activePromotions);
+
+  const { t } = useTranslation()
 
   // Função para renderizar cada item da lista de promoções
   const renderPromotionItem = ({ item }: { item: Promotion }) => {
@@ -40,10 +44,10 @@ export default function PromoteUserScreen() {
             <Text style={styles.promoTitle} numberOfLines={1}>{item.title}</Text>
             <Text style={styles.promoContentTitle}>{item.message}</Text>
             <Text style={styles.promoDates}>
-              {`Início: ${startDate}`}
+              {t('promoteScreen.active.start', { date: startDate })}
             </Text>
             <Text style={styles.promoDates}>
-              {`Término: ${endDate}`}
+              {t('promoteScreen.active.end', { date: endDate })}
             </Text>
           </View>
         </View>
@@ -63,7 +67,7 @@ export default function PromoteUserScreen() {
     <>
       <Stack.Screen
         options={{
-          title: 'Promover postagem',
+          title: t('promoteScreen.title'),
           headerStyle: { backgroundColor: '#191919' },
           headerTintColor: '#fff',
           headerShown: true,
@@ -76,13 +80,13 @@ export default function PromoteUserScreen() {
             style={[styles.tabButton, activeTab === 'configurar' && styles.activeTab]}
             onPress={() => setActiveTab('configurar')}
           >
-            <Text style={[styles.tabText, activeTab === 'configurar' && styles.activeTabText]}>Configurar Promoção</Text>
+            <Text style={[styles.tabText, activeTab === 'configurar' && styles.activeTabText]}>{t('promoteScreen.tab.configure')}</Text>
           </Pressable>
           <Pressable
             style={[styles.tabButton, activeTab === 'ativas' && styles.activeTab]}
             onPress={() => setActiveTab('ativas')}
           >
-            <Text style={[styles.tabText, activeTab === 'ativas' && styles.activeTabText]}>Promoções Ativas</Text>
+            <Text style={[styles.tabText, activeTab === 'ativas' && styles.activeTabText]}>{t('promoteScreen.tab.active')}</Text>
           </Pressable>
         </View>
 
@@ -94,12 +98,12 @@ export default function PromoteUserScreen() {
                 source={require('@/assets/images/4/icons8_music_library_125px.png')}
                 resizeMode='center'
               />
-              <Text style={styles.configContentText}>Seleciona o conteúdo que desejas promover...</Text>
+              <Text style={styles.configContentText}>{t('promoteScreen.configure.instruction')}</Text>
               <TouchableOpacity
                 style={styles.buttonLoadContent}
                 onPress={() => router.push('/promoteContentScreens/selectContentScreen')}
               >
-                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>Escolher música ou instrumental</Text>
+                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>{t('promoteScreen.configure.button')}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -110,7 +114,7 @@ export default function PromoteUserScreen() {
               ListEmptyComponent={() => (
                 <View style={styles.emptyListContainer}>
                   <Text style={styles.emptyListText}>
-                    Nenhuma promoção ativa no momento.
+                    {t('promoteScreen.active.empty')}
                   </Text>
                 </View>
               )}
