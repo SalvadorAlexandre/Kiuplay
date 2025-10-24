@@ -22,7 +22,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
 
-
+import { useTranslation } from '@/src/translations/useTranslation';
 
 // Componente para renderizar cada item da faixa na FlatList
 const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent }: { // NOVO: Adicione isCurrent
@@ -34,7 +34,7 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
 }) => {
   const isConnected = useAppSelector((state) => state.network.isConnected)
   // NOVO: Obtenha o currentTrack do estado do player
- 
+
 
   const getImageSource = () => {
     if (isConnected === false || !track.cover || track.cover.trim() === '') {
@@ -112,6 +112,9 @@ const trackItemStyles = StyleSheet.create({
 
 
 export default function EpDetailsScreen() {
+
+  const { t } = useTranslation()
+
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -124,9 +127,9 @@ export default function EpDetailsScreen() {
     return (
       <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
         <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-        <Text style={styles.errorText}>EP não encontrado.</Text>
+        <Text style={styles.errorText}>{t('epDetails.notFound')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Voltar</Text>
+          <Text style={styles.backButtonText}>{t('epDetails.backButton')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -250,11 +253,11 @@ export default function EpDetailsScreen() {
             <Text style={styles.artistName}>{currentEp.artist}</Text>
 
             <Text style={styles.detailText}>
-              {currentEp.category.charAt(0).toUpperCase() + currentEp.category.slice(1)} • {currentEp.releaseYear || 'Ano Desconhecido'} • {currentEp.tracks?.length || 0} faixas
+              {`${currentEp.category.charAt(0).toUpperCase() + currentEp.category.slice(1)} • ${currentEp.releaseYear || t('epDetails.unknownYear')} • ${t('epDetails.tracksCount', { count: currentEp.tracks?.length || 0 })}`}
             </Text>
 
             <Text style={styles.detailText}>
-              {currentEp.mainGenre || 'Gênero Desconhecido'}
+              {currentEp.mainGenre || t('epDetails.unknownGenre')}
             </Text>
           </View>
 
@@ -297,7 +300,7 @@ export default function EpDetailsScreen() {
         ListHeaderComponent={ListHeaderComponent}
         contentContainerStyle={styles.trackListContent}
         ListEmptyComponent={
-          <Text style={styles.emptyListText}>Nenhuma faixa encontrada neste EP.</Text>
+          <Text style={styles.emptyListText}>{t('epDetails.emptyList')}</Text>
         }
       />
     </View>

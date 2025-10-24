@@ -14,6 +14,8 @@ import { useRouter, Stack, Href } from "expo-router";
 // O debounce já está corretamente importado
 import debounce from "lodash.debounce";
 
+import { useTranslation } from "@/src/translations/useTranslation";
+
 
 // Assumindo uma tipagem base para o conteúdo (Singles, EPs, etc.)
 interface ContentItem {
@@ -33,10 +35,13 @@ interface Profile {
   freeBeats?: any[];
 }
 
-
 import { MOCKED_PROFILE } from "@/src/types/contentServer";
 
+
 export default function ProfileSearch() {
+
+  const { t } = useTranslation()
+
   const [query, setQuery] = useState("");
   // 👈 Novo estado para guardar o termo SÓ APÓS O DEBOUNCE (melhora a UX da mensagem de "Nenhum resultado")
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,7 +152,11 @@ export default function ProfileSearch() {
           {/* Campo de Busca */}
           <TextInput
             style={styles.input}
-            placeholder={`Pesquisar no perfil de ${userProfile?.name || 'Artista'}...`}
+            placeholder={
+              userProfile?.name
+                ? t('search_screen_profile.placeholder', { name: userProfile.name })
+                : t('search_screen_profile.placeholder_default')
+            }
             placeholderTextColor="#aaa"
             value={query}
             onChangeText={handleInputChange}
@@ -170,9 +179,9 @@ export default function ProfileSearch() {
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={() =>
             searchQuery.length > 0 && results.length === 0 ? (
-              <Text style={styles.noResults}>Nenhum resultado encontrado para "{searchQuery}".</Text>
+              <Text style={styles.noResults}> {t('search_screen_profile.no_results', { query: searchQuery })}</Text>
             ) : (
-              <Text style={styles.noResults}>Comece a digitar para pesquisar no seu perfil.</Text>
+              <Text style={styles.noResults}> {t('search_screen_profile.start_typing')}</Text>
             )
           }
         />

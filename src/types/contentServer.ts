@@ -507,7 +507,7 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
 
 export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
     {
-        id: 'beat-store-1',
+        id: 'beat-store-',
         uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
         title: 'Trap Beat - "Midnight Groove"',
         artist: 'Producer X',
@@ -986,8 +986,11 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
                 category: 'beat', // Categoria é 'beat'
                 bpm: 120,
                 releaseYear: '2023', // Adicionado releaseYear
-                isBuyed: false,
-            },
+                artistId: 'artist-1',
+                currentOwnerId: 'artist-2',
+                isAvailableForSale: true,
+                isExclusiveSale: true,
+            }
         ],
 
         // ✅ DADOS DE EXEMPLO PARA FOLLOWERS

@@ -18,8 +18,12 @@ import { Ionicons } from "@expo/vector-icons";
 // 🔹 [1] IMPORTES DOS MOCKS CENTRALIZADOS
 import { MOCKED_CLOUD_FEED_DATA, MOCKED_BEATSTORE_FEED_DATA } from "@/src/types/contentServer"; // ✅ ajuste
 import { Comment } from "@/src/types/contentType"; // ✅ usa tua interface padronizada
+import { useTranslation } from "@/src/translations/useTranslation";
 
 export default function MusicCommentsScreen() {
+
+  const { t } = useTranslation()
+
   // 🔹 [2] Recebendo parâmetros da música
   const {
     musicId,
@@ -51,13 +55,26 @@ export default function MusicCommentsScreen() {
         // 🔹 Garante que o item é realmente um "Single"
         const single = MOCKED_CLOUD_FEED_DATA.find((item) => item.id === musicId);
         if (single && "comments" in single) {
-          mockComments = (single as { comments?: Comment[] }).comments || [];
+          mockComments = (single as { comments?: Comment[] }).comments?.map((c) => ({
+            ...c,
+            // ✅ Corrige o tipo do timestamp (se vier string, converte para agora)
+            timestamp:
+              typeof c.timestamp === "number"
+                ? c.timestamp
+                : Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24), // simula tempo antigo
+          })) || [];
         }
       } else if (contentType === "freebeat") {
         // 🔹 Garante que o item é realmente um "FreeBeat"
         const beat = MOCKED_BEATSTORE_FEED_DATA.find((item) => item.id === musicId);
         if (beat && "comments" in beat) {
-          mockComments = (beat as { comments?: Comment[] }).comments || [];
+          mockComments = (beat as { comments?: Comment[] }).comments?.map((c) => ({
+            ...c,
+            timestamp:
+              typeof c.timestamp === "number"
+                ? c.timestamp
+                : Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24),
+          })) || [];
         }
       }
 
@@ -65,6 +82,27 @@ export default function MusicCommentsScreen() {
       setIsLoading(false);
     }, 800);
   }, [musicId, contentType]);
+
+  // 🔹 [NOVO] Função utilitária para calcular tempo relativo
+  function getRelativeTime(timestamp: number) {
+    const now = Date.now();
+    const diffMs = now - Number(timestamp);
+    console.log("timestamp recebido:", timestamp);
+    //const diffMs = Date.now() - Number(timestamp);
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    if (diffMinutes < 1) return t("musicComments.time.just_now");
+    if (diffMinutes === 1) return t("musicComments.time.minutes_ago", { count: 1 });
+    if (diffMinutes < 60) return t("musicComments.time.minutes_ago_plural", { count: diffMinutes });
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours === 1) return t("musicComments.time.hours_ago", { count: 1 });
+    if (diffHours < 24) return t("musicComments.time.hours_ago_plural", { count: diffHours });
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return t("musicComments.time.days_ago", { count: 1 });
+    return t("musicComments.time.days_ago_plural", { count: diffDays });
+  }
 
   // 🔹 [4] Função de envio local
   function handleSend() {
@@ -77,9 +115,9 @@ export default function MusicCommentsScreen() {
 
     const newComment: Comment = {
       id: Date.now().toString(),
-      user: { name: "Você", avatar: avatarSource },
+      user: { name: t("musicComments.you"), avatar: avatarSource },
       text: txt,
-      timestamp: "agora",
+      timestamp: Date.now(), // guarda tempo em ms
     };
 
     setComments((prev) => [newComment, ...prev]);
@@ -99,9 +137,10 @@ export default function MusicCommentsScreen() {
       />
       <View style={styles.bubble}>
         <Text style={styles.name}>
-          {item.user.name} <Text style={styles.time}>{item.timestamp}</Text>
+          {item.user.name} <Text style={styles.time}>{getRelativeTime(item.timestamp)}</Text>
         </Text>
         <Text style={styles.text}>{item.text}</Text>
+
       </View>
     </View>
   );
@@ -110,13 +149,14 @@ export default function MusicCommentsScreen() {
     <>
       <Stack.Screen
         options={{
-          title: "Comentários",
+          title: t("musicComments.title"),
           headerTintColor: "#fff",
           headerStyle: { backgroundColor: "#191919" },
         }}
       />
 
       <View style={styles.container}>
+
         {/* Cabeçalho da música */}
         <View style={styles.headerInfo}>
           {albumArtUrl ? (
@@ -139,8 +179,8 @@ export default function MusicCommentsScreen() {
             )}
             <Text style={styles.commentCountText}>
               {comments.length > 0
-                ? `${comments.length} Comentário${comments.length > 1 ? "s" : ""}`
-                : "Comentários"}
+                ? t("musicComments.commentCount", { count: comments.length })
+                : t("musicComments.title")}
             </Text>
           </View>
         </View>
@@ -149,7 +189,7 @@ export default function MusicCommentsScreen() {
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#1E90FF" />
-            <Text style={styles.loadingText}>Carregando comentários...</Text>
+            <Text style={styles.loadingText}>{t("musicComments.loading")}</Text>
           </View>
         ) : (
           <FlatList
@@ -160,7 +200,7 @@ export default function MusicCommentsScreen() {
             contentContainerStyle={styles.flatListContentContainer}
             ListEmptyComponent={() => (
               <Text style={styles.emptyCommentsText}>
-                Nenhum comentário para esta música ainda. Seja o primeiro!
+                {t("musicComments.emptyList")}
               </Text>
             )}
           />
@@ -183,7 +223,7 @@ export default function MusicCommentsScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Adicionar um comentário público..."
+            placeholder={t("musicComments.placeholder")}
             placeholderTextColor="#888"
             value={input}
             onChangeText={setInput}

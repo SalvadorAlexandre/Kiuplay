@@ -20,6 +20,8 @@ import { BlurView } from 'expo-blur';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { ExclusiveBeat } from '@/src/types/contentType';
 
+import { useTranslation } from '@/src/translations/useTranslation';
+
 // 🛑 NOVOS IMPORTS PARA A MOEDA
 import { selectUserLocale, selectUserCurrencyCode } from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors do seu novo Slice
 import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
@@ -32,6 +34,9 @@ import { addNotification } from '@/src/redux/notificationsSlice';
 import { processBeatPurchaseThunk } from '@/src/redux/beatPurchaseThunks';
 
 export default function exclusiveBeatDetailsScreen() {
+
+    const { t } = useTranslation()
+
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -48,9 +53,9 @@ export default function exclusiveBeatDetailsScreen() {
         return (
             <View style={styles.errorContainer}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <Text style={styles.errorText}>Beat não encontrado.</Text>
+                <Text style={styles.errorText}>{t('exclusiveBeatDetails.notFound')}</Text>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Text style={styles.backButtonText}>Voltar</Text>
+                    <Text style={styles.backButtonText}>{t('exclusiveBeatDetails.back')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -86,7 +91,7 @@ export default function exclusiveBeatDetailsScreen() {
 
     const handlePlaySingle = useCallback(async () => {
         if (!currentExclusiveBeat.uri) {
-            Alert.alert("Erro", "URI da música não disponível para reprodução.");
+            Alert.alert(t('common.error'), t('exclusiveBeatDetails.errorPlay'));
             return;
         }
         const singlePlaylist: Track[] = [currentExclusiveBeat];
@@ -125,7 +130,7 @@ export default function exclusiveBeatDetailsScreen() {
                 .unwrap()
                 .then(() => {
                     // A compra foi um sucesso
-                    Alert.alert('Compra concluída', 'O beat foi adicionado à sua biblioteca!');
+                    Alert.alert(t('exclusiveBeatDetails.purchaseSuccessTitle'), t('exclusiveBeatDetails.purchaseSuccessMessage'));
                     // Não é necessário chamar router.back() se você quiser que o usuário veja o botão Baixar imediatamente.
                 })
                 .catch((error) => {
@@ -138,7 +143,10 @@ export default function exclusiveBeatDetailsScreen() {
         // 💬 Lógica de Confirmação (Web/Mobile)
         if (Platform.OS === 'web') {
             const confirmed = window.confirm(
-                `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`
+                t('exclusiveBeatDetails.purchaseConfirmMessage', {
+                    title: currentExclusiveBeat.title,
+                    price: formattedPrice,
+                })
             );
             if (confirmed) {
                 performPurchase();
@@ -146,11 +154,14 @@ export default function exclusiveBeatDetailsScreen() {
         } else {
             // 📱 MOBILE (Android/iOS)
             Alert.alert(
-                "Confirmar Compra",
-                `Deseja comprar "${currentExclusiveBeat.title}" por ${formattedPrice}?`,
+                t("exclusiveBeatDetails.purchaseConfirmTitle"),
+                t('exclusiveBeatDetails.confirmPurchaseMessage', {
+                    title: currentExclusiveBeat.title,
+                    price: formattedPrice,
+                }),
                 [
-                    { text: "Cancelar", style: "cancel" },
-                    { text: "Confirmar", onPress: performPurchase },
+                    { text: t('exclusiveBeatDetails.cancel'), style: 'cancel' },
+                    { text: t('exclusiveBeatDetails.confirm'), onPress: performPurchase },
                 ]
             );
         }
@@ -193,17 +204,17 @@ export default function exclusiveBeatDetailsScreen() {
 
                                 {currentExclusiveBeat.producer && (
                                     <Text style={styles.detailText}>
-                                        Producer: {currentExclusiveBeat.producer}
+                                        {t('exclusiveBeatDetails.producerLabel')} {currentExclusiveBeat.producer}
                                     </Text>
                                 )}
-                                <Text style={styles.detailText}>{currentExclusiveBeat.typeUse}</Text>
+                                <Text style={styles.detailText}>{currentExclusiveBeat.typeUse} • {currentExclusiveBeat.bpm.toString()} BPM</Text>
 
                                 <Text style={styles.detailText}>
-                                    {currentExclusiveBeat.category.charAt(0).toUpperCase() + currentExclusiveBeat.category.slice(1)} • {currentExclusiveBeat.releaseYear || 'Ano Desconhecido'}
+                                    {currentExclusiveBeat.category.charAt(0).toUpperCase() + currentExclusiveBeat.category.slice(1)} • {currentExclusiveBeat.releaseYear || t('exclusiveBeatDetails.unknownYear')}
                                 </Text>
 
                                 <Text style={styles.detailText}>
-                                    {(currentExclusiveBeat.viewsCount || 0).toLocaleString()} Plays • {currentExclusiveBeat.genre || 'Gênero Desconhecido'}
+                                    {(currentExclusiveBeat.viewsCount || 0).toLocaleString()} Plays • {currentExclusiveBeat.genre || t('exclusiveBeatDetails.unknownGenre')}
                                 </Text>
                             </View>
                         </TouchableOpacity>
@@ -217,7 +228,7 @@ export default function exclusiveBeatDetailsScreen() {
                                     onPress={() => Alert.alert("Download", "A função de download será implementada aqui.")}
                                 >
                                     <Ionicons name="download" size={20} color="#fff" style={{ marginRight: 8 }} />
-                                    <Text style={styles.textBuy}>Baixar Beat</Text>
+                                    <Text style={styles.textBuy}>{t('exclusiveBeatDetails.downloadButton')}</Text>
                                 </TouchableOpacity>
                             ) : (
                                 // 💰 ESTADO PRÉ-COMPRA: Botão COMPRAR
@@ -226,7 +237,7 @@ export default function exclusiveBeatDetailsScreen() {
                                     onPress={handlePurchase}
                                 >
                                     <Text style={styles.textBuy}>
-                                        Comprar por {formattedPrice}
+                                        {t('exclusiveBeatDetails.buyButton', { price: formattedPrice })}
                                     </Text>
                                 </TouchableOpacity>
                             )}

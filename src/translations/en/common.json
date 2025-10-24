@@ -298,5 +298,120 @@
     "publishButton": "Publish Promotion",
     "errorTitle": "Error",
     "errorContentNotFound": "Content not found for promotion."
+  },
+  "search_screen_profile": {
+    "placeholder": "Search in {{name}}'s profile...",
+    "placeholder_default": "Search in the artist's profile...",
+    "no_results": "No results found for \"{{query}}\".",
+    "start_typing": "Start typing to search your profile."
+  },
+  "search_beat_store": {
+    "placeholder": "Search beats...",
+    "no_results": "No beats found for \"{{query}}\".",
+    "start_typing": "Start typing to search for exclusive or free beats.",
+    "unknown_item_type": "Unknown item type or not available for navigation..."
+  },
+  "search_library": {
+    "placeholder": "Search in Library...",
+    "no_results": "No results found for \"{{query}}\".",
+    "start_typing": "Start typing to search your library.",
+    "unknown_item_type": "Unknown item type: {{category}}"
+  },
+  "exclusiveBeatDetails": {
+    "notFound": "Beat not found.",
+    "back": "Back",
+    "errorPlay": "Music URI not available for playback.",
+    "purchaseConfirmTitle": "Confirm Purchase",
+    "purchaseConfirmMessage": "Do you want to buy \"{{title}}\" for {{price}}?",
+    "purchaseSuccessTitle": "Purchase Complete",
+    "purchaseSuccessMessage": "The beat has been added to your library!",
+    "purchaseFailTitle": "Purchase Failed",
+    "purchaseFailMessage": "Unable to process the transaction. Please try again.",
+    "producerLabel": "Producer:",
+    "unknownYear": "Unknown Year",
+    "unknownGenre": "Unknown Genre",
+    "playsLabel": "{{count}} Plays • {{genre}}",
+    "buyButton": "Buy for {{price}}",
+    "downloadButton": "Download Beat",
+    "downloadAlert": "The download feature will be implemented here."
+  },
+  "common": {
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "freeBeatdetails": {
+    "notFound": "Beat not found.",
+    "backButton": "Back",
+    "unknownGenre": "Unknown Genre",
+    "unknownYear": "Unknown Year",
+    "producerLabel": "Producer:"
+  },
+  "albumDetails": {
+    "emptyList": "No tracks found in this album.",
+    "unknownGenre": "Unknown Genre",
+    "unknownYear": "Unknown Year",
+    "tracksCount": "{{count}} tracks",
+    "backButton": "Back",
+    "notFound": "Album not found."
+  },
+  "epDetails": {
+    "emptyList": "No tracks found in this EP.",
+    "unknownGenre": "Unknown Genre",
+    "unknownYear": "Unknown Year",
+    "tracksCount": "{{count}} tracks",
+    "backButton": "Back",
+    "notFound": "EP not found."
+  },
+  "artistProfile": {
+    "notFound": "Artist not found.",
+    "back": "Back",
+    "tabs": {
+      "single": "Single",
+      "ep": "Extended Play",
+      "album": "Album",
+      "freeBeats": "Free Beats",
+      "exclusiveBeats": "Exclusive Beats"
+    },
+    "empty": {
+      "single": "No singles published yet.",
+      "ep": "No EPs published yet.",
+      "album": "No albums published yet.",
+      "freeBeats": "No Free Beats published yet.",
+      "exclusiveBeats": "No Beats published yet."
+    },
+    "followersLine": "{{followers}} Followers • {{following}} Following",
+    "follow": "Follow",
+    "following": "Following",
+    "genreLine": "{{category}} • {{genres}} • Since {{year}}"
+  },
+  "shareMusic": {
+    "unknownTitle": "Unknown Title",
+    "unknownArtist": "Unknown Artist",
+    "nativeShareButton": "Share to other apps",
+    "sectionTitle": "Your Followers",
+    "emptyFollowers": "No followers found.",
+    "shareAllFollowers": "Share with ALL Followers ({{count}})",
+    "title": "Share Music",
+    "searchPlaceholder": "Search followers by name or @username"
+  },
+  "musicComments": {
+    "title": "Comments",
+    "loading": "Loading comments...",
+    "emptyList": "No comments for this song yet. Be the first!",
+    "commentCount": "{{count}} Comment",
+    "commentCount_plural": "{{count}} Comments",
+    "placeholder": "Add a public comment...",
+    "you": "You",
+    "time": {
+      "just_now": "just now",
+      "minutes_ago": "{{count}} minute ago",
+      "minutes_ago_plural": "{{count}} minutes ago",
+      "hours_ago": "{{count}} hour ago",
+      "hours_ago_plural": "{{count}} hours ago",
+      "days_ago": "{{count}} day ago",
+      "days_ago_plural": "{{count}} days ago"
+    }
   }
 }

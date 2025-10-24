@@ -1,3 +1,4 @@
+//app/searchScreens/searchLibrary.tsx
 import React, { useState, useMemo, useCallback } from "react";
 import {
     View,
@@ -12,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter, Stack } from "expo-router";
 import debounce from "lodash.debounce";
 
+import { useTranslation } from "@/src/translations/useTranslation";
+
 interface ContentItem {
     id: string;
     title?: string;
@@ -22,6 +25,9 @@ interface ContentItem {
 import { MOCKED_CLOUD_FEED_DATA } from "@/src/types/contentServer";
 
 export default function LibrarySearch() {
+
+    const { t } = useTranslation()
+
     const [query, setQuery] = useState("");
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
@@ -73,7 +79,7 @@ export default function LibrarySearch() {
         } else if (item.category === "artist" || !item.category) {
             router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
         } else {
-            console.warn("Tipo de item desconhecido:", item.category);
+            console.warn(t('search_library.unknown_item_type', { category: item.category }));
         }
     };
 
@@ -84,7 +90,7 @@ export default function LibrarySearch() {
         const isArtist =
             !item.category || item.category.trim() === "" || item.category === "artist";
 
-        const displayType = isArtist ? "Artista" : item.category;
+        const displayType = isArtist ? "Artist" : item.category;
 
         // 🎨 Ícones personalizados por tipo
         let iconName: keyof typeof Ionicons.glyphMap = "musical-notes";
@@ -130,7 +136,7 @@ export default function LibrarySearch() {
 
                     <TextInput
                         style={styles.input}
-                        placeholder="Pesquisar na Library..."
+                        placeholder={t('search_library.placeholder')}
                         placeholderTextColor="#aaa"
                         value={query}
                         onChangeText={handleInputChange}
@@ -155,11 +161,11 @@ export default function LibrarySearch() {
                     ListEmptyComponent={() =>
                         searchQuery.length > 0 ? (
                             <Text style={styles.noResults}>
-                                Nenhum resultado encontrado para "{searchQuery}".
+                                {t('search_library.no_results', { query: searchQuery })}
                             </Text>
                         ) : (
                             <Text style={styles.noResults}>
-                                Comece a digitar para pesquisar na sua biblioteca.
+                                {t('search_library.start_typing')}
                             </Text>
                         )
                     }

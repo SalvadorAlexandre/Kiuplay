@@ -20,7 +20,12 @@ import { BlurView } from 'expo-blur';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { FreeBeat } from '@/src/types/contentType';
 
+import { useTranslation } from '@/src/translations/useTranslation';
+
 export default function feeBeatDetailsScreen() {
+
+    const { t } = useTranslation()
+
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -33,9 +38,9 @@ export default function feeBeatDetailsScreen() {
         return (
             <View style={styles.errorContainer}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <Text style={styles.errorText}>Beat não encontrado.</Text>
+                <Text style={styles.errorText}>{t('freeBeatdetails.notFound')}</Text>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Text style={styles.backButtonText}>Voltar</Text>
+                    <Text style={styles.backButtonText}>{t('freeBeatdetails.backButton')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -156,17 +161,17 @@ export default function feeBeatDetailsScreen() {
 
                                 {currentFreeBeat.producer && (
                                     <Text style={styles.detailText}>
-                                        Producer: {currentFreeBeat.producer}
+                                        {t('freeBeatdetails.producerLabel')} {currentFreeBeat.producer}
                                     </Text>
                                 )}
-                                <Text style={styles.detailText}>{currentFreeBeat.typeUse}</Text>
+                                <Text style={styles.detailText}>{currentFreeBeat.typeUse} • {currentFreeBeat.bpm.toString()} BPM</Text>
 
                                 <Text style={styles.detailText}>
-                                    {currentFreeBeat.category.charAt(0).toUpperCase() + currentFreeBeat.category.slice(1)} • {currentFreeBeat.releaseYear || 'Ano Desconhecido'}
+                                    {currentFreeBeat.category.charAt(0).toUpperCase() + currentFreeBeat.category.slice(1)} • {currentFreeBeat.releaseYear || t('freeBeatdetails.unknownYear')}
                                 </Text>
 
                                 <Text style={styles.detailText}>
-                                    {(currentFreeBeat.viewsCount || 0).toLocaleString()} Plays • {currentFreeBeat.genre || 'Gênero Desconhecido'}
+                                    {(currentFreeBeat.viewsCount || 0).toLocaleString()} Plays • {currentFreeBeat.genre || t('freeBeatdetails.unknownGenre')}
                                 </Text>
                             </View>
                         </TouchableOpacity>

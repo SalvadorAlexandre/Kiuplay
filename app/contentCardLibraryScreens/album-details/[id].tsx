@@ -16,12 +16,12 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice'; // Adicionado para favoritar EP/faixas
 import { Ionicons } from '@expo/vector-icons';
-import {MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Album, Single } from '@/src/types/contentType'; // Importado Single também
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
-
+import { useTranslation } from '@/src/translations/useTranslation';
 
 
 // Componente para renderizar cada item da faixa na FlatList
@@ -34,7 +34,7 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
 }) => {
   const isConnected = useAppSelector((state) => state.network.isConnected)
   // NOVO: Obtenha o currentTrack do estado do player
-  
+
 
   const getImageSource = () => {
     if (isConnected === false || !track.cover || track.cover.trim() === '') {
@@ -111,6 +111,9 @@ const trackItemStyles = StyleSheet.create({
 
 
 export default function AlbumDetailsScreen() {
+
+  const { t } = useTranslation()
+
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -123,9 +126,9 @@ export default function AlbumDetailsScreen() {
     return (
       <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
         <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-        <Text style={styles.errorText}>Album não encontrado.</Text>
+       <Text style={styles.errorText}>{t('albumDetails.notFound')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Voltar</Text>
+          <Text style={styles.backButtonText}>{t('albumDetails.backButton')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -249,11 +252,11 @@ export default function AlbumDetailsScreen() {
             <Text style={styles.artistName}>{currentAlbum.artist}</Text>
 
             <Text style={styles.detailText}>
-              {currentAlbum.category.charAt(0).toUpperCase() + currentAlbum.category.slice(1)} • {currentAlbum.releaseYear || 'Ano Desconhecido'} • {currentAlbum.tracks?.length || 0} faixas
+              {`${currentAlbum.category.charAt(0).toUpperCase() + currentAlbum.category.slice(1)} • ${currentAlbum.releaseYear || t('albumDetails.unknownYear')} • ${t('albumDetails.tracksCount', { count: currentAlbum.tracks?.length || 0 })}`}
             </Text>
 
             <Text style={styles.detailText}>
-              {currentAlbum.mainGenre || 'Gênero Desconhecido'}
+              {currentAlbum.mainGenre || t('albumDetails.unknownGenre')}
             </Text>
           </View>
 
@@ -296,7 +299,7 @@ export default function AlbumDetailsScreen() {
         ListHeaderComponent={ListHeaderComponent}
         contentContainerStyle={styles.trackListContent}
         ListEmptyComponent={
-          <Text style={styles.emptyListText}>Nenhuma faixa encontrada neste Album.</Text>
+          <Text style={styles.emptyListText}>{t('albumDetails.emptyList')}</Text>
         }
       />
     </View>
@@ -412,7 +415,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   trackListContent: {
-     paddingBottom: 100, // Mantido, para espaço no fundo
+    paddingBottom: 100, // Mantido, para espaço no fundo
   },
   emptyListText: {
     color: '#bbb',

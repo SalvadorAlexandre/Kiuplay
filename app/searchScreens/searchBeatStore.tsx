@@ -1,3 +1,4 @@
+//app/searchScreens/searchBeatStore.tsx
 import React, { useState, useMemo, useCallback } from "react";
 import {
     View,
@@ -15,7 +16,12 @@ import debounce from "lodash.debounce";
 import { MOCKED_BEATSTORE_FEED_DATA } from "@/src/types/contentServer";
 import { BeatStoreFeedItem } from "@/src/types/contentType";
 
+import { useTranslation } from "@/src/translations/useTranslation";
+
 export default function UseSearchBeatScreen() {
+
+    const { t } = useTranslation()
+
     const [query, setQuery] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
@@ -56,7 +62,7 @@ export default function UseSearchBeatScreen() {
         } else if (item.typeUse === "exclusive") {
             router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${item.id}` as Href);
         } else {
-            console.warn("Tipo de item desconhecido ou não disponível para navegação...");
+           console.warn(t('search_beat_store.unknown_item_type'));
         }
     };
 
@@ -112,7 +118,7 @@ export default function UseSearchBeatScreen() {
 
                     <TextInput
                         style={styles.input}
-                        placeholder="Pesquisar beats..."
+                        placeholder={t('search_beat_store.placeholder')}
                         placeholderTextColor="#aaa"
                         value={query}
                         onChangeText={handleInputChange}
@@ -136,11 +142,11 @@ export default function UseSearchBeatScreen() {
                     ListEmptyComponent={() =>
                         searchQuery.length > 0 ? (
                             <Text style={styles.noResults}>
-                                Nenhum beat encontrado para "{searchQuery}".
+                                {t('search_beat_store.no_results', { query: searchQuery })}
                             </Text>
                         ) : (
                             <Text style={styles.noResults}>
-                                Comece a digitar para procurar beats exclusivos ou gratuitos.
+                                {t('search_beat_store.start_typing')}
                             </Text>
                         )
                     }

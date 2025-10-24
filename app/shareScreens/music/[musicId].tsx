@@ -19,6 +19,8 @@ import debounce from 'lodash.debounce'; // 💡 IMPORTAÇÃO DO DEBOUNCE
 import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import { ProfileReference } from '@/src/types/contentType';
 
+import { useTranslation } from '@/src/translations/useTranslation';
+
 // O perfil que estamos 'usando' para simular o usuário logado
 const userProfile = MOCKED_PROFILE[0];
 
@@ -29,12 +31,21 @@ const followersData: User[] = userProfile?.followers || [];
 
 
 export default function ShareMusicScreen() {
+
+    const { t } = useTranslation()
+
     const params = useLocalSearchParams();
 
     // Tratamento de parâmetros (mantido)
     const musicId = Array.isArray(params.musicId) ? params.musicId[0] : (params.musicId || '');
-    const musicTitle = Array.isArray(params.musicTitle) ? params.musicTitle[0] : (params.musicTitle || 'Título Desconhecido');
-    const artistName = Array.isArray(params.artistName) ? params.artistName[0] : (params.artistName || 'Artista Desconhecido');
+    const musicTitle = Array.isArray(params.musicTitle)
+        ? params.musicTitle[0]
+        : (params.musicTitle || t('shareMusic.unknownTitle'));
+
+    const artistName = Array.isArray(params.artistName)
+        ? params.artistName[0]
+        : (params.artistName || t('shareMusic.unknownArtist'));
+
     const albumArtUrl = Array.isArray(params.albumArtUrl)
         ? params.albumArtUrl[0]
         : (params.albumArtUrl || '');
@@ -125,7 +136,7 @@ export default function ShareMusicScreen() {
                 <Text style={styles.userName}>{item.name}</Text>
                 <Text style={styles.userUsername}>{item.username}</Text>
             </View>
-            <Ionicons name="person-outline" size={20} color="#555" />
+            <Ionicons name="person" size={20} color="#555" />
         </View>
     );
 
@@ -134,7 +145,7 @@ export default function ShareMusicScreen() {
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    title: 'Partilhar Música',
+                    title: t('shareMusic.title'),
                     headerStyle: { backgroundColor: '#1E1E1E' },
                     headerTintColor: '#fff',
                 }}
@@ -156,19 +167,19 @@ export default function ShareMusicScreen() {
             </View>
 
             <TouchableOpacity style={styles.nativeShareButton} onPress={handleNativeShare}>
-                <Ionicons name="share-outline" size={22} color="#fff" />
-                <Text style={styles.nativeShareButtonText}>Partilhar em outras apps</Text>
+                <Ionicons name="share" size={22} color="#fff" />
+                <Text style={styles.nativeShareButtonText}>{t('shareMusic.nativeShareButton')}</Text>
             </TouchableOpacity>
 
             <Text style={styles.sectionTitle}>
-                Seus Seguidores
+                {t('shareMusic.sectionTitle')}
             </Text>
 
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Pesquisar seguidores por nome ou @username"
+                    placeholder={t('shareMusic.searchPlaceholder')}
                     placeholderTextColor="#888"
                     // O TextInput agora usa inputSearchText
                     value={inputSearchText}
@@ -186,7 +197,7 @@ export default function ShareMusicScreen() {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContent}
                 ListHeaderComponent={<View style={styles.listSeparator} />}
-                ListEmptyComponent={<Text style={styles.emptyListText}>Nenhum seguidor encontrado.</Text>}
+                ListEmptyComponent={<Text style={styles.emptyListText}>{t('shareMusic.emptyFollowers')}</Text>}
             />
 
             <TouchableOpacity
@@ -194,7 +205,7 @@ export default function ShareMusicScreen() {
                 onPress={handleShare}
             >
                 <Text style={styles.shareButtonText}>
-                    Partilhar com TODOS os Seguidores ({followersData.length})
+                    {t('shareMusic.shareAllFollowers', { count: followersData.length })}
                 </Text>
             </TouchableOpacity>
         </View>
@@ -312,7 +323,7 @@ const styles = StyleSheet.create({
     },
     shareButtonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
     },
     nativeShareButton: {

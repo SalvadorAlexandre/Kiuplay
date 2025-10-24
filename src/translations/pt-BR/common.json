@@ -298,5 +298,121 @@
         "publishButton": "Publicar Promoção",
         "errorTitle": "Erro",
         "errorContentNotFound": "Conteúdo não encontrado para promoção."
+    },
+    "search_screen_profile": {
+        "placeholder": "Pesquisar no perfil de {{name}}...",
+        "placeholder_default": "Pesquisar no perfil de Artista...",
+        "no_results": "Nenhum resultado encontrado para \"{{query}}\".",
+        "start_typing": "Comece a digitar para pesquisar no seu perfil."
+    },
+    "search_beat_store": {
+        "placeholder": "Pesquisar beats...",
+        "no_results": "Nenhum beat encontrado para \"{{query}}\".",
+        "start_typing": "Comece a digitar para procurar beats exclusivos ou gratuitos.",
+        "unknown_item_type": "Tipo de item desconhecido ou não disponível para navegação..."
+    },
+    "search_library": {
+        "placeholder": "Pesquisar na Library...",
+        "no_results": "Nenhum resultado encontrado para \"{{query}}\".",
+        "start_typing": "Comece a digitar para pesquisar na sua biblioteca.",
+        "unknown_item_type": "Tipo de item desconhecido: {{category}}"
+    },
+    "exclusiveBeatDetails": {
+        "notFound": "Beat não encontrado.",
+        "back": "Voltar",
+        "errorPlay": "URI da música não disponível para reprodução.",
+        "purchaseConfirmTitle": "Confirmar Compra",
+        "purchaseConfirmMessage": "Deseja comprar \"{{title}}\" por {{price}}?",
+        "purchaseSuccessTitle": "Compra concluída",
+        "purchaseSuccessMessage": "O beat foi adicionado à sua biblioteca!",
+        "purchaseFailTitle": "Falha na Compra",
+        "purchaseFailMessage": "Não foi possível processar a transação. Tente novamente.",
+        "producerLabel": "Produtor:",
+        "unknownYear": "Ano Desconhecido",
+        "unknownGenre": "Gênero Desconhecido",
+        "playsLabel": "{{count}} Plays • {{genre}}",
+        "buyButton": "Comprar por {{price}}",
+        "downloadButton": "Baixar Beat",
+        "downloadAlert": "A função de download será implementada aqui."
+    },
+    "common": {
+        "error": "Erro",
+        "success": "Sucesso",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar"
+    },
+    "freeBeatdetails": {
+        "notFound": "Beat não encontrado.",
+        "backButton": "Voltar",
+        "unknownGenre": "Gênero Desconhecido",
+        "unknownYear": "Ano Desconhecido",
+        "producerLabel": "Produtor:"
+    },
+    "albumDetails": {
+        "emptyList": "Nenhuma faixa encontrada neste Álbum.",
+        "unknownGenre": "Gênero Desconhecido",
+        "unknownYear": "Ano Desconhecido",
+        "tracksCount": "{{count}} faixas",
+        "backButton": "Voltar",
+        "notFound": "Álbum não encontrado."
+    },
+    "epDetails": {
+        "emptyList": "Nenhuma faixa encontrada nesta EP.",
+        "unknownGenre": "Gênero Desconhecido",
+        "unknownYear": "Ano Desconhecido",
+        "tracksCount": "{{count}} faixas",
+        "backButton": "Voltar",
+        "notFound": "EP não encontrado."
+    },
+    "artistProfile": {
+        "notFound": "Artista não encontrado.",
+        "back": "Voltar",
+        "tabs": {
+            "single": "Faixas",
+            "ep": "Extended Play",
+            "album": "Álbum",
+            "freeBeats": "Free Beats",
+            "exclusiveBeats": "Exclusive Beats"
+        },
+        "empty": {
+            "single": "Nenhum single publicado ainda.",
+            "ep": "Nenhum EP publicado ainda.",
+            "album": "Nenhum Álbum publicado ainda.",
+            "freeBeats": "Nenhum Free Beat publicado ainda.",
+            "exclusiveBeats": "Nenhum Beat publicado ainda."
+        },
+        "followersLine": "{{followers}} Seguidores • {{following}} Seguindo",
+        "follow": "Seguir",
+        "following": "Seguindo",
+        "genreLine": "{{category}} • {{genres}} • Desde {{year}}"
+    },
+    "shareMusic": {
+        "unknownTitle": "Título Desconhecido",
+        "unknownArtist": "Artista Desconhecido",
+        "nativeShareButton": "Partilhar em outras apps",
+        "sectionTitle": "Seus Seguidores",
+        "emptyFollowers": "Nenhum seguidor encontrado.",
+        "shareAllFollowers": "Partilhar com TODOS os Seguidores ({{count}})",
+        "title": "Partilhar Música",
+        "searchPlaceholder": "Pesquisar seguidores por nome ou @username"
+    },
+    "musicComments": {
+        "title": "Comentários",
+        "loading": "Carregando comentários...",
+        "emptyList": "Nenhum comentário para esta música ainda. Seja o primeiro!",
+        "commentCount": "{{count}} Comentário",
+        "commentCount_plural": "{{count}} Comentários",
+        "placeholder": "Adicionar um comentário público...",
+        "you": "Você",
+        "justNow": "agora",
+        "time": {
+            "just_now": "agora",
+            "minutes_ago": "há {{count}} minuto atrás",
+            "minutes_ago_plural": "há {{count}} minutos atrás",
+            "hours_ago": "há {{count}} hora atrás",
+            "hours_ago_plural": "há {{count}} horas atrás",
+            "days_ago": "há {{count}} dia atrás",
+            "days_ago_plural": "há {{count}} dias atrás"
+        }
     }
 }

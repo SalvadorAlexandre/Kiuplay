@@ -26,8 +26,13 @@ import AlbumCard from '@/components/musicItems/albumItem/AlbumCard';
 import ExclusiveBeatCard from '@/components/musicItems/exclusiveBeatItem/ExclusiveBeatCard';
 import FreeBeatCard from '@/components/musicItems/freeBeatItem/FreeBeatCard';
 
+import { useTranslation } from '@/src/translations/useTranslation';
+
 
 export default function ArtistProfileScreen() {
+
+  const { t } = useTranslation()
+
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useDispatch(); // NOVO: Inicializa useDispatch
@@ -41,16 +46,23 @@ export default function ArtistProfileScreen() {
     return (
       <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
         <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-        <Text style={styles.errorText}>Artista não encontrado.</Text>
+        <Text style={styles.errorText}>{t('artistProfile.notFound')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Voltar</Text>
+          <Text style={styles.backButtonText}>{t('artistProfile.back')}</Text>
         </TouchableOpacity>
       </View>
     );
   }
   const currentArtist: ArtistProfile = ArtistData;
 
-  const tabs = ['Single', 'Extended Play', 'Album', 'Free Beats', 'Exclusive Beats'];
+  //const tabs = ['Single', 'Extended Play', 'Album', 'Free Beats', 'Exclusive Beats'];
+  const tabs = [
+    t('artistProfile.tabs.single'),
+    t('artistProfile.tabs.ep'),
+    t('artistProfile.tabs.album'),
+    t('artistProfile.tabs.freeBeats'),
+    t('artistProfile.tabs.exclusiveBeats'),
+  ];
   const [activeTab, setActiveTab] = useState('Single');
 
   // NOVO: Verifica se o artista atual é seguido
@@ -109,11 +121,19 @@ export default function ArtistProfileScreen() {
         <Text style={styles.artistUserName}>{currentArtist.username}</Text>
 
         {currentArtist.genres !== undefined && (
-          <Text style={styles.artistGenres}> {currentArtist.category} • {currentArtist.genres} • Desde {currentArtist.releaseYear}</Text>
+          <Text style={styles.artistGenres}>{t('artistProfile.genreLine', {
+            category: currentArtist.category || '',
+            genres: currentArtist.genres || '',
+            year: currentArtist.releaseYear || ''
+          })}</Text>
         )}
 
         {currentArtist.followersCount !== undefined && (
-          <Text style={styles.artistFollowers}>{currentArtist.followersCount} Seguidores • {currentArtist.followingCount} Seguindo</Text>
+          <Text style={styles.artistFollowers}>{t('artistProfile.followersLine', {
+            followers: currentArtist.followersCount ?? 0,
+            following: currentArtist.followingCount ?? 0
+          })}</Text>
+
         )}
 
         <View style={{ flexDirection: 'row' }}>
@@ -123,7 +143,7 @@ export default function ArtistProfileScreen() {
             style={[styles.buttonFollowers, isFollowing ? styles.buttonFollowing : styles.buttonFollow]}
             onPress={handleToggleFollow}
           >
-            <Text style={styles.buttonText}>{isFollowing ? 'Seguindo' : 'Seguir'}</Text>
+            <Text style={styles.buttonText}>{isFollowing ? t('artistProfile.following') : t('artistProfile.follow')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -171,7 +191,7 @@ export default function ArtistProfileScreen() {
               contentContainerStyle={{ paddingBottom: 20 }}
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.texto}>Nenhum single publicado ainda.</Text>
+                  <Text style={styles.texto}>{t('artistProfile.empty.single')}</Text>
                 </View>
               )}
             />
@@ -193,7 +213,7 @@ export default function ArtistProfileScreen() {
               )}
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.texto}>Nenhum Album publicado ainda.</Text>
+                  <Text style={styles.texto}>{t('artistProfile.empty.album')}</Text>
                 </View>
               )}
             />
@@ -214,7 +234,7 @@ export default function ArtistProfileScreen() {
               )}
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.texto}>Nenhum EP publicado ainda.</Text>
+                  <Text style={styles.texto}>{t('artistProfile.empty.ep')}</Text>
                 </View>
 
               )}
@@ -236,7 +256,7 @@ export default function ArtistProfileScreen() {
               )}
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.texto}>Nenhum Free Beat publicado ainda.</Text>
+                  <Text style={styles.texto}>{t('artistProfile.empty.freeBeats')}</Text>
                 </View>
               )}
             />
@@ -257,7 +277,7 @@ export default function ArtistProfileScreen() {
               )}
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.texto}>Nenhum Beat publicado ainda.</Text>
+                  <Text style={styles.texto}>{t('artistProfile.empty.exclusiveBeats')}</Text>
                 </View>
               )}
             />

@@ -254,7 +254,7 @@ export interface Comment {
     id: string;
     user: CommentUserReference;
     text: string;
-    timestamp: string; // Ex: '2 min atrás', 'Ontem', '2024-05-01'
+    timestamp: number; // Ex: '2 min atrás', 'Ontem', '2024-05-01'
     // Você pode adicionar mais campos aqui se necessário, como 'likesCount', 'userId', etc.
 }
 
