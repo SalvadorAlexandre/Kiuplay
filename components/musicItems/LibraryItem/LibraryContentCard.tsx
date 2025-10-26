@@ -21,6 +21,8 @@ import {
 import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
 
+import { useTranslation } from '@/src/translations/useTranslation'
+
 interface LibraryContentCardProps {
     item: LibraryFeedItem;
     onPress: (item: LibraryFeedItem) => void;
@@ -31,7 +33,7 @@ export default function LibraryContentCard({
     onPress,
 }: LibraryContentCardProps) {
     const isConnected = useAppSelector((state) => state.network.isConnected);
-
+    const { t } = useTranslation()
     let coverSource;
     let titleText;
     let subtitleText;
@@ -69,7 +71,7 @@ export default function LibraryContentCard({
         titleText = albumItem.title;
         subtitleText = albumItem.artist;
         genreText = albumItem.mainGenre;
-        categoryText = 'Álbum';
+        categoryText = 'Album';
         releaseYearText = albumItem.releaseYear;
     } else if (item.category === 'ep') {
         const epItem = item as ExtendedPlayEP;
@@ -89,8 +91,8 @@ export default function LibraryContentCard({
             require('@/assets/images/Default_Profile_Icon/unknown_artist.png')
         );
         titleText = artistItem.name;
-        subtitleText = artistItem.genres?.join(', ') || 'Artista';
-        typeLabel = 'Artista';
+        subtitleText = artistItem.genres?.join(', ') || t('libraryContentCard.artistLabel');
+        typeLabel = t('libraryContentCard.artistLabel');
         releaseYearText = artistItem.releaseYear;
     }
     // REMOVIDOS: Blocos 'else if' para 'beat', 'playlist', 'video', 'promotion'
@@ -98,9 +100,9 @@ export default function LibraryContentCard({
         // Fallback genérico para qualquer tipo desconhecido que possa vir em LibraryFeedItem
         // Se LibraryFeedItem agora só inclui os tipos acima, este 'else' pode indicar um problema de dados.
         coverSource = require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-        titleText = 'Conteúdo Desconhecido';
+        titleText = t('libraryContentCard.artistLabel');
         subtitleText = '';
-        categoryText = 'Desconhecido';
+        categoryText = t('libraryContentCard.categoryUnknown');
         typeLabel = 'Item';
         releaseYearText = undefined;
     }

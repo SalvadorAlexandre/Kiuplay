@@ -13,12 +13,17 @@ import { BlurView } from "expo-blur";
 import { Single } from "@/src/types/contentType";
 import { useAppSelector } from "@/src/redux/hooks";
 
+import { useTranslation } from "@/src/translations/useTranslation";
+
 interface SingleCardProps {
   item: Single;
   onPress: (track: Single) => void;
 }
 
 export default function SingleCard({ item, onPress }: SingleCardProps) {
+
+  const { t } = useTranslation()
+
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
   const getDynamicCoverSource = () => {
@@ -51,7 +56,7 @@ export default function SingleCard({ item, onPress }: SingleCardProps) {
                 <Text style={styles.cardArtistText}>{item.artist}</Text>
                 <Text style={styles.cardGenreText}>{item.genre}</Text>
                 <Text style={styles.cardYearText}>
-                  Lançado em {item.releaseYear}
+                  {t('singleCard.releasedIn', { year: item.releaseYear })}
                 </Text>
               </View>
             </View>
@@ -68,7 +73,7 @@ export default function SingleCard({ item, onPress }: SingleCardProps) {
                 <Text style={styles.cardArtistText}>{item.artist}</Text>
                 <Text style={styles.cardGenreText}>{item.genre}</Text>
                 <Text style={styles.cardYearText}>
-                  Lançado em {item.releaseYear}
+                  {t("singleCard.releasedIn", { year: item.releaseYear })}
                 </Text>
               </View>
             </View>

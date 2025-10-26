@@ -413,5 +413,19 @@
       "days_ago": "{{count}} day ago",
       "days_ago_plural": "{{count}} days ago"
     }
+  },
+  "singleCard": {
+    "releasedIn": "Released in {{year}}"
+  },
+  "libraryContentCard": {
+    "artistLabel": "Artist",
+    "artistUnknown": "Artist",
+    "titleUnknown": "Unknown Content",
+    "categoryUnknown": "Unknown",
+    "singleNotFound": "Single with ID \"{{id}}\" not found.",
+    "backButton": "Back",
+    "unknownGenre": "Unknown Genre",
+    "unknownYear": "Unknown Year",
+    "producerLabel": "Producer:"
   }
 }

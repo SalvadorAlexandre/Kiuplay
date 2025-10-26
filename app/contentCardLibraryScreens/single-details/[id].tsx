@@ -20,8 +20,12 @@ import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Single } from '@/src/types/contentType';
+import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function SingleDetailsScreen() {
+
+  const { t } = useTranslation()
+
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -34,9 +38,9 @@ export default function SingleDetailsScreen() {
     return (
       <View style={styles.errorContainer}>
         <Stack.Screen options={{ headerShown: false }} />
-        <Text style={styles.errorText}>Single com ID "{id}" não encontrado.</Text>
+        <Text style={styles.errorText}> {t("libraryContentCard.singleNotFound", { id })}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Voltar</Text>
+          <Text style={styles.backButtonText}>{t("libraryContentCard.backButton")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -155,7 +159,7 @@ export default function SingleDetailsScreen() {
 
                 {currentSingle.producer && (
                   <Text style={styles.detailText}>
-                    Producer: {currentSingle.producer}
+                    {t("libraryContentCard.producerLabel")} {currentSingle.producer}
                   </Text>
                 )}
 
@@ -166,11 +170,11 @@ export default function SingleDetailsScreen() {
                 )}
 
                 <Text style={styles.detailText}>
-                  {currentSingle.category.charAt(0).toUpperCase() + currentSingle.category.slice(1)} • {currentSingle.releaseYear || 'Ano Desconhecido'}
+                  {currentSingle.category.charAt(0).toUpperCase() + currentSingle.category.slice(1)} • {currentSingle.releaseYear || t("libraryContentCard.unknownYear")}
                 </Text>
 
                 <Text style={styles.detailText}>
-                  {(currentSingle.viewsCount || 0).toLocaleString()} Plays • {currentSingle.genre || 'Gênero Desconhecido'}
+                  {(currentSingle.viewsCount || 0).toLocaleString()} Plays • {currentSingle.genre || t("libraryContentCard.unknownGenre")}
                 </Text>
               </View>
             </TouchableOpacity>
