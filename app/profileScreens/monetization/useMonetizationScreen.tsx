@@ -50,7 +50,7 @@ export default function MonetizationScreen() {
                     <View style={{ justifyContent: 'center', alignItems: 'center', padding: 20, }}>
                         {/* Ícone do paypal*/}
                         <Image
-                            source={require('@/assets/images/4/icons8_paypal_120px_3.png')} // Troque pelo seu ícone
+                            source={require('@/assets/images/payments/icons8_paypal_120px_3.png')} // Troque pelo seu ícone
                             style={styles.iconPaypal}
                         />
                         <Text style={{

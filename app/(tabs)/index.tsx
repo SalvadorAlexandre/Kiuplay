@@ -27,8 +27,11 @@ import { useTranslation } from '@/src/translations/useTranslation';
 // 🆕 NOVO IMPORT: Importa o tipo ExclusiveBeat
 import { ExclusiveBeat } from '@/src/types/contentType';
 
+import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
 
 export default function ProfileScreen() {
+
+  const { handleWalletAccess } = useMonetizationFlow();
 
   const { t, language, setLanguage } = useTranslation();
   const dispatch = useAppDispatch();
@@ -70,6 +73,10 @@ export default function ProfileScreen() {
   const [scaleValueUploads] = useState(new Animated.Value(1));
   const handlePressInUploads = () => { Animated.spring(scaleValueUploads, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutUploads = () => { Animated.spring(scaleValueUploads, { toValue: 1, useNativeDriver: true }).start(); };
+
+  const [scaleValueMonetization] = useState(new Animated.Value(1));
+  const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
+  const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
 
 
   // 🛑 AJUSTE 2: NOVAS ABAS DE BEATS
@@ -228,6 +235,24 @@ export default function ProfileScreen() {
                 style={styles.iconLeft}
               />
               <Text style={styles.buttonText}>{t('profile.makeUploads')}</Text>
+              <Ionicons name="chevron-forward" size={20} color="#fff" />
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View
+            style={[styles.buttonContainer, { transform: [{ scale: scaleValueMonetization }] }]}
+          >
+            <TouchableOpacity
+              onPressIn={handlePressInMonetization}
+              onPressOut={handlePressOutMonetization}
+              onPress={handleWalletAccess}
+              style={styles.buttonContent}
+            >
+              <Image
+                source={require('@/assets/images/2/icons8_wallet_120px.png')}
+                style={styles.iconLeft}
+              />
+              <Text style={styles.buttonText}>{t('profile.Kiuplaywallet')}</Text>
               <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
           </Animated.View>
