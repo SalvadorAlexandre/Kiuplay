@@ -5,9 +5,10 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
 
 // 🛑 NOVOS IMPORTS DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
-import { setAuthSession, logoutUser } from '@/src/redux/userSessionAndCurrencySlice';
+import { setAuthSession, logoutUser, setUser } from '@/src/redux/userSessionAndCurrencySlice';
 import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
 import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // ✅ IMPORTA O HOOK
+import { mockUserProfile } from '@/src/types/contentServer';
 
 
 // =========================================================================
@@ -108,10 +109,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const persistedToken = true; // MOCK temporário
 
         if (persistedToken) {
-          const mockUserId = 'user-123';
-          const accountRegion = 'US'//countryCode || 'US';
-          const userLocale = 'en-US'//locale || 'en-US';
-          const userCurrency = 'USD'//currency || 'USD';
+
+          // 🧩 MOCK: Dados vindos do perfil do usuário (mockado)
+          const mockUser = mockUserProfile; // Importado de contentServer
+          const mockUserId = mockUser.id;
+
+          //const mockUserId = 'user-123';
+          const accountRegion = countryCode || 'US';
+          const userLocale = locale || 'en-US';
+          const userCurrency = currency || 'USD';
 
           dispatch(setAuthSession({
             userId: mockUserId,
@@ -119,6 +125,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             currencyCode: userCurrency,
             accountRegion,
           }));
+
+          dispatch(setUser(mockUser))
 
           setIsLoggedIn(true);
         } else {

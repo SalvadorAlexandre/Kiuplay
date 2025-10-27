@@ -15,9 +15,9 @@ interface UsersState {
   /** O ID do usuário logado */
   currentUserId: string | null;
   /** O código de localização IETF (ex: 'pt-BR', 'en-US') */
-  userLocale: string;
+  userLocale: string | null;
   /** O código da moeda (ex: 'BRL', 'USD') */
-  userCurrencyCode: string;
+  userCurrencyCode: string | null;
 
   // 🛑 NOVOS CAMPOS PARA INTERNACIONALIZAÇÃO (i18n)
   /** Idioma escolhido manualmente pelo usuário ('pt-BR', 'en', 'es'). Null significa usar a lógica de cascata. */
@@ -32,12 +32,12 @@ const initialState: UsersState = {
   error: null,
   // VALORES INICIAIS/PADRÃO
   currentUserId: null,
-  userLocale: 'pt-BR', // Padrão de Moeda/Locale
-  userCurrencyCode: 'BRL', // Padrão de Moeda
+  userLocale: 'en-US', // Locale global neutro
+  userCurrencyCode: 'USD', // 💵 Dólar como moeda padrão
 
   // 🛑 VALORES INICIAIS DE i18n
   appLanguage: null, // Começa como null para que a cascata de idioma seja executada
-  userAccountRegion: null, // Será preenchido no login (setAuthSession) ou no registro
+  userAccountRegion: 'US', // Região padrão global
 };
 
 /* ---------- (exemplo) thunk para buscar perfil ----------- */
@@ -98,8 +98,8 @@ const userSessionAndCurrencySlice = createSlice({
     logoutUser(state) {
       state.currentUserId = null;
       // Retorna aos padrões de moeda/i18n
-      state.userLocale = 'pt-BR';
-      state.userCurrencyCode = 'BRL';
+      state.userLocale = 'en-US';
+      state.userCurrencyCode = 'USD';
       // 🛑 Limpa a preferência de idioma e região
       state.appLanguage = null;
       state.userAccountRegion = null;
@@ -138,5 +138,9 @@ export const selectUserCurrencyCode = (state: RootState) => state.users.userCurr
 // 🛑 NOVOS SELECTORS PARA i18n
 export const selectAppLanguage = (state: RootState) => state.users.appLanguage; // <--- NOVO
 export const selectUserAccountRegion = (state: RootState) => state.users.userAccountRegion; // <--- NOVO
+
+// ✅ Novo selector para acessar o ID do usuário logado
+export const selectCurrentUserId = (state: RootState) => state.users.currentUserId;
+
 
 export default userSessionAndCurrencySlice.reducer;

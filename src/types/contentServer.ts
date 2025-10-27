@@ -3,6 +3,97 @@ import { LibraryFeedItem, BeatStoreFeedItem, Album, ArtistProfile, Single, Exten
 
 import { Notification } from '@/src/types/contentType';
 
+// src/mocks/mockWallets.ts
+import { LinkedWallet } from '@/src/types/walletType';
+import { UserProfile } from '@/src/types/contentType';
+
+export const mockUserProfile: UserProfile = {
+    id: 'user-001',
+    name: 'Saag Weelli Boy swb',
+    username: '@saag_swb_oficial',
+    avatar: 'https://cdn.kiuplay.com/avatars/saag.png',
+    bio: 'Artista, produtor e fundador do Kiuplay 🎶',
+    genres: ['Trap', 'Hip Hop', 'Afrobeat'],
+    location: 'Luanda, Angola',
+    followersCount: 1240,
+    followingCount: 320,
+    isArtist: true,
+    singlesCount: 1,
+    epsCount: 1,
+    albumsCount: 1,
+    freeBeatsCount: 1,
+    exclusiveBeatsCount: 1,
+    releaseYear: '2018',
+    hasMonetizationEnabled: true,
+};
+
+export const mockLinkedWallets: LinkedWallet[] = [
+    {
+        id: 'wallet-aoa-001',
+        provider: 'Multicaixa Express',
+        type: 'local',
+        status: 'inactive',
+        currency: 'AOA',
+        accountId: '0023-458-9823',
+        balance: 25450.75,
+        createdAt: '2025-10-01T10:00:00Z',
+        lastTransactionDate: '2025-10-26T18:45:00Z',
+        userId: mockUserProfile.id,
+        user: mockUserProfile,
+        transactions: [
+            {
+                id: 'tx-001',
+                type: 'deposit',
+                amount: 30000,
+                date: '2025-10-10T12:00:00Z',
+                description: 'Depósito via Multicaixa',
+                status: 'completed',
+            },
+            {
+                id: 'tx-002',
+                type: 'purchase',
+                amount: -5000,
+                date: '2025-10-15T14:30:00Z',
+                description: "Compra do beat 'TrapSoul Vibes'",
+                status: 'completed',
+                relatedContentId: 'beat-204',
+                relatedContentType: 'beat',
+            },
+        ],
+    },
+    {
+        id: 'wallet-usd-001',
+        provider: 'PayPal',
+        type: 'international',
+        status: 'active',
+        currency: 'USD',
+        accountId: 'saagweelli@paypal.com',
+        balance: 84.9,
+        createdAt: '2025-09-15T09:00:00Z',
+        lastTransactionDate: '2025-10-20T17:00:00Z',
+        userId: mockUserProfile.id,
+        user: mockUserProfile,
+        transactions: [
+            {
+                id: 'tx-003',
+                type: 'deposit',
+                amount: 100,
+                date: '2025-10-18T16:00:00Z',
+                description: 'Transferência recebida de Kiuplay Music',
+                status: 'completed',
+            },
+            {
+                id: 'tx-004',
+                type: 'withdrawal',
+                amount: -15.1,
+                date: '2025-10-20T17:00:00Z',
+                description: 'Saque parcial via PayPal',
+                status: 'completed',
+            },
+        ],
+    },
+];
+
 
 // Dados mockados (MOCKED_CLOUD_FEED_DATA) - AJUSTADOS (Playlists, EPs, etc. removidos/corrigidos para ficarem apenas os tipos suportados no LibraryContentCard agora)
 export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
@@ -765,24 +856,23 @@ export const MOCKED_NOTIFICATIONS: Notification[] = [
 
 export const MOCKED_PROFILE: ArtistProfile[] = [
     {
-        id: "artist-saag-001",
-        name: "Saag Weelli Boy",
-        username: "@saag_swb_oficial",
-        avatar: "https://i.pravatar.cc/150?img=12",
-        category: "artist",
-        bio: "Artista angolano explorando Trap, Hip Hop e Afrobeat.",
-        genres: ["Trap", "Hip Hop", "Afrobeat"],
-
-        followersCount: 12450,
-        followingCount: 320,
-        singlesCount: 1,
-        epsCount: 1,
-        albumsCount: 1,
-        freeBeatsCount: 1,
-        exclusiveBeatsCount: 1,
-        hasMonetizationEnabled: true,
-        releaseYear: "2018",
-
+        id: mockUserProfile.id, // 🧩 Usa o mesmo ID do UserProfile para ligação direta
+        name: mockUserProfile.name,
+        username: mockUserProfile.username,
+        avatar: mockUserProfile.avatar,
+        category: 'artist',
+        bio: mockUserProfile.bio,
+        genres: mockUserProfile.genres,
+        followersCount: mockUserProfile.followersCount,
+        followingCount: mockUserProfile.followingCount,
+        singlesCount: mockUserProfile.singlesCount,
+        epsCount: mockUserProfile.epsCount,
+        albumsCount: mockUserProfile.albumsCount,
+        freeBeatsCount: mockUserProfile.freeBeatsCount,
+        exclusiveBeatsCount: mockUserProfile.exclusiveBeatsCount,
+        hasMonetizationEnabled: mockUserProfile.hasMonetizationEnabled,
+        releaseYear: mockUserProfile.releaseYear,
+        location: mockUserProfile.location,
         // 🔥 Singles
         singles: [
             {

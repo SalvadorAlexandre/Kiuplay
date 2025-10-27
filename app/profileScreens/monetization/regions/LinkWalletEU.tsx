@@ -45,7 +45,7 @@ export default function LinkWalletAO() {
             <Image source={require('@/assets/images/countries/icons8_flag_of_europe_120px.png')} style={styles.Flaglogo} />
             <Text style={styles.countryText}>Região: Euro Zone ({userRegion})</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <Image source={require('@/assets/images/countries/icons8_currency_exchange_120px_1.png')} style={styles.Flaglogo} />
             <Text style={styles.countryText}>Moeda padrão: Euro ({userCurrency})</Text>
           </View>

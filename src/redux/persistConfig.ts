@@ -16,6 +16,8 @@ import promotionsReducer from '../redux/promotionsSlice';
 import purchasesReducer from './purchasesSlice';
 import beatStoreReducer from './beatStoreSlice'
 
+import walletReducer from './walletSlice'
+
 const rootReducer = combineReducers({
   player: playerReducer,
   users: usersReducer,
@@ -26,6 +28,7 @@ const rootReducer = combineReducers({
   promotions: promotionsReducer,
   purchases: purchasesReducer,
   beatStore: beatStoreReducer,
+  wallet: walletReducer,
 });
 
 const persistConfig = {
@@ -39,6 +42,7 @@ const persistConfig = {
     'promotions',
     'purchases',
     'beatStore',
+    'wallet',
   ], // Persistir apenas favoritos
 };
 

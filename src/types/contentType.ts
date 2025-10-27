@@ -1,5 +1,5 @@
 // src/types/contentType.ts
-
+import { LinkedWallet } from "./walletType";
 
 // 🛑 NOVA: Interface Base para Perfis de Usuários (Artistas ou Comuns)
 export interface UserProfile {
@@ -11,10 +11,19 @@ export interface UserProfile {
     location?: string; // Ex: "Luanda, Angola"
     followersCount?: number;
     followingCount?: number
+    singlesCount?: number,
+    epsCount?: number;
+    albumsCount?: number
+    freeBeatsCount?: number
+    exclusiveBeatsCount?: number;
     isArtist?: boolean; // Se o usuário tem um perfil de artista
     hasMonetizationEnabled?: boolean;
+    releaseYear: string;
+    genres?: string[];
     // 🛑 NOVO: Lista de beats comprados (útil para a aba "Beats Comprados")
     purchasedBeats?: PurchasedBeat[];
+
+    linkedWallet?: LinkedWallet[];
     // Adicione outros campos comuns se houverem
 }
 

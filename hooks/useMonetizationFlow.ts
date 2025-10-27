@@ -1,26 +1,65 @@
-import { useSelector } from 'react-redux';
-import { selectUserCurrencyCode, selectUserAccountRegion } from '@/src/redux/userSessionAndCurrencySlice';
+// src/hooks/useMonetizationFlow.ts
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import {
+  selectUserWallets,
+  selectActiveWallet,
+  fetchUserWallets,
+  selectWalletLoading
+} from '@/src/redux/walletSlice';
+import {
+  selectUserCurrencyCode,
+  selectUserAccountRegion,
+  selectUserById,
+  selectCurrentUserId
+} from '@/src/redux/userSessionAndCurrencySlice';
+import type { RootState } from '@/src/redux/store';
 
 export const useMonetizationFlow = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  // 🔹 Obtém dados da região e moeda do Redux
-  const userCurrency = useSelector(selectUserCurrencyCode);
-  const userRegion = useSelector(selectUserAccountRegion);
+  // 🔹 Dados de sessão e perfil
+  //const currentUserId = useAppSelector((state: RootState) => state.users.currentUserId);
+  //const userProfile = useAppSelector(selectUserById(currentUserId ?? ''));
+
+  // 🔹 Dados de sessão e perfil
+  const currentUserId = useAppSelector(selectCurrentUserId);
+  const userProfile = useAppSelector(selectUserById(currentUserId ?? ''));
+
+  // 🔹 Dados de moeda e região
+  const userCurrency = useAppSelector(selectUserCurrencyCode);
+  const userRegion = useAppSelector(selectUserAccountRegion);
+
+  // 🔹 Dados da carteira (do Redux)
+  const wallets = useAppSelector(selectUserWallets);
+  const activeWallet = useAppSelector(selectActiveWallet);
+  const loadingWallets = useAppSelector(selectWalletLoading);
+
+  // 🔹 Carrega as carteiras mockadas ao abrir a tela
+  useEffect(() => {
+    if (currentUserId) {
+      dispatch(fetchUserWallets(currentUserId));
+    }
+  }, [dispatch, currentUserId]);
 
   /**
-   * Verifica se o utilizador tem conta vinculada e decide o fluxo
+   * Decide o fluxo do utilizador com base na carteira
    */
-  const handleWalletAccess = useCallback(async () => {
+  const handleWalletAccess = useCallback(() => {
     try {
-      console.log('Kiuplay Wallet: 🌍 Região:', userRegion, '| 💰 Moeda:', userCurrency);
+      console.log('👤 Usuário:', userProfile?.name);
+      console.log('🌍 Região:', userRegion, '| 💰 Moeda:', userCurrency);
+      console.log('🪙 Carteiras encontradas:', wallets);
+      console.log('⚡ Carteira ativa:', activeWallet);
 
-      // 🔹 Mock inicial (depois virá do backend)
-      const hasLinkedAccount = false;
+      if (loadingWallets) {
+        console.log('⏳ Carregando carteiras...');
+        return;
+      }
 
-      if (!hasLinkedAccount) {
+      if (!activeWallet) {
         console.log('🔸 Nenhuma conta vinculada → Redirecionando para vinculação');
         router.push('/profileScreens/monetization/linkWalletAccountScreen');
       } else {
@@ -30,11 +69,15 @@ export const useMonetizationFlow = () => {
     } catch (error) {
       console.error('Erro no fluxo de monetização:', error);
     }
-  }, [router, userRegion, userCurrency]);
+  }, [router, userProfile, userRegion, userCurrency, wallets, activeWallet, loadingWallets]);
 
   return {
     handleWalletAccess,
+    userProfile,
     userCurrency,
-    userRegion
+    userRegion,
+    activeWallet,
+    wallets,
+    loadingWallets,
   };
 };
