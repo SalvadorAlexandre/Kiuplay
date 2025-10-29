@@ -37,9 +37,14 @@ import {
   removeFavoriteMusic,
 } from '@/src/redux/favoriteMusicSlice'; // NOVO: Ajuste o caminho conforme seu projeto
 
+import { useTranslation } from '@/src/translations/useTranslation';
+
 const audioManager = getAudioManager();
 
 export default function AudioPlayerBar() {
+
+  const { t } = useTranslation()
+
   const dispatch = useAppDispatch();
   const router = useRouter()
   const {
@@ -64,7 +69,7 @@ export default function AudioPlayerBar() {
           musicTitle: currentTrack.title, // <--- ADICIONADO: Título da música
           artistName: currentTrack.artist, // <--- ADICIONADO: Nome do artista
           albumArtUrl: currentTrack.cover || '', // <--- ADICIONADO: URL da capa do álbum (ou string vazia)
-          commentCount: '30', // <--- ADICIONADO: Placeholder para a contagem de comentários (se não tiver o valor real)
+          commentCount: '', // <--- ADICIONADO: Placeholder para a contagem de comentários (se não tiver o valor real)
         },
       });
     }
@@ -151,7 +156,7 @@ export default function AudioPlayerBar() {
   //NOVO: Função para navegar para a tela de compartilhamento customizada
   const handleShareMusic = useCallback(() => {
     if (!currentTrack) {
-      console.warn("Nenhuma música tocando para compartilhar.");
+      console.warn(t("audioPlayerBar.noMusicPlaying."));
       return;
     }
 
@@ -251,7 +256,7 @@ export default function AudioPlayerBar() {
             <ScrollView
               contentContainerStyle={styles.expandedScrollContent}
               style={styles.expandedScrollView}
-              showsVerticalScrollIndicator = {false}
+              showsVerticalScrollIndicator={false}
             >
               <View style={styles.expandedHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>

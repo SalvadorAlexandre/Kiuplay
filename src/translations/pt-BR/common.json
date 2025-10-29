@@ -42,7 +42,8 @@
             "emptyPlaylist": "Nenhuma música na playlist. Selecione para começar!",
             "unknownArtist": "Artista desconhecido",
             "unknownSize": "Tamanho desconhecido",
-            "unknownTitle": "Título desconhecido"
+            "unknownTitle": "Título desconhecido",
+            "unknownGenre": "Gênero Desconhecido"
         },
         "notifications": {
             "title": "Notificações",
@@ -429,5 +430,8 @@
         "unknownGenre": "Gênero Desconhecido",
         "unknownYear": "Ano Desconhecido",
         "producerLabel": "Produtor:"
+    },
+    "audioPlayerBar": {
+        "noMusicPlaying": "Nenhuma música está sendo reproduzida no momento."
     }
 }

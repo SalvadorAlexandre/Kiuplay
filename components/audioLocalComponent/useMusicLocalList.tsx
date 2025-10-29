@@ -133,7 +133,7 @@ export default function LocalMusicScreen() {
                         source: 'library-local', // ADIÇÃO CRUCIAL: Define a origem da música
                         category: "single", // ou outro valor, dependendo do seu enum/interface
                         releaseYear: new Date().getFullYear().toString(), // Ex: "2025"
-                        genre: metadata.common.genre?.[0] || 'Gênero desconhecido',
+                        genre: metadata.common.genre?.[0] || t("screens.localMusic.unknownGenre"),
                     });
                 }
 

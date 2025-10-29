@@ -42,7 +42,8 @@
       "emptyPlaylist": "No songs in the playlist. Select some to start!",
       "unknownArtist": "Unknown artist",
       "unknownSize": "Unknown size",
-      "unknownTitle": "Unknown title"
+      "unknownTitle": "Unknown title",
+      "unknownGenre": "Unknown Genre"
     },
     "notifications": {
       "title": "Notifications",
@@ -428,5 +429,8 @@
     "unknownGenre": "Unknown Genre",
     "unknownYear": "Unknown Year",
     "producerLabel": "Producer:"
+  },
+  "audioPlayerBar": {
+    "noMusicPlaying": "No music is currently playing."
   }
 }
