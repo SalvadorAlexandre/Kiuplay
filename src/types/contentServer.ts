@@ -65,7 +65,7 @@ export const mockLinkedWallets: LinkedWallet[] = [
         id: 'wallet-usd-001',
         provider: 'PayPal',
         type: 'international',
-        status: 'active',
+        status: 'inactive',
         currency: 'USD',
         accountId: 'saagweelli@paypal.com',
         balance: 84.9,
