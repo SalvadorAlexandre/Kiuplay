@@ -38,7 +38,9 @@ export default function UseMonetizationScreen() {
         hasLinkedWallet,
         checkWalletStatusAndShowModal,
         closeWalletModal,
-        wallets
+        wallets,
+
+        clearLinkedWallets
     } = useMonetizationFlow();
 
     const insets = useSafeAreaInsets();
@@ -131,7 +133,7 @@ export default function UseMonetizationScreen() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>{t('monetization.myAssets')}</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={clearLinkedWallets}>
                             <Text style={styles.seeAllText}>{t('monetization.seeAll')}</Text>
                         </TouchableOpacity>
                     </View>
@@ -143,6 +145,7 @@ export default function UseMonetizationScreen() {
                                     <Text style={styles.assetName}>{asset.name}</Text>
                                 </View>
                                 <Text style={styles.assetValue}>${asset.value.toFixed(asset.id === 'btc' ? 5 : 2)}</Text>
+                                
                             </View>
                         ))}
                     </ScrollView>

@@ -8,6 +8,7 @@ export interface UserProfile {
     username: string // Ex: '@saag_swb_oficial'
     avatar: string; // URL para o avatar (ou avatarUrl no Redux)
     bio?: string;
+    email?: string
     location?: string; // Ex: "Luanda, Angola"
     followersCount?: number;
     followingCount?: number
@@ -155,6 +156,7 @@ export interface ExclusiveBeat {
     bpm: number;
     size?: number;
     price: number; // Preço obrigatório para ExclusiveBeat
+    currency?: string
     // isBuyed: boolean; // 🛑 REMOVIDO/SUBSTITUÍDO: A lógica de venda será gerenciada por 'currentOwnerId'
     currentOwnerId: string; // 🛑 NOVO: ID do usuário que atualmente possui o beat (Vendedor se estiver à venda)
     isAvailableForSale: boolean; // 🛑 NOVO: Se está disponível para ser comprado na BeatStore

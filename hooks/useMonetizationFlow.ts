@@ -6,7 +6,8 @@ import {
   selectUserWallets,
   selectActiveWallet,
   fetchUserWallets,
-  selectWalletLoading
+  selectWalletLoading,
+  clearWallets
 } from '@/src/redux/walletSlice';
 import {
   selectUserCurrencyCode,
@@ -43,14 +44,28 @@ export const useMonetizationFlow = () => {
   const [walletModalVisible, setWalletModalVisible] = useState(false);
   const [hasLinkedWallet, setHasLinkedWallet] = useState(false);
 
-
-  // 🔹 Carrega as carteiras mockadas ao abrir a tela
+  // 🔹 Carrega as carteiras do utilizador ao abrir a tela e limpa se não houver nenhuma
   useEffect(() => {
     if (currentUserId) {
-      dispatch(fetchUserWallets(currentUserId));
+      dispatch(fetchUserWallets(currentUserId))
+        .unwrap()
+        .then((wallets) => {
+          if (!wallets || wallets.length === 0) {
+            console.log('🧾 Nenhuma carteira vinculada → limpando estado Redux');
+            dispatch(clearWallets());
+          }
+        })
+        .catch((err) => {
+          console.error('❌ Erro ao buscar carteiras:', err);
+          dispatch(clearWallets()); // limpa também em caso de erro
+        });
+    } else {
+      // Se o utilizador ainda não estiver logado → limpa também
+      dispatch(clearWallets());
     }
   }, [dispatch, currentUserId]);
 
+  
   /**
    * 🔍 Verifica se há conta vinculada e exibe o modal apropriado
    */
@@ -78,6 +93,21 @@ export const useMonetizationFlow = () => {
   }, [userProfile, userRegion, userCurrency, wallets, activeWallet, loadingWallets]);
 
   const closeWalletModal = () => setWalletModalVisible(false);
+
+  /**
+  * 🔁 Limpa todas as contas vinculadas (para teste ou reset total)
+  */
+  const clearLinkedWallets = useCallback(() => {
+    if (!wallets || wallets.length === 0) {
+      console.log('⚠️ Nenhuma conta vinculada para limpar.');
+      return;
+    }
+
+    console.log('🧹 Limpando todas as contas vinculadas...');
+    dispatch(clearWallets());
+    setHasLinkedWallet(false);
+    console.log('✅ Contas bancárias desvinculadas com sucesso.');
+  }, [dispatch, wallets]);
 
   const handleWalletAccess = useCallback(() => {
     try {
@@ -114,6 +144,8 @@ export const useMonetizationFlow = () => {
     hasLinkedWallet,
     checkWalletStatusAndShowModal,
     closeWalletModal,
+
+    clearLinkedWallets
   };
 };
 

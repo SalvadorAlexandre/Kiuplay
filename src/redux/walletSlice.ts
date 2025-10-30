@@ -25,6 +25,7 @@ const initialState: WalletState = {
 // ------------------------------------------------------------
 // 3️⃣ Thunk tipado (busca carteiras do usuário)
 // ------------------------------------------------------------
+
 export const fetchUserWallets = createAsyncThunk<LinkedWallet[], string>(
   'wallet/fetchUserWallets',
   async (userId: string) => {
