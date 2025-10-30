@@ -1,7 +1,7 @@
 // src/hooks/useMonetizationFlow.ts
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   selectUserWallets,
   selectActiveWallet,
@@ -40,6 +40,15 @@ export const useMonetizationFlow = () => {
   const activeWallet = useAppSelector(selectActiveWallet);
   const loadingWallets = useAppSelector(selectWalletLoading);
 
+  // 🔹 Define dados financeiros padronizados (zerados por padrão)
+  const defaultWallet = {
+    balance: 0,
+    pendingWithdrawals: 0,
+    transactions: [],
+    region: '',
+    currency: ''
+  };
+
   // 🔹 Novo estado local para controlar o modal
   const [walletModalVisible, setWalletModalVisible] = useState(false);
   const [hasLinkedWallet, setHasLinkedWallet] = useState(false);
@@ -65,7 +74,46 @@ export const useMonetizationFlow = () => {
     }
   }, [dispatch, currentUserId]);
 
-  
+
+  // 🔹 Retorna dados formatados da carteira (reais ou zerados)
+  const effectiveWallet = activeWallet || defaultWallet;
+
+  // 🔹 Formatação monetária dinâmica (baseada na carteira ativa)
+  const formattedBalance = useMemo(() => {
+    if (!effectiveWallet) return '—';
+
+    const locale = effectiveWallet.region || userRegion || 'en-US';
+    const currency = effectiveWallet.currency || userCurrency || 'USD';
+
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+    }).format(effectiveWallet.balance ?? 0);
+  }, [
+    effectiveWallet.balance,
+    effectiveWallet.currency,
+    effectiveWallet.region,
+    userRegion,
+    userCurrency,
+  ]);
+
+  const formattedPending = useMemo(() => {
+    const locale = effectiveWallet?.region || userRegion || 'en-US';
+    const currency = effectiveWallet?.currency || userCurrency || 'USD';
+
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+    }).format(effectiveWallet?.pendingWithdrawals ?? 0);
+  }, [
+    effectiveWallet?.pendingWithdrawals,
+    effectiveWallet?.currency,
+    effectiveWallet?.region,
+    userRegion,
+    userCurrency,
+  ]);
+
+
   /**
    * 🔍 Verifica se há conta vinculada e exibe o modal apropriado
    */
@@ -135,6 +183,13 @@ export const useMonetizationFlow = () => {
     userProfile,
     userCurrency,
     userRegion,
+
+
+    // Carteira real ou zerada
+    effectiveWallet,
+    formattedBalance,
+    formattedPending,
+
     activeWallet,
     wallets,
     loadingWallets,
@@ -148,8 +203,6 @@ export const useMonetizationFlow = () => {
     clearLinkedWallets
   };
 };
-
-
 
 /**
  * Decide o fluxo do utilizador com base na carteira

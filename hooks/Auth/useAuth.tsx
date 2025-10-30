@@ -115,9 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const mockUserId = mockUser.id;
 
           //const mockUserId = 'user-123';
-          const accountRegion = countryCode || 'US';
-          const userLocale = locale || 'en-US';
-          const userCurrency = currency || 'USD';
+          const accountRegion = 'US'//countryCode || 'US';
+          const userLocale = 'en-US'//locale || 'en-US';
+          const userCurrency = 'USD'//currency || 'USD';
 
           dispatch(setAuthSession({
             userId: mockUserId,

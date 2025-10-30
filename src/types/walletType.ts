@@ -17,8 +17,11 @@ export interface LinkedWallet {
   type: WalletProviderType;     // 'local' ou 'international'
   status: 'active' | 'inactive';
   currency: string;             // Ex: 'AOA', 'USD', 'EUR'
+  region: string;              // ✅ Ex: 'pt-AO', 'en-US', 'pt-PT'
   accountId: string;            // Ex: número de conta ou email do PayPal
   balance: number;              // Saldo atual (simulado)
+  /**Valor de saques pendentes */
+  pendingWithdrawals?: number;  // <-- ADICIONA ESTA LINHA
   createdAt: string;            // Data de criação (ISO)
   lastTransactionDate?: string; // Data da última transação (ISO)
   userId: string;               // ID do dono da carteira
@@ -33,12 +36,10 @@ export interface WalletTransaction {
   id: string;
   // 🔹 Identificador único da transação (ex: 'tx-001')
 
-  type: 'deposit' | 'withdrawal' | 'purchase' | 'refund';
+  type: 'sale' | 'withdrawal' ;
   // 🔹 Tipo da transação:
-  // 'deposit' → depósito de saldo
   // 'withdrawal' → saque ou transferência de saída
-  // 'purchase' → compra (ex: beat, promoção ou assinatura)
-  // 'refund' → estorno de uma compra
+ 
 
   amount: number;
   // 💰 Valor movimentado (positivo = entrada, negativo = saída)
@@ -55,10 +56,6 @@ export interface WalletTransaction {
   relatedContentId?: string;
   // 🔗 ID do conteúdo relacionado (ex: ID do beat, single, promoção, etc.)
 
-  relatedContentType?: 'single' | 'beat' | 'promotion' | 'subscription';
+  relatedContentType?: 'beat';
   // 🎵 Tipo do conteúdo relacionado:
-  // 'single' → faixa única
-  // 'beat' → instrumental (alterei de 'exclusiveBeat' para 'beat' para manter padrão)
-  // 'promotion' → campanha de patrocínio/divulgação
-  // 'subscription' → pagamento de assinatura
 }

@@ -15,19 +15,7 @@ import { useTranslation } from '@/src/translations/useTranslation';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; // Seu hook
 import { router, Stack } from 'expo-router'
 import BottomModal from './WalletModel';
-
-// 🚨 Mock de dados para a imagem de exemplo.
-const MOCK_ASSETS = [
-    { id: 'usdc', name: 'USDC', icon: 'coin', value: 567.90 },
-    { id: 'btc', name: 'BTC', icon: 'bitcoin', value: 0.003146 },
-];
-
-const MOCK_TRANSACTIONS = [
-    { id: '1', type: 'Reward', value: '+149.87 USD', date: 'Oct 26, 2023', icon: 'gift' },
-    { id: '2', type: 'Deposit', value: '+50.00 USD', date: 'Oct 25, 2023', icon: 'arrow-down-circle' },
-    { id: '3', type: 'Sent', value: '-25.50 USD', date: 'Oct 24, 2023', icon: 'arrow-up-circle' },
-];
-
+import { useAppSelector } from "@/src/redux/hooks";
 
 export default function UseMonetizationScreen() {
     const {
@@ -39,26 +27,43 @@ export default function UseMonetizationScreen() {
         checkWalletStatusAndShowModal,
         closeWalletModal,
         wallets,
+        clearLinkedWallets,
 
-        clearLinkedWallets
+        formattedBalance,
+        formattedPending,
+        effectiveWallet,
     } = useMonetizationFlow();
+
+    console.log('🪙 Active wallet:', activeWallet);
+    console.log('💰 Effective wallet in screen:', effectiveWallet);
+    console.log('💵 Formatted balance:', formattedBalance);
 
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
     //const { userProfile, userCurrency, activeWallet } = useMonetizationFlow();
 
-    // Removido: A lógica para calcular currencyCountryCode
+    const isConnected = useAppSelector((state) => state.network.isConnected);
+
+    const getDynamicAvatarSource = () => {
+        if (isConnected === false || !userProfile.avatar || userProfile.avatar.trim() === "") {
+            return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
+        }
+        return { uri: userProfile.avatar };
+    };
+
+    const avatarUser = getDynamicAvatarSource()
+
 
     return (
         <>
 
             <Stack.Screen
                 options={{
-                    title: '',
+                    title: 'KiuWallet',
                     headerStyle: { backgroundColor: '#191919', },
                     headerTintColor: '#fff',
                     //headerTitleStyle: { fontWeight: 'bold' },
-                    headerShown: false,
+                    headerShown: true,
                 }}
             />
 
@@ -73,12 +78,12 @@ export default function UseMonetizationScreen() {
                     <View style={styles.userInfo}>
                         {/* Imagem do Perfil (placeholder) */}
                         <Image
-                            source={{ uri: userProfile.avatar || 'https://via.placeholder.com/40' }}
+                            source={avatarUser}
                             style={styles.profileImage}
                         />
                         <View>
                             <Text style={styles.greetingText}>{t('monetization.welcomeBack')}</Text>
-                            <Text style={styles.userName}>{userProfile?.name || 'Dianne Russell'}</Text>
+                            <Text style={styles.userName}>{userProfile?.name || ''}</Text>
                         </View>
                     </View>
 
@@ -88,8 +93,8 @@ export default function UseMonetizationScreen() {
                             style={styles.walletIndicator}
                             onPress={checkWalletStatusAndShowModal} // ✅ chama o modal dinamicamente
                         >
-                            <Ionicons name="wallet" size={22} color="#00FF88" />
-                            <Text style={styles.walletText}>KiuWallet</Text>
+                            <Ionicons name="wallet-outline" size={22} color="#fff" />
+                            <Text style={styles.walletText}>Wallets</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -101,76 +106,65 @@ export default function UseMonetizationScreen() {
                             <Text style={styles.cardTitle}>{t('monetization.estimatedTotalValue')}</Text>
                             <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.7)" />
                         </View>
-                        {/* ✅ Substituído o FlagRenderer por apenas o texto da Moeda */}
                         <View style={styles.currencySelector}>
-                            <Text style={styles.currencyText}>{userCurrency || 'USD'}</Text>
-                            <Ionicons name="chevron-down" size={16} color="#FFF" />
+                            <Text style={styles.currencyText}>{effectiveWallet.currency || userCurrency}</Text>
                         </View>
                     </View>
-                    <Text style={styles.totalAmount}>${activeWallet?.balance.toFixed(2) || '34,567.90'}</Text>
+
+                    <Text style={styles.totalAmount}>{formattedBalance}</Text>
                     <Text style={styles.changeAmount}>↑ $8,784.13 (8.78%)</Text>
 
                     {/* ✅ REMOVIDO: Placeholder para o gráfico (chartPlaceholder) */}
 
-                    {/* Botões de Ação */}
+                    {/* Botões de Ação saque*/}
                     <View style={styles.actionButtons}>
                         <TouchableOpacity style={styles.actionButton}>
-                            <Ionicons name="add" size={20} color="#FFF" />
-                            <Text style={styles.actionButtonText}>{t('monetization.deposit')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Ionicons name="send" size={20} color="#FFF" />
-                            <Text style={styles.actionButtonText}>{t('monetization.sent')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Ionicons name="card" size={20} color="#FFF" />
+                            <Ionicons name="arrow-down-circle-outline" size={20} color="#FFF" />
                             <Text style={styles.actionButtonText}>{t('monetization.credit')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* Seção My Assets */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>{t('monetization.myAssets')}</Text>
-                        <TouchableOpacity onPress={clearLinkedWallets}>
-                            <Text style={styles.seeAllText}>{t('monetization.seeAll')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.assetsContainer}>
-                        {MOCK_ASSETS.map((asset) => (
-                            <View key={asset.id} style={styles.assetCard}>
-                                <View style={styles.assetHeader}>
-                                    <Ionicons name={asset.icon as any} size={24} color="#333" />
-                                    <Text style={styles.assetName}>{asset.name}</Text>
-                                </View>
-                                <Text style={styles.assetValue}>${asset.value.toFixed(asset.id === 'btc' ? 5 : 2)}</Text>
-                                
-                            </View>
-                        ))}
-                    </ScrollView>
-                </View>
+                <TouchableOpacity onPress={clearLinkedWallets}>
+                    <Text style={styles.seeAllText}>Limpar contas vinculadas</Text>
+                </TouchableOpacity>
+
 
                 {/* Seção Transactions */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>{t('monetization.transactions')}</Text>
-                        <TouchableOpacity>
-                            <Text style={styles.seeAllText}>{t('monetization.seeAll')}</Text>
-                        </TouchableOpacity>
                     </View>
-                    {MOCK_TRANSACTIONS.map((transaction) => (
-                        <View key={transaction.id} style={styles.transactionItem}>
-                            <View style={styles.transactionIconContainer}>
-                                <Ionicons name={transaction.icon as any} size={20} color="#FFF" />
-                            </View>
-                            <View style={styles.transactionDetails}>
-                                <Text style={styles.transactionType}>{transaction.type}</Text>
-                                <Text style={styles.transactionDate}>{transaction.date}</Text>
-                            </View>
-                            <Text style={styles.transactionValue}>{transaction.value}</Text>
-                        </View>
-                    ))}
+
+                    {(effectiveWallet.transactions?.length ?? 0) === 0 ? (
+                        <Text style={{ color: '#aaa', padding: 12 }}>
+                            {t('monetization.noTransactions')}
+                        </Text>
+                    ) : (
+                        <FlatList
+                            data={effectiveWallet.transactions}
+                            keyExtractor={(tx) => tx.id.toString()}
+                            renderItem={({ item }) => (
+                                <View style={styles.transactionItem}>
+                                    <View style={styles.transactionIconContainer}>
+                                        <Ionicons name="receipt-outline" size={20} color="#FFF" />
+                                    </View>
+                                    <View style={styles.transactionDetails}>
+                                        <Text style={styles.transactionType}>{item.type}</Text>
+                                        <Text style={styles.transactionDate}>
+                                            {new Date(item.date).toLocaleDateString()}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.transactionValue}>
+                                        {new Intl.NumberFormat(effectiveWallet.region ?? 'en-US', {
+                                            style: 'currency',
+                                            currency: effectiveWallet.currency ?? 'USD',
+                                        }).format(item.amount)}
+                                    </Text>
+                                </View>
+                            )}
+                        />
+                    )}
                 </View>
                 <View style={{ height: 50 }} />
             </ScrollView>
@@ -185,7 +179,7 @@ export default function UseMonetizationScreen() {
                             renderItem={({ item }) => (
                                 <View style={styles.walletItem}>
                                     <Text style={styles.walletName}>{item.provider}</Text>
-                                    <Text style={styles.walletBalance}>${item.balance.toFixed(2)}</Text>
+                                    <Text style={styles.walletBalance}>{item.balance}</Text>
                                 </View>
                             )}
                         />
@@ -200,7 +194,7 @@ export default function UseMonetizationScreen() {
                                 router.push('/profileScreens/monetization/linkWalletAccountScreen');
                             }}
                         >
-                            <Ionicons name="add-circle-outline" size={20} color="#fff" />
+                            <Ionicons name="card-outline" size={20} color="#fff" />
                             <Text style={styles.linkButtonText}>Vincular conta</Text>
                         </TouchableOpacity>
                     </>
@@ -226,7 +220,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         // paddingHorizontal: 20,
         marginBottom: 20,
-        marginTop: 30,
+        //marginTop: 30,
     },
     userInfo: {
         flexDirection: 'row',
@@ -294,7 +288,7 @@ const styles = StyleSheet.create({
     },
     totalAmount: {
         color: '#FFF',
-        fontSize: 36,
+        fontSize: 25,
         fontWeight: 'bold',
         marginBottom: 5,
     },
@@ -307,12 +301,12 @@ const styles = StyleSheet.create({
     // ✅ REMOVIDOS: chartPlaceholder e chartImage styles
 
     actionButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
+        //flexDirection: 'row',
+        //justifyContent: 'space-around',
         marginTop: 10, // Ajustado um pouco para cima
     },
     actionButton: {
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: '#1E90FF',
         paddingVertical: 10,
         paddingHorizontal: 15,
         borderRadius: 15,
@@ -451,14 +445,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#00FF88',
-        borderRadius: 12,
+        backgroundColor: '#2A2A2A',
+        borderRadius: 19,
         paddingVertical: 12,
         paddingHorizontal: 16,
         marginTop: 20,
     },
     linkButtonText: {
-        color: '#000',
+        color: '#fff',
         fontSize: 16,
         fontWeight: '600',
         marginLeft: 8,

@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback} from 'react';
 import { Vibration } from 'react-native';
 import { useTranslation } from '@/src/translations/useTranslation';
-import { useSelector } from 'react-redux';
+import { useAppSelector,} from '@/src/redux/hooks';
 import {
   selectUserCurrencyCode,
   selectUserAccountRegion,
@@ -13,8 +13,8 @@ export const usePostBeat = () => {
   const { t } = useTranslation();
 
   // 🔹 Dados regionais do usuário (Redux)
-  const userCurrency = useSelector(selectUserCurrencyCode);
-  const userRegion = useSelector(selectUserAccountRegion);
+  const userCurrency = useAppSelector(selectUserCurrencyCode);
+  const userRegion = useAppSelector(selectUserAccountRegion);
 
   // --- Campos básicos ---
   const [nomeProdutor, setNomeProdutor] = useState('');
@@ -42,7 +42,7 @@ export const usePostBeat = () => {
   const formatCurrency = useCallback(
     (value: number, currency: string, region?: string) => {
       try {
-        return new Intl.NumberFormat(region || 'en-US', {
+        return new Intl.NumberFormat(region , {
           style: 'currency',
           currency,
           minimumFractionDigits: 2,
