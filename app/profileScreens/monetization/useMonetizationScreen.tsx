@@ -16,6 +16,7 @@ import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; // Seu hook
 import { router, Stack } from 'expo-router'
 import BottomModal from './WalletModel';
 import { useAppSelector } from "@/src/redux/hooks";
+import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
 
 export default function UseMonetizationScreen() {
     const {
@@ -125,11 +126,6 @@ export default function UseMonetizationScreen() {
                     </View>
                 </View>
 
-                <TouchableOpacity onPress={clearLinkedWallets}>
-                    <Text style={styles.seeAllText}>Limpar contas vinculadas</Text>
-                </TouchableOpacity>
-
-
                 {/* Seção Transactions */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -137,9 +133,12 @@ export default function UseMonetizationScreen() {
                     </View>
 
                     {(effectiveWallet.transactions?.length ?? 0) === 0 ? (
-                        <Text style={{ color: '#aaa', padding: 12 }}>
-                            {t('monetization.noTransactions')}
-                        </Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ color: '#aaa', }}>
+                                {t('monetization.noTransactions')}
+                            </Text>
+                        </View>
+
                     ) : (
                         <FlatList
                             data={effectiveWallet.transactions}
@@ -179,10 +178,22 @@ export default function UseMonetizationScreen() {
                             renderItem={({ item }) => (
                                 <View style={styles.walletItem}>
                                     <Text style={styles.walletName}>{item.provider}</Text>
-                                    <Text style={styles.walletBalance}>{item.balance}</Text>
+                                    <Text style={styles.walletBalance}>
+                                        {new Intl.NumberFormat(item.region ?? 'en-US', {
+                                            style: 'currency',
+                                            currency: item.currency ?? 'USD',
+                                        }).format(item.balance)}
+                                    </Text>
                                 </View>
                             )}
                         />
+                        <TouchableOpacity
+                            style={styles.linkButton}
+                            onPress={clearLinkedWallets}
+                        >
+                            <Ionicons name="person" size={20} color="#fff" />
+                            <Text style={styles.seeAllText}>Limpar contas vinculadas</Text>
+                        </TouchableOpacity>
                     </>
                 ) : (
                     <>
@@ -242,12 +253,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    headerIcons: {
-        flexDirection: 'row',
-    },
-    iconButton: {
-        marginLeft: 15,
-    },
     totalValueCard: {
         backgroundColor: 'rgba(0,0,0,0.2)',
         //marginHorizontal: 20,
@@ -298,8 +303,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         marginBottom: 20, // Adicionado margin para compensar o gráfico removido
     },
-    // ✅ REMOVIDOS: chartPlaceholder e chartImage styles
-
     actionButtons: {
         //flexDirection: 'row',
         //justifyContent: 'space-around',
@@ -336,35 +339,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     seeAllText: {
-        color: '#FF69B4',
+        color: '#ffffffff',
         fontWeight: '600',
-    },
-    assetsContainer: {
-        paddingBottom: 10,
-    },
-    assetCard: {
-        backgroundColor: '#2A2A2A',
-        width: 150,
-        height: 120,
-        borderRadius: 15,
-        padding: 15,
-        marginRight: 15,
-        justifyContent: 'space-between',
-    },
-    assetHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    assetName: {
-        color: '#FFF',
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 8,
-    },
-    assetValue: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
+        marginLeft: 8
     },
     transactionItem: {
         flexDirection: 'row',
@@ -395,10 +372,8 @@ const styles = StyleSheet.create({
     transactionValue: {
         color: '#28A745',
         fontSize: 16,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
     },
-
-
     walletIndicator: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -413,7 +388,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 14,
     },
-
     modalTitle: {
         fontSize: 18,
         fontWeight: '600',
@@ -439,7 +413,7 @@ const styles = StyleSheet.create({
     walletBalance: {
         color: '#00FF88',
         fontSize: 16,
-        fontWeight: '600',
+        //fontWeight: '600',
     },
     linkButton: {
         flexDirection: 'row',
