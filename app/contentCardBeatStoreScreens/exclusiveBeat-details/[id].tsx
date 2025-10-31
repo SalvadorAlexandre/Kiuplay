@@ -23,8 +23,7 @@ import { ExclusiveBeat } from '@/src/types/contentType';
 import { useTranslation } from '@/src/translations/useTranslation';
 
 // 🛑 NOVOS IMPORTS PARA A MOEDA
-import { selectUserLocale, selectUserCurrencyCode } from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors do seu novo Slice
-import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
+import { formatBeatPrice } from '@/hooks/useFormatBeatPrice';
 
 // 🛒 Imports de LÓGICA DE COMPRA
 // REMOVER: addPurchasedBeat (agora no Thunk)
@@ -40,10 +39,6 @@ export default function exclusiveBeatDetailsScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
-
-    // 🛑 1. BUSCAR LOCALE E CURRENCY CODE DO REDUX
-    const userLocale = useAppSelector(selectUserLocale);
-    const userCurrencyCode = useAppSelector(selectUserCurrencyCode);
 
     const exclusiveBeatData = MOCKED_BEATSTORE_FEED_DATA.find(
         (item) => item.id === id && item.typeUse === 'exclusive'
@@ -71,11 +66,11 @@ export default function exclusiveBeatDetailsScreen() {
     );
 
     // 🛑 2. FORMATAR O PREÇO ASSIM QUE O BEAT ESTIVER DISPONÍVEL
-    const formattedPrice = formatPrice(
-        currentExclusiveBeat.price,
-        userLocale,
-        userCurrencyCode
-    );
+    const formattedPrice = formatBeatPrice(
+    currentExclusiveBeat.price,
+    currentExclusiveBeat.region || 'en-US',
+    currentExclusiveBeat.currency || 'USD'
+);
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const isCurrentSingleFavorited = favoritedMusics.some((music) => music.id === currentExclusiveBeat.id);
@@ -410,6 +405,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        flex: 1, // Para que ele preencha o espaço quando o botão Curtir estiver oculto
+        //flex: 1, // Para que ele preencha o espaço quando o botão Curtir estiver oculto
     },
 });

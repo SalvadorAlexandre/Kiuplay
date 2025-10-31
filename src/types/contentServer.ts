@@ -32,7 +32,7 @@ export const mockLinkedWallets: LinkedWallet[] = [
         id: 'wallet-aoa-001',
         provider: 'Pix',
         type: 'local',
-        status: 'active',
+        status: 'inactive',
         currency: 'BRL',
         region: 'pt-BR',
         accountId: '0023-458-9823',
@@ -100,7 +100,7 @@ export const mockLinkedWallets: LinkedWallet[] = [
         id: 'wallet-usd-001',
         provider: 'PayPal',
         type: 'international',
-        status: 'inactive',
+        status: 'active',
         currency: 'USD',
         region: 'en-US',
         accountId: 'saagweelli@paypal.com',
@@ -662,11 +662,10 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         artist: 'Producer X',
         producer: 'Producer X', // Adicionado produtor
         cover: 'https://placehold.co/150x150/8A2BE2/FFFFFF?text=BeatX',
-        // artistAvatar: 'https://i.pravatar.cc/150?img=10', // Removido, não faz parte de ExclusiveBeat/FreeBeat
         source: 'beatstore-feeds',
         duration: 180000,
         genre: 'Trap',
-        price: 49.99,
+        price: 4999,
         typeUse: 'exclusive', // Usar typeUse para indicar se é exclusivo/gratuito
         category: 'beat', // Categoria é 'beat'
         bpm: 120,
@@ -675,6 +674,8 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         currentOwnerId: 'artist-2',
         isAvailableForSale: true,
         isExclusiveSale: true,
+        region: 'pt-AO',       // Locale do produtor/vendedor (ex: Angola)
+        currency: 'AOA',
     } as ExclusiveBeat,
     {
         id: 'beat-store-2',
@@ -683,7 +684,6 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         artist: 'HipHop Pro',
         producer: 'HipHop Pro', // Adicionado produtor
         cover: 'https://placehold.co/150x150/DAA520/000000?text=BeatY',
-        // artistAvatar: 'https://i.pravatar.cc/150?img=11', // Removido
         source: 'beatstore-feeds',
         duration: 210000,
         genre: 'Boom Bap',
@@ -730,7 +730,7 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         source: 'beatstore-feeds',
         duration: 240000,
         genre: 'Afrobeat',
-        price: 79.00,
+        price: 7900,
         typeUse: 'exclusive', // Usar typeUse
         category: 'beat', // Categoria é 'beat'
         bpm: 102,
@@ -739,6 +739,8 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         currentOwnerId: 'artist-2',
         isAvailableForSale: true,
         isExclusiveSale: true,
+        region: 'pt-BR',       // Locale do produtor/vendedor (ex: Angola)
+        currency: 'BRL',
     } as ExclusiveBeat,
     {
         id: 'beat-store-4',
@@ -794,7 +796,7 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         source: 'beatstore-feeds',
         duration: 190000,
         genre: 'Trap Soul',
-        price: 65.50,
+        price: 6550,
         typeUse: 'exclusive', // Usar typeUse
         category: 'beat', // Categoria é 'beat'
         bpm: 85,
@@ -803,6 +805,31 @@ export const MOCKED_BEATSTORE_FEED_DATA: BeatStoreFeedItem[] = [
         currentOwnerId: 'artist-2',
         isAvailableForSale: true,
         isExclusiveSale: true,
+        region: 'pt-PT',       // Locale do produtor/vendedor (ex: Angola)
+        currency: 'EUR',
+    } as ExclusiveBeat,
+    {
+        id: 'beat-store-5RT45',
+        uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+        title: 'Trap Soul - "Smooth Operator"',
+        artist: 'Groovy Beats',
+        producer: 'Groovy Beats', // Adicionado produtor
+        cover: 'https://placehold.co/150x150/9370DB/FFFFFF?text=TrapSoul',
+        // artistAvatar: 'https://i.pravatar.cc/150?img=14', // Removido
+        source: 'beatstore-feeds',
+        duration: 190000,
+        genre: 'Trap Soul',
+        price: 2850,
+        typeUse: 'exclusive', // Usar typeUse
+        category: 'beat', // Categoria é 'beat'
+        bpm: 85,
+        releaseYear: '2024', // Adicionado releaseYear
+        artistId: "artist-saag-001",
+        currentOwnerId: 'artist-2',
+        isAvailableForSale: true,
+        isExclusiveSale: true,
+        region: 'pt-PT',       // Locale do produtor/vendedor (ex: Angola)
+        currency: 'EUR',
     } as ExclusiveBeat,
 ];
 
@@ -1119,25 +1146,26 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
         // 🔥 Exclusive Beats
         exclusiveBeats: [
             {
-                id: 'beat-store-1',
+                id: 'beat-store-1789',
                 uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
                 title: 'Trap Beat - "Midnight Groove"',
                 artist: 'Producer X',
                 producer: 'Producer X', // Adicionado produtor
                 cover: 'https://placehold.co/150x150/8A2BE2/FFFFFF?text=BeatX',
-                // artistAvatar: 'https://i.pravatar.cc/150?img=10', // Removido, não faz parte de ExclusiveBeat/FreeBeat
                 source: 'beatstore-feeds',
                 duration: 180000,
                 genre: 'Trap',
-                price: 49.99,
+                price: 4999,
                 typeUse: 'exclusive', // Usar typeUse para indicar se é exclusivo/gratuito
                 category: 'beat', // Categoria é 'beat'
                 bpm: 120,
                 releaseYear: '2023', // Adicionado releaseYear
-                artistId: 'artist-1',
-                currentOwnerId: 'artist-2',
+                artistId: mockUserProfile.id,
                 isAvailableForSale: true,
                 isExclusiveSale: true,
+                // NOVOS CAMPOS DE LOCALIZAÇÃO E MOEDA
+                region: 'pt-AO',       // Locale do produtor/vendedor (ex: Angola)
+                currency: 'AOA',       // Código da moeda (Kwanza angolano)
             }
         ],
 

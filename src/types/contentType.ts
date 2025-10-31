@@ -23,9 +23,8 @@ export interface UserProfile {
     genres?: string[];
     // 🛑 NOVO: Lista de beats comprados (útil para a aba "Beats Comprados")
     purchasedBeats?: PurchasedBeat[];
-
     linkedWallet?: LinkedWallet[];
-    // Adicione outros campos comuns se houverem
+    
 }
 
 
@@ -156,9 +155,11 @@ export interface ExclusiveBeat {
     bpm: number;
     size?: number;
     price: number; // Preço obrigatório para ExclusiveBeat
-    currency?: string
-    // isBuyed: boolean; // 🛑 REMOVIDO/SUBSTITUÍDO: A lógica de venda será gerenciada por 'currentOwnerId'
-    currentOwnerId: string; // 🛑 NOVO: ID do usuário que atualmente possui o beat (Vendedor se estiver à venda)
+
+    currency: string; //Moeda na qual o beat está sendo vendido (ex: 'USD', 'AOA', 'EUR') 
+    region: string; // Região de origem do vendedor (ex: 'pt-AO', 'en-US', 'pt-PT')
+
+    currentOwnerId?: string; // 🛑 NOVO: ID do usuário que atualmente possui o beat (Vendedor se estiver à venda)
     isAvailableForSale: boolean; // 🛑 NOVO: Se está disponível para ser comprado na BeatStore
     isExclusiveSale: boolean; // 🛑 NOVO: Se a venda é exclusiva (só pode ser vendido uma vez)
 

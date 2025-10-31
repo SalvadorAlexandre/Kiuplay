@@ -1,4 +1,4 @@
-// components/musicItems/epItem/EpCard.tsx
+// components/musicItems/TabProfileFreeBeatItem/FreeBeatCard.tsx
 import React from "react";
 import {
     View,

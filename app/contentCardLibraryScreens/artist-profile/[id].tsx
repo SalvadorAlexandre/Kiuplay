@@ -20,11 +20,11 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { Ionicons } from '@expo/vector-icons';
 
-import SingleCard from '@/components/musicItems/singleItem/SingleCard';
-import EpCard from '@/components/musicItems/epItem/EpCard';
-import AlbumCard from '@/components/musicItems/albumItem/AlbumCard';
-import ExclusiveBeatCard from '@/components/musicItems/exclusiveBeatItem/ExclusiveBeatCard';
-import FreeBeatCard from '@/components/musicItems/freeBeatItem/FreeBeatCard';
+import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
+import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
+import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
+import ExclusiveBeatCard from '@/components/musicItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
+import FreeBeatCard from '@/components/musicItems/TabProfileFreeBeatItem/FreeBeatCard';
 
 import { useTranslation } from '@/src/translations/useTranslation';
 

@@ -3,11 +3,11 @@ import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
-import SingleCard from '@/components/musicItems/singleItem/SingleCard';
-import EpCard from '@/components/musicItems/epItem/EpCard';
-import AlbumCard from '@/components/musicItems/albumItem/AlbumCard';
-import ExclusiveBeatCard from '@/components/musicItems/exclusiveBeatItem/ExclusiveBeatCard';
-import FreeBeatCard from '@/components/musicItems/freeBeatItem/FreeBeatCard';
+import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
+import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
+import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
+import ExclusiveBeatCard from '@/components/musicItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
+import FreeBeatCard from '@/components/musicItems/TabProfileFreeBeatItem/FreeBeatCard';
 import {
   ScrollView,
   View,
@@ -375,7 +375,7 @@ export default function ProfileScreen() {
           {/* 💰 CONTEÚDO DA ABA: BEATS A VENDA (Ex-exclusiveBeats) */}
           {activeTab === 'exclusiveBeatsForSale' && (
             <FlatList
-              data={exclusiveBeatsForSale} // 🛑 Lista FILTRADA
+              data={exclusiveBeatsForSale}
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={styles.columnWrapper}
@@ -383,8 +383,10 @@ export default function ProfileScreen() {
                 <ExclusiveBeatCard
                   item={item}
                   onPress={(selected) =>
-                    // Mantém a navegação para os detalhes do beat
-                    router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
+                    router.push({
+                      pathname: '/TabProfileBeatScreens/ExclusiveBeatForSale/[id]',
+                      params: { id: selected.id },
+                    })
                   }
                 />
               )}
@@ -397,7 +399,6 @@ export default function ProfileScreen() {
           )}
 
           {activeTab === 'freeBeats' && (
-            // ... (FlatList de FreeBeats)
             <FlatList
               data={userProfile.freeBeats}
               keyExtractor={(item) => item.id}
@@ -407,7 +408,10 @@ export default function ProfileScreen() {
                 <FreeBeatCard
                   item={item}
                   onPress={(selected) =>
-                    router.push(`/contentCardBeatStoreScreens/freeBeat-details/${selected.id}`)
+                   router.push({
+                      pathname: '/TabProfileBeatScreens/FreeBeat/[id]',
+                      params: { id: selected.id },
+                    })
                   }
                 />
               )}

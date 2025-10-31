@@ -1,0 +1,328 @@
+//app/TabProfileBeatScreens/FreeBeat/[id].tsx
+// app/TabProfileBeatScreens/FreeBeat/[id].tsx
+import React, { useCallback } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    Alert,
+    ImageBackground,
+    Platform,
+    SafeAreaView,
+} from 'react-native';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
+import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
+import { BlurView } from 'expo-blur';
+import { MOCKED_PROFILE, mockUserProfile } from '@/src/types/contentServer';
+import { useTranslation } from '@/src/translations/useTranslation';
+
+export default function UserFreeBeatDetailsScreen() {
+    const { t } = useTranslation();
+    const { id } = useLocalSearchParams();
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+
+    // 🟩 Buscar o beat do perfil do usuário
+    const userProfile = MOCKED_PROFILE.find(profile => profile.id === mockUserProfile.id);
+    const currentFreeBeat = (userProfile?.freeBeats ?? []).find(b => b.id === id);
+
+    // 🛑 Caso não encontre
+    if (!id || !currentFreeBeat) {
+        return (
+            <View style={styles.errorContainer}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <Text style={styles.errorText}>{t('freeBeatdetails.notFound')}</Text>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <Text style={styles.backButtonText}>{t('freeBeatdetails.backButton')}</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
+    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    const isCurrentSingleFavorited = favoritedMusics.some((music) => music.id === currentFreeBeat.id);
+
+    // 🟢 Ações
+    const handleToggleFavorite = useCallback(() => {
+        if (isCurrentSingleFavorited) {
+            dispatch(removeFavoriteMusic(currentFreeBeat.id));
+        } else {
+            dispatch(addFavoriteMusic(currentFreeBeat));
+        }
+    }, [dispatch, currentFreeBeat, isCurrentSingleFavorited]);
+
+    const handlePlaySingle = useCallback(() => {
+        if (!currentFreeBeat.uri) {
+            Alert.alert("Erro", "URI da música não disponível para reprodução.");
+            return;
+        }
+        const singlePlaylist: Track[] = [currentFreeBeat];
+        dispatch(setPlaylistAndPlayThunk({
+            newPlaylist: singlePlaylist,
+            startIndex: 0,
+            shouldPlay: true,
+        }));
+    }, [dispatch, currentFreeBeat]);
+
+    const handleOpenComments = useCallback(() => {
+        router.push({
+            pathname: '/commentScreens/musics/[musicId]',
+            params: {
+                musicId: currentFreeBeat.id,
+                musicTitle: currentFreeBeat.title,
+                artistName: currentFreeBeat.artist,
+                albumArtUrl: currentFreeBeat.cover || '',
+                commentCount: currentFreeBeat.commentCount?.toString() || '0',
+                contentType: 'freebeat',
+            },
+        });
+    }, [router, currentFreeBeat]);
+
+    const handleShareSingle = useCallback(() => {
+        router.push({
+            pathname: '/shareScreens/music/[musicId]',
+            params: {
+                musicId: currentFreeBeat.id,
+                musicTitle: currentFreeBeat.title,
+                artistName: currentFreeBeat.artist,
+                albumArtUrl: currentFreeBeat.cover || '',
+            },
+        });
+    }, [router, currentFreeBeat]);
+
+    const isConnected = useAppSelector((state) => state.network.isConnected);
+
+    const getDynamicCoverSource = () => {
+        if (!currentFreeBeat.cover || currentFreeBeat.cover.trim() === '' || isConnected === false) {
+            return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+        }
+        return { uri: currentFreeBeat.cover };
+    };
+    const coverSource = getDynamicCoverSource();
+
+    const artistAvatarSrc = { uri: mockUserProfile.avatar || 'https://placehold.co/100x100' };
+
+    return (
+        <ImageBackground
+            source={coverSource}
+            blurRadius={Platform.OS === 'android' ? 10 : 0}
+            style={styles.imageBackground}
+            resizeMode="cover"
+        >
+            <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
+                <SafeAreaView style={styles.safeArea}>
+                    <Stack.Screen options={{ headerShown: false }} />
+
+                    {/* 🔙 Header */}
+                    <View style={styles.headerBar}>
+                        <TouchableOpacity onPress={() => router.back()}>
+                            <Ionicons name="chevron-back" size={30} color="#fff" />
+                        </TouchableOpacity>
+                        <View style={styles.artistInfo}>
+                            <Image source={artistAvatarSrc} style={styles.profileImage} />
+                            <Text style={styles.artistMainName}>{mockUserProfile.name}</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.viewContent}>
+                        <TouchableOpacity style={{ width: '100%' }} onPress={handlePlaySingle}>
+                            <View style={styles.coverContainer}>
+                                <Image source={coverSource} style={styles.coverImage} />
+                            </View>
+
+                            <View style={styles.detailsContainer}>
+                                <Text style={styles.title}>{currentFreeBeat.title}</Text>
+                                <Text style={styles.artistName}>{currentFreeBeat.artist}</Text>
+
+                                {currentFreeBeat.producer && (
+                                    <Text style={styles.detailText}>
+                                        {t('freeBeatdetails.producerLabel')} {currentFreeBeat.producer}
+                                    </Text>
+                                )}
+
+                                <Text style={styles.detailText}>
+                                    {currentFreeBeat.typeUse} • {currentFreeBeat.bpm} BPM
+                                </Text>
+
+                                <Text style={styles.detailText}>
+                                    {currentFreeBeat.category.charAt(0).toUpperCase() + currentFreeBeat.category.slice(1)} • {currentFreeBeat.releaseYear || t('freeBeatdetails.unknownYear')}
+                                </Text>
+
+                                <Text style={styles.detailText}>
+                                    {(currentFreeBeat.viewsCount || 0).toLocaleString()} Plays • {currentFreeBeat.genre || t('freeBeatdetails.unknownGenre')}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        {/* 🔘 Botões de ação */}
+                        <View style={styles.containerBtnActionsRow}>
+                            <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
+                                <Ionicons
+                                    name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
+                                    size={24}
+                                    color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
+                                />
+                                {currentFreeBeat.favoritesCount !== undefined && (
+                                    <Text style={styles.btnActionCountText}>{currentFreeBeat.favoritesCount.toString()}</Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.actionButtonsRow} onPress={handleOpenComments}>
+                                <Ionicons name="chatbox-outline" size={24} color="#fff" />
+                                {currentFreeBeat.commentCount !== undefined && (
+                                    <Text style={styles.btnActionCountText}>{currentFreeBeat.commentCount.toString()}</Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.actionButtonsRow} onPress={handleShareSingle}>
+                                <Ionicons name="share-social-outline" size={24} color="#fff" />
+                                {currentFreeBeat.shareCount !== undefined && (
+                                    <Text style={styles.btnActionCountText}>{currentFreeBeat.shareCount.toString()}</Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.actionButtonsRow}>
+                                <Ionicons name="download" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </SafeAreaView>
+            </BlurView>
+        </ImageBackground>
+    );
+}
+const styles = StyleSheet.create({
+    imageBackground: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
+    safeArea: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    errorContainer: {
+        flex: 1,
+        backgroundColor: '#191919',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 18,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    headerBar: {
+        width: '100%',
+        marginTop: 40,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15,
+    },
+    artistInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        flex: 1,
+        paddingHorizontal: 15,
+    },
+    profileImage: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        resizeMode: 'cover',
+    },
+    artistMainName: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        flexShrink: 1,
+    },
+    viewContent: {
+        marginTop: 40,
+        alignItems: 'center', // Centraliza o conteúdo principal
+    },
+    coverContainer: {
+        width: '100%',
+        alignItems: 'center', // Centraliza a imagem da capa
+        marginBottom: 20,
+    },
+    coverImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 12,
+        resizeMode: 'cover',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+    },
+    // NOVO: Container para as informações textuais
+    detailsContainer: {
+        width: '100%', // Ocupa a largura total
+        alignItems: 'center', // Alinha o texto à esquerda
+        marginBottom: 20,
+        paddingHorizontal: 10, // Um pouco de padding lateral para o texto
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff',
+        textAlign: 'left', // Alinhado à esquerda
+        marginBottom: 5,
+    },
+    artistName: {
+        fontSize: 15,
+        color: '#aaa',
+        textAlign: 'left', // Alinhado à esquerda
+        marginBottom: 3,
+    },
+    detailText: {
+        fontSize: 15,
+        color: '#bbb',
+        textAlign: 'left', // Alinhado à esquerda
+        marginBottom: 3,
+    },
+    actionButtonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 17,
+        fontWeight: 'bold',
+    },
+    containerBtnActionsRow: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 5,
+        gap: 30,
+    },
+    btnActionCountText: {
+        color: '#fff',
+        fontSize: 15,
+        marginLeft: 6,
+    },
+    backButton: {
+        marginTop: 20,
+        padding: 10,
+    },
+    backButtonText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+});

@@ -1,4 +1,4 @@
-// components/musicItems/epItem/EpCard.tsx
+// components/musicItems/TabProfileExclusiveBeat/ExclusiveBeatard.tsx
 import React from "react";
 import {
     View,
@@ -10,8 +10,9 @@ import {
     Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import { ExclusiveBeat } from "@/src/types/contentType"; 
+import { ExclusiveBeat } from "@/src/types/contentType";
 import { useAppSelector } from "@/src/redux/hooks";
+import { formatBeatPrice } from "@/hooks/useFormatBeatPrice";
 
 interface ExclusiveBeatCardProps {
     item: ExclusiveBeat;
@@ -27,6 +28,7 @@ export default function ExclusiveBeatCard({ item, onPress }: ExclusiveBeatCardPr
         return { uri: item.cover };
     };
     const coverSource = getDynamicCoverSource()
+
     return (
         <TouchableOpacity
             style={styles.cardContainer}
@@ -61,6 +63,11 @@ function CardContent({
     item: ExclusiveBeat;
     coverSource: any;
 }) {
+    const formattedPrice = formatBeatPrice(
+        item.price,
+        item.region || 'en-US',   // fallback seguro
+        item.currency || 'USD'
+    );
     return (
         <View style={styles.mainContentWrapper}>
             <Image source={coverSource} style={styles.cardCoverImage} />
@@ -69,7 +76,7 @@ function CardContent({
                 <Text style={styles.cardSubtitle}>{item.artist}</Text>
                 <Text style={styles.cardGenreText}>{item.genre}</Text>
                 <Text style={styles.cardYearText}>{item.releaseYear}</Text>
-                <Text style={styles.cardPriceText}>{item.price}</Text>
+                <Text style={styles.cardPriceText}>{formattedPrice}</Text>
             </View>
         </View>
     );

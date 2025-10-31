@@ -9,16 +9,9 @@ import {
     ImageBackground,
     Platform,
 } from 'react-native';
-import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
 import { ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
-
-// 🛑 NOVOS IMPORTS
-import {
-    selectUserLocale,
-    selectUserCurrencyCode
-} from '@/src/redux/userSessionAndCurrencySlice'; // Importa os Selectors
-import { formatPrice } from '@/src/utils/formatters'; // Importa o Utilitário de Formatação
+import { formatBeatPrice } from '@/hooks/useFormatBeatPrice'; // ✅ Novo formatador
 
 interface BeatStoreMusicItemProps {
     item: ExclusiveBeat | FreeBeat;
@@ -26,14 +19,8 @@ interface BeatStoreMusicItemProps {
 }
 
 export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItemProps) {
-    const isConnected = useAppSelector((state) => state.network.isConnected);
-
-    // 🛑 1. BUSCAR LOCALE E CURRENCY CODE DO REDUX
-    const userLocale = useAppSelector(selectUserLocale);
-    const userCurrencyCode = useAppSelector(selectUserCurrencyCode);
-
     const getDynamicCoverSource = () => {
-        if (isConnected === false || !item.cover || item.cover.trim() === '') {
+        if (!item.cover || item.cover.trim() === '') {
             return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
         }
         return { uri: item.cover };
@@ -45,16 +32,13 @@ export default function BeatStoreMusicItem({ item, onPress }: BeatStoreMusicItem
     const typeText = "Beat";
     const bpmText = `${item.bpm} BPM`;
 
-    // 🛑 2. LÓGICA DE PREÇO DINÂMICA
+    // ✅ Preço baseado na moeda e região do vendedor
     const priceText = useMemo(() => {
-        // Se o item for um ExclusiveBeat (tem a propriedade 'price')
-        if ('price' in item && item.price !== undefined && item.price !== null && item.price > 0) {
-            return formatPrice(item.price, userLocale, userCurrencyCode);
+        if ('price' in item && item.price && item.price > 0) {
+            return formatBeatPrice(item.price, item.region || 'en-US', item.currency || 'USD');
         }
-        // Caso contrário, é um FreeBeat ou o preço é 0
         return 'Free';
-    }, [item, userLocale, userCurrencyCode]);
-
+    }, [item]);
 
     return (
         <TouchableOpacity style={styles.cardContainer} onPress={() => onPress(item)}>
