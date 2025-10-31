@@ -33,7 +33,9 @@ export default function UseMonetizationScreen() {
         formattedBalance,
         formattedPending,
         effectiveWallet,
-        walletSupportType
+        walletSupportType,
+        availableForWithdraw,
+        formattedAvailableForWithdraw,
     } = useMonetizationFlow();
 
     console.log('🪙 Active wallet:', activeWallet);
@@ -114,14 +116,14 @@ export default function UseMonetizationScreen() {
                     </View>
 
                     <Text style={styles.totalAmount}>{formattedBalance}</Text>
-                    <Text style={styles.changeAmount}>↑ $8,784.13 (8.78%)</Text>
 
-                    {/* ✅ REMOVIDO: Placeholder para o gráfico (chartPlaceholder) */}
+                    <Text style={styles.availableAmount}>
+                        {t('monetization.availableForWithdraw')}: {formattedAvailableForWithdraw}
+                    </Text>
 
                     {/* Botões de Ação saque*/}
                     <View style={styles.actionButtons}>
                         <TouchableOpacity style={styles.actionButton}>
-                            <Ionicons name="arrow-down-circle-outline" size={20} color="#FFF" />
                             <Text style={styles.actionButtonText}>{t('monetization.credit')}</Text>
                         </TouchableOpacity>
                     </View>
@@ -139,7 +141,7 @@ export default function UseMonetizationScreen() {
                     </View>
 
                     {(effectiveWallet.transactions?.length ?? 0) === 0 ? (
-                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 40}}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 40 }}>
                             <Ionicons name="receipt-outline" size={60} color="#aaa" />
                             <Text style={{ color: '#aaa', marginTop: 5, }}>
                                 {t('monetization.noTransactions')}
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
     actionButtons: {
         //flexDirection: 'row',
         //justifyContent: 'space-around',
-        marginTop: 10, // Ajustado um pouco para cima
+        marginTop: 16, // Ajustado um pouco para cima
     },
     actionButton: {
         backgroundColor: '#1E90FF',
@@ -483,5 +485,11 @@ const styles = StyleSheet.create({
     walletInfo: {
         flexDirection: 'column',
         gap: 2,
+    },
+    availableAmount: {
+        color: '#fff',
+        fontSize: 14,
+        marginTop: 6,
+        fontWeight: '600',
     },
 });

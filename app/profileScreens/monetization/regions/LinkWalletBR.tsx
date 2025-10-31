@@ -45,7 +45,7 @@ export default function LinkWalletAO() {
             <Image source={require('@/assets/images/countries/icons8_brazil_120px.png')} style={styles.Flaglogo} />
             <Text style={styles.countryText}>Região: Brasil ({userRegion})</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
             <Image source={require('@/assets/images/countries/icons8_currency_exchange_120px_1.png')} style={styles.Flaglogo} />
             <Text style={styles.countryText}>Moeda padrão: Real ({userCurrency})</Text>
           </View>
@@ -54,7 +54,7 @@ export default function LinkWalletAO() {
         <View style={styles.termsBox}>
           <Text style={styles.infoText}>Provedores para esta região</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <Image source={require('@/assets/images/payments/icons8-pix-144.png')} style={styles.Provedorlogo}/>
+            <Image source={require('@/assets/images/payments/icons8-pix-144.png')} style={styles.Provedorlogo} />
             <Image source={require('@/assets/images/payments/icons8_paypal_120px_3.png')} style={styles.Provedorlogo} />
           </View>
           <Text style={styles.countryText}>
@@ -73,16 +73,6 @@ export default function LinkWalletAO() {
             Se a região que detectamos automáticamente não estiver correta voçê pode muda clicando em 'Definir a região correta' para evitar erros.
             Caso contrário mantenha como está.
           </Text>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row", alignItems: "center", gap: 8, marginTop: 10
-            }}
-            onPress={() => router.push("/profileScreens/useProfileSettingsScreen")}
-          >
-            <Ionicons name='settings-outline' size={20} color="#1E90FF" />
-            <Text style={{ fontSize: 16, fontWeight: "600", color: "#1E90FF" }}>Definir a região correta</Text>
-          </TouchableOpacity>
-
         </View>
 
         <TouchableOpacity

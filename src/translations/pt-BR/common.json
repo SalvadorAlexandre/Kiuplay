@@ -437,7 +437,7 @@
     "monetization": {
         "welcomeBack": "Bem-vindo de volta,",
         "estimatedTotalValue": "Valor total estimado",
-        "credit": "Depositar",
+        "credit": "Sacar",
         "transactions": "Transações",
         "noTransactions": "Nenhuma transação encontrada",
         "wallets": "Carteiras",
@@ -446,6 +446,7 @@
         "linkSecondWallet": "Vincular segunda conta",
         "removeWallets": "Remover carteiras",
         "noLinkedAccounts": "Nenhuma conta vinculada",
-        "walletModalTitle": "Minhas carteiras"
+        "walletModalTitle": "Minhas carteiras",
+        "availableForWithdraw": "Disponível para saque"
     }
 }

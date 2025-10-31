@@ -436,7 +436,7 @@
   "monetization": {
     "welcomeBack": "Welcome back,",
     "estimatedTotalValue": "Estimated total value",
-    "credit": "Deposit",
+    "credit": "Withdraw",
     "transactions": "Transactions",
     "noTransactions": "No transactions found",
     "wallets": "Wallets",
@@ -445,6 +445,7 @@
     "linkSecondWallet": "Link second account",
     "removeWallets": "Remove wallets",
     "noLinkedAccounts": "No linked accounts",
-    "walletModalTitle": "My wallets"
+    "walletModalTitle": "My wallets",
+    "availableForWithdraw": "Available for withdrawal"
   }
 }

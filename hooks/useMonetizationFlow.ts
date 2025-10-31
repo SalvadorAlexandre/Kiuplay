@@ -138,6 +138,32 @@ export const useMonetizationFlow = () => {
     userCurrency,
   ]);
 
+  /**
+   * 💵 Valor disponível para saque
+   * (saldo total - retiradas pendentes)
+   */
+  const availableForWithdraw = useMemo(() => {
+    const balance = effectiveWallet?.balance ?? 0;
+    const pending = effectiveWallet?.pendingWithdrawals ?? 0;
+    return Math.max(balance - pending, 0); // nunca negativo
+  }, [effectiveWallet?.balance, effectiveWallet?.pendingWithdrawals]);
+
+  const formattedAvailableForWithdraw = useMemo(() => {
+    const locale = effectiveWallet?.region || userRegion || 'en-US';
+    const currency = effectiveWallet?.currency || userCurrency || 'USD';
+
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+    }).format(availableForWithdraw);
+  }, [
+    availableForWithdraw,
+    effectiveWallet?.currency,
+    effectiveWallet?.region,
+    userRegion,
+    userCurrency,
+  ]);
+
 
   /**
    * 🔍 Verifica se há conta vinculada e exibe o modal apropriado
@@ -258,38 +284,9 @@ export const useMonetizationFlow = () => {
     clearLinkedWallets,
     handleSelectWallet,
 
-    walletSupportType
+    walletSupportType,
+
+    availableForWithdraw,
+    formattedAvailableForWithdraw,
   };
 };
-
-/**
- * Decide o fluxo do utilizador com base na carteira
- * const handleWalletAccess = useCallback(() => {
-  try {
-    console.log('👤 Usuário:', userProfile?.name);
-    console.log('🌍 Região:', userRegion, '| 💰 Moeda:', userCurrency);
-    console.log('🪙 Carteiras encontradas:', wallets);
-    console.log('⚡ Carteira ativa:', activeWallet);
-
-    if (loadingWallets) {
-      console.log('⏳ Carregando carteiras...');
-      return;
-    }
-
-    if (!activeWallet) {
-      console.log('🔸 Nenhuma conta vinculada → Redirecionando para vinculação');
-      router.push('/profileScreens/monetization/linkWalletAccountScreen');
-    } else {
-      console.log('✅ Conta vinculada → Indo para o painel principal');
-      router.push('/profileScreens/monetization/useMonetizationScreen');
-    }
-  } catch (error) {
-    console.error('Erro no fluxo de monetização:', error);
-  }
-}, [router, userProfile, userRegion, userCurrency, wallets, activeWallet, loadingWallets]);
-
- */
-/**
-* Agora o fluxo apenas envia o utilizador para a tela principal de monetização.
-* A lógica de verificação (se há ou não conta vinculada) será tratada lá.
-*/
