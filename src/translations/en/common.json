@@ -432,5 +432,19 @@
   },
   "audioPlayerBar": {
     "noMusicPlaying": "No music is currently playing."
+  },
+  "monetization": {
+    "welcomeBack": "Welcome back,",
+    "estimatedTotalValue": "Estimated total value",
+    "credit": "Deposit",
+    "transactions": "Transactions",
+    "noTransactions": "No transactions found",
+    "wallets": "Wallets",
+    "onlyOneWalletAllowed": "Only one wallet is allowed for this account type.",
+    "linkWallet": "Link account",
+    "linkSecondWallet": "Link second account",
+    "removeWallets": "Remove wallets",
+    "noLinkedAccounts": "No linked accounts",
+    "walletModalTitle": "My wallets"
   }
 }

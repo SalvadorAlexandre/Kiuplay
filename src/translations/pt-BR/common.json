@@ -433,5 +433,19 @@
     },
     "audioPlayerBar": {
         "noMusicPlaying": "Nenhuma música está sendo reproduzida no momento."
+    },
+    "monetization": {
+        "welcomeBack": "Bem-vindo de volta,",
+        "estimatedTotalValue": "Valor total estimado",
+        "credit": "Depositar",
+        "transactions": "Transações",
+        "noTransactions": "Nenhuma transação encontrada",
+        "wallets": "Carteiras",
+        "onlyOneWalletAllowed": "Apenas uma carteira é permitida neste tipo de conta.",
+        "linkWallet": "Vincular conta",
+        "linkSecondWallet": "Vincular segunda conta",
+        "removeWallets": "Remover carteiras",
+        "noLinkedAccounts": "Nenhuma conta vinculada",
+        "walletModalTitle": "Minhas carteiras"
     }
 }

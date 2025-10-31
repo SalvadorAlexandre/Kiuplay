@@ -27,12 +27,13 @@ export default function UseMonetizationScreen() {
         hasLinkedWallet,
         checkWalletStatusAndShowModal,
         closeWalletModal,
+        handleSelectWallet,
         wallets,
         clearLinkedWallets,
-
         formattedBalance,
         formattedPending,
         effectiveWallet,
+        walletSupportType
     } = useMonetizationFlow();
 
     console.log('🪙 Active wallet:', activeWallet);
@@ -95,7 +96,7 @@ export default function UseMonetizationScreen() {
                             onPress={checkWalletStatusAndShowModal} // ✅ chama o modal dinamicamente
                         >
                             <Ionicons name="wallet-outline" size={22} color="#fff" />
-                            <Text style={styles.walletText}>Wallets</Text>
+                            <Text style={styles.walletText}>{t('monetization.wallets')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -126,6 +127,11 @@ export default function UseMonetizationScreen() {
                     </View>
                 </View>
 
+                <TouchableOpacity style={styles.linkButton} onPress={clearLinkedWallets}>
+                    <Ionicons name="trash-outline" size={20} color="#fff" />
+                    <Text style={styles.seeAllText}>{t('monetization.removeWallets')}</Text>
+                </TouchableOpacity>
+
                 {/* Seção Transactions */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -133,8 +139,9 @@ export default function UseMonetizationScreen() {
                     </View>
 
                     {(effectiveWallet.transactions?.length ?? 0) === 0 ? (
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{ color: '#aaa', }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 40}}>
+                            <Ionicons name="receipt-outline" size={60} color="#aaa" />
+                            <Text style={{ color: '#aaa', marginTop: 5, }}>
                                 {t('monetization.noTransactions')}
                             </Text>
                         </View>
@@ -165,48 +172,80 @@ export default function UseMonetizationScreen() {
                         />
                     )}
                 </View>
-                <View style={{ height: 50 }} />
+                <View style={{ height: 100 }} />
             </ScrollView>
 
             <BottomModal visible={walletModalVisible} onClose={closeWalletModal}>
                 {hasLinkedWallet ? (
                     <>
-                        <Text style={styles.modalTitle}>Minhas Contas Vinculadas</Text>
+                        <Text style={styles.modalTitle}>{t('monetization.wallets')}</Text>
                         <FlatList
                             data={wallets}
                             keyExtractor={(item) => item.id.toString()}
-                            renderItem={({ item }) => (
-                                <View style={styles.walletItem}>
-                                    <Text style={styles.walletName}>{item.provider}</Text>
-                                    <Text style={styles.walletBalance}>
-                                        {new Intl.NumberFormat(item.region ?? 'en-US', {
-                                            style: 'currency',
-                                            currency: item.currency ?? 'USD',
-                                        }).format(item.balance)}
-                                    </Text>
-                                </View>
-                            )}
+                            renderItem={({ item }) => {
+                                const isActive = item.status === 'active';
+                                return (
+                                    <TouchableOpacity
+                                        style={styles.walletItem}
+                                        onPress={() => handleSelectWallet(item.id)} // ⚡ alterna carteira
+                                    >
+                                        <View style={styles.walletInfo}>
+                                            <Text style={styles.walletName}>{item.provider}</Text>
+                                            <Text style={styles.walletBalance}>
+                                                {new Intl.NumberFormat(item.region ?? 'en-US', {
+                                                    style: 'currency',
+                                                    currency: item.currency ?? 'USD',
+                                                }).format(item.balance)}
+                                            </Text>
+                                        </View>
+                                        {/* ✅ Checkbox visual */}
+                                        <Ionicons
+                                            name={isActive ? 'checkmark-circle' : 'ellipse-outline'}
+                                            size={22}
+                                            color={isActive ? '#1E90FF' : '#aaa'}
+                                        />
+                                    </TouchableOpacity>
+                                );
+                            }}
                         />
-                        <TouchableOpacity
-                            style={styles.linkButton}
-                            onPress={clearLinkedWallets}
-                        >
-                            <Ionicons name="person" size={20} color="#fff" />
-                            <Text style={styles.seeAllText}>Limpar contas vinculadas</Text>
-                        </TouchableOpacity>
+
+                        {/* Botões embaixo */}
+                        <View style={{ marginTop: 12 }}>
+                            {/* Sempre mostrar botão para limpar (testes) */}
+                            {walletSupportType === 'usd_only' && wallets.length >= 1 && (
+                                <Text style={{ color: '#aaa', marginTop: 8, paddingHorizontal: 12 }}>
+                                    {t('monetization.onlyOneWalletAllowed')}
+                                </Text>
+                            )}
+
+                            {/* Condicional: mostrar "Vincular segunda conta" só se suportado e só tiver 1 wallet */}
+                            {(walletSupportType === 'local_or_usd' || walletSupportType === 'euro_or_usd') &&
+                                wallets.length === 1 && (
+                                    <TouchableOpacity
+                                        style={[styles.linkButtonAddWallet, { marginTop: 10 }]}
+                                        onPress={() => {
+                                            closeWalletModal();
+                                            router.push('/profileScreens/monetization/linkWalletAccountScreen');
+                                        }}
+                                    >
+                                        <Ionicons name="person-outline" size={20} color="#fff" />
+                                        <Text style={styles.linkButtonText}>{t('monetization.linkSecondWallet')}</Text>
+                                    </TouchableOpacity>
+                                )}
+                        </View>
                     </>
                 ) : (
                     <>
-                        <Text style={styles.modalTitle}>Nenhuma conta vinculada</Text>
+                        <Text style={styles.modalTitle}>{t('monetization.noLinkedAccounts')}</Text>
                         <TouchableOpacity
-                            style={styles.linkButton}
+                            style={styles.linkButtonAddWallet}
                             onPress={() => {
                                 closeWalletModal();
                                 router.push('/profileScreens/monetization/linkWalletAccountScreen');
                             }}
                         >
-                            <Ionicons name="card-outline" size={20} color="#fff" />
-                            <Text style={styles.linkButtonText}>Vincular conta</Text>
+                            <Ionicons name="person" size={20} color="#fff" />
+                            <Text style={styles.linkButtonText}>{t('monetization.linkWallet')}</Text>
                         </TouchableOpacity>
                     </>
                 )}
@@ -258,7 +297,7 @@ const styles = StyleSheet.create({
         //marginHorizontal: 20,
         padding: 20,
         borderRadius: 20,
-        marginBottom: 20,
+        marginBottom: 10,
         borderWidth: 1,
         borderColor: '#fff'
     },
@@ -396,8 +435,8 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     walletItem: {
-        backgroundColor: '#222',
-        borderRadius: 12,
+        //backgroundColor: '#222',
+        //borderRadius: 20,
         paddingVertical: 12,
         paddingHorizontal: 16,
         marginBottom: 10,
@@ -419,16 +458,30 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        //backgroundColor: '#2A2A2A',
+        borderRadius: 19,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        //marginTop: 5,
+    },
+    linkButtonAddWallet: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: '#2A2A2A',
         borderRadius: 19,
         paddingVertical: 12,
         paddingHorizontal: 16,
-        marginTop: 20,
+        //marginTop: 5,
     },
     linkButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
         marginLeft: 8,
+    },
+    walletInfo: {
+        flexDirection: 'column',
+        gap: 2,
     },
 });

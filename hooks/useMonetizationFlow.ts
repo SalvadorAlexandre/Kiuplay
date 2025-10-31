@@ -7,7 +7,8 @@ import {
   selectActiveWallet,
   fetchUserWallets,
   selectWalletLoading,
-  clearWallets
+  clearWallets,
+  updateActiveWallet,
 } from '@/src/redux/walletSlice';
 import {
   selectUserCurrencyCode,
@@ -17,6 +18,24 @@ import {
 } from '@/src/redux/userSessionAndCurrencySlice';
 import type { RootState } from '@/src/redux/store';
 
+import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from '@/src/constants/regions';
+
+/**
+ * 🌎 Define o tipo de suporte de carteira com base na região
+ */
+const getWalletSupportType = (countryCode: string | undefined) => {
+  if (!countryCode) return 'global';
+
+  if (LUSOPHONE_COUNTRIES.includes(countryCode)) {
+    return 'local_or_usd'; // pode escolher moeda local ou USD
+  }
+
+  if (EUROZONE_COUNTRIES.includes(countryCode)) {
+    return 'euro_or_usd'; // pode escolher EUR ou USD
+  }
+
+  return 'usd_only'; // resto do mundo
+};
 
 export const useMonetizationFlow = () => {
 
@@ -34,6 +53,12 @@ export const useMonetizationFlow = () => {
   // 🔹 Dados de moeda e região
   const userCurrency = useAppSelector(selectUserCurrencyCode);
   const userRegion = useAppSelector(selectUserAccountRegion);
+
+  const walletSupportType = useMemo(
+    () => getWalletSupportType(userRegion ?? undefined),
+    [userRegion]
+  );
+  console.log('🌐 Tipo de suporte de carteira:', walletSupportType);
 
   // 🔹 Dados da carteira (do Redux)
   const wallets = useAppSelector(selectUserWallets);
@@ -178,6 +203,36 @@ export const useMonetizationFlow = () => {
     }
   }, [router, userProfile, userRegion, userCurrency, wallets, activeWallet, loadingWallets]);
 
+  /**
+   * 🪙 Alterna a carteira ativa localmente (e futuramente sincroniza com o back-end)
+  
+  const handleSelectWallet = (walletId: string) => {
+    console.log('🔁 Alternando carteira ativa para:', walletId);
+    dispatch(updateActiveWallet(walletId));
+  };
+  */
+
+  /**
+ * 🪙 Alterna a carteira ativa localmente (e futuramente sincroniza com o back-end)
+ */
+  const handleSelectWallet = useCallback((walletId: string) => {
+    try {
+      console.log('🔁 Alternando carteira ativa para:', walletId);
+      dispatch(updateActiveWallet(walletId));
+
+      // marca que o usuário possui conta vinculada
+      setHasLinkedWallet(true);
+
+      // fecha o modal após selecionar
+      setWalletModalVisible(false);
+
+      console.log('✅ Carteira ativa atualizada com sucesso');
+    } catch (err) {
+      console.error('❌ Erro ao alternar carteira:', err);
+    }
+  }, [dispatch]);
+
+
   return {
     handleWalletAccess,
     userProfile,
@@ -200,7 +255,10 @@ export const useMonetizationFlow = () => {
     checkWalletStatusAndShowModal,
     closeWalletModal,
 
-    clearLinkedWallets
+    clearLinkedWallets,
+    handleSelectWallet,
+
+    walletSupportType
   };
 };
 

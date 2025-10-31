@@ -29,7 +29,6 @@ export const LUSOPHONE_COUNTRIES = [
   'AO', // Angola
   'BR', // Brasil
   'MZ', // Moçambique
-  //'PT', // Portugal
 ];
 
 

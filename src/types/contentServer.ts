@@ -30,7 +30,7 @@ export const mockUserProfile: UserProfile = {
 export const mockLinkedWallets: LinkedWallet[] = [
     {
         id: 'wallet-aoa-001',
-        provider: 'Multicaixa Express',
+        provider: 'Pix',
         type: 'local',
         status: 'active',
         currency: 'BRL',
@@ -70,6 +70,24 @@ export const mockLinkedWallets: LinkedWallet[] = [
             },
             {
                 id: 'tx-004',
+                type: 'withdrawal',
+                amount: -15700,
+                date: '2025-10-20T17:00:00Z',
+                description: 'Saque via Multicaixa Express',
+                status: 'completed',
+            },
+            {
+                id: 'tx-005',
+                type: 'sale',
+                amount: 30800,
+                date: '2025-10-10T12:00:00Z',
+                description: "Venda do beat 'TrapSoul Vibes'",
+                status: 'completed',
+                relatedContentId: 'beat-204',
+                relatedContentType: 'beat',
+            },
+            {
+                id: 'tx-006',
                 type: 'withdrawal',
                 amount: -15700,
                 date: '2025-10-20T17:00:00Z',

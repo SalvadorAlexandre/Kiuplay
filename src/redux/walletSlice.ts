@@ -1,3 +1,4 @@
+//src/redux/walletSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import { LinkedWallet } from '@/src/types/walletType';
 import { mockLinkedWallets } from '@/src/types/contentServer';
@@ -53,6 +54,19 @@ const walletSlice = createSlice({
       state.wallets = [];
       state.activeWallet = null;
     },
+    // ✅ Novo reducer para alternar carteira ativa
+    updateActiveWallet: (state, action: PayloadAction<string>) => {
+      const walletId = action.payload;
+
+      // Atualiza o status de todas as carteiras mockadas
+      state.wallets = state.wallets.map((wallet) => ({
+        ...wallet,
+        status: wallet.id === walletId ? 'active' : 'inactive',
+      }));
+
+      // Define a nova carteira ativa
+      state.activeWallet = state.wallets.find((wallet) => wallet.id === walletId) || null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -78,7 +92,7 @@ const walletSlice = createSlice({
 // ------------------------------------------------------------
 // 5️⃣ Exportações
 // ------------------------------------------------------------
-export const { setActiveWallet, clearWallets } = walletSlice.actions;
+export const { setActiveWallet, clearWallets, updateActiveWallet } = walletSlice.actions;
 
 // ------------------------------------------------------------
 // 🧠 Selectors otimizados (memoizados)
