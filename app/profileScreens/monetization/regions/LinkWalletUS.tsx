@@ -8,15 +8,15 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { selectUserCurrencyCode, selectUserAccountRegion } from "@/src/redux/userSessionAndCurrencySlice";
-import { useSelector } from "react-redux";
+import { useAppSelector } from '@/src/redux/hooks';
 import { useTranslation } from "@/src/translations/useTranslation";
 import { router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function LinkWalletAO() {
 
-  const userRegion = useSelector(selectUserAccountRegion);
-  const userCurrency = useSelector(selectUserCurrencyCode);
+  const userRegion = useAppSelector(selectUserAccountRegion);
+  const userCurrency = useAppSelector(selectUserCurrencyCode);
 
   return (
     <>

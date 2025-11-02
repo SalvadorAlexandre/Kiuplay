@@ -11,7 +11,6 @@ import {
   Alert,
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { useSelector, useDispatch } from 'react-redux'; // NOVO: Importa hooks do Redux
 import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
 import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice';
 import { MOCKED_CLOUD_FEED_DATA, MOCKED_PROFILE } from '@/src/types/contentServer';
@@ -35,8 +34,8 @@ export default function ArtistProfileScreen() {
 
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const dispatch = useDispatch(); // NOVO: Inicializa useDispatch
-  const followedArtists = useSelector((state: RootState) => state.followedArtists.artists); // NOVO: Obtém artistas seguidos do Redux
+  const dispatch = useAppDispatch(); // NOVO: Inicializa useDispatch
+  const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists); // NOVO: Obtém artistas seguidos do Redux
 
   const ArtistData = MOCKED_CLOUD_FEED_DATA.find(
     (item) => item.id === id && item.category === 'artist'

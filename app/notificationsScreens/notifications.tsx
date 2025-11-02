@@ -9,7 +9,7 @@ import {
   Text,
   Image,
 } from 'react-native'
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch} from '@/src/redux/hooks';
 import { RootState } from '@/src/redux/store';
 import { markAsRead, setNotifications } from '@/src/redux/notificationsSlice';
 import { Notification } from '@/src/types/contentType';
@@ -20,8 +20,8 @@ import { useTranslation } from '@/src/translations/useTranslation'
 export default function NotificationScreen() {
 
   const { t, language, setLanguage } = useTranslation()
-  const dispatch = useDispatch();
-  const notifications = useSelector((state: RootState) => state.notifications.items);
+  const dispatch = useAppDispatch();
+  const notifications = useAppSelector((state: RootState) => state.notifications.items);
 
   const unread = notifications.filter(n => !n.isRead);
   const read = notifications.filter(n => n.isRead);

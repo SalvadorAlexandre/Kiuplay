@@ -10,7 +10,6 @@ import {
     StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
@@ -41,7 +40,7 @@ export default function BeatStoreScreen() {
     const { activeTab, handleTabChange } = useBeatStoreTabs();
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
+    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
 
     // O filtro aqui já funciona, pois FavoritedMusic estende Track, que por sua vez inclui ExclusiveBeat e FreeBeat
     const favoritedBeatStoreMusics: (ExclusiveBeat | FreeBeat)[] = favoritedMusics.filter(

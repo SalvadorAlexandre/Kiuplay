@@ -10,7 +10,6 @@ import {
     FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSelector } from 'react-redux';
 import { RootState } from '@/src/redux/store';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
@@ -106,7 +105,7 @@ export default function LibraryScreen() {
     } = useSubTabSelectorLibrary();
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const followedArtists = useSelector((state: RootState) => state.followedArtists.artists);
+    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
 
     const favoritedCloudTracks: Track[] = favoritedMusics.filter(
         (music) =>

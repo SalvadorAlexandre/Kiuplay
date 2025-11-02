@@ -1,7 +1,7 @@
 //profileScreens/monetization/linkWalletAccountScreen'); 
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useAppSelector, useAppDispatch} from '@/src/redux/hooks';
 import { selectUserAccountRegion } from '@/src/redux/userSessionAndCurrencySlice';
 
 // Importa as telas regionais
@@ -14,7 +14,7 @@ import LinkWalletUS from './regions/LinkWalletUS';
 import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from "@/src/constants/regions";
 
 export default function LinkWalletAccountScreen() {
-  const region = useSelector(selectUserAccountRegion);
+  const region = useAppSelector(selectUserAccountRegion);
 
   if (!region) {
     return (
