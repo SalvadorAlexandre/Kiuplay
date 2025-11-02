@@ -173,8 +173,6 @@ function AppStack() {
       <Stack.Screen name="contentCardLibraryScreens/album-details/[id]" options={{ title: "Detalhes do Álbum" }} />
       <Stack.Screen name="contentCardLibraryScreens/ep-details/[id]" options={{ title: "Detalhes do EP" }} />
       <Stack.Screen name="contentCardLibraryScreens/artist-profile/[id]" options={{ title: "Perfil do Artista" }} />
-      <Stack.Screen name="contentCardLibraryScreens/playlist-details/[id]" options={{ title: "Detalhes da Playlist" }} />
-
       {/* Tela Not Found (erro 404) */}
       <Stack.Screen name="+not-found" />
     </Stack>

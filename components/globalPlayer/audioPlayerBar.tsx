@@ -1,5 +1,5 @@
-// component/globalPlayer/audioPlayerBar.tsx
-import React, { useEffect, useCallback, useState } from 'react';
+// components/globalPlayer/audioPlayerBar.tsx
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -25,28 +25,36 @@ import {
   setError,
   toggleExpanded,
   setSeeking,
-  toggleShuffle, // NOVO: Importe toggleShuffle
-  toggleRepeat, // NOVO: Importe toggleRepeat
+  toggleShuffle,
+  toggleRepeat,
 } from '@/src/redux/playerSlice';
 import { getAudioManager } from '@/src/utils/audioManager';
 import { AVPlaybackStatus } from 'expo-av';
 
-// NOVO: Importar as ações do seu novo slice de músicas favoritas
 import {
   addFavoriteMusic,
   removeFavoriteMusic,
-} from '@/src/redux/favoriteMusicSlice'; // NOVO: Ajuste o caminho conforme seu projeto
-
+} from '@/src/redux/favoriteMusicSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
 
 const audioManager = getAudioManager();
 
-export default function AudioPlayerBar() {
+function safeText(value: any): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '';
+  }
+}
 
-  const { t } = useTranslation()
+export default function AudioPlayerBar() {
+  const { t } = useTranslation();
 
   const dispatch = useAppDispatch();
-  const router = useRouter()
+  const router = useRouter();
   const {
     currentTrack,
     isPlaying,
@@ -56,41 +64,87 @@ export default function AudioPlayerBar() {
     isLoading,
     isSeeking,
     error,
-    isShuffle, // NOVO: Obtenha o estado do shuffle
-    isRepeat,   // NOVO: Obtenha o estado da repetição
+    isShuffle,
+    isRepeat,
   } = useAppSelector((state) => state.player);
+
+  // Normalize currentTrack fields locally to ensure strings are passed to Text
+  const title = currentTrack ? safeText(currentTrack.title) : '';
+  const artist = currentTrack ? safeText(currentTrack.artist) : '';
+  const genre = currentTrack ? safeText(currentTrack.genre) : '';
+  const coverImage =
+    currentTrack && typeof currentTrack.cover === 'string' && currentTrack.cover.trim() !== ''
+      ? { uri: currentTrack.cover }
+      : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+  const artistAvatarSrc =
+    currentTrack && typeof currentTrack.artistAvatar === 'string' && currentTrack.artistAvatar.trim() !== ''
+      ? { uri: currentTrack.artistAvatar }
+      : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
   const handleOpenComments = useCallback(() => {
     if (currentTrack) {
       router.push({
-        pathname: '/commentScreens/musics/[musicId]', // <--- ADICIONADO: Caminho da nova tela de comentários de música
+        pathname: '/commentScreens/musics/[musicId]',
         params: {
-          musicId: currentTrack.id, // <--- ADICIONADO: ID da música
-          musicTitle: currentTrack.title, // <--- ADICIONADO: Título da música
-          artistName: currentTrack.artist, // <--- ADICIONADO: Nome do artista
-          albumArtUrl: currentTrack.cover || '', // <--- ADICIONADO: URL da capa do álbum (ou string vazia)
-          commentCount: '', // <--- ADICIONADO: Placeholder para a contagem de comentários (se não tiver o valor real)
+          musicId: currentTrack.id,
+          musicTitle: currentTrack.title,
+          artistName: currentTrack.artist,
+          albumArtUrl: currentTrack.cover || '',
+          commentCount: '',
         },
       });
     }
-  }, [router, currentTrack]); // <--- ADICIONADO: Dependências para o useCallback
+  }, [router, currentTrack]);
 
-  // NOVO: Selecionar as músicas favoritas do estado do Redux
   const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-
-  // NOVO: Determina se a música atual está favoritada
   const isCurrentTrackFavorited = currentTrack
     ? favoritedMusics.some((music) => music.id === currentTrack.id)
     : false;
 
+  // Throttle/compare playback status updates to avoid flooding dispatches
+  const lastStatusRef = useRef<{ positionMillis?: number; durationMillis?: number; isPlaying?: boolean }>({});
 
   useEffect(() => {
-    const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-      dispatch(updatePlaybackStatus(status));
-      if ('didJustFinish' in status && status.didJustFinish) {
-        dispatch(playNextThunk());
+    const handlePlaybackStatusUpdate = (status: AVPlaybackStatus | any) => {
+      // Extract some values safely
+      const pos = typeof status?.positionMillis === 'number' ? status.positionMillis : null;
+      const dur = typeof status?.durationMillis === 'number' ? status.durationMillis : null;
+      const playing = typeof status?.isPlaying === 'boolean' ? status.isPlaying : null;
+      const didJustFinish = 'didJustFinish' in status ? status.didJustFinish : false;
+
+      let shouldDispatch = false;
+
+      // If the track just finished - always dispatch so next track can be handled
+      if (didJustFinish) {
+        shouldDispatch = true;
+      } else {
+        // Significant change in position (> 500ms)
+        if (pos !== null && typeof lastStatusRef.current.positionMillis === 'number') {
+          if (Math.abs(pos - (lastStatusRef.current.positionMillis || 0)) > 500) shouldDispatch = true;
+        } else if (pos !== null && lastStatusRef.current.positionMillis === undefined) {
+          shouldDispatch = true;
+        }
+
+        // Duration changed
+        if (dur !== null && dur !== lastStatusRef.current.durationMillis) shouldDispatch = true;
+
+        // Playing state changed
+        if (playing !== null && playing !== lastStatusRef.current.isPlaying) shouldDispatch = true;
+      }
+
+      if (shouldDispatch) {
+        // Update ref snapshot
+        if (pos !== null) lastStatusRef.current.positionMillis = pos;
+        if (dur !== null) lastStatusRef.current.durationMillis = dur;
+        if (playing !== null) lastStatusRef.current.isPlaying = playing;
+
+        dispatch(updatePlaybackStatus(status));
+        if (didJustFinish) {
+          dispatch(playNextThunk());
+        }
       }
     };
+
     audioManager.setPlaybackStatusUpdateCallback(handlePlaybackStatusUpdate);
     return () => {
       audioManager.setPlaybackStatusUpdateCallback(null);
@@ -106,7 +160,9 @@ export default function AudioPlayerBar() {
   }, [dispatch]);
 
   const handleSeekTo = useCallback((v: number) => {
-    dispatch(seekToThunk(v));
+    // Ensure value is a number
+    const val = typeof v === 'number' && !isNaN(v) ? v : 0;
+    dispatch(seekToThunk(val));
   }, [dispatch]);
 
   const formatTime = (millis: number | undefined | null): string => {
@@ -117,15 +173,15 @@ export default function AudioPlayerBar() {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-
-  const [sliderValue, setSliderValue] = useState(positionMillis);
+  const [sliderValue, setSliderValue] = useState<number>(positionMillis || 0);
   useEffect(() => {
     if (!isSeeking && sliderValue !== positionMillis) {
-      setSliderValue(positionMillis);
+      setSliderValue(positionMillis || 0);
     }
-  }, [positionMillis, isSeeking, sliderValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [positionMillis, isSeeking]);
 
-  const progress = durationMillis > 0 ? positionMillis / durationMillis : 0;
+  const progress = durationMillis > 0 ? (positionMillis / durationMillis) : 0;
 
   const handleToggleShuffle = useCallback(() => {
     dispatch(toggleShuffle());
@@ -135,54 +191,33 @@ export default function AudioPlayerBar() {
     dispatch(toggleRepeat());
   }, [dispatch]);
 
-  // REMOVIDO: useState local para isFavorited, agora o estado vem do Redux
-  // const [isFavorited, setIsFavorited] = useState(false);
-
-  // ALTERADO: Lógica do toggleFavorite para usar as ações do Redux
   const handleToggleFavorite = useCallback(() => {
-    if (!currentTrack) {
-      return; // Não faz nada se não houver música tocando
-    }
-
+    if (!currentTrack) return;
     if (isCurrentTrackFavorited) {
-      // Se já está favoritada, remove
       dispatch(removeFavoriteMusic(currentTrack.id));
     } else {
-      // Se não está favoritada, adiciona
       dispatch(addFavoriteMusic(currentTrack));
     }
-  }, [dispatch, currentTrack, isCurrentTrackFavorited]); // NOVO: Dependências para o useCallback
+  }, [dispatch, currentTrack, isCurrentTrackFavorited]);
 
-  //NOVO: Função para navegar para a tela de compartilhamento customizada
   const handleShareMusic = useCallback(() => {
     if (!currentTrack) {
-      console.warn(t("audioPlayerBar.noMusicPlaying."));
+      console.warn(t('audioPlayerBar.noMusicPlaying.'));
       return;
     }
-
     router.push({
-      pathname: '/shareScreens/music/[musicId]', // Caminho EXATO para sua futura tela de compartilhamento
+      pathname: '/shareScreens/music/[musicId]',
       params: {
         musicId: currentTrack.id,
         musicTitle: currentTrack.title,
         artistName: currentTrack.artist,
         albumArtUrl: currentTrack.cover || '',
-        // Adicione quaisquer outros dados que a tela de compartilhamento precise
       },
     });
-  }, [router, currentTrack]); // Depende do router e da música atual
+  }, [router, currentTrack, t]);
 
-
+  // If there's no currentTrack show nothing
   if (!currentTrack) return null;
-
-  const coverImage = currentTrack.cover
-    ? { uri: currentTrack.cover }
-    : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-  /* logo depois de pegar currentTrack */
-
-  const artistAvatarSrc = currentTrack.artistAvatar
-    ? { uri: currentTrack.artistAvatar }
-    : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
   return (
     <View
@@ -195,20 +230,19 @@ export default function AudioPlayerBar() {
           backgroundColor: '#111',
           ...(isExpanded
             ? {
-              top: 0,
-              bottom: 0,
-              height: '100%',
-              width: '100%',
-            }
+                top: 0,
+                bottom: 0,
+                height: '100%',
+                width: '100%',
+              }
             : {
-              bottom: 60,
-              height: 68,
-            }),
+                bottom: 60,
+                height: 68,
+              }),
         },
       ]}
     >
-
-      {/*MODO MINIMIZADO*/}
+      {/* MODO MINIMIZADO */}
       {!isExpanded && (
         <>
           <TouchableOpacity
@@ -219,10 +253,11 @@ export default function AudioPlayerBar() {
             <View style={styles.minimizedLeft}>
               <Image source={coverImage} style={styles.minimizedCover} />
               <View style={{ marginLeft: 8, flexShrink: 1 }}>
-                <Text style={styles.trackTitle} numberOfLines={1}>{currentTrack.title}</Text>
-                <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
+                <Text style={styles.trackTitle} numberOfLines={1}>{safeText(title)}</Text>
+                <Text style={styles.artistName} numberOfLines={1}>{safeText(artist)}</Text>
               </View>
             </View>
+
             <TouchableOpacity onPress={handleTogglePlayPause} style={{ padding: 10 }}>
               {isLoading ? (
                 <ActivityIndicator size="small" color="#fff" />
@@ -235,24 +270,24 @@ export default function AudioPlayerBar() {
               )}
             </TouchableOpacity>
           </TouchableOpacity>
+
           <View style={styles.progressContainer}>
             <View
-              style={[styles.progressBar, { width: `${progress * 100}%` }]}
+              style={[styles.progressBar, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]}
             />
           </View>
         </>
-      )
-      }
+      )}
 
-      {/*MODO MAXIMIZADO*/}
+      {/* MODO MAXIMIZADO */}
       {isExpanded && (
         <ImageBackground
           source={coverImage}
-          blurRadius={Platform.OS === 'android' ? 5 : 0} // ADICIONADO: blur nativo Android
-          style={styles.imageBackground} // ADICIONADO: novo estilo
-          resizeMode="cover"
+          blurRadius={Platform.OS === 'android' ? 5 : 0}
+          style={styles.imageBackground}
+          //resizeMode="cover"
         >
-          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}> {/* ADICIONADO: Blur cross-plataforma */}
+          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
             <ScrollView
               contentContainerStyle={styles.expandedScrollContent}
               style={styles.expandedScrollView}
@@ -262,10 +297,10 @@ export default function AudioPlayerBar() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                   <Image source={artistAvatarSrc} style={styles.profileImage} />
                   <Text style={styles.artistMainName} numberOfLines={1}>
-                    {currentTrack.artist}
+                    {safeText(artist)}
                   </Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <TouchableOpacity onPress={handleToggleExpanded} style={{ marginLeft: 8 }}>
                     <Ionicons name="chevron-down" size={28} color="#fff" />
                   </TouchableOpacity>
@@ -275,22 +310,26 @@ export default function AudioPlayerBar() {
               <Image
                 source={coverImage}
                 style={styles.expandedCover}
-                resizeMode="cover"
+                //resizeMode="cover"
               />
 
-              <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>{currentTrack.title}</Text>
-              <Text style={styles.artistName} numberOfLines={1}>{currentTrack.artist}</Text>
-              <Text style={styles.artistName} numberOfLines={1}>{currentTrack.genre}</Text>
-
+              <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>
+                {safeText(title)}
+              </Text>
+              <Text style={styles.artistName} numberOfLines={1}>{safeText(artist)}</Text>
+              <Text style={styles.artistName} numberOfLines={1}>{safeText(genre)}</Text>
 
               <Slider
                 style={styles.slider}
                 minimumValue={0}
                 maximumValue={durationMillis > 0 ? durationMillis : 1}
-                value={isSeeking ? sliderValue : positionMillis}
-                onValueChange={setSliderValue}
+                value={isSeeking ? sliderValue : (positionMillis || 0)}
+                onValueChange={(v) => setSliderValue(typeof v === 'number' ? v : 0)}
                 onSlidingStart={() => dispatch(setSeeking(true))}
-                onSlidingComplete={handleSeekTo}
+                onSlidingComplete={(v) => {
+                  dispatch(setSeeking(false));
+                  handleSeekTo(typeof v === 'number' ? v : 0);
+                }}
                 minimumTrackTintColor="#1E90FF"
                 maximumTrackTintColor="#444"
                 thumbTintColor="#fff"
@@ -303,7 +342,6 @@ export default function AudioPlayerBar() {
               </View>
 
               <View style={styles.controls}>
-                {/* Botão de Shuffle (Aleatorio)*/}
                 <TouchableOpacity onPress={handleToggleShuffle}>
                   <Ionicons
                     name="shuffle"
@@ -312,13 +350,10 @@ export default function AudioPlayerBar() {
                   />
                 </TouchableOpacity>
 
-                {/* Botão de Anterior */}
                 <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
                   <Ionicons name="play-skip-back" size={28} color="#fff" />
                 </TouchableOpacity>
 
-
-                {/* Botão de Play/Pause */}
                 <TouchableOpacity onPress={handleTogglePlayPause}>
                   {isLoading ? (
                     <ActivityIndicator size="small" color="#fff" />
@@ -331,12 +366,10 @@ export default function AudioPlayerBar() {
                   )}
                 </TouchableOpacity>
 
-                {/* Botão de Proximo */}
                 <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
                   <Ionicons name="play-skip-forward" size={28} color="#fff" />
                 </TouchableOpacity>
 
-                {/* Botão de Repetir */}
                 <TouchableOpacity onPress={handleToggleRepeat}>
                   <Ionicons
                     name={isRepeat ? 'repeat-outline' : 'repeat'}
@@ -347,12 +380,11 @@ export default function AudioPlayerBar() {
               </View>
 
               <View style={styles.actionButtons}>
-
-                <TouchableOpacity onPress={handleToggleFavorite}> {/* ALTERADO: Usa a nova função de favoritar */}
+                <TouchableOpacity onPress={handleToggleFavorite}>
                   <Ionicons
-                    name={isCurrentTrackFavorited ? 'heart' : 'heart-outline'} // ALTERADO: Cor e ícone baseados no estado do Redux
+                    name={isCurrentTrackFavorited ? 'heart' : 'heart-outline'}
                     size={24}
-                    color={isCurrentTrackFavorited ? '#FF3D00' : '#fff'} // ALTERADO: Cor baseada no estado do Redux
+                    color={isCurrentTrackFavorited ? '#FF3D00' : '#fff'}
                   />
                 </TouchableOpacity>
 
@@ -368,14 +400,13 @@ export default function AudioPlayerBar() {
                 </TouchableOpacity>
               </View>
             </ScrollView>
-
           </BlurView>
         </ImageBackground>
       )}
 
       {typeof error === 'string' && error.trim() !== '' && (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.errorText}>{safeText(error)}</Text>
           <TouchableOpacity onPress={() => dispatch(setError(null))}>
             <Ionicons name="close-circle" size={20} color="#fff" />
           </TouchableOpacity>
@@ -384,18 +415,16 @@ export default function AudioPlayerBar() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    //bottom: 60,
     width: '100%',
     backgroundColor: '#111',
     borderTopWidth: 1,
     borderTopColor: '#222',
     zIndex: 99,
     elevation: 10,
-    //overflow: 'hidden',
-    //flex: 1,
   },
   minimizedBar: {
     flexDirection: 'row',
@@ -438,9 +467,10 @@ const styles = StyleSheet.create({
   },
   expandedCover: {
     width: '95%',
-    aspectRatio: 1, // sempre quadrada
+    aspectRatio: 1,
     borderRadius: 12,
     backgroundColor: '#222',
+    resizeMode: 'stretch'
   },
   slider: {
     width: '100%',
@@ -488,52 +518,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flex: 1,
   },
-  followButton: {
-    backgroundColor: '#1E90FF',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  followButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  profileImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 25,
-    resizeMode: 'cover',
-  },
-  commentInput: {
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 19,
-    fontSize: 16,
-    backgroundColor: '#222',
-    color: '#fff',
-  },
-  iconActions: {
-    width: 25,
-    height: 25,
-    // marginRight: 10,
-  },
-
-  actionButtons: {
-    //flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20,
-    padding: 30,
-  },
   imageBackground: {
     flex: 1,
     width: '100%',
     height: '100%',
     justifyContent: 'flex-start',
+    resizeMode: "cover"
   },
   expandedScrollView: {
     flex: 1,
@@ -541,7 +531,23 @@ const styles = StyleSheet.create({
   expandedScrollContent: {
     alignItems: 'center',
     paddingHorizontal: 20,
-    // Adicionando um padding na parte inferior para garantir que o último botão seja visível
     paddingBottom: 40,
+  },
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 25,
+    resizeMode: 'cover',
+  },
+  iconActions: {
+    width: 25,
+    height: 25,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+    padding: 30,
   },
 });

@@ -470,7 +470,7 @@ export const MOCKED_CLOUD_FEED_DATA: LibraryFeedItem[] = [
                 source: 'library-cloud-feeds',
             },
             {
-                id: 'ep-track-b',
+                id: 'b5track-b',
                 uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
                 title: 'Noite de Ritmos',
                 artist: 'Novo Talento',

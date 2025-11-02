@@ -14,7 +14,7 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux'; // NOVO: Importa hooks do Redux
 import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
 import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice';
-import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+import { MOCKED_CLOUD_FEED_DATA, MOCKED_PROFILE } from '@/src/types/contentServer';
 import { ArtistProfile, } from '@/src/types/contentType'; // Importado Single também
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';

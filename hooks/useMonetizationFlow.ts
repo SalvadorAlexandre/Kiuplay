@@ -58,7 +58,7 @@ export const useMonetizationFlow = () => {
     () => getWalletSupportType(userRegion ?? undefined),
     [userRegion]
   );
-  console.log('🌐 Tipo de suporte de carteira:', walletSupportType);
+  //console.log('🌐 Tipo de suporte de carteira:', walletSupportType);
 
   // 🔹 Dados da carteira (do Redux)
   const wallets = useAppSelector(selectUserWallets);
@@ -174,6 +174,7 @@ export const useMonetizationFlow = () => {
       console.log('🌍 Região:', userRegion, '| 💰 Moeda:', userCurrency);
       console.log('🪙 Carteiras encontradas:', wallets);
       console.log('⚡ Carteira ativa:', activeWallet);
+      console.log('🌐 Tipo de suporte de carteira:', walletSupportType);
 
       if (loadingWallets) {
         console.log('⏳ Carregando carteiras...');
