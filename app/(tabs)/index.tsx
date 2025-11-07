@@ -167,7 +167,7 @@ export default function ProfileScreen() {
         <View style={styles.profileContainer}>
           <View style={{ alignItems: 'center' }}>
             <View style={styles.imageContainer}>
-              <Image source={avatarUser} style={styles.profileImage} resizeMode="contain" />
+              <Image source={avatarUser} style={styles.profileImage}/>
             </View>
             <Text style={styles.userName}>{userProfile.name}</Text>
             <Text style={styles.userHandle}>{userProfile.username}</Text>
@@ -469,6 +469,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 2,
     borderColor: '#1E90FF',
+    resizeMode: 'stretch'
   },
   statsTable: {
     marginTop: 10,

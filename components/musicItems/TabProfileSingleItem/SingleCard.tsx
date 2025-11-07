@@ -43,7 +43,6 @@ export default function SingleCard({ item, onPress }: SingleCardProps) {
       <ImageBackground
         source={coverSource}
         style={styles.imageBackground}
-        resizeMode="cover"
         imageStyle={{ borderRadius: 8 }}
       >
         {Platform.OS !== "web" ? (
@@ -98,6 +97,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     width: "100%",
+    resizeMode: "cover"
   },
   blurLayer: {
     flex: 1,

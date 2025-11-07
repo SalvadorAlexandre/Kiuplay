@@ -112,7 +112,7 @@ export default function UserFreeBeatDetailsScreen() {
             source={coverSource}
             blurRadius={Platform.OS === 'android' ? 10 : 0}
             style={styles.imageBackground}
-            resizeMode="cover"
+           
         >
             <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
                 <SafeAreaView style={styles.safeArea}>
@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
+        resizeMode: "cover"
     },
     safeArea: {
         flex: 1,

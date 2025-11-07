@@ -167,7 +167,7 @@ export default function exclusiveBeatDetailsScreen() {
             source={coverSource}
             blurRadius={Platform.OS === 'android' ? 10 : 0}
             style={styles.imageBackground}
-            resizeMode="cover"
+            //resizeMode="cover"
         >
             <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
                 <SafeAreaView style={styles.safeArea}>
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
         width: 30,
         height: 30,
         borderRadius: 15,
-        resizeMode: 'cover',
+        resizeMode: 'stretch',
     },
     artistMainName: {
         color: '#fff',
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
         width: 200,
         height: 200,
         borderRadius: 12,
-        resizeMode: 'cover',
+        resizeMode: 'stretch',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
         elevation: 10,

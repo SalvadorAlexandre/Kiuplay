@@ -95,8 +95,8 @@ export default function PromoteUserScreen() {
           {activeTab === 'configurar' ? (
             <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 20, }}>
               <Image
+                style={{ resizeMode: 'center' }}
                 source={require('@/assets/images/4/icons8_music_library_125px.png')}
-                resizeMode='center'
               />
               <Text style={styles.configContentText}>{t('promoteScreen.configure.instruction')}</Text>
               <TouchableOpacity

@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   expandedCover: {
-    width: '90%',
+    width: '94%',
     aspectRatio: 1,
     borderRadius: 12,
     backgroundColor: '#222',

@@ -51,7 +51,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
                 <Image
                     source={imageSource}
                     style={styles.coverImage}
-                    resizeMode="cover"
+                  
                 />
                 <View style={styles.musicTextContainer}>
                     <Text numberOfLines={1} style={styles.musicName}>
@@ -242,6 +242,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginRight: 12,
         backgroundColor: '#333',
+        resizeMode: "cover"
     },
     row: {
         flexDirection: 'row',

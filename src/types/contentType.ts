@@ -9,6 +9,7 @@ export interface UserProfile {
     avatar: string; // URL para o avatar (ou avatarUrl no Redux)
     bio?: string;
     email?: string
+    phonenumber?: string
     location?: string; // Ex: "Luanda, Angola"
     followersCount?: number;
     followingCount?: number

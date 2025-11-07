@@ -56,7 +56,7 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
       <Image
         source={imageSource}
         style={trackItemStyles.coverImage}
-        resizeMode="cover"
+        
       />
       <View style={trackItemStyles.infoContainer}>
         <Text style={trackItemStyles.title} numberOfLines={1}>
@@ -107,6 +107,7 @@ const trackItemStyles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 12,
     backgroundColor: '#333',
+    resizeMode: "cover"
   },
 });
 
@@ -228,7 +229,7 @@ export default function EpDetailsScreen() {
         source={coverSource}
         blurRadius={Platform.OS === 'android' ? 10 : 0}
         style={styles.imageBackground} // Este estilo vai precisar de ajustes
-        resizeMode="cover"
+        
       >
         <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
 
@@ -325,6 +326,7 @@ const styles = StyleSheet.create({
     height: 450, // Ajuste esta altura conforme o desejado para a seção da capa
     justifyContent: 'flex-start', // Alinha o conteúdo ao topo
     paddingHorizontal: 15, // Adicionado padding para o conteúdo interno
+    resizeMode: "cover"
   },
   headerBar: {
     marginTop: 40,
