@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   content: {
-    paddingHorizontal: 5,
+    //paddingHorizontal: 5,
   },
 });

@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
 
 import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
-import { useAppSelector } from '@/src/redux/hooks';
+import { useAppSelector, useAppDispatch} from '@/src/redux/hooks';
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
@@ -24,6 +24,7 @@ import { useTranslation } from '@/src/translations/useTranslation';
 
 import { setFeeds } from '@/src/redux/beatStoreSlice';
 
+import { setActiveTab } from '@/src/redux/persistTabBeatStore';
 
 
 export default function BeatStoreScreen() {
@@ -37,7 +38,14 @@ export default function BeatStoreScreen() {
 
     const router = useRouter();
     const { t } = useTranslation(); // Usa o hook customizado de tradução
-    const { activeTab, handleTabChange } = useBeatStoreTabs();
+
+    const dispatch = useAppDispatch();
+    const activeTab = useAppSelector((state) => state.beatstore.activeTab);
+
+    const handleTabChange = (tab: 'feeds' | 'curtidas' | 'seguindo') => {
+        dispatch(setActiveTab(tab));
+    };
+    //const { activeTab, handleTabChange } = useBeatStoreTabs();
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);

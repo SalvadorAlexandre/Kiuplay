@@ -25,7 +25,6 @@ import { useTranslation } from '@/src/translations/useTranslation'
 type ContentItem = { id: string; title: string; cover?: string };
 //type TabName = 'Singles' | 'Extended Play' | 'Álbuns' | 'Exclusive Beats' | 'Free Beats';
 
-
 // Imagem padrão
 const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
 
@@ -54,9 +53,9 @@ export default function SelectContentScreen() {
     t('selectContentScreen.tabs.exclusiveBeats'),
     t('selectContentScreen.tabs.freeBeats'),
   ], [t]);
+  const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<string>(t('selectContentScreen.tabs.singles'));
-  const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
   // 1. Estado para o texto digitado (feedback visual imediato)
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -138,13 +137,10 @@ export default function SelectContentScreen() {
   // ✅ Otimização: Usa useMemo para recalcular o filtro APENAS quando a tab ou o termo debounced mudam
   const filteredContent = useMemo(() => {
     const currentContent = contentTabs[activeTab] as ContentItem[];
-
     if (!debouncedSearchTerm) {
       return currentContent;
     }
-
     const lowercasedTerm = debouncedSearchTerm.toLowerCase();
-
     return currentContent.filter(item =>
       item.title.toLowerCase().includes(lowercasedTerm)
     );

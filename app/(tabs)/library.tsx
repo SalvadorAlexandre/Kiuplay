@@ -22,6 +22,7 @@ import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Ionicons } from '@expo/vector-icons';
 // ✅ 1. Importa o hook de tradução
 import { useTranslation } from '@/src/translations/useTranslation';
+import { setLocalTab, setCloudTab, setLibraryContent} from '@/src/redux/persistTabLibrery';
 
 
 // Mapeamento das chaves da aba para o caminho do JSON de tradução
@@ -97,12 +98,25 @@ export default function LibraryScreen() {
     // ✅ 4. Inicializa o hook de tradução
     const { t } = useTranslation();
 
-    const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
-    const {
+    {/** const {
         isSelectedSubTab,
         selectSubTab,
         getSelectedSubTab,
-    } = useSubTabSelectorLibrary();
+    } = useSubTabSelectorLibrary();*/}
+    const dispatch = useAppDispatch();
+    const selectedLocalTab = useAppSelector(state => state.library.selectedLocalTab);
+    const selectedCloudTab = useAppSelector(state => state.library.selectedCloudTab);
+
+    const selectSubTab = (group: 'local' | 'cloud', tab: TypeSubTab) => {
+        if (group === 'local') dispatch(setLocalTab(tab));
+        if (group === 'cloud') dispatch(setCloudTab(tab));
+    };
+
+    const getSelectedSubTab = (group: 'local' | 'cloud') =>
+        group === 'local' ? selectedLocalTab : selectedCloudTab;
+
+    const isSelectedSubTab = (group: 'local' | 'cloud', tab: TypeSubTab) =>
+        getSelectedSubTab(group) === tab;
 
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
@@ -116,6 +130,11 @@ export default function LibraryScreen() {
             )
     ) as Track[];
 
+    // const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
+    const selectedLibraryContent = useAppSelector(
+        (state) => state.library.selectedLibraryContent
+    );
+    //const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const isSelected = (current: TypeMusic, type: TypeMusic): boolean => {
         return current === type;
     };
@@ -312,7 +331,7 @@ export default function LibraryScreen() {
                         styles.buttonPlayCloud,
                         isSelected(selectedLibraryContent, 'cloud') && styles.workButtonSelected,
                     ]}
-                    onPress={() => setSelectedLibraryContent('cloud')}
+                    onPress={() => dispatch(setLibraryContent('cloud'))}
                 >
                     <Image
                         source={require('@/assets/images/4/icons8_sound_cloud_120px_1.png')}
@@ -325,7 +344,7 @@ export default function LibraryScreen() {
                         styles.buttonPlayLocal,
                         isSelected(selectedLibraryContent, 'local') && styles.workButtonSelected,
                     ]}
-                    onPress={() => setSelectedLibraryContent('local')}
+                    onPress={() => dispatch(setLibraryContent('local'))}
                 >
                     <Image
                         source={require('@/assets/images/4/icons8_music_folder_120px.png')}

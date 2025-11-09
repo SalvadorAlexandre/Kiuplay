@@ -3,10 +3,13 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 // 🛑 IMPORTAÇÃO CORRIGIDA: Incluímos 'Redirect'
-import { Stack, Redirect, useSegments, useRouter } from 'expo-router';
+import { Stack, Redirect, useSegments,} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, } from 'react';
 import 'react-native-reanimated';
+
+
+//import { MotiView } from 'moti';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -154,10 +157,9 @@ function RootLayoutNav() {
 // pois você tem muitas rotas de detalhe.
 function AppStack() {
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: true, }}>
       {/* 🛑 SOLUÇÃO 1: Oculta o cabeçalho 'Stack' que envolve o Tab Bar. */}
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
       {/* 🛑 SOLUÇÃO 2: Oculta o cabeçalho 'Stack' que envolve o grupo de autenticação.
           Isso remove o botão "Voltar" indesejado quando o usuário está no login. */}
       <Stack.Screen
@@ -166,7 +168,6 @@ function AppStack() {
           headerShown: false,
         }}
       />
-
       {/* Suas telas de detalhes existentes (continuarão a ter o cabeçalho Stack) */}
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       <Stack.Screen name="contentCardLibraryScreens/single-details/[id]" options={{ title: "Detalhes do Single" }} />
@@ -178,5 +179,3 @@ function AppStack() {
     </Stack>
   );
 }
-
-// 🛑 REMOVIDO: A função AuthStack foi removida, pois a navegação é unificada no AppStack.

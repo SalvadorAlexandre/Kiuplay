@@ -128,7 +128,9 @@ export default function FindBeatByAcapella() {
 
       <LinearGradient colors={["#2F3C97", "#191C40"]} style={styles.gradient}>
         {/* BLOCO BPM + bolinhas */}
-        <View style={{ alignItems: "center" }}>
+        <View style={{
+          alignItems: "center",
+        }}>
           <View style={styles.bpmBox}>
             {/* Valor BPM e botões */}
             <View style={styles.bpmControlRow}>
@@ -211,7 +213,17 @@ export default function FindBeatByAcapella() {
         </View>
 
         {/* Textos de instrução */}
-        <Animated.View style={[styles.instructionBox, { opacity: animatedOpacity }]}>
+        <Animated.View style={[
+          styles.instructionBox,
+          {
+            opacity: animatedOpacity,
+            position: "absolute",
+            bottom: 30, // distância do fundo
+            left: 0,
+            right: 0,
+            alignItems: "center",
+          },
+        ]}>
           {texts[currentInstructionText].title ? (
             <Text style={styles.instructionTitle}>
               {texts[currentInstructionText].title}
@@ -366,12 +378,13 @@ const styles = StyleSheet.create({
   //---------------------------------------------
   instructionBox: {
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     marginHorizontal: 15, // Adicionado para dar um respiro nas laterais
     marginTop: 20,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: 'rgba(0,0,0,0.2)', // Fundo para o box de instrução
     alignItems: 'center',
+    justifyContent: "center",
   },
   instructionTitle: {
     color: 'rgb(255, 115, 0)',
