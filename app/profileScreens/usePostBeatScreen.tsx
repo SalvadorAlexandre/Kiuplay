@@ -1,10 +1,10 @@
 //app/profileScreen/usePostBeatScreen.tsx
 import React, { useRef, useEffect } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
-import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
+//import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { usePostBeat } from '@/hooks/usePostBeat';
 import { Stack } from 'expo-router'
-import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
+//import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
 import {
     StyleSheet,
     View,
@@ -13,6 +13,7 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
+    ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -45,10 +46,17 @@ export default function PostBeatScreen() {
 
         setCurrencyPickerOpen, currencyPickerOpen,
 
-        userRegion
+        userRegion,
+        pickBeatFile,
+        pickBeatFileAndAnalyze,
+        bpm,
+        loadingBPM,
+        bpmError,
+        pickImageBeat
     } = usePostBeat();
 
-    const pickBeatFile = async () => {
+    {/** 
+        const pickBeatFile = async () => {
         let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
         if (!result.canceled && result.assets && result.assets.length > 0) {
             //Carrega o arquivo selecionado
@@ -56,10 +64,11 @@ export default function PostBeatScreen() {
             setBeatFile(file);
         }
     };
-
+        */}
     //const [capaBeat, setCapaBeat] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
     // Pode usar ImagePicker para escolher imagem
-    const pickImageBeat = async () => {
+
+    {/** const pickImageBeat = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
@@ -67,7 +76,7 @@ export default function PostBeatScreen() {
         });
         if (!result.canceled) setCapaBeat(result.assets[0]);
     };
-
+    */}
 
     return (
         <>
@@ -314,13 +323,6 @@ export default function PostBeatScreen() {
                             </Text>
                         )}
                     </View>
-                    {/** 
-                    {tipoLicenca === 'livre' && (
-                        <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>{t('postBeat.freeInfo')}</Text>
-                    )}*/}
-
-
-
                     {beatFile && <Text
                         numberOfLines={1}
                         ellipsizeMode='tail'
@@ -332,6 +334,42 @@ export default function PostBeatScreen() {
                         }}>
                         {t('postBeat.uploadingFileLabel', { fileName: beatFile.name })}
                     </Text>}
+
+                    {/**👇 INÍCIO: NOVO BLOCO DE STATUS BPM
+
+                    1. Status de Análise (Loading)
+                    */}
+                    {loadingBPM && (
+                        <View style={[styles.bpmStatusContainer, styles.loadingBpmContainer]}>
+                            {/* Usamos ActivityIndicator aqui */}
+                            <ActivityIndicator size="small" color="#fff" />
+                            <Text style={styles.bpmStatusText}>
+                                {t('postBeat.bpmAnalyzing')}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/** // 2. Erro na Análise*/}
+                    {bpmError && !loadingBPM && (
+                        <View style={styles.bpmStatusContainer}>
+                            <Ionicons name="alert-circle" size={20} color="#ff3333" />
+                            <Text style={styles.bpmErrorText}>
+                                {bpmError}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/** 3. BPM Encontrado (Sucesso) */}
+                    {bpm !== null && !loadingBPM && (
+                        <View style={[styles.bpmStatusContainer, styles.successBpmContainer]}>
+                            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                            <Text style={styles.bpmStatusText}>
+                                **BPM:** {bpm} ({t('postBeat.bpmSuccess')})
+                            </Text>
+                        </View>
+                    )}
+                    {/** 👆 FIM: BLOCO DE STATUS BPM*/}
+
                     <TouchableOpacity
                         style={{
                             flexDirection: 'row',
@@ -346,7 +384,7 @@ export default function PostBeatScreen() {
                             marginBottom: 10,
                             gap: 10,
                         }}
-                        onPress={pickBeatFile}
+                        onPress={pickBeatFileAndAnalyze}
                     >
                         <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
                         <Ionicons name='save' size={20} color={'#fff'} />
@@ -454,9 +492,6 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
 
-
-    // ... outros estilos
-
     // Estilo para o emoji das exceções (Globo/Euro)
     flagIconEmoji: {
         fontSize: 20,
@@ -484,4 +519,42 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontSize: 16,
     },
+    // Estilo do Contêiner que envolve o ícone e o texto do status
+    bpmStatusContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        backgroundColor: '#2a2a2a', // Fundo um pouco mais claro que o principal
+        borderRadius: 8,
+        marginBottom: 10,
+        gap: 10, // Espaçamento entre o ícone e o texto
+        borderWidth: 1,
+        // Cor da borda será definida pelo sucesso/erro/loading, mas podemos usar um padrão.
+        borderColor: '#555',
+    },
+    // Estilo para o texto de status (usado para Loading e Sucesso)
+    bpmStatusText: {
+        color: '#00ff00', // Verde vibrante para sucesso e loading
+        fontSize: 16,
+        fontWeight: 'bold',
+        flexShrink: 1, // Permite que o texto quebre a linha se for muito longo
+    },
+
+    // Estilo para o texto de ERRO (sobrepõe a cor verde)
+    bpmErrorText: {
+        color: '#ff3333', // Vermelho forte para erros
+        fontSize: 16,
+        fontWeight: 'bold',
+        flexShrink: 1,
+    },
+    // Estilo Específico para Loading
+    loadingBpmContainer: {
+        borderColor: '#00ff00', // Borda verde para indicar que o processo está ativo
+    },
+    // Estilo Específico para Sucesso
+    successBpmContainer: {
+        borderColor: '#00ff00', // Borda verde para indicar sucesso
+    },
+
 })
