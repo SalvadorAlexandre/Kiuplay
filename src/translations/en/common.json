@@ -218,6 +218,9 @@
     "beatTitlePlaceholder": "Beat title",
     "beatGenrePlaceholder": "Beat genre",
     "selectLicenseTypePlaceholder": "Select license type",
+    "beatBpmPlaceholder": "BPM",
+    "bpmAnalyzing": "Analyzing BPM...",
+    "bpmSuccess": "successfully detected!",
     "licenseTypes": {
       "exclusive": "Exclusive use",
       "free": "Free use"

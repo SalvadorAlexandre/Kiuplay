@@ -6,6 +6,12 @@ const path = require('path');
 // ou @type {import('metro-config').MetroConfig} para React Native CLI
 const config = getDefaultConfig(__dirname);
 
+// --- ADICIONE ESTA LINHA ---
+// Adiciona 'wasm' à lista de extensões de assets que o Metro deve reconhecer.
+config.resolver.assetExts.push('wasm');
+// -------------------------
+
+
 // Mapeia 'tslib' para sua versão ES6
 const ALIASES = {
   'tslib': path.resolve(__dirname, "node_modules/tslib/tslib.es6.js"),

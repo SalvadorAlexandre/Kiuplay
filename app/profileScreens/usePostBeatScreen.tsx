@@ -50,33 +50,11 @@ export default function PostBeatScreen() {
         pickBeatFile,
         pickBeatFileAndAnalyze,
         bpm,
+        setBpm,
         loadingBPM,
         bpmError,
         pickImageBeat
     } = usePostBeat();
-
-    {/** 
-        const pickBeatFile = async () => {
-        let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            //Carrega o arquivo selecionado
-            const file = result.assets[0];
-            setBeatFile(file);
-        }
-    };
-        */}
-    //const [capaBeat, setCapaBeat] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
-    // Pode usar ImagePicker para escolher imagem
-
-    {/** const pickImageBeat = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-        if (!result.canceled) setCapaBeat(result.assets[0]);
-    };
-    */}
 
     return (
         <>
@@ -171,6 +149,14 @@ export default function PostBeatScreen() {
                         placeholderTextColor="#FFFF"
                     />
 
+                    <TextInput
+                        value={bpm ? `${bpm} BPM` : ''}
+                        //onChangeText={}
+                        style={styles.inputTextBox}
+                        placeholder={t('postBeat.beatBpmPlaceholder')}
+                        placeholderTextColor="#FFFF"
+                    />
+
                     {/* ✅ Combo box de seleção de tipo de licensa */}
                     {/* ✅ Envolve tudo em uma View para controlar o empilhamento */}
                     <View style={{ zIndex: 2000 }}>
@@ -227,7 +213,6 @@ export default function PostBeatScreen() {
                                 />
                             )}
                         />
-
                         {tipoLicenca === 'exclusivo' && (
                             <View style={{ zIndex: 1000 }}> {/* 🔹 prioridade menor, mas ainda acima do resto */}
                                 {/* ✅ Combo box de seleção de moeda */}
@@ -323,20 +308,20 @@ export default function PostBeatScreen() {
                             </Text>
                         )}
                     </View>
-                    {beatFile && <Text
-                        numberOfLines={1}
-                        ellipsizeMode='tail'
-                        style={{
-                            color: '#fff',
-                            fontSize: 16,
-                            marginBottom: 5,
-                            maxWidth: '100%'
-                        }}>
-                        {t('postBeat.uploadingFileLabel', { fileName: beatFile.name })}
-                    </Text>}
+                    {beatFile &&
+                        <Text
+                            numberOfLines={1}
+                            ellipsizeMode='tail'
+                            style={{
+                                color: '#fff',
+                                fontSize: 16,
+                                marginBottom: 5,
+                                maxWidth: '100%'
+                            }}>
+                            {t('postBeat.uploadingFileLabel', { fileName: beatFile.name })}
+                        </Text>}
 
                     {/**👇 INÍCIO: NOVO BLOCO DE STATUS BPM
-
                     1. Status de Análise (Loading)
                     */}
                     {loadingBPM && (
@@ -364,51 +349,60 @@ export default function PostBeatScreen() {
                         <View style={[styles.bpmStatusContainer, styles.successBpmContainer]}>
                             <Ionicons name="checkmark-circle" size={20} color="#fff" />
                             <Text style={styles.bpmStatusText}>
-                                **BPM:** {bpm} ({t('postBeat.bpmSuccess')})
+                                BPM: {bpm} {t('postBeat.bpmSuccess')}
                             </Text>
                         </View>
                     )}
                     {/** 👆 FIM: BLOCO DE STATUS BPM*/}
 
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#333',
-                            paddingVertical: 10,
-                            paddingHorizontal: 16,
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                            marginBottom: 10,
-                            gap: 10,
-                        }}
-                        onPress={pickBeatFileAndAnalyze}
-                    >
-                        <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
-                        <Ionicons name='save' size={20} color={'#fff'} />
-                    </TouchableOpacity>
+                    {(tipoLicenca === 'exclusivo' || tipoLicenca === 'livre') && (
 
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#333',
-                            paddingVertical: 10,
-                            paddingHorizontal: 16,
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                            marginBottom: 10,
-                            gap: 10,
-                            // alignSelf: 'flex-start',
-                            //marginBottom: 12,
-                        }}>
-                        <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>{t('postBeat.publishButton')}</Text>
-                        <Ionicons name='cloud-upload' size={20} color={'#fff'} />
-                    </TouchableOpacity>
+                        <View>
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#333',
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 16,
+                                    borderRadius: 8,
+                                    borderWidth: 1,
+                                    borderColor: '#555',
+                                    marginBottom: 10,
+                                    gap: 10,
+                                }}
+                                onPress={pickBeatFileAndAnalyze}
+                            >
+                                <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
+                                <Ionicons name='save' size={20} color={'#fff'} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#333',
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 16,
+                                    borderRadius: 8,
+                                    borderWidth: 1,
+                                    borderColor: '#555',
+                                    marginBottom: 10,
+                                    gap: 10,
+                                    // alignSelf: 'flex-start',
+                                    //marginBottom: 12,
+                                }}>
+                                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>
+                                    {t('postBeat.publishButton')}
+                                </Text>
+                                <Ionicons name='cloud-upload' size={20} color={'#fff'} />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+
 
                 </ScrollView>
             </View>
@@ -535,15 +529,15 @@ const styles = StyleSheet.create({
     },
     // Estilo para o texto de status (usado para Loading e Sucesso)
     bpmStatusText: {
-        color: '#00ff00', // Verde vibrante para sucesso e loading
+        color: '#fff', // Verde vibrante para sucesso e loading
         fontSize: 16,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
         flexShrink: 1, // Permite que o texto quebre a linha se for muito longo
     },
 
     // Estilo para o texto de ERRO (sobrepõe a cor verde)
     bpmErrorText: {
-        color: '#ff3333', // Vermelho forte para erros
+        color: '#fff', // Vermelho forte para erros
         fontSize: 16,
         fontWeight: 'bold',
         flexShrink: 1,

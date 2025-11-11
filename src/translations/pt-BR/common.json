@@ -218,6 +218,9 @@
         "beatTitlePlaceholder": "Título do beat",
         "beatGenrePlaceholder": "Gênero do beat",
         "selectLicenseTypePlaceholder": "Selecione o tipo de uso",
+        "beatBpmPlaceholder": "BPM",
+        "bpmAnalyzing": "Analisando BPM...",
+        "bpmSuccess": "BPM detectado com sucesso!",
         "licenseTypes": {
             "exclusive": "Uso Exclusivo",
             "free": "Uso Livre"

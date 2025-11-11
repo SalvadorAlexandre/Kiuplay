@@ -12,6 +12,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "webpack.config.js", "public/workers/bpmWorker.js"  ]
+    "expo-env.d.ts",
+    "webpack.config.js",
+    "public/workers/bpmWorker.js",
+    "server/bpmProcessor.js"
+  ]
 }

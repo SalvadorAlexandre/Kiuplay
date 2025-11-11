@@ -8,9 +8,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo, } from 'react';
 import 'react-native-reanimated';
 
-
-//import { MotiView } from 'moti';
-
 import { useColorScheme } from '@/components/useColorScheme';
 
 // IMPORTAÇÕES DO REDUX
