@@ -41,6 +41,7 @@ SplashScreen.preventAutoHideAsync();
 // 1. ROOT LAYOUT (Configurações Globais: Fonts, Redux, Providers)
 // =========================================================================
 export default function RootLayout() {
+
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -65,6 +66,8 @@ export default function RootLayout() {
       }, 1500); // mantém a splash visível por 1.5 segundos
     }
   }, [loaded]);
+
+
 
   useEffect(() => {
     const configureAudioMode = async () => {
@@ -116,9 +119,9 @@ function LoadingScreen() {
   return <SplashScreenApp onFinish={() => console.log('Splash finished')} />;
 }
 
-{/**function LoadingScreen() {
-  return <View style={{ flex: 1, backgroundColor: 'black' }} />;
-} */}
+//function LoadingScreen() {
+ // return <View style={{ flex: 1, backgroundColor: 'black' }} />;
+//}
 
 // =========================================================================
 // 2. ROOT LAYOUT NAV (Lógica de Autenticação e Navegação Principal)

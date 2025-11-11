@@ -18,7 +18,8 @@ export default function SplashScreenApp({ onFinish }: SplashScreenProps) {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#fff" /> 
-      <Text style={styles.text}>Kiuplay starting...</Text>
+      <Text style={styles.text}>Kiuplay...</Text>
+      <Text style={styles.unitedstyle}>United Midea Group</Text>
     </View>
   );
 }
@@ -34,6 +35,12 @@ const styles = StyleSheet.create({
     color: '#007AFF', // azul do texto
     fontSize: 18,
     fontWeight: '600',
-    marginTop: 20,
+    marginTop: 19,
   },
+  unitedstyle:{
+    color: '#fff', // azul do texto
+    fontSize: 15,
+    fontWeight: '600',
+    marginTop: 20,
+  }
 });
