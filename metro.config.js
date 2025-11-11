@@ -11,7 +11,9 @@ const config = getDefaultConfig(__dirname);
 config.resolver.assetExts.push('wasm');
 // -------------------------
 
-
+config.resolver.alias = {
+  '@': __dirname,
+}
 // Mapeia 'tslib' para sua versão ES6
 const ALIASES = {
   'tslib': path.resolve(__dirname, "node_modules/tslib/tslib.es6.js"),
@@ -27,3 +29,4 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
 };
 
 module.exports = config;
+

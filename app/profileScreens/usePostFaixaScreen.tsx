@@ -203,7 +203,7 @@ export default function PostFaixaScreen() {
                                         style={styles.inputTextBox}
                                         value={name}
                                         onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                        placeholder={t('postFaixaScreen.participantNamePlaceholder', {index: index + 1})}
+                                        placeholder={t('postFaixaScreen.participantNamePlaceholder', { index: index + 1 })}
                                         placeholderTextColor="#FFFF"
                                     />
                                 ))}
@@ -212,12 +212,12 @@ export default function PostFaixaScreen() {
 
 
                         {/* Campos comuns*/}
-                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.artistName')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.title')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.genre')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.producer')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.year')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder = {t('postFaixaScreen.fields.trackNumber')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.artistName')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.title')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.genre')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.producer')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.year')} placeholderTextColor="#FFFF" />
+                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.trackNumber')} placeholderTextColor="#FFFF" />
 
                         {/* Botão para upload do auddio */}
                         <TouchableOpacity style={styles.uploadArea}>
@@ -262,16 +262,16 @@ export const styles = StyleSheet.create({
         fontSize: 16,
     },
     inputTextBox: {
-        backgroundColor: '#2a2a2a',   // mantém o fundo escuro elegante
-        paddingHorizontal: 14,        // mais espaço interno horizontal
-        paddingVertical: 10,          // aumenta a altura sem forçar o height fixo
-        borderRadius: 8,              // cantos mais suaves
-        borderWidth: 1,
-        borderColor: '#555',          // cor neutra quando sem erro
-        color: '#fff',                // texto branco para contraste
-        fontSize: 16,                 // tamanho de fonte confortável
-        marginBottom: 12,             // espaçamento entre campos
         width: '100%',
+        backgroundColor: '#1c1c1c',
+        color: '#fff',
+        height: 55,
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        fontSize: 16,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#333',
     },
     uploadArea: {
         flexDirection: 'row',

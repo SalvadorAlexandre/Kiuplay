@@ -3,12 +3,12 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 // 🛑 IMPORTAÇÃO CORRIGIDA: Incluímos 'Redirect'
-import { Stack, Redirect, useSegments,} from 'expo-router';
+import { Stack, Redirect, useSegments, } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo, } from 'react';
 import 'react-native-reanimated';
-
 import { useColorScheme } from '@/components/useColorScheme';
+import SplashScreenApp from './splashScreen/splashScreen'
 
 // IMPORTAÇÕES DO REDUX
 import { Provider } from 'react-redux';
@@ -51,9 +51,18 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
+
+  {/** useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+    }
+  }, [loaded]);*/}
+
+  useEffect(() => {
+    if (loaded) {
+      setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 1500); // mantém a splash visível por 1.5 segundos
     }
   }, [loaded]);
 
@@ -104,8 +113,12 @@ export default function RootLayout() {
 }
 
 function LoadingScreen() {
-  return <View style={{ flex: 1, backgroundColor: 'black' }} />;
+  return <SplashScreenApp onFinish={() => console.log('Splash finished')} />;
 }
+
+{/**function LoadingScreen() {
+  return <View style={{ flex: 1, backgroundColor: 'black' }} />;
+} */}
 
 // =========================================================================
 // 2. ROOT LAYOUT NAV (Lógica de Autenticação e Navegação Principal)
