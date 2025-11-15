@@ -47,3 +47,132 @@ enquanto os demais produtores realizam transações apenas em **USD**.
 
 
 ---
+
+Aqui está o texto totalmente organizado, melhorado, estruturado e pronto para colocar no teu README, mantendo TODA a informação, mas com uma apresentação mais profissional:
+
+
+---
+
+🧾 Sistemas de Pagamento e Vendas
+
+A nossa plataforma utiliza uma arquitetura de pagamentos robusta, escalável e flexível, capaz de suportar transações locais e globais, garantindo segurança e adaptação às necessidades dos utilizadores em diferentes regiões.
+
+
+---
+
+🔗 Gestão de Pagamentos com Stripe Connect
+
+Implementamos o Stripe Connect para lidar com a complexidade de um marketplace.
+
+Usamos o modelo Destination Charges, onde:
+
+A plataforma realiza a cobrança do cliente.
+
+O Stripe distribui automaticamente o valor entre o vendedor e a nossa comissão.
+
+
+Este fluxo simplifica o repasse financeiro e garante transparência no processo.
+
+
+---
+
+🌍 Transações Locais e Globais
+
+A plataforma adapta o sistema de pagamentos conforme a região e moeda.
+
+
+---
+
+🇧🇷 Brasil (BRL)
+
+Pagamentos:
+
+Aceitamos Pix, o método de pagamento instantâneo mais popular do país.
+
+
+Saques (Payouts):
+
+Os vendedores brasileiros recebem saques diretamente em contas bancárias locais.
+
+Processamento diário após um período inicial de liberação.
+
+
+
+---
+
+🇪🇺 Zona Euro (EUR)
+
+Pagamentos:
+
+Transações processadas diretamente em euros (EUR).
+
+Métodos suportados pela Stripe na região, como:
+
+Cartões internacionais
+
+Débito SEPA
+
+Outros métodos locais europeus
+
+
+
+Saques:
+
+Vendedores recebem em contas bancárias locais, sempre em EUR.
+
+
+
+---
+
+🇦🇴 Angola (AOA) e 🇲🇿 Moçambique (MZN)
+
+Pagamentos:
+
+Para transações na mesma moeda local:
+
+Kwanzas (AOA) → integração via Flutterwave
+
+Meticais (MZN) → integração via Flutterwave
+
+
+
+Logística de Pagamentos:
+
+A plataforma identifica automaticamente moeda + localização do utilizador e seleciona o provedor correto.
+
+
+Aviso:
+
+O uso do Stripe nestes países é limitado apenas a transações em USD.
+
+
+
+---
+
+🌐 Transações Globais (USD)
+
+Pagamentos:
+
+Para utilizadores de qualquer região, são aceitos pagamentos em dólares (USD) utilizando:
+
+Visa
+
+Mastercard
+
+American Express
+
+Apple Pay
+
+Google Pay
+
+
+
+Conversão de Moeda:
+
+A Stripe converte automaticamente para a moeda local do vendedor, quando aplicável.
+
+
+
+---
+
+Se quiser, posso criar uma versão ainda mais profissional, com emojis reduzidos, versão minimalista, versão técnica, ou até criar uma imagem/documentação gráfica do fluxo de pagamentos.

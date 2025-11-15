@@ -1,3 +1,4 @@
+//APP/profileScreen/monetization/regions/LinjWalletAO.tsx
 import React from 'react';
 import {
   View,
@@ -8,7 +9,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { selectUserCurrencyCode, selectUserAccountRegion } from "@/src/redux/userSessionAndCurrencySlice";
-import { useAppSelector, useAppDispatch} from '@/src/redux/hooks';
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { useTranslation } from "@/src/translations/useTranslation";
 import { router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -45,7 +46,7 @@ export default function LinkWalletAO() {
             <Image source={require('@/assets/images/countries/icons8_angola_120px.png')} style={styles.Flaglogo} />
             <Text style={styles.countryText}>Região: Angola ({userRegion})</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
             <Image source={require('@/assets/images/countries/icons8_currency_exchange_120px_1.png')} style={styles.Flaglogo} />
             <Text style={styles.countryText}>Moeda padrão: Kwanza ({userCurrency})</Text>
           </View>
@@ -54,40 +55,25 @@ export default function LinkWalletAO() {
         <View style={styles.termsBox}>
           <Text style={styles.infoText}>Provedores para esta região</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <Image source={require('@/assets/images/payments/MULTICAIXA_idbBwddkTn_2.png')} style={styles.Provedorlogo} />
-            <Image source={require('@/assets/images/payments/icons8_paypal_120px_3.png')} style={styles.Provedorlogo} />
+            <Image source={require('@/assets/images/payments/idMC8lXNs4_1763142417074.jpeg')} style={styles.Provedorlogo} />
+            <Image source={require('@/assets/images/payments/Stripe wordmark - Blurple - Large.png')} style={styles.Provedorlogo} />
           </View>
           <Text style={styles.countryText}>
             Algumas regiões foram selecionadas para poderem efectuar transações em duas moedas diferentes aqui no kiuplay,
             as vendas, compras e saques são processados com base na moeda selecionada.
           </Text>
           <Text style={styles.countryText}>
-            Detectamos que esta região está elegível para uso de duas moedas baseadas nas provedoras Multicaixa Spress (Moeda locaL-kz para transações direitas)
+            Detectamos que esta região está elegível para uso de duas moedas, (Moeda locaL-kz para transações direitas)
             e Paypal (Moeda Global-USD).
           </Text>
           <Text style={styles.countryText}>
             As conversões cambiais e taxas são aplicadas conforme a política da Kiuplay e do provedor de pagamento.
           </Text>
-
-          <Text style={styles.countryText}>
-            Se a região que detectamos automáticamente não estiver correta voçê pode muda clicando em 'Definir a região correta' para evitar erros.
-            Caso contrário mantenha como está.
-          </Text>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row", alignItems: "center", gap: 8, marginTop: 10
-            }}
-            onPress={() => router.push("/profileScreens/useProfileSettingsScreen")}
-          >
-            <Ionicons name='settings-outline' size={20} color="#1E90FF" />
-            <Text style={{fontSize: 16,fontWeight: "600", color: "#1E90FF" }}>Definir a região correta</Text>
-          </TouchableOpacity>
-
         </View>
 
         <TouchableOpacity
           style={styles.nextBtn}
-          onPress={() => router.push("/profileScreens/monetization/linkWalletAccountScreen")}
+          onPress={() => router.push("/profileScreens/monetization/WalletsForm/LinkWalletBankAO")}
         >
           <Ionicons name="link" size={25} color="#fff" />
           <Text style={styles.nextText}>Prosseguir para vinculação</Text>

@@ -54,8 +54,7 @@ export default function LinkWalletAO() {
         <View style={styles.termsBox}>
           <Text style={styles.infoText}>Provedores para esta região</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <Image source={require('@/assets/images/payments/icons8-pix-144.png')} style={styles.Provedorlogo} />
-            <Image source={require('@/assets/images/payments/icons8_paypal_120px_3.png')} style={styles.Provedorlogo} />
+            <Image source={require('@/assets/images/payments/Stripe wordmark - Blurple - Large.png')} style={styles.Provedorlogo} />
           </View>
           <Text style={styles.countryText}>
             Algumas regiões foram selecionadas para poderem efectuar transações em duas moedas diferentes aqui no kiuplay,
@@ -77,7 +76,7 @@ export default function LinkWalletAO() {
 
         <TouchableOpacity
           style={styles.nextBtn}
-          onPress={() => router.push("/profileScreens/monetization/linkWalletAccountScreen")}
+          onPress={() => router.push("/profileScreens/monetization/WalletsForm/linkWalletBankBR")}
         >
           <Ionicons name="link" size={25} color="#fff" />
           <Text style={styles.nextText}>Prosseguir para vinculação</Text>

@@ -68,25 +68,11 @@ export default function LinkWalletAO() {
             As conversões cambiais e taxas são aplicadas conforme a política da Kiuplay e do provedor de pagamento.
           </Text>
 
-          <Text style={styles.countryText}>
-            Se a região que detectamos automáticamente não estiver correta voçê pode muda clicando em 'Definir a região correta' para evitar erros.
-            Caso contrário mantenha como está.
-          </Text>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row", alignItems: "center", gap: 8, marginTop: 10
-            }}
-            onPress={() => router.push("/profileScreens/useProfileSettingsScreen")}
-          >
-            <Ionicons name='settings-outline' size={20} color="#1E90FF" />
-            <Text style={{ fontSize: 16, fontWeight: "600", color: "#1E90FF" }}>Definir a região correta</Text>
-          </TouchableOpacity>
-
         </View>
 
         <TouchableOpacity
           style={styles.nextBtn}
-          onPress={() => router.push("/profileScreens/monetization/linkWalletAccountScreen")}
+          onPress={() => router.push("/profileScreens/monetization/WalletsForm/LinkWalletBankGlobalUSD")}
         >
           <Ionicons name="link" size={25} color="#fff" />
           <Text style={styles.nextText}>Prosseguir para vinculação</Text>
