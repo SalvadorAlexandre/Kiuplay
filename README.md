@@ -21,158 +21,135 @@ por ser uma alternativa mais acessível do que criar versões nativas separadas.
 
 ## 💰 Lógica de Pagamento
 
-O Kiuplay oferecerá **duas modalidades de transação**:
+Perfeito — removi completamente Angola e Moçambique da lógica de moeda local e eliminei qualquer menção ao Flutterwave.
+Agora o sistema fica muito mais simples e 100% baseado em Stripe, funcionando assim:
 
-### 1. 💵 Moeda Local  
-Disponível apenas entre usuários da **mesma região**.
+Brasil → Stripe (Pix)
 
-- Exemplo: se um produtor define o preço em **AOA (Kwanza)**, apenas compradores em **Angola** poderão pagar nessa moeda.  
-- Essa modalidade estará disponível em:
-  - 🇦🇴 **Angola**
-  - 🇲🇿 **Moçambique**
-  - 🇧🇷 **Brasil**
-  - 🇪🇺 **Países da Zona do Euro (Eurozone)**
+Zona Euro → Stripe (SEPA)
 
-### 2. 🌍 Moeda Global (USD)  
-Disponível para **todos os usuários**, independente da região.  
+Global → Stripe (Cartões + carteiras digitais)
 
----
+Angola / Moçambique / outros países → apenas USD (global)
 
-Dessa forma, produtores localizados nos países citados podem optar por vender em **moeda local** ou **global (USD)**,  
-enquanto os demais produtores realizam transações apenas em **USD**.
-
----
-
-📦 *Kiuplay: Conectando artistas, produtores e ouvintes numa única plataforma global.*
+Aqui está o texto totalmente atualizado:
 
 
 ---
 
-Aqui está o texto totalmente organizado, melhorado, estruturado e pronto para colocar no teu README, mantendo TODA a informação, mas com uma apresentação mais profissional:
+💰 Lógica de Pagamentos — Versão Final (Sem Flutterwave)
+
+O Kiuplay utiliza uma arquitetura de pagamentos totalmente baseada em Stripe Connect, garantindo segurança, simplicidade e suporte global.
 
 
 ---
 
-🧾 Sistemas de Pagamento e Vendas
+🌍 Modalidades de Transação
 
-A nossa plataforma utiliza uma arquitetura de pagamentos robusta, escalável e flexível, capaz de suportar transações locais e globais, garantindo segurança e adaptação às necessidades dos utilizadores em diferentes regiões.
+1. 💵 Moeda Local
 
+Disponível apenas para regiões suportadas pela Stripe com recepção local:
 
----
+🇧🇷 Brasil (BRL — Pix)
 
-🔗 Gestão de Pagamentos com Stripe Connect
-
-Implementamos o Stripe Connect para lidar com a complexidade de um marketplace.
-
-Usamos o modelo Destination Charges, onde:
-
-A plataforma realiza a cobrança do cliente.
-
-O Stripe distribui automaticamente o valor entre o vendedor e a nossa comissão.
+🇪🇺 Zona Euro (EUR — SEPA)
 
 
-Este fluxo simplifica o repasse financeiro e garante transparência no processo.
+Produtores destas regiões podem vender usando sua moeda local.
+
+2. 🌍 Moeda Global (USD)
+
+Disponível para todos os países, inclusive:
+
+Angola
+
+Moçambique
+
+Cabo Verde
+
+Guiné-Bissau
+
+Todos os restantes
 
 
----
-
-🌍 Transações Locais e Globais
-
-A plataforma adapta o sistema de pagamentos conforme a região e moeda.
-
-
----
-
-🇧🇷 Brasil (BRL)
-
-Pagamentos:
-
-Aceitamos Pix, o método de pagamento instantâneo mais popular do país.
-
-
-Saques (Payouts):
-
-Os vendedores brasileiros recebem saques diretamente em contas bancárias locais.
-
-Processamento diário após um período inicial de liberação.
-
+Produtores fora das regiões suportadas vendem somente em USD.
 
 
 ---
 
-🇪🇺 Zona Euro (EUR)
+🔗 Stripe Connect — Funcionamento Geral
 
-Pagamentos:
+Utilizamos Destination Charges, onde:
 
-Transações processadas diretamente em euros (EUR).
+O cliente paga via Stripe.
 
-Métodos suportados pela Stripe na região, como:
+A Stripe divide automaticamente:
 
-Cartões internacionais
+💰 valor do produtor
 
-Débito SEPA
-
-Outros métodos locais europeus
+💼 comissão do Kiuplay
 
 
 
-Saques:
-
-Vendedores recebem em contas bancárias locais, sempre em EUR.
-
+Garantindo transparência e automatização completa.
 
 
 ---
 
-🇦🇴 Angola (AOA) e 🇲🇿 Moçambique (MZN)
-
-Pagamentos:
-
-Para transações na mesma moeda local:
-
-Kwanzas (AOA) → integração via Flutterwave
-
-Meticais (MZN) → integração via Flutterwave
-
-
-
-Logística de Pagamentos:
-
-A plataforma identifica automaticamente moeda + localização do utilizador e seleciona o provedor correto.
-
-
-Aviso:
-
-O uso do Stripe nestes países é limitado apenas a transações em USD.
-
+🌐 Suporte por Região
 
 
 ---
 
-🌐 Transações Globais (USD)
+🇧🇷 Brasil — BRL
 
-Pagamentos:
+Pagamentos
 
-Para utilizadores de qualquer região, são aceitos pagamentos em dólares (USD) utilizando:
+✔️ Pix via Stripe
+Rápido, barato e amplamente utilizado no país.
 
-Visa
+Saques
 
-Mastercard
-
-American Express
-
-Apple Pay
-
-Google Pay
-
-
-
-Conversão de Moeda:
-
-A Stripe converte automaticamente para a moeda local do vendedor, quando aplicável.
-
+✔️ Stripe envia diretamente para contas bancárias brasileiras em BRL.
 
 
 ---
 
-Se quiser, posso criar uma versão ainda mais profissional, com emojis reduzidos, versão minimalista, versão técnica, ou até criar uma imagem/documentação gráfica do fluxo de pagamentos.
+🇪🇺 Zona Euro — EUR
+
+Pagamentos
+
+✔️ SEPA Direct Debit (Stripe)
+✔️ Cartões internacionais e europeus
+✔️ Outros métodos locais suportados pela Stripe
+
+Saques
+
+✔️ Sempre em contas bancárias locais em EUR.
+
+
+---
+
+🌍 Global (USD)
+
+Para qualquer país.
+
+Pagamentos
+
+✔️ Cartões (Visa, Mastercard, Amex)
+✔️ Apple Pay
+✔️ Google Pay
+✔️ PayPal (opcional)
+
+Conversão
+
+✔️ Stripe converte USD → moeda local do produtor (somente em países suportados)
+
+
+---
+
+Status Atual
+
+✔️ Sistema 100% Stripe
+✔️ Moeda local apenas Brasil e Eurozone
+✔️ Restante do mundo → USD

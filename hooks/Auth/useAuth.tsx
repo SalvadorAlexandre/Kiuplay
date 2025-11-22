@@ -1,14 +1,14 @@
-// hooks/useAuth.ts
+// hooks/useAuth.tsx
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-// Importe AsyncStorage se for usá-lo para persistência de token
-// import AsyncStorage from '@react-native-async-storage/async-storage'; 
-
-// 🛑 NOVOS IMPORTS DO REDUX
+// NOVOS IMPORTS DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
 import { setAuthSession, logoutUser, setUser } from '@/src/redux/userSessionAndCurrencySlice';
 import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
-import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // ✅ IMPORTA O HOOK
+import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // IMPORTA O HOOK
 import { mockUserProfile } from '@/src/types/contentServer';
+
+import { tokenStorage } from "@/src/utils/tokenStorage";
+import { authApi, userApi } from '@/src/api';
 
 
 // =========================================================================
@@ -18,18 +18,15 @@ export interface AuthUserData { // Crie uma interface para o payload de dados do
   userId: string;
   locale: string;
   currencyCode: string;
-  accountRegion: string; // <--- CORREÇÃO 1: Adicione accountRegion aqui
+  accountRegion: string; //<--- CORREÇÃO 1: Adicione accountRegion aqui
 }
-
 
 export interface AuthContextType {
   isLoggedIn: boolean;
   isLoading: boolean;
-  // O signIn agora pode receber dados mais complexos, como a resposta da API, além do token.
-  signIn: (token: string, userData: AuthUserData) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
-
 // =========================================================================
 // 2. CRIAÇÃO DO CONTEXTO
 // =========================================================================
@@ -71,18 +68,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // **FUNÇÕES DE AUTENTICAÇÃO**
 
   // 🛑 CORREÇÃO 3: O parâmetro 'userData' agora é do tipo AuthUserData
-  const signIn = async (token: string, userData: AuthUserData) => {
-    console.log("Usuário logado. Token:", token);
+  const signIn = async (email: string, password: string) => {
+    try {
+      // 1️⃣ Chama o login no backend
+      const { token } = await authApi.signIn({ email, password,});
 
-    // 🛑 ENVIAR DADOS DE SESSÃO, MOEDA E REGIÃO PARA O REDUX
-    dispatch(setAuthSession({
-      userId: userData.userId,
-      locale: userData.locale,
-      currencyCode: userData.currencyCode,
-      accountRegion: userData.accountRegion, // <--- CORREÇÃO 4: PASSANDO A REGIÃO
-    }));
+      // 2️⃣ Salva token localmente
+      await tokenStorage.setToken(token);
 
-    setIsLoggedIn(true);
+      // 3️⃣ Busca dados reais do usuário com token salvo
+      const user = await userApi.getMe();
+
+      // 4️⃣ Atualiza Redux com dados reais do usuário
+      dispatch(setAuthSession({
+        userId: user.id,
+        locale: user.locale || "en-US",
+        currencyCode: user.currencyCode || "USD",
+        accountRegion: user.accountRegion || "US",
+      }));
+      dispatch(setUser(user));
+
+      // 5️⃣ Atualiza estado local
+      setIsLoggedIn(true);
+
+    } catch (error) {
+      console.error("Erro de login:", error);
+      throw error;
+    }
   };
 
   const signOut = async () => {
@@ -100,40 +112,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // **EFEITO PARA CARREGAMENTO E VERIFICAÇÃO INICIAL**
   useEffect(() => {
     const checkAuthStatus = async () => {
-      // Espera a localização estar pronta
       if (locationLoading) return;
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 300));
+        const token = await tokenStorage.getToken();
 
-        const persistedToken = true; // MOCK temporário
-
-        if (persistedToken) {
-
-          // 🧩 MOCK: Dados vindos do perfil do usuário (mockado)
-          const mockUser = mockUserProfile; // Importado de contentServer
-          const mockUserId = mockUser.id;
-
-          //const mockUserId = 'user-123';
-          const accountRegion = 'us'//countryCode || 'US';
-          const userLocale = 'en-US'//locale || 'en-US';
-          const userCurrency = 'USD'//currency || 'USD';
-
-          dispatch(setAuthSession({
-            userId: mockUserId,
-            locale: userLocale,
-            currencyCode: userCurrency,
-            accountRegion,
-          }));
-
-          dispatch(setUser(mockUser))
-
-          setIsLoggedIn(true);
-        } else {
+        if (!token) {
           setIsLoggedIn(false);
+          setIsLoading(false);
+          return;
         }
+
+        // Validar token chamando back-end (opcional)
+        const user = await userApi.getMe(); // rota /auth/me no backend
+
+        dispatch(setAuthSession({
+          userId: user.id,
+          locale: user.locale || "en-US",
+          currencyCode: user.currencyCode || "USD",
+          accountRegion: user.accountRegion || "US",
+        }));
+
+        dispatch(setUser(user));
+        setIsLoggedIn(true);
+
       } catch (error) {
-        console.error("Erro ao verificar status de autenticação:", error);
+        console.error("Token inválido:", error);
+        await tokenStorage.removeToken();
         dispatch(logoutUser());
         setIsLoggedIn(false);
       } finally {
@@ -142,8 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuthStatus();
-    // 🔥 REMOVE 'dispatch' e 'currency' das dependências diretas
-  }, [countryCode, locale, locationLoading]);
+  }, [locationLoading]);
 
 
   const value = useMemo(() => ({
@@ -159,5 +163,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-// Exporte a interface para ser usada em outros lugares (como no seu RootLayout)
-// O export de cima já garante isso: export interface AuthContextType

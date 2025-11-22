@@ -10,24 +10,51 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView, // 🛑 Adicionado ScrollView
+    ActivityIndicator,
 } from 'react-native';
 import { Stack, Link, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons'; // 🛑 Importação do Ionicons
 import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
-import { useAuth } from '@/hooks/Auth/useAuth';
+import { authApi } from '@/src/api';
+
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function SignUpScreen() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+
     const router = useRouter();
 
-    const handleSignUp = async () => {
-        // Lógica de cadastro real com a API aqui
-        console.log('Attempting sign up with:', name, email);
+    const signUpSchema = z.object({
+        name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
+        username: z.string()
+            .min(3, "O username deve ter pelo menos 3 caracteres")
+            .regex(/^[a-zA-Z0-9_]+$/, "Apenas letras, números e underscore são permitidos"),
+        email: z.string().email("E-mail inválido"),
+        password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres")
+    });
 
-        // Redireciona para a nova tela de verificação
-        router.replace('/verify');
+    type SignUpFormData = z.infer<typeof signUpSchema>;
+
+    // Dentro do componente
+    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignUpFormData>({
+        resolver: zodResolver(signUpSchema)
+    });
+
+    const onSubmit = async (data: SignUpFormData) => {
+        try {
+           const response = await authApi.signUp({
+                name: data.name,
+                username: data.username,
+                email: data.email,
+                password: data.password
+            });
+             console.log('Resposta da api', response)
+            router.replace("/verify");
+        } catch (error: any) {
+            console.error("Erro no cadastro:", error);
+            alert(error.message || "Falha no cadastro.");
+        }
     };
 
     return (
@@ -57,40 +84,83 @@ export default function SignUpScreen() {
                     </View>
 
                     {/* INPUT NOME */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Your Name"
-                        placeholderTextColor="#999"
-                        value={name}
-                        onChangeText={setName}
-                        autoCapitalize="words"
+                    <Controller
+                        control={control}
+                        name="name"
+                        render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Your Name"
+                                placeholderTextColor="#999"
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                                autoCapitalize="words"
+                            />
+                        )}
                     />
+                    {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+
+                    {/* INPUT USERNAME */}
+                    <Controller
+                        control={control}
+                        name="username"
+                        render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="@Username"
+                                placeholderTextColor="#999"
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                                autoCapitalize="none"
+                            />
+                        )}
+                    />
+                    {errors.username && <Text style={styles.errorText}>{errors.username.message}</Text>}
 
                     {/* INPUT EMAIL */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email Address"
-                        placeholderTextColor="#999"
-                        keyboardType="email-address"
-                        value={email}
-                        onChangeText={setEmail}
-                        autoCapitalize="none"
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Email Address"
+                                placeholderTextColor="#999"
+                                keyboardType="email-address"
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                                autoCapitalize="none"
+                            />
+                        )}
                     />
+                    {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
                     {/* INPUT SENHA */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        placeholderTextColor="#999"
-                        secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({ field: { value, onChange, onBlur } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Password"
+                                placeholderTextColor="#999"
+                                secureTextEntry
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                            />
+                        )}
                     />
+                    {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
                     {/* BOTÃO DE CADASTRO GRADIENTE */}
                     <GradientButton
-                        title="Sign Up"
-                        onPress={handleSignUp}
+                        title={isSubmitting ? "Signing Up..." : "Sign Up"}
+                        onPress={handleSubmit(onSubmit)}
+                        disabled={isSubmitting}
                     />
 
                     {/* LINK PARA LOGIN */}
@@ -169,5 +239,11 @@ const styles = StyleSheet.create({
         color: '#00ffff',
         fontSize: 16,
         fontWeight: 'bold'
+    },
+    errorText: {
+        color: '#ff0000', // vermelho para erro
+        fontSize: 13,
+        marginBottom: 3,
+        marginLeft: 4,
     },
 });

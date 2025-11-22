@@ -1,8 +1,11 @@
 // app/(tabs)/profile.tsx
+
+
 import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { MOCKED_PROFILE } from '@/src/types/contentServer'
+import { setAuthSession, logoutUser, setUser } from '@/src/redux/userSessionAndCurrencySlice';
 import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
 import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
 import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
@@ -25,7 +28,7 @@ import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
-// 🆕 NOVO IMPORT: Importa o tipo ExclusiveBeat
+// NOVO IMPORT: Importa o tipo ExclusiveBeat
 import { ExclusiveBeat } from '@/src/types/contentType';
 import { setProfileActiveTab } from '@/src/redux/persistTabProfile';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
@@ -46,7 +49,10 @@ export default function ProfileScreen() {
   const closeProfileModal = () => setProfileModalVisible(false);
 
   // --- DADOS MOCADOS DO PERFIL ---
-  const userProfile = MOCKED_PROFILE[0]
+  //const userProfile = MOCKED_PROFILE[0]
+
+  // Substitui o mock
+  const userProfile = useAppSelector((state) => state.userSession.user);
   // ------------------------------
 
   // 🛑 AJUSTE 1: USAR O SLICE CORRETO PARA BEATS COMPRADOS

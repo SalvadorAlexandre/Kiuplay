@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Image,
   ScrollView,
 } from 'react-native';
 import { Stack, Link, useRouter } from 'expo-router';
@@ -24,38 +23,17 @@ export default function SignInScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    // ⚠️ Implementar lógica de autenticação real aqui ⚠️
     console.log('Attempting login with:', email, password);
 
     // =========================================================================
     // 🛑 LÓGICA DE LOGIN COM INFORMAÇÕES DE MOEDA
     // =========================================================================
     try {
-      // 1. CHAME SUA API DE LOGIN AQUI (Ex: const response = await fetch('/login', ...))
-
-      // 2. SIMULAÇÃO DE RESPOSTA DA API (Assumindo Sucesso e a API retorna estes campos)
-      const apiResponseData = {
-        token: 'mock_token_123',
-        userId: 'user-id-abc',
-        // Estes dados VÃO determinar como o preço será exibido em todo o app.
-        // Exemplo 1: Usuário de Angola
-        locale: 'pt-AO',
-        currencyCode: 'AOA',
-
-        // Exemplo 2: Usuário do Brasil
-        // locale: 'pt-BR', 
-        // currencyCode: 'BRL', 
-      };
-
-      // 3. Chamar signIn com o token E os dados de sessão/moeda
-      await signIn(apiResponseData.token, {
-        userId: apiResponseData.userId,
-        locale: apiResponseData.locale,
-        currencyCode: apiResponseData.currencyCode,
-      });
+      // 1. CHAME SUA API DE LOGIN AQUI
+      await signIn(email, password);
 
       // 4. Redireciona para a home e remove login da pilha
-      router.replace('/');
+      router.replace('/beatstore');
 
     } catch (error) {
       console.error("Login failed:", error);

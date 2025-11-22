@@ -1,6 +1,33 @@
 // src/types/contentType.ts
 import { LinkedWallet } from "./walletType";
 
+export interface MonetizationInfo {
+    // 🛑 CRUCIAL para o Stripe: O ID do Cliente no Stripe (pode ser nulo se não houver)
+    stripeCustomerId: string | null; 
+    
+    // O código da moeda que o usuário usa para ver preços (ex: 'USD', 'EUR', 'AOA', 'BRL')
+    currencyCode: string; 
+    
+    // O código do país/região que o usuário definiu como sua região principal de conta
+    // (US, BR, PT, AO, MZ, etc. - Usado para a lógica LinkWalletAccountScreen)
+    accountRegion: string; 
+
+    // Se a carteira de recebimento está vinculada (SetupIntent concluído)
+    isWalletLinked: boolean; 
+    
+    // Novo campo para monetização (já existia no UserProfile, movido para cá)
+    hasMonetizationEnabled: boolean; 
+
+    // Opcional: Histórico de payouts, saldo, etc.
+}
+
+export interface UserSettings {
+    // Configurações de idioma (ex: 'pt-PT', 'en-US')
+    locale: string; 
+    // Outras configurações (notificações, privacidade, etc.)
+}
+
+
 // 🛑 NOVA: Interface Base para Perfis de Usuários (Artistas ou Comuns)
 export interface UserProfile {
     id: string;
@@ -19,15 +46,17 @@ export interface UserProfile {
     freeBeatsCount?: number
     exclusiveBeatsCount?: number;
     isArtist?: boolean; // Se o usuário tem um perfil de artista
-    hasMonetizationEnabled?: boolean;
     releaseYear: string;
     genres?: string[];
-    // 🛑 NOVO: Lista de beats comprados (útil para a aba "Beats Comprados")
-    purchasedBeats?: PurchasedBeat[];
-    linkedWallet?: LinkedWallet[];
-    
-}
 
+    // 🛑 NOVO: Adicione as informações de monetização e configurações aqui
+    monetizationInfo?: MonetizationInfo; // OBRIGATÓRIO
+    settings?: UserSettings; // OBRIGATÓRIO
+    // -------------------------------------------------------------
+    // Lista de beats comprados
+    purchasedBeats?: PurchasedBeat[];
+    linkedWallet?: LinkedWallet[]; 
+}
 
 // ArtistProfile herda de UserProfile e, portanto, também terá `purchasedBeats`.
 
@@ -202,7 +231,6 @@ export interface FreeBeat {
     comments?: Comment[]
 }
 
-
 export interface Promotion {
     id: string; // ID único da promoção
     contentId: string; // ID da obra promovida
@@ -220,7 +248,6 @@ export interface Promotion {
     category: 'promotion';
     notify: boolean
 }
-
 // Tipos de notificações possíveis no Kiuplay
 // Tipos de notificações possíveis no Kiuplay
 export type NotificationType =

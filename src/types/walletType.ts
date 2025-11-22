@@ -17,7 +17,7 @@ export interface LinkedWallet {
   type: WalletProviderType;     // 'local' ou 'international'
   status: 'active' | 'inactive';
   currency: string;             // Ex: 'AOA', 'USD', 'EUR'
-  region: string;              // ✅ Ex: 'pt-AO', 'en-US', 'pt-PT'
+  region: string;              //  Ex: 'pt-AO', 'en-US', 'pt-PT'
   accountId: string;            // Ex: número de conta ou email do PayPal
   balance: number;              // Saldo atual (simulado)
   /**Valor de saques pendentes */
@@ -34,28 +34,28 @@ export interface LinkedWallet {
  */
 export interface WalletTransaction {
   id: string;
-  // 🔹 Identificador único da transação (ex: 'tx-001')
+  //  Identificador único da transação (ex: 'tx-001')
 
   type: 'sale' | 'withdrawal' ;
-  // 🔹 Tipo da transação:
+  //  Tipo da transação:
   // 'withdrawal' → saque ou transferência de saída
  
 
   amount: number;
-  // 💰 Valor movimentado (positivo = entrada, negativo = saída)
+  //  Valor movimentado (positivo = entrada, negativo = saída)
 
   date: string;
-  // 🕓 Data da transação em formato ISO (ex: '2025-10-25T14:32:00Z')
+  //  Data da transação em formato ISO (ex: '2025-10-25T14:32:00Z')
 
   description?: string;
-  // 🗒️ Descrição textual opcional (ex: "Compra de beat exclusivo ‘TrapSoul Vibes’")
+  //  Descrição textual opcional (ex: "Compra de beat exclusivo ‘TrapSoul Vibes’")
 
   status: 'completed' | 'pending' | 'failed';
-  // ⚙️ Estado atual da transação
+  //  Estado atual da transação
 
   relatedContentId?: string;
-  // 🔗 ID do conteúdo relacionado (ex: ID do beat, single, promoção, etc.)
+  //  ID do conteúdo relacionado (ex: ID do beat, single, promoção, etc.)
 
   relatedContentType?: 'beat';
-  // 🎵 Tipo do conteúdo relacionado:
+  //  Tipo do conteúdo relacionado:
 }

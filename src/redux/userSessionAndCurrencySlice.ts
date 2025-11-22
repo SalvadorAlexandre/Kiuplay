@@ -1,7 +1,7 @@
 //src/redux/userSessionAndCurrencySlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './store';
-// 🛑 IMPORTAR A INTERFACE CENTRALIZADA DE PERFIL 
+// IMPORTAR A INTERFACE CENTRALIZADA DE PERFIL 
 import { UserProfile } from '@/src/types/contentType';
 
 
@@ -19,7 +19,7 @@ interface UsersState {
   /** O código da moeda (ex: 'BRL', 'USD') */
   userCurrencyCode: string | null;
 
-  // 🛑 NOVOS CAMPOS PARA INTERNACIONALIZAÇÃO (i18n)
+  // NOVOS CAMPOS PARA INTERNACIONALIZAÇÃO (i18n)
   /** Idioma escolhido manualmente pelo usuário ('pt-BR', 'en', 'es'). Null significa usar a lógica de cascata. */
   appLanguage: string | null; // <--- NOVO
   /** Região da conta, vinda do backend (ex: 'BR', 'US'). Usado na Prioridade 2. */
@@ -33,9 +33,9 @@ const initialState: UsersState = {
   // VALORES INICIAIS/PADRÃO
   currentUserId: null,
   userLocale: 'en-US', // Locale global neutro
-  userCurrencyCode: 'USD', // 💵 Dólar como moeda padrão
+  userCurrencyCode: 'USD', // Dólar como moeda padrão
 
-  // 🛑 VALORES INICIAIS DE i18n
+  // VALORES INICIAIS DE i18n
   appLanguage: null, // Começa como null para que a cascata de idioma seja executada
   userAccountRegion: 'US', // Região padrão global
 };

@@ -9,22 +9,30 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
-    ScrollView, // 🛑 Adicionado ScrollView
+    ScrollView, // Adicionado ScrollView
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons'; // 🛑 Importação do Ionicons
+import Ionicons from '@expo/vector-icons/Ionicons'; // Importação do Ionicons
 import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
+import { authApi } from '@/src/api';
 
 export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSendResetLink = async () => {
-        // ⚠️ Lógica real: Chamar a API para enviar o link/código para o e-mail ⚠️
-        console.log('Sending reset link to:', email);
-
-        // Simulação: Após o envio bem-sucedido, redireciona para a tela de verificação
-        router.replace('/verify');
+        setIsLoading(true);
+        try {
+            await authApi.forgotPassword(email);
+            alert("Check your email for the reset link.");
+            router.replace('/verify');
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message || "Falha ao enviar o link.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -68,8 +76,9 @@ export default function ForgotPasswordScreen() {
 
                     {/* BOTÃO GRADIENTE */}
                     <GradientButton
-                        title="Send Password Reset"
+                        title={isLoading ? "Sending..." : "Send Password Reset"}
                         onPress={handleSendResetLink}
+                        disabled={isLoading}
                     />
 
                     {/* LINK PARA LOGIN */}

@@ -1,171 +1,93 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity
-} from 'react-native';
-import { selectUserCurrencyCode, selectUserAccountRegion } from "@/src/redux/userSessionAndCurrencySlice";
-import { useAppSelector, useAppDispatch} from '@/src/redux/hooks';
-import { useTranslation } from "@/src/translations/useTranslation";
-import { router, Stack } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+// /profileScreens/monetization/regions/LinkWalletEU.tsx
+import React, { useState, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+// 💡 Altere este import se você tiver um componente de formulário diferente para SEPA
+import SepaSetupForm from "@/components/stripeModals/SEPADirectDebitForm"; 
 
-export default function LinkWalletAO() {
+export default function LinkWalletEU() {
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [publishableKey, setPublishableKey] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const userRegion = useAppSelector(selectUserAccountRegion);
-  const userCurrency = useAppSelector(selectUserCurrencyCode);
+  useEffect(() => {
+    async function fetchSetupSecret() {
+      try {
+        // Chamada para o mesmo endpoint de SetupIntent
+        const response = await fetch('http://localhost:3000/payments/setup-card', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // 🚨 Inclua o token de autenticação aqui
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao obter a configuração SEPA do Stripe. Status: ' + response.status);
+        }
+
+        const data = await response.json();
+        
+        // Armazena ambas as chaves
+        setClientSecret(data.clientSecret);
+        setPublishableKey(data.publishableKey);
+
+      } catch (err: any) {
+        console.error("Erro ao buscar SetupIntent para SEPA:", err);
+        setError("Não foi possível carregar o formulário SEPA.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchSetupSecret();
+  }, []);
+
+  const handleCompleted = () => {
+    alert("Conta SEPA vinculada com sucesso!");
+    // 💡 Redirecionar para o painel de monetização
+  };
+
+  const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
+  
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.loadingText}>A carregar a vinculação SEPA (Zona Euro)...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Erro: {error}</Text>
+      </View>
+    );
+  }
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          title: 'Vincular conta',
-          headerStyle: { backgroundColor: "#0e0e0e" },
-          headerTintColor: '#fff',
-          //headerTitleStyle: { fontWeight: 'bold' },
-          headerShown: true,
-        }}
-      />
-      <ScrollView
-        contentContainerStyle={styles.container}
-        horizontal={false}
-        showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
-      >
-        <Text style={styles.title}>Vincular Conta - Zona do Euro</Text>
-        <Text style={styles.text}>
-          Nos países da zona do euro, você pode usar {`Euro (EUR)`} ou {`USD`} para transações na Kiuplay.
-        </Text>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>Informações locais</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <Image source={require('@/assets/images/countries/icons8_flag_of_europe_120px.png')} style={styles.Flaglogo} />
-            <Text style={styles.countryText}>Região: Euro Zone ({userRegion})</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-            <Image source={require('@/assets/images/countries/icons8_currency_exchange_120px_1.png')} style={styles.Flaglogo} />
-            <Text style={styles.countryText}>Moeda padrão: Euro ({userCurrency})</Text>
-          </View>
-        </View>
-
-        <View style={styles.termsBox}>
-          <Text style={styles.infoText}>Provedores para esta região</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <Image source={require('@/assets/images/payments/Stripe wordmark - Blurple - Large.png')} style={styles.Provedorlogo} />
-          </View>
-          <Text style={styles.countryText}>
-            Algumas regiões foram selecionadas para poderem efectuar transações em duas moedas diferentes aqui no kiuplay,
-            as vendas, compras e saques são processados com base na moeda selecionada.
-          </Text>
-          <Text style={styles.countryText}>
-            Detectamos que esta região está elegível para uso de duas moedas (Moeda locaL-EUR para transações direitas)
-            e (Moeda Global-USD).
-          </Text>
-          <Text style={styles.countryText}>
-            As conversões cambiais e taxas são aplicadas conforme a política da Kiuplay e do provedor de pagamento.
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.nextBtn}
-          onPress={() => router.push("/profileScreens/monetization/WalletsForm/LinkWalletBankEU")}
-        >
-          <Ionicons name="link" size={25} color="#fff" />
-          <Text style={styles.nextText}>Prosseguir para vinculação</Text>
-        </TouchableOpacity>
-
-      </ScrollView>
-
-    </>
+    <View style={styles.container}>
+      {clientSecret && stripePromise && (
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <SepaSetupForm
+            clientSecret={clientSecret}
+            onCompleted={handleCompleted}
+          />
+        </Elements>
+      )}
+      {!clientSecret && !isLoading && (
+        <Text style={styles.errorText}>Configuração de vinculação indisponível.</Text>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    //flex: 1,
-    backgroundColor: "#0e0e0e",
-    //alignItems: "center",
-    padding: 17,
-    flexGrow: 1,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15
-  },
-  text: {
-    color: '#ccc',
-    fontSize: 16,
-    marginBottom: 10
-  },
-  Flaglogo: {
-    width: 34,
-    height: 34,
-    resizeMode: 'contain',
-    marginRight: 8,
-  },
-  Provedorlogo: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    marginRight: 8,
-  },
-  infoBox: {
-    backgroundColor: "#1a1a1a",
-    borderRadius: 16,
-    padding: 13,
-    marginTop: 9,
-    width: "100%",
-  },
-  infoText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 17,
-    marginBottom: 15,
-  },
-  countryText: {
-    color: "#ccc",
-    fontSize: 15,
-    marginVertical: 4,
-  },
-  termsBox: {
-    backgroundColor: "#1a1a1a",
-    borderRadius: 16,
-    padding: 15,
-    marginTop: 16,
-    width: "100%",
-  },
-  termsTitle: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  termsText: {
-    color: "#ccc",
-    fontSize: 14,
-    marginBottom: 6,
-    lineHeight: 20,
-  },
-  nextBtn: {
-    marginTop: 16,
-    backgroundColor: "#1E90FF",
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    width: '100%',
-    justifyContent: 'center'
-  },
-  nextText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
+    container: { flex: 1, padding: 20, backgroundColor: '#111', },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#111', },
+    loadingText: { color: '#aaa', marginTop: 10, },
+    errorText: { color: 'red', marginTop: 10, },
 });

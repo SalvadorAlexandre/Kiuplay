@@ -24,7 +24,7 @@ export default function GlobalCardSetupForm({
     return (
       <div
         style={{
-          color: "white",
+          color: "dark",
           textAlign: "center",
           padding: 20,
         }}

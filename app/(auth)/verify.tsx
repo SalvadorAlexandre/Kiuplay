@@ -12,20 +12,29 @@ import {
     ScrollView,
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons'; // 🛑 Importação do Ionicons
+import Ionicons from '@expo/vector-icons/Ionicons'; // Importação do Ionicons
 import { GradientButton } from '@/components/uiGradientButton/GradientButton'; // Assumindo o caminho
+import { authApi } from '@/src/api';
 
 export default function VerifyScreen() {
     const [code, setCode] = useState('');
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleVerifyCode = async () => {
-        // Lógica real: Chamar a API para verificar o código
-        console.log('Verifying code:', code);
-
-        // Simulação: Após a verificação bem-sucedida, redireciona para a tela de login.
-        router.replace('/sign-in');
+        setIsLoading(true);
+        try {
+            await authApi.verifyEmail(code);
+            router.replace('/sign-in');
+        } catch (error: any) {
+            console.error("Erro ao verificar código:", error);
+            alert(error.message || "Falha na verificação.");
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -67,8 +76,9 @@ export default function VerifyScreen() {
 
                     {/* BOTÃO GRADIENTE */}
                     <GradientButton
-                        title="Verify Code"
+                        title={isLoading ? "Verifying..." : "Verify Code"}
                         onPress={handleVerifyCode}
+                        disabled={isLoading}
                     />
 
                     {/* REENVIAR CÓDIGO */}
