@@ -10,7 +10,7 @@ import {
     FlatList,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '@/src/translations/useTranslation';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; // Seu hook
 import { router, Stack } from 'expo-router'

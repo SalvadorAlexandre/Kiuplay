@@ -6,6 +6,22 @@
 
 ---
 
+Resto do mundo:	PayPal, cartões internacionais (Visa, Amex, MasterCard).
+
+Eurozone: SEPA via Stripe, PayPal, cartões internacionais (Visa, Amex, MasterCard).
+
+O fluxo vai ser assim agora.
+
+
+
+usuarios de texte
+{
+  "email": "teste.kiuplay@gmail.com",
+  "password": "Qwerty123!"
+}
+
+
+
 ## 🧠 Tecnologias
 
 - **Expo Web**

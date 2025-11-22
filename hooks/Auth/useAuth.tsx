@@ -82,9 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 4️⃣ Atualiza Redux com dados reais do usuário
       dispatch(setAuthSession({
         userId: user.id,
-        locale: user.locale || "en-US",
-        currencyCode: user.currencyCode || "USD",
-        accountRegion: user.accountRegion || "US",
+        locale: user.locale || locale ,//"en-US",
+        currencyCode: user.currencyCode || currency ,//"USD",
+        accountRegion: user.accountRegion || countryCode, //"US",
       }));
       dispatch(setUser(user));
 

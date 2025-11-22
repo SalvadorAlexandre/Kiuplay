@@ -46,18 +46,11 @@ export default function ProfileScreen() {
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
 
-  // --- DADOS MOCADOS DO PERFIL ---
-  //const userProfile = MOCKED_PROFILE[0]
-
   // Pegamos o ID do usuário logado
   const currentUserId = useAppSelector(selectCurrentUserId);
 
   // Selecionamos o perfil completo
   const userProfile = useAppSelector(selectUserById(currentUserId!));
-
-  // Substitui o mock
-  //const userProfile = useAppSelector((state) => state.userSession.user);
-  // ------------------------------
 
   // 🛑 AJUSTE 1: USAR O SLICE CORRETO PARA BEATS COMPRADOS
   // Agora puxamos diretamente do purchasesSlice, que é a biblioteca do usuário comprador.
