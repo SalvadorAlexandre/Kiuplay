@@ -1,11 +1,9 @@
 // app/(tabs)/profile.tsx
 
-
 import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { MOCKED_PROFILE } from '@/src/types/contentServer'
-import { setAuthSession, logoutUser, setUser } from '@/src/redux/userSessionAndCurrencySlice';
+import { selectCurrentUserId, selectUserById} from '@/src/redux/userSessionAndCurrencySlice';
 import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
 import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
 import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
@@ -51,8 +49,14 @@ export default function ProfileScreen() {
   // --- DADOS MOCADOS DO PERFIL ---
   //const userProfile = MOCKED_PROFILE[0]
 
+  // Pegamos o ID do usuário logado
+  const currentUserId = useAppSelector(selectCurrentUserId);
+
+  // Selecionamos o perfil completo
+  const userProfile = useAppSelector(selectUserById(currentUserId!));
+
   // Substitui o mock
-  const userProfile = useAppSelector((state) => state.userSession.user);
+  //const userProfile = useAppSelector((state) => state.userSession.user);
   // ------------------------------
 
   // 🛑 AJUSTE 1: USAR O SLICE CORRETO PARA BEATS COMPRADOS
@@ -193,6 +197,7 @@ export default function ProfileScreen() {
               </View>
               <Text style={styles.userName}>{userProfile.name}</Text>
               <Text style={styles.userHandle}>{userProfile.username}</Text>
+              <Text style={styles.userHandle}>{userProfile.bio}</Text>
             </View>
 
             <View style={styles.statsRow}>

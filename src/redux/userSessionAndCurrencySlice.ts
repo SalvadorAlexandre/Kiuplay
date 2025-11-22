@@ -2,12 +2,12 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './store';
 // IMPORTAR A INTERFACE CENTRALIZADA DE PERFIL 
-import { UserProfile } from '@/src/types/contentType';
+import { ArtistProfile} from '@/src/types/contentType';
 
 
 /* ---------- estado ---------- */
 interface UsersState {
-  byId: Record<string, UserProfile>;
+  byId: Record<string, ArtistProfile>;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 
@@ -40,39 +40,15 @@ const initialState: UsersState = {
   userAccountRegion: 'US', // Região padrão global
 };
 
-/* ---------- (exemplo) thunk para buscar perfil ----------- */
-export const fetchUserThunk = createAsyncThunk<
-  UserProfile,
-  string,
-  { state: RootState; rejectValue: string }
->(
-  'users/fetchUser',
-  async (userId, { rejectWithValue }) => {
-    try {
-      // **troque por sua API**
-      const resp = await fetch(`https://api.kiuplay.com/users/${userId}`);
-      if (!resp.ok) {
-        const errorData = await resp.json();
-        throw new Error(errorData.message || 'Falha na requisição');
-      }
-      const data: UserProfile = await resp.json();
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message || 'Erro desconhecido ao buscar usuário');
-    }
-  }
-);
-
-
 /* ---------- slice ---------- */
 const userSessionAndCurrencySlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    setUsers(state, action: PayloadAction<UserProfile[]>) {
+    setUsers(state, action: PayloadAction<ArtistProfile[]>) {
       action.payload.forEach(u => { state.byId[u.id] = u; });
     },
-    setUser(state, action: PayloadAction<UserProfile>) {
+    setUser(state, action: PayloadAction<ArtistProfile>) {
       const u = action.payload;
       state.byId[u.id] = u;
     },
@@ -105,18 +81,6 @@ const userSessionAndCurrencySlice = createSlice({
       state.userAccountRegion = null;
     }
   },
-  extraReducers: builder => {
-    builder
-      .addCase(fetchUserThunk.pending, s => { s.status = 'loading'; s.error = null; })
-      .addCase(fetchUserThunk.fulfilled, (s, a) => {
-        s.status = 'succeeded';
-        s.byId[a.payload.id] = a.payload;
-      })
-      .addCase(fetchUserThunk.rejected, (s, a) => {
-        s.status = 'failed';
-        s.error = a.payload || 'Erro ao buscar usuário';
-      });
-  },
 });
 
 export const {
@@ -144,3 +108,41 @@ export const selectCurrentUserId = (state: RootState) => state.users.currentUser
 
 
 export default userSessionAndCurrencySlice.reducer;
+
+
+{/** extraReducers: builder => {
+    builder
+      .addCase(fetchUserThunk.pending, s => { s.status = 'loading'; s.error = null; })
+      .addCase(fetchUserThunk.fulfilled, (s, a) => {
+        s.status = 'succeeded';
+        s.byId[a.payload.id] = a.payload;
+      })
+      .addCase(fetchUserThunk.rejected, (s, a) => {
+        s.status = 'failed';
+        s.error = a.payload || 'Erro ao buscar usuário';
+      });
+  },*/}
+  
+
+{/** ---------- (exemplo) thunk para buscar perfil ----------- 
+export const fetchUserThunk = createAsyncThunk<
+  UserProfile,
+  string,
+  { state: RootState; rejectValue: string }
+>(
+  'users/fetchUser',
+  async (userId, { rejectWithValue }) => {
+    try {
+      // **troque por sua API**
+      const resp = await fetch(`https://api.kiuplay.com/users/${userId}`);
+      if (!resp.ok) {
+        const errorData = await resp.json();
+        throw new Error(errorData.message || 'Falha na requisição');
+      }
+      const data: UserProfile = await resp.json();
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Erro desconhecido ao buscar usuário');
+    }
+  }
+); */}
