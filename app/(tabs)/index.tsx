@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { selectCurrentUserId, selectUserById} from '@/src/redux/userSessionAndCurrencySlice';
+import { selectCurrentUserId, selectUserById } from '@/src/redux/userSessionAndCurrencySlice';
 import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
 import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
 import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
@@ -30,8 +30,14 @@ import { useTranslation } from '@/src/translations/useTranslation';
 import { ExclusiveBeat } from '@/src/types/contentType';
 import { setProfileActiveTab } from '@/src/redux/persistTabProfile';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
+import { analyzeBpm } from '@/src/aubio/aubioBpm';
+import { any } from 'zod';
 
 export default function ProfileScreen() {
+
+  interface Beat {
+    id: string;
+  }
 
   const { handleWalletAccess } = useMonetizationFlow();
 
@@ -60,7 +66,7 @@ export default function ProfileScreen() {
   // Em uma aplicação real, você usaria o beatStoreSlice (com a ação markBeatAsSold) para saber quais beats
   // deste artista foram marcados como 'vendidos' ou 'não disponíveis'.
   // Para esta simulação, vamos usar a lista de beats COMPRADOS pelo *próprio* usuário como mock para beats vendidos (embora a lógica real seja inversa).
-  const soldBeatIds = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
+  const soldBeatIds: string[] = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
 
 
   // ---------------------------------------------------------
@@ -72,7 +78,7 @@ export default function ProfileScreen() {
 
   // Garante que 'userProfile.exclusiveBeats' seja um array antes de chamar '.filter'
   const exclusiveBeatsForSale = (userProfile.exclusiveBeats ?? [])
-    .filter((beat) => !soldBeatIds.includes(beat.id));
+    .filter((beat: Beat) => !soldBeatIds.includes(beat.id));
   // ---------------------------------------------------------
 
   // Hooks para os botões de animação (mantidos do seu código original)

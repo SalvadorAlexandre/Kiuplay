@@ -157,7 +157,7 @@ export default function SetupPromotionScreen() {
 
 
             // Navega direto sem Alert
-            router.push("/profileScreens/usePostPromoteScreen");
+            router.replace("/profileScreens/usePostPromoteScreen");
 
             // volta para idle depois de 1s
             setTimeout(() => setPublishStatus("idle"), 1000);

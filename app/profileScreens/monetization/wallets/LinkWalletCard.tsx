@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'; // Adicionado StyleSheet para melhor prática
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView } from 'react-native'; // Adicionado StyleSheet para melhor prática
 import GlobalCardSetupForm from "@/components/stripeModals/globalCardSetUpForm";
 import { stripeApi } from "@/src/api/stripeApi";
+import { Stack } from "expo-router";
 
 export default function LinkWalletGlobal() {
     const [clientSecret, setClientSecret] = useState<string | null>(null);
-    // 🚀 publishableKey agora é definido pelo backend
+    // publishableKey agora é definido pelo backend
     const [publishableKey, setPublishableKey] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -36,60 +37,87 @@ export default function LinkWalletGlobal() {
     };
 
     // -------------------------------------------------------------
-    // 🚀 INICIALIZAÇÃO DINÂMICA: Usa a chave publicável assim que estiver disponível
+    // INICIALIZAÇÃO DINÂMICA: Usa a chave publicável assim que estiver disponível
     // -------------------------------------------------------------
     const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
     if (isLoading) {
         return (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#fff" />
-                <Text style={styles.loadingText}>A carregar a vinculação global...</Text>
-            </View>
+            <>
+                <Stack.Screen
+                    options={{
+                        title: 'Vinculação',
+                        headerStyle: { backgroundColor: '#191919' },
+                        headerTintColor: '#fff',
+                    }}
+                />
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color="#fff" />
+                    <Text style={styles.loadingText}>A carregar a vinculação global...</Text>
+                </View>
+            </>
         );
     }
 
     if (error) {
         return (
-            <View style={styles.centerContainer}>
-                <Text style={styles.errorText}>Erro: {error}</Text>
-            </View>
+            <>
+                <Stack.Screen
+                    options={{
+                        title: 'Erro',
+                        headerStyle: { backgroundColor: '#191919' },
+                        headerTintColor: '#fff',
+                    }}
+                />
+                <View style={styles.centerContainer}>
+                    <Text style={styles.errorText}>Erro: {error}</Text>
+                </View>
+            </>
         );
     }
 
     // O componente só renderiza se o clientSecret e a Promise do Stripe (com a public key) estiverem prontos
     return (
-        <View style={styles.container}>
-            {clientSecret && stripePromise && (
-                <Elements stripe={stripePromise} options={{ clientSecret }}>
-                    <GlobalCardSetupForm
-                        clientSecret={clientSecret}
-                        onCompleted={handleCompleted}
-                    />
-                </Elements>
-            )}
-            {!clientSecret && !isLoading && (
-                <Text style={styles.errorText}>Configuração de pagamento indisponível.</Text>
-            )}
-        </View>
+        <>
+            <Stack.Screen
+                options={{
+                    title: 'Vinculação',
+                    headerStyle: { backgroundColor: '#191919' },
+                    headerTintColor: '#fff',
+                }}
+            />
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={{ flexGrow: 1 }}
+                showsVerticalScrollIndicator={false} // desativa a barra de rolagem
+            >
+                {clientSecret && stripePromise && (
+                    <Elements stripe={stripePromise} options={{ clientSecret }}>
+                        <GlobalCardSetupForm
+                            clientSecret={clientSecret}
+                            onCompleted={handleCompleted}
+                        />
+                    </Elements>
+                )}
+                {!clientSecret && !isLoading && (
+                    <Text style={styles.errorText}>Configuração de pagamento indisponível.</Text>
+                )}
+            </ScrollView>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#111',
+        backgroundColor: '#191919',
         width: '100%',
-        maxWidth: 480, // opcional, para não ficar muito largo no desktop
         marginHorizontal: 'auto',
-        paddingHorizontal: 15,
     },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#111',
+        backgroundColor: '#191919',
     },
     loadingText: {
         color: '#aaa',

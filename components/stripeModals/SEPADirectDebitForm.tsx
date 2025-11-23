@@ -48,35 +48,40 @@ export default function SEPADirectDebitForm({ clientSecret, onCompleted }: SEPAD
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{
-      width: "100%",
-      maxWidth: 420,
-      margin: "0 auto",
-      backgroundColor: "#111",
-      padding: 20,
-      borderRadius: 12,
-      boxShadow: "0 0 10px rgba(0,0,0,0.4)",
-    }}>
-      <PaymentElement options={{ layout: "tabs" }} />
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        width: "90%",
+        margin: "0 auto",
+        //backgroundColor: "#535252ff",
+        padding: "5%", // em vez de 20px fixo
+        borderRadius: 12,
+        //boxShadow: "0 0 10px rgba(0,0,0,0.4)",
+      }}
+    >
+      <PaymentElement options={{ layout: window.innerWidth < 480 ? "accordion" : "tabs" }} />
 
       {errorMsg && <p style={{ color: "#ff5252", marginTop: 10 }}>{errorMsg}</p>}
-
-      <button
-        disabled={!stripe || loading}
-        style={{
-          marginTop: 20,
-          width: "100%",
-          padding: 15,
-          borderRadius: 10,
-          backgroundColor: "#00e676",
-          fontSize: 18,
-          fontWeight: "700",
-          color: "#000",
-          opacity: !stripe || loading ? 0.6 : 1,
-        }}
-      >
-        {loading ? "A processar..." : "Vincular Conta SEPA"}
-      </button>
+      <div style={{ textAlign: "center" }}>
+        <button
+          disabled={!stripe || loading}
+          style={{
+            marginTop: 20,
+            width: "90%",
+            padding: 12,
+            borderRadius: 10,
+            backgroundColor: '#1e90ff',
+            fontSize: 16,
+            fontWeight: "700",
+            color: "#fff",
+            opacity: !stripe || loading ? 0.6 : 1,
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          {loading ? "A processar..." : "Vincular Conta SEPA"}
+        </button>
+      </div>
     </form>
   );
 }
