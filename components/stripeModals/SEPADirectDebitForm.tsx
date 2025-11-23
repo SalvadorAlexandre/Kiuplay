@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { createSepaSetupIntent } from "@/src/api";
 
 interface SEPADirectDebitFormProps {
   clientSecret: string;
   onCompleted: () => void;
 }
+
 
 export default function SEPADirectDebitForm({ clientSecret, onCompleted }: SEPADirectDebitFormProps) {
   const stripe = useStripe();
@@ -23,7 +25,7 @@ export default function SEPADirectDebitForm({ clientSecret, onCompleted }: SEPAD
       return;
     }
 
-    const { error } = await stripe.confirmSetup({
+    const { error, } = await stripe.confirmSetup({
       elements,
       confirmParams: {
         // URL de retorno após vinculação do método SEPA

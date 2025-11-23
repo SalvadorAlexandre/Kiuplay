@@ -1,12 +1,13 @@
-// /profileScreens/monetization/regions/LinkWalletEUR.tsx
+// /profileScreens/monetization/wallets/LinkWalletSEPA.tsx
 import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { View, Text, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 // Altere este import se você tiver um componente de formulário diferente para SEPA
 import SEPADirectDebitForm from "@/components/stripeModals/SEPADirectDebitForm";
-import { createSepaSetupIntent } from "@/src/api/stripeApi";
+import { createSepaSetupIntent, } from "@/src/api/stripeApi";
 import { Stack } from "expo-router";
+import { tokenStorage } from "@/src/utils/tokenStorage";
 
 export default function LinkWalletEUR() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -17,6 +18,8 @@ export default function LinkWalletEUR() {
   useEffect(() => {
     async function fetchSetupSecret() {
       try {
+        //const token = await tokenStorage.getToken();
+        //console.log("Token de autenticação:", token); // Verifica se o token está presente
         const data = await createSepaSetupIntent(); // Usa o API centralizado
         setClientSecret(data.clientSecret);
         setPublishableKey(data.publishableKey);
@@ -30,9 +33,13 @@ export default function LinkWalletEUR() {
     fetchSetupSecret();
   }, []);
 
+  // Antes, tinha argumento paymentMethodId
+  // const handleCompleted = async (paymentMethodId: string) => { ... }
+
+  // Agora, apenas mensagem ou callback sem argumento
   const handleCompleted = () => {
     alert("Conta SEPA vinculada com sucesso!");
-    // Redirecionar para o painel de monetização
+    // ⚡ Não chamamos confirmWalletLink no frontend
   };
 
   const stripePromise = publishableKey ? loadStripe(publishableKey) : null;

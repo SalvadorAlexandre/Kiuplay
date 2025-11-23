@@ -24,16 +24,6 @@ export default function LinkWalletAccountScreen() {
             />
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.title}>Selecionar Método de Vinculação</Text>
-
-                {/* PayPal */}
-                <TouchableOpacity
-                    style={styles.optionButton}
-                    onPress={() => router.push("/profileScreens/monetization/wallets/LinkWalletPayPal")}
-                >
-                    <Ionicons name="logo-paypal" size={24} color="#fff" />
-                    <Text style={styles.optionText}>Vincular PayPal</Text>
-                </TouchableOpacity>
-
                 {/* Cartões Internacionais */}
                 <TouchableOpacity
                     style={styles.optionButton}
