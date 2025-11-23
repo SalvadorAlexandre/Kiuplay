@@ -73,22 +73,22 @@ export default function GlobalCardSetupForm({
     <form
       onSubmit={handleSubmit}
       style={{
-        // 🚀 O formulário ocupa 100% da largura do contêiner pai
+        // O formulário ocupa 100% da largura do contêiner pai
         width: "100%",
-        // 🖥️ Define uma largura máxima para telas maiores (desktop)
-        maxWidth: 420,
+        // Define uma largura máxima para telas maiores (desktop)
+        maxWidth: 400,
         // Centraliza o formulário horizontalmente
         margin: "0 auto",
 
         // Estilo visual do contêiner
         backgroundColor: "#111",
-        padding: 20,
+        padding: "5%", // em vez de 20px fixo
         borderRadius: 12,
         boxShadow: "0 0 10px rgba(0,0,0,0.4)",
       }}
     >
       {/* O PaymentElement já é responsivo por padrão */}
-      <PaymentElement options={{ layout: "tabs" }} />
+      <PaymentElement options={{ layout: window.innerWidth < 480 ? "accordion" : "tabs" }} />
 
       {errorMsg && <p style={{ color: "#ff5252", marginTop: 10 }}>{errorMsg}</p>}
 
@@ -96,11 +96,11 @@ export default function GlobalCardSetupForm({
         disabled={!stripe || loading}
         style={{
           marginTop: 20,
-          width: "100%", // 🚀 Garante que o botão ocupe 100% da largura disponível
-          padding: 15,
+          width: "100%", // Garante que o botão ocupe 100% da largura disponível
+          padding: '9%',
           borderRadius: 10,
           backgroundColor: "#00e676",
-          fontSize: 18,
+          fontSize: 16,
           fontWeight: "700",
           color: "#000",
           opacity: !stripe || loading ? 0.6 : 1,

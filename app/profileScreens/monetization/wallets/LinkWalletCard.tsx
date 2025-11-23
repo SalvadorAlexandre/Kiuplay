@@ -79,7 +79,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#111', // Cor de fundo do seu tema
+        backgroundColor: '#111',
+        width: '100%',
+        maxWidth: 480, // opcional, para não ficar muito largo no desktop
+        marginHorizontal: 'auto',
+        paddingHorizontal: 15,
     },
     centerContainer: {
         flex: 1,
