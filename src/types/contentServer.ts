@@ -24,7 +24,7 @@ export const mockUserProfile: UserProfile = {
     freeBeatsCount: 1,
     exclusiveBeatsCount: 1,
     releaseYear: '2018',
-    hasMonetizationEnabled: true,
+    //hasMonetizationEnabled: true,
 };
 
 export const mockLinkedWallets: LinkedWallet[] = [
@@ -955,7 +955,7 @@ export const MOCKED_PROFILE: ArtistProfile[] = [
         albumsCount: mockUserProfile.albumsCount,
         freeBeatsCount: mockUserProfile.freeBeatsCount,
         exclusiveBeatsCount: mockUserProfile.exclusiveBeatsCount,
-        hasMonetizationEnabled: mockUserProfile.hasMonetizationEnabled,
+        //hasMonetizationEnabled: mockUserProfile.hasMonetizationEnabled,
         releaseYear: mockUserProfile.releaseYear,
         location: mockUserProfile.location,
         // 🔥 Singles

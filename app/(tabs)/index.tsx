@@ -105,9 +105,7 @@ export default function ProfileScreen() {
     { key: 'purchasedBeats', label: t('tabs.purchasedBeats') }, // 🎧 Beats comprados por mim
     { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') }, // 💰 Beats A VENDA (vendidos por mim)
     { key: 'freeBeats', label: t('tabs.freeBeats') },
-  ];
-
-  //const [activeTab, setActiveTab] = useState('single');
+  ];  
 
   const isConnected = useAppSelector((state) => state.network.isConnected);
 

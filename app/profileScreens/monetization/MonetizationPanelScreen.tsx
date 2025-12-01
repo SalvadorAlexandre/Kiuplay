@@ -1,4 +1,4 @@
-// app/profileScreens/monetization/useMonetizationScreen.tsx
+// app/profileScreens/monetization/MonetizationPanelScreen.tsx
 import React from 'react';
 import {
     View,
@@ -16,7 +16,6 @@ import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; // Seu hook
 import { router, Stack } from 'expo-router'
 import BottomModal from './WalletModel';
 import { useAppSelector } from "@/src/redux/hooks";
-import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
 
 export default function UseMonetizationScreen() {
     const {
@@ -33,7 +32,6 @@ export default function UseMonetizationScreen() {
         formattedBalance,
         formattedPending,
         effectiveWallet,
-        walletSupportType,
         availableForWithdraw,
         formattedAvailableForWithdraw,
     } = useMonetizationFlow();
@@ -210,31 +208,6 @@ export default function UseMonetizationScreen() {
                                 );
                             }}
                         />
-
-                        {/* Botões embaixo */}
-                        <View style={{ marginTop: 12 }}>
-                            {/* Sempre mostrar botão para limpar (testes) */}
-                            {walletSupportType === 'usd_only' && wallets.length >= 1 && (
-                                <Text style={{ color: '#aaa', marginTop: 8, paddingHorizontal: 12 }}>
-                                    {t('monetization.onlyOneWalletAllowed')}
-                                </Text>
-                            )}
-
-                            {/* Condicional: mostrar "Vincular segunda conta" só se suportado e só tiver 1 wallet */}
-                            {(walletSupportType === 'local_or_usd' || walletSupportType === 'euro_or_usd') &&
-                                wallets.length === 1 && (
-                                    <TouchableOpacity
-                                        style={[styles.linkButtonAddWallet, { marginTop: 10 }]}
-                                        onPress={() => {
-                                            closeWalletModal();
-                                            router.push('/profileScreens/monetization/linkWalletAccountScreen');
-                                        }}
-                                    >
-                                        <Ionicons name="person-outline" size={20} color="#fff" />
-                                        <Text style={styles.linkButtonText}>{t('monetization.linkSecondWallet')}</Text>
-                                    </TouchableOpacity>
-                                )}
-                        </View>
                     </>
                 ) : (
                     <>

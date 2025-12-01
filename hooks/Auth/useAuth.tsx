@@ -3,10 +3,7 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
 // NOVOS IMPORTS DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
 import { setAuthSession, logoutUser, setUser } from '@/src/redux/userSessionAndCurrencySlice';
-import { UserProfile } from '@/src/types/contentType'; // Para tipagem da API
 import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // IMPORTA O HOOK
-import { mockUserProfile } from '@/src/types/contentServer';
-
 import { tokenStorage } from "@/src/utils/tokenStorage";
 import { authApi, userApi } from '@/src/api';
 

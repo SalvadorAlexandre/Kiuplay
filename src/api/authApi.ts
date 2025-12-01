@@ -1,6 +1,5 @@
 //src/api/authApi.ts
 
-import { tokenStorage } from "../utils/tokenStorage";
 import apiClient from "./apiClient";
 
 export const authApi = {

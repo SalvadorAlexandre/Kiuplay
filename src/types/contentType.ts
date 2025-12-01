@@ -55,7 +55,7 @@ export interface UserProfile {
     // -------------------------------------------------------------
     // Lista de beats comprados
     purchasedBeats?: PurchasedBeat[];
-    linkedWallet?: LinkedWallet[]; 
+    wallets?: LinkedWallet[]; 
 }
 
 // ArtistProfile herda de UserProfile e, portanto, também terá `purchasedBeats`.
