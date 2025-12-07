@@ -11,30 +11,57 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
-
-import useBeatStoreTabs from '@/hooks/useBeatStoreTabs';
-import { useAppSelector, useAppDispatch} from '@/src/redux/hooks';
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
 import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
 import { Ionicons } from '@expo/vector-icons';
-
-// ✅ Importa o hook de tradução personalizado (não o react-i18next)
+import { getBeatStoreFeed } from '@/src/api/feedApi';
+// ✅ Importa o hook de tradução personalizado
 import { useTranslation } from '@/src/translations/useTranslation';
-
-import { setFeeds } from '@/src/redux/beatStoreSlice';
-
 import { setActiveTab } from '@/src/redux/persistTabBeatStore';
-
 
 export default function BeatStoreScreen() {
 
+    const [feedData, setFeedData] = React.useState<BeatStoreFeedItem[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [error, setError] = React.useState<string | null>(null);
+
+    const [page, setPage] = React.useState<number>(1);
+    const [hasMore, setHasMore] = React.useState<boolean>(true); // se ainda tem mais páginas
+
     // 🛑 SELETOR DE ESTADO DE POSSE
-    const purchasedBeatIds = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
+    //const purchasedBeatIds = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
     // 🆕 FILTRAGEM DOS BEATS DO FEED
-    const filteredFeedData = MOCKED_BEATSTORE_FEED_DATA.filter(
-        (item) => !purchasedBeatIds.includes(item.id)
-    );
+   // const filteredFeedData = MOCKED_BEATSTORE_FEED_DATA.filter(
+   //     (item) => !purchasedBeatIds.includes(item.id)
+   // );
+
+    const fetchFeed = async (pageToLoad = 1) => {
+        if (!hasMore && pageToLoad !== 1) return;
+
+        setLoading(true);
+        try {
+            const { data, total } = await getBeatStoreFeed(pageToLoad, 20);
+            setFeedData(prev => pageToLoad === 1 ? data : [...prev, ...data]);
+            // Verifica se ainda há mais páginas
+            if ((pageToLoad * 20) >= total) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
+        } catch (err) {
+            console.error("Erro ao carregar feed:", err);
+            setError("Falha ao carregar os beats.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Carrega a primeira página
+    useEffect(() => {
+        fetchFeed(1);
+    }, []); // apenas se os IDs de comprados mudarem
 
     const router = useRouter();
     const { t } = useTranslation(); // Usa o hook customizado de tradução
@@ -60,9 +87,10 @@ export default function BeatStoreScreen() {
     ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
 
     // 🆕 FILTRAGEM FINAL: Remove os beats que foram comprados.
-    const filteredFavoritedBeats = favoritedBeatStoreMusics.filter(
-        (beat) => !purchasedBeatIds.includes(beat.id)
-    );
+    //const filteredFavoritedBeats = favoritedBeatStoreMusics.filter(
+  //      (beat) => !purchasedBeatIds.includes(beat.id)
+   // );
+    const filteredFavoritedBeats = favoritedBeatStoreMusics;
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
         // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
@@ -141,23 +169,27 @@ export default function BeatStoreScreen() {
                 {activeTab === 'feeds' && (
                     <View style={styles.beatStoreMusicListContainer}>
                         <FlatList
-                            // 🛑 USAR A LISTA FILTRADA
-                            data={filteredFeedData}
+                            data={feedData}
                             keyExtractor={(item) => item.id}
                             numColumns={2}
                             columnWrapperStyle={styles.row}
                             renderItem={({ item }) => (
-                                <BeatStoreMusicItem
-                                    item={item}
-                                    onPress={handleBeatStoreItemPress}
-                                />
+                                <BeatStoreMusicItem item={item} onPress={handleBeatStoreItemPress} />
                             )}
                             contentContainerStyle={{ paddingBottom: 20 }}
                             ListEmptyComponent={() => (
                                 <Text style={styles.emptyListText}>
-                                    {t('alerts.noBeatsInFeed')}
+                                    {loading ? t('alerts.loadingBeats') : error ? error : t('alerts.noBeatsInFeed')}
                                 </Text>
                             )}
+                            onEndReached={() => {
+                                if (hasMore && !loading) {
+                                    const nextPage = page + 1;
+                                    setPage(nextPage);
+                                    fetchFeed(nextPage);
+                                }
+                            }}
+                            onEndReachedThreshold={0.5} // carrega quando faltar metade da lista
                         />
                     </View>
                 )}
@@ -239,6 +271,7 @@ export default function BeatStoreScreen() {
         </View>
     );
 }
+
 const styles = StyleSheet.create({
     scroll: {
         flex: 1,
