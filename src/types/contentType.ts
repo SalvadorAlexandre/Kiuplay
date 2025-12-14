@@ -170,7 +170,7 @@ export interface PurchasedBeat extends ExclusiveBeat {
     downloadUrl: string; // 🛑 NOVO: URL/URI real para o comprador baixar o arquivo de alta qualidade
 }
 
-// Interface para um Beat Exclusivo (da BeatStore)
+
 // Interface para um Beat Exclusivo (da BeatStore)
 export interface ExclusiveBeat {
     id: string;

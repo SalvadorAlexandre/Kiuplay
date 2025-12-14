@@ -86,10 +86,6 @@ export default function BeatStoreScreen() {
             )
     ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
 
-    // 🆕 FILTRAGEM FINAL: Remove os beats que foram comprados.
-    //const filteredFavoritedBeats = favoritedBeatStoreMusics.filter(
-  //      (beat) => !purchasedBeatIds.includes(beat.id)
-   // );
     const filteredFavoritedBeats = favoritedBeatStoreMusics;
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
@@ -174,7 +170,7 @@ export default function BeatStoreScreen() {
                             numColumns={2}
                             columnWrapperStyle={styles.row}
                             renderItem={({ item }) => (
-                                <BeatStoreMusicItem item={item} onPress={handleBeatStoreItemPress} />
+                                <BeatStoreMusicItem item={item} onPress={handleBeatStoreItemPress}/>
                             )}
                             contentContainerStyle={{ paddingBottom: 20 }}
                             ListEmptyComponent={() => (
@@ -202,7 +198,7 @@ export default function BeatStoreScreen() {
                             </Text>
                         ) : (
                             <FlatList
-                                // 🛑 USAR A LISTA FILTRADA
+                                
                                 data={filteredFavoritedBeats}
                                 keyExtractor={(item) => item.id}
                                 numColumns={2}

@@ -1,5 +1,5 @@
 // app/contentCardBeatStoreScreens/freeBeat-details/[id].tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -17,42 +17,50 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
-import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { FreeBeat } from '@/src/types/contentType';
+import { getBeatById } from '@/src/api';
 
 import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function feeBeatDetailsScreen() {
-
-    const { t } = useTranslation()
-
+    const { t } = useTranslation();
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const freeBeatData = MOCKED_BEATSTORE_FEED_DATA.find(
-        (item) => item.id === id && item.typeUse === 'free'
-    ) as FreeBeat | undefined;
+    // 1. Estados (Devem estar no topo)
+    const [currentFreeBeat, setCurrentFreeBeat] = useState<FreeBeat | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    if (!id || !freeBeatData) {
-        return (
-            <View style={styles.errorContainer}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <Text style={styles.errorText}>{t('freeBeatdetails.notFound')}</Text>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Text style={styles.backButtonText}>{t('freeBeatdetails.backButton')}</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
-
-    const currentFreeBeat: FreeBeat = freeBeatData;
-
+    // 2. Seletores Redux (Devem estar no topo)
     const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const isCurrentSingleFavorited = favoritedMusics.some((music) => music.id === currentFreeBeat.id);
+    const isConnected = useAppSelector((state) => state.network.isConnected);
 
+    // 3. Efeito de Busca (useEffect)
+    useEffect(() => {
+        const fetchBeat = async () => {
+            if (!id) return;
+            try {
+                setLoading(true);
+                const data = await getBeatById(id as string);
+                setCurrentFreeBeat(data as FreeBeat);
+            } catch (error) {
+                console.error("Erro ao buscar beat:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBeat();
+    }, [id]);
 
+    // 4. Lógica derivada
+    const isCurrentSingleFavorited = currentFreeBeat
+        ? favoritedMusics.some((music) => music.id === currentFreeBeat.id)
+        : false;
+
+    // 5. Handlers (useCallback - ANTES dos returns)
     const handleToggleFavorite = useCallback(() => {
+        if (!currentFreeBeat) return;
         if (isCurrentSingleFavorited) {
             dispatch(removeFavoriteMusic(currentFreeBeat.id));
         } else {
@@ -61,40 +69,34 @@ export default function feeBeatDetailsScreen() {
     }, [dispatch, currentFreeBeat, isCurrentSingleFavorited]);
 
     const handlePlaySingle = useCallback(async () => {
-        if (!currentFreeBeat.uri) {
+        if (!currentFreeBeat?.uri) {
             Alert.alert("Erro", "URI da música não disponível para reprodução.");
             return;
         }
-        const singlePlaylist: Track[] = [currentFreeBeat];
-
         dispatch(setPlaylistAndPlayThunk({
-            newPlaylist: singlePlaylist,
+            newPlaylist: [currentFreeBeat as unknown as Track],
             startIndex: 0,
             shouldPlay: true,
         }));
     }, [dispatch, currentFreeBeat]);
 
     const handleOpenComments = useCallback(() => {
+        if (!currentFreeBeat) return;
         router.push({
-            pathname: '/commentScreens/musics/[musicId]', // 🔹 caminho correto da tela
+            pathname: '/commentScreens/musics/[musicId]',
             params: {
                 musicId: currentFreeBeat.id,
                 musicTitle: currentFreeBeat.title,
                 artistName: currentFreeBeat.artist,
                 albumArtUrl: currentFreeBeat.cover || '',
-                commentCount: currentFreeBeat.commentCount
-                    ? currentFreeBeat.commentCount.toString()
-                    : '0',
-                contentType: 'freebeat', // 🔹 identifica o tipo de conteúdo
+                commentCount: currentFreeBeat.commentCount?.toString() || '0',
+                contentType: 'freebeat',
             },
         });
     }, [router, currentFreeBeat]);
 
     const handleShareSingle = useCallback(() => {
-        if (!currentFreeBeat) {
-            console.warn("Nenhuma música para compartilhar.");
-            return;
-        }
+        if (!currentFreeBeat) return;
         router.push({
             pathname: '/shareScreens/music/[musicId]',
             params: {
@@ -106,30 +108,42 @@ export default function feeBeatDetailsScreen() {
         });
     }, [router, currentFreeBeat]);
 
-    const isConnected = useAppSelector((state) => state.network.isConnected);
+    // 6. VERIFICAÇÕES CONDICIONAIS (Fim da lista de Hooks)
+    if (loading) {
+        return (
+            <View style={[styles.errorContainer, { backgroundColor: '#000', justifyContent: 'center' }]}>
+                <Text style={{ color: '#fff' }}>{t('alerts.loadingBeats') || 'Carregando...'}</Text>
+            </View>
+        );
+    }
 
-    const getDynamicCoverSource = () => {
-        if (isConnected === false || !currentFreeBeat.cover || currentFreeBeat.cover.trim() === '') {
-            return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-        }
-        return { uri: currentFreeBeat.cover };
-    };
-    const coverSource = getDynamicCoverSource();
+    if (!currentFreeBeat) {
+        return (
+            <View style={styles.errorContainer}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <Text style={styles.errorText}>{t('freeBeatdetails.notFound')}</Text>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <Text style={styles.backButtonText}>{t('freeBeatdetails.backButton')}</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
-    const getDynamicUserAvatar = () => {
-        if (isConnected === false || !currentFreeBeat.artistAvatar || currentFreeBeat.artistAvatar.trim() === '') {
-            return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
-        }
-        return { uri: currentFreeBeat.artistAvatar };
-    };
-    const artistAvatarSrc = getDynamicUserAvatar();
+    // 7. Preparação de Assets (O beat já existe aqui)
+    const coverSource = (isConnected && currentFreeBeat.cover)
+        ? { uri: currentFreeBeat.cover }
+        : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+
+    const artistAvatarSrc = (isConnected && currentFreeBeat.artistAvatar)
+        ? { uri: currentFreeBeat.artistAvatar }
+        : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
     return (
         <ImageBackground
             source={coverSource}
             blurRadius={Platform.OS === 'android' ? 10 : 0}
             style={styles.imageBackground}
-            
+
         >
             <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
                 <SafeAreaView style={styles.safeArea}>
@@ -156,20 +170,37 @@ export default function feeBeatDetailsScreen() {
 
                             {/* LAYOUT DE DETALHES DA MÚSICA */}
                             <View style={styles.detailsContainer}>
-                                <Text style={styles.title}>{currentFreeBeat.title}</Text>
-                                <Text style={styles.artistName}>{currentFreeBeat.artist}</Text>
+                                {/* Título e Artista (Geralmente obrigatórios, mas com fallback por segurança) */}
+                                <Text style={styles.title}>{currentFreeBeat.title || t('freeBeatdetails.unknownTitle')}</Text>
+                                <Text style={styles.artistName}>{currentFreeBeat.artist || t('freeBeatdetails.unknownArtist')}</Text>
 
+                                {/* Produtor - Renderização Condicional */}
                                 {currentFreeBeat.producer && (
                                     <Text style={styles.detailText}>
                                         {t('freeBeatdetails.producerLabel')} {currentFreeBeat.producer}
                                     </Text>
                                 )}
-                                <Text style={styles.detailText}>{currentFreeBeat.typeUse} • {currentFreeBeat.bpm.toString()} BPM</Text>
 
+                                {/* Tipo de Uso e BPM - Protegendo o toString() */}
                                 <Text style={styles.detailText}>
-                                    {currentFreeBeat.category.charAt(0).toUpperCase() + currentFreeBeat.category.slice(1)} • {currentFreeBeat.releaseYear || t('freeBeatdetails.unknownYear')}
+                                    {(currentFreeBeat.typeUse || 'Free')} • {(currentFreeBeat.bpm || 0).toString()} BPM
                                 </Text>
 
+                                {/* Categoria/Gênero com Capitalização Segura */}
+                                <Text style={styles.detailText}>
+                                    {(() => {
+                                        // Tentamos pegar o campo que existir no banco
+                                        const categoryText = currentFreeBeat.genre || currentFreeBeat.category || "";
+                                        if (!categoryText) return t('freeBeatdetails.unknownGenre');
+
+                                        // Fazemos o charAt com segurança
+                                        return categoryText.charAt(0).toUpperCase() + categoryText.slice(1);
+                                    })()}
+                                    {' • '}
+                                    {currentFreeBeat.releaseYear || t('freeBeatdetails.unknownYear')}
+                                </Text>
+
+                                {/* Estatísticas e Gênero Secundário */}
                                 <Text style={styles.detailText}>
                                     {(currentFreeBeat.viewsCount || 0).toLocaleString()} Plays • {currentFreeBeat.genre || t('freeBeatdetails.unknownGenre')}
                                 </Text>
