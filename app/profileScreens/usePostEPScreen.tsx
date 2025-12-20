@@ -338,12 +338,9 @@ export default function PostEPScreen() {
                     )}
 
                     {/* Campos comuns*/}
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.artistNameSong')} placeholderTextColor="#FFFF" />
                     <TextInput style={styles.inputTextBox} placeholder={t('postEP.songTitlePlaceholder')} placeholderTextColor="#FFFF" />
                     <TextInput style={styles.inputTextBox} placeholder={t('postEP.songGenrePlaceholder')} placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.producerPlaceholder')} placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.trackYearPlaceholder')} placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.trackNumberPlaceholder')} placeholderTextColor="#FFFF" />
+                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.producerPlaceholder')} placeholderTextColor="#FFFF" />                    
 
                     {/* Botão para upload do auddio */}
                     <TouchableOpacity style={styles.uploadArea}>
