@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/src/translations/useTranslation'
 import CurrencyInput from 'react-native-currency-input'; // ✅ Importamos o novo componente
+import { UploadModal } from '@/components/uploadModal';
 
 export default function PostBeatScreen() {
 
@@ -39,21 +40,33 @@ export default function PostBeatScreen() {
         precoError, setPreco,
 
         // 👇 ADICIONA ESTES NOVOS RETORNOS:
-        availableCurrencies,
+        //availableCurrencies,
         selectedCurrency,
         handleCurrencyChange,
         currentCurrencySymbol,
+        exclusiveCurrencies,
 
         setCurrencyPickerOpen, currencyPickerOpen,
 
-        userRegion,
         pickBeatFile,
         pickBeatFileAndAnalyze,
         bpm,
         setBpm,
         loadingBPM,
         bpmError,
-        pickImageBeat
+        pickImageBeat,
+
+        handleSubmitBeatWithModal,
+        uploadLoading,
+        uploadError,
+
+        setUploadModalVisible,
+        resetForm,
+
+        uploadModalVisible,
+        uploadProgress,
+        uploadStatus,
+        uploadMessage,
     } = usePostBeat();
 
     return (
@@ -219,10 +232,7 @@ export default function PostBeatScreen() {
                                 <DropDownPicker
                                     open={currencyPickerOpen}
                                     value={selectedCurrency}
-                                    items={availableCurrencies.map(opt => ({
-                                        label: opt.label,
-                                        value: opt.value,
-                                    }))}
+                                    items={exclusiveCurrencies}
                                     setOpen={(stateOrCallback) => {
                                         const newState =
                                             typeof stateOrCallback === 'function'
@@ -242,8 +252,8 @@ export default function PostBeatScreen() {
                                             typeof callbackOrValue === 'function'
                                                 ? callbackOrValue(selectedCurrency)
                                                 : callbackOrValue;
-                                        console.log('Valor selecionado', newValue)
-                                        if (typeof newValue === 'string') {
+
+                                        if (newValue === 'USD' || newValue === 'EUR') {
                                             handleCurrencyChange(newValue);
                                         }
                                     }}
@@ -359,52 +369,63 @@ export default function PostBeatScreen() {
 
                         <View>
                             <TouchableOpacity
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#333',
-                                    paddingVertical: 10,
-                                    paddingHorizontal: 16,
-                                    borderRadius: 8,
-                                    borderWidth: 1,
-                                    borderColor: '#555',
-                                    marginBottom: 10,
-                                    gap: 10,
-                                }}
+                                style={styles.selectFileButton}
                                 onPress={pickBeatFileAndAnalyze}
                             >
                                 <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
                                 <Ionicons name='save' size={20} color={'#fff'} />
                             </TouchableOpacity>
 
-                            <TouchableOpacity
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#333',
-                                    paddingVertical: 10,
-                                    paddingHorizontal: 16,
-                                    borderRadius: 8,
-                                    borderWidth: 1,
-                                    borderColor: '#555',
-                                    marginBottom: 10,
-                                    gap: 10,
-                                    // alignSelf: 'flex-start',
-                                    //marginBottom: 12,
-                                }}>
+                            {/** <TouchableOpacity
+                                style={styles.publishButton}>
                                 <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>
                                     {t('postBeat.publishButton')}
                                 </Text>
                                 <Ionicons name='cloud-upload' size={20} color={'#fff'} />
+                            </TouchableOpacity> */}
+
+                            <TouchableOpacity
+                                onPress={handleSubmitBeatWithModal}
+                                disabled={uploadLoading}
+                                style={styles.publishButton}
+                            >
+                                {uploadLoading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <>
+                                        <Text style={{ color: '#fff', fontSize: 16 }}>
+                                            {t('postBeat.publishButton')}
+                                        </Text>
+                                        <Ionicons name="cloud-upload" size={20} color="#fff" />
+                                    </>
+                                )}
                             </TouchableOpacity>
+
+                            {uploadError && (
+                                <Text style={{ color: 'red', marginTop: 10 }}>
+                                    {uploadError}
+                                </Text>
+                            )}
                         </View>
                     )}
 
-
-
                 </ScrollView>
+               
+                <UploadModal
+                    visible={uploadModalVisible}
+                    progress={uploadProgress}
+                    status={uploadStatus}
+                    message={uploadMessage}
+                    onClose={() => {
+                        // 1. Se o upload foi um sucesso, limpamos os campos
+                        if (uploadStatus === 'success') {
+                            resetForm();
+                        }
+
+                        // 2. Fechamos o modal (independentemente de ser sucesso ou erro)
+                        setUploadModalVisible(false);
+                    }}
+                />
             </View>
         </>
 
@@ -426,7 +447,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
     },
-    inputTextBox: {  
+    inputTextBox: {
         width: '100%',
         backgroundColor: '#1c1c1c',
         color: '#fff',
@@ -550,5 +571,30 @@ const styles = StyleSheet.create({
     successBpmContainer: {
         borderColor: '#00ff00', // Borda verde para indicar sucesso
     },
-
+    selectFileButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#333',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#555',
+        marginBottom: 10,
+        gap: 10,
+    },
+    publishButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#333',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#555',
+        marginBottom: 10,
+        gap: 10,
+    }
 })

@@ -4,12 +4,6 @@ import apiClient from './apiClient';
 import { BeatStoreFeedItem } from '@/src/types/contentType';
 import { LibraryFeedItem } from '@/src/types/contentType';
 
-// Feed da BeatStore
-//export const getBeatStoreFeed = async (page = 1, limit = 20): Promise<{ data: BeatStoreFeedItem[], total: number }> => {
-// const response = await apiClient.get(`/feed/beatstore?page=${page}&limit=${limit}`);
-// return response.data; // já contém { data, total }
-//};
-
 export const getBeatById = async (id: string): Promise<BeatStoreFeedItem> => {
   const response = await apiClient.get(`/feed/get-beat/${id}`); // Ajuste a rota conforme sua API
   return response.data.data;

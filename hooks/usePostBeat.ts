@@ -7,11 +7,12 @@ import {
   selectUserCurrencyCode,
   selectUserAccountRegion,
 } from '@/src/redux/userSessionAndCurrencySlice';
-import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from '@/src/constants/regions';
+//import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from '@/src/constants/regions';
 import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 // ✅ Importa função de análise de BPM com aubiojs
 import { analyzeBpm } from '@/src/aubio/aubioBpm';
+import { uploadExclusiveBeat, uploadFreeBeat } from '@/src/api/uploadBeatApi';
 
 export const usePostBeat = () => {
   const { t } = useTranslation();
@@ -28,7 +29,17 @@ export const usePostBeat = () => {
   // --- Preço e Moeda ---
   const [preco, setPreco] = useState<number | null>(null);
   const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState(userCurrency || 'USD');
+
+  //const [selectedCurrency, setSelectedCurrency] = useState(userCurrency || 'USD');
+  //const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'EUR'>('USD');
+
+  type BeatCurrency = 'USD' | 'EUR';
+  type BeatRegion = 'US' | 'EU';
+
+  const [selectedCurrency, setSelectedCurrency] = useState<BeatCurrency>('USD');
+  const [selectedRegion, setSelectedRegion] = useState<BeatRegion>('US');
+
+
   const [precoError, setPrecoError] = useState<string | null>(null);
 
   // --- Licenças ---
@@ -44,6 +55,51 @@ export const usePostBeat = () => {
   const [bpm, setBpm] = useState<number | null>(null);
   const [loadingBPM, setLoadingBPM] = useState(false);
   const [bpmError, setBpmError] = useState<string | null>(null);
+
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0); // 0 a 100%
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [uploadMessage, setUploadMessage] = useState('');
+
+  /**
+ * 💱 Moedas permitidas para beats exclusivos
+ */
+  const exclusiveCurrencies = useMemo(() => {
+    return [
+      { label: 'USD - Dollar', value: 'USD' },
+      { label: 'EUR - Euro', value: 'EUR' },
+    ];
+  }, []);
+
+  //const coverUri = capaBeat?.uri ? (capaBeat.uri.startsWith('file://') ? capaBeat.uri : `file://${capaBeat.uri}`) : null;
+  //const beatUri = beatFile?.uri ? (beatFile.uri.startsWith('file://') ? beatFile.uri : `file://${beatFile.uri}`) : null;
+
+  // No topo do Hook, substitua aquelas duas linhas por estas:
+  const coverUri = useMemo(() => {
+    if (!capaBeat?.uri) return null;
+    // Se já for Base64, Blob ou já tiver file://, não mexe. 
+    // Caso contrário (Android/iOS nativo), garante o file://
+    if (capaBeat.uri.startsWith('data:') || capaBeat.uri.startsWith('blob:') || capaBeat.uri.startsWith('file://')) {
+      return capaBeat.uri;
+    }
+    return `file://${capaBeat.uri}`;
+  }, [capaBeat?.uri]);
+
+  const beatUri = useMemo(() => {
+    if (!beatFile?.uri) return null;
+    if (beatFile.uri.startsWith('data:') || beatFile.uri.startsWith('blob:') || beatFile.uri.startsWith('file://')) {
+      return beatFile.uri;
+    }
+    return `file://${beatFile.uri}`;
+  }, [beatFile?.uri]);
+
+  const uriToBlob = async (uri: string): Promise<Blob> => {
+    const response = await fetch(uri);
+    return await response.blob();
+  };
 
 
   // -------------------------------
@@ -83,23 +139,182 @@ export const usePostBeat = () => {
     }
   };
 
-  const pickBeatFile = async () => {
-    let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      //Carrega o arquivo selecionado
-      const file = result.assets[0];
-      setBeatFile(file);
+
+  const handleSubmitBeatWithModal = async () => {
+    try {
+      setUploadLoading(true);
+
+      // 🔹 Abre o modal e reseta estados
+      setUploadModalVisible(true);
+      setUploadProgress(0);
+      setUploadStatus('idle');
+      setUploadError(null);
+      setUploadMessage('');
+
+      // 🔴 Validações essenciais
+      if (!tituloBeat || !generoBeat || !beatFile || !capaBeat || !tipoLicenca) {
+        setUploadError(t('postBeat.errors.missingFields'));
+        setUploadStatus('error');
+        setUploadMessage(t('postBeat.errors.missingFields'));
+        return;
+      }
+
+      if (tipoLicenca === 'exclusivo' && (!preco || preco <= 0)) {
+        setUploadError(t('postBeat.errors.invalidPrice'));
+        setUploadStatus('error');
+        setUploadMessage(t('postBeat.errors.invalidPrice'));
+        return;
+      }
+
+      // 📦 Criar o FormData
+      const formData = new FormData();
+      formData.append('title', tituloBeat);
+      formData.append('producer', nomeProdutor);
+      formData.append('genre', generoBeat);
+      formData.append('bpm', String(bpm || 0));
+
+      // --- TRATAMENTO DINÂMICO DOS ARQUIVOS (WEB VS MOBILE) ---
+
+      // 1. Processar Capa (Cover)
+      if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
+        // WEB: Converter para Blob
+        const blob = await uriToBlob(coverUri);
+        formData.append('coverFile', blob, 'cover.jpg');
+      } else {
+        // MOBILE: Objeto nativo
+        formData.append('coverFile', {
+          uri: coverUri!,
+          name: 'cover.jpg',
+          type: 'image/jpeg',
+        } as any);
+      }
+
+      // 2. Processar Áudio (Beat)
+      if (beatUri?.startsWith('data:') || beatUri?.startsWith('blob:')) {
+        // WEB: Converter para Blob
+        const blob = await uriToBlob(beatUri);
+        formData.append('audioFile', blob, beatFile.name || 'beat.mp3');
+      } else {
+        // MOBILE: Objeto nativo
+        formData.append('audioFile', {
+          uri: beatUri!,
+          name: beatFile.name || 'beat.mp3',
+          type: beatFile.type || 'audio/mpeg',
+        } as any);
+      }
+
+      // --- LÓGICA DE ENVIO ---
+
+      if (tipoLicenca === 'exclusivo') {
+        formData.append('price', String(preco));
+        formData.append('currency', selectedCurrency);
+        formData.append('region', selectedRegion);
+
+        // Simulação de progresso
+        for (let i = 0; i <= 50; i += 10) {
+          setUploadProgress(i);
+          await new Promise(res => setTimeout(res, 100));
+        }
+
+        await uploadExclusiveBeat(formData);
+      }
+
+      if (tipoLicenca === 'livre') {
+        // Simulação de progresso
+        for (let i = 0; i <= 50; i += 20) {
+          setUploadProgress(i);
+          await new Promise(res => setTimeout(res, 100));
+        }
+
+        await uploadFreeBeat(formData);
+      }
+
+      // ✅ Sucesso total
+      setUploadProgress(100);
+      setUploadStatus('success');
+      setUploadMessage(t('postBeat.uploadSuccess'));
+      Vibration.vibrate(200);
+
+    } catch (error: any) {
+      console.error('Erro ao publicar beat:', error);
+      setUploadStatus('error');
+      // Se o erro vier do Axios/Api, tentamos pegar a mensagem do backend
+      const serverError = error.response?.data?.error || t('postBeat.errors.uploadFailed');
+      setUploadMessage(serverError);
+    } finally {
+      setUploadLoading(false);
     }
   };
 
+  const resetForm = useCallback(() => {
+    // Campos básicos
+    setNomeProdutor('');
+    setTituloBeat('');
+    setGeneroBeat('');
+
+    // Preço e Licença
+    setPreco(null);
+    setTipoLicenca(null);
+
+    // Arquivos e Áudio
+    setCapaBeat(null);
+    setBeatFile(null);
+    setBpm(null);
+    setBpmError(null);
+
+    // Estados de Upload
+    setUploadStatus('idle');
+    setUploadProgress(0);
+    setUploadError(null);
+    setUploadMessage('');
+    // Nota: Não resetamos o setUploadModalVisible aqui, 
+    // pois quem fecha o modal é o clique do utilizador.
+  }, []);
+
+  const pickBeatFile = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'audio/*',
+      copyToCacheDirectory: true, // 🔴 MUITO IMPORTANTE
+    });
+
+    if (result.canceled || !result.assets || result.assets.length === 0) return;
+
+    const file = result.assets[0];
+
+    // 🔹 Normaliza a URI
+    const normalizedFile = {
+      uri: file.uri.startsWith('file://')
+        ? file.uri
+        : file.uri,
+      name: file.name || 'beat.mp3',
+      type: file.mimeType || 'audio/mpeg',
+    };
+
+    setBeatFile(normalizedFile);
+  };
+
   const pickImageBeat = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-    if (!result.canceled) setCapaBeat(result.assets[0]);
-  }
+
+    if (result.canceled || !result.assets || result.assets.length === 0) return;
+
+    const image = result.assets[0];
+
+    const normalizedImage = {
+      uri: image.uri.startsWith('file://')
+        ? image.uri
+        : image.uri,
+      name: 'cover.jpg',
+      type: 'image/jpeg',
+    };
+
+    setCapaBeat(normalizedImage);
+  };
+
   /**
    Formata valor monetário de acordo com região e moeda
    */
@@ -120,39 +335,11 @@ export const usePostBeat = () => {
   );
 
   /**
-   * 🧮 Determina moedas disponíveis conforme região
-   */
-  const availableCurrencies = useMemo(() => {
-    const base = [{ label: 'USD - Global', value: 'USD' }];
-    let localCurrency: string | null = null;
-
-    if (LUSOPHONE_COUNTRIES.includes(userRegion || '')) {
-      const localMap: Record<'AO' | 'BR' | 'MZ', string> = {
-        AO: 'AOA',
-        BR: 'BRL',
-        MZ: 'MZN',
-      };
-      localCurrency = localMap[userRegion as keyof typeof localMap] || null;
-    } else if (EUROZONE_COUNTRIES.includes(userRegion || '')) {
-      localCurrency = 'EUR';
-    }
-
-    if (localCurrency && localCurrency !== 'USD') {
-      base.unshift({
-        label: `${localCurrency} - ${t('postBeat.currency.local')}`,
-        value: localCurrency,
-      });
-    }
-
-    return base;
-  }, [userRegion, t]);
-
-  /**
    * 💱 Obtém símbolo da moeda atual dinamicamente
    */
   const currentCurrencySymbol = useMemo(() => {
     try {
-      const parts = new Intl.NumberFormat(userRegion || 'en-US', {
+      const parts = new Intl.NumberFormat(selectedRegion || 'en-US', {
         style: 'currency',
         currency: selectedCurrency,
       }).formatToParts(1);
@@ -161,15 +348,21 @@ export const usePostBeat = () => {
     } catch {
       return selectedCurrency;
     }
-  }, [selectedCurrency, userRegion]);
+  }, [selectedCurrency, selectedRegion]);
 
-  /**
-   * 🪙 Troca de moeda
-   */
-  const handleCurrencyChange = (currencyValue: string) => {
+
+  const handleCurrencyChange = (currencyValue: BeatCurrency) => {
     setSelectedCurrency(currencyValue);
     setPreco(null);
     setPrecoError(null);
+
+    // Define a região automaticamente
+    if (currencyValue === 'USD') setSelectedRegion('US');
+    if (currencyValue === 'EUR') setSelectedRegion('EU');
+
+    // 🔹 Log para depuração
+    console.log('💱 Moeda selecionada:', currencyValue);
+    console.log('🌍 Região definida:', currencyValue === 'USD' ? 'US' : 'EU');
   };
 
   /**
@@ -208,6 +401,14 @@ export const usePostBeat = () => {
     ]);
   }, [t]);
 
+  useEffect(() => {
+    if (tipoLicenca === 'exclusivo') {
+      setSelectedCurrency('USD'); // padrão seguro
+      setPreco(null);
+      setPrecoError(null);
+    }
+  }, [tipoLicenca]);
+
   const precoPlaceholder = `${currentCurrencySymbol} ${t('postBeat.pricePlaceholder') || '0.00'}`;
 
   return {
@@ -222,7 +423,7 @@ export const usePostBeat = () => {
     precoPlaceholder,
     formatCurrency,
 
-    availableCurrencies,
+    //availableCurrencies,
     selectedCurrency,
     handleCurrencyChange,
     currentCurrencySymbol,
@@ -236,7 +437,6 @@ export const usePostBeat = () => {
     capaBeat, setCapaBeat,
     beatFile, setBeatFile,
 
-    userRegion,
     // Funções e Estados de Áudio e BPM (NOVOS)
     pickBeatFileAndAnalyze, // <- Nova função
     bpm,
@@ -245,5 +445,20 @@ export const usePostBeat = () => {
     bpmError,
     pickBeatFile,
     pickImageBeat,
+
+    handleSubmitBeatWithModal,
+    uploadLoading,
+    uploadError,
+
+    exclusiveCurrencies,
+
+    setUploadModalVisible,
+    resetForm,
+
+    uploadModalVisible,
+    uploadProgress,
+    uploadStatus,
+    uploadMessage,
+
   };
-}
+};
