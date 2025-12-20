@@ -1,12 +1,9 @@
 //hook/usePostBeat.ts
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, } from 'react';
 import { Vibration } from 'react-native';
 import { useTranslation } from '@/src/translations/useTranslation';
-import { useAppSelector, } from '@/src/redux/hooks';
-import {
-  selectUserCurrencyCode,
-  selectUserAccountRegion,
-} from '@/src/redux/userSessionAndCurrencySlice';
+//import { useAppSelector, } from '@/src/redux/hooks';
+//import { selectUserCurrencyCode, selectUserAccountRegion, } from '@/src/redux/userSessionAndCurrencySlice';
 //import { EUROZONE_COUNTRIES, LUSOPHONE_COUNTRIES } from '@/src/constants/regions';
 import * as DocumentPicker from 'expo-document-picker'; //Modulo responsavel por prmitir carregamento de arquivos
 import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
@@ -18,8 +15,8 @@ export const usePostBeat = () => {
   const { t } = useTranslation();
 
   // 🔹 Dados regionais do usuário (Redux)
-  const userCurrency = useAppSelector(selectUserCurrencyCode);
-  const userRegion = useAppSelector(selectUserAccountRegion);
+  // const userCurrency = useAppSelector(selectUserCurrencyCode);
+  //const userRegion = useAppSelector(selectUserAccountRegion);
 
   // --- Campos básicos ---
   const [nomeProdutor, setNomeProdutor] = useState('');
@@ -74,10 +71,7 @@ export const usePostBeat = () => {
     ];
   }, []);
 
-  //const coverUri = capaBeat?.uri ? (capaBeat.uri.startsWith('file://') ? capaBeat.uri : `file://${capaBeat.uri}`) : null;
-  //const beatUri = beatFile?.uri ? (beatFile.uri.startsWith('file://') ? beatFile.uri : `file://${beatFile.uri}`) : null;
 
-  // No topo do Hook, substitua aquelas duas linhas por estas:
   const coverUri = useMemo(() => {
     if (!capaBeat?.uri) return null;
     // Se já for Base64, Blob ou já tiver file://, não mexe. 
@@ -149,20 +143,22 @@ export const usePostBeat = () => {
       setUploadProgress(0);
       setUploadStatus('idle');
       setUploadError(null);
-      setUploadMessage('');
+      setUploadMessage(t('postBeat.preparing')); // Mensagem inicial
 
       // 🔴 Validações essenciais
       if (!tituloBeat || !generoBeat || !beatFile || !capaBeat || !tipoLicenca) {
-        setUploadError(t('postBeat.errors.missingFields'));
+        const msg = t('postBeat.errors.missingFields');
+        setUploadError(msg);
         setUploadStatus('error');
-        setUploadMessage(t('postBeat.errors.missingFields'));
+        setUploadMessage(msg);
         return;
       }
 
       if (tipoLicenca === 'exclusivo' && (!preco || preco <= 0)) {
-        setUploadError(t('postBeat.errors.invalidPrice'));
+        const msg = t('postBeat.errors.invalidPrice');
+        setUploadError(msg);
         setUploadStatus('error');
-        setUploadMessage(t('postBeat.errors.invalidPrice'));
+        setUploadMessage(msg);
         return;
       }
 
@@ -173,60 +169,48 @@ export const usePostBeat = () => {
       formData.append('genre', generoBeat);
       formData.append('bpm', String(bpm || 0));
 
-      // --- TRATAMENTO DINÂMICO DOS ARQUIVOS (WEB VS MOBILE) ---
+      // --- TRATAMENTO DOS ARQUIVOS (Conversão para Blob se for Web) ---
 
-      // 1. Processar Capa (Cover)
+      // Capa
       if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
-        // WEB: Converter para Blob
         const blob = await uriToBlob(coverUri);
         formData.append('coverFile', blob, 'cover.jpg');
       } else {
-        // MOBILE: Objeto nativo
-        formData.append('coverFile', {
-          uri: coverUri!,
-          name: 'cover.jpg',
-          type: 'image/jpeg',
-        } as any);
+        formData.append('coverFile', { uri: coverUri!, name: 'cover.jpg', type: 'image/jpeg' } as any);
       }
 
-      // 2. Processar Áudio (Beat)
+      // Áudio
       if (beatUri?.startsWith('data:') || beatUri?.startsWith('blob:')) {
-        // WEB: Converter para Blob
         const blob = await uriToBlob(beatUri);
         formData.append('audioFile', blob, beatFile.name || 'beat.mp3');
       } else {
-        // MOBILE: Objeto nativo
         formData.append('audioFile', {
           uri: beatUri!,
           name: beatFile.name || 'beat.mp3',
-          type: beatFile.type || 'audio/mpeg',
+          type: beatFile.type || 'audio/mpeg'
         } as any);
       }
 
-      // --- LÓGICA DE ENVIO ---
+      // --- LÓGICA DE ENVIO COM PROGRESSO REAL ---
+
+      // Função auxiliar para atualizar o progresso no Modal
+      const onProgress = (percent: number) => {
+        setUploadProgress(percent);
+        if (percent < 100) {
+          setUploadMessage(`${t('postBeat.uploading')} ${percent}%`);
+        } else {
+          setUploadMessage(t('postBeat.processing')); // O servidor está salvando
+        }
+      };
 
       if (tipoLicenca === 'exclusivo') {
         formData.append('price', String(preco));
         formData.append('currency', selectedCurrency);
         formData.append('region', selectedRegion);
 
-        // Simulação de progresso
-        for (let i = 0; i <= 50; i += 10) {
-          setUploadProgress(i);
-          await new Promise(res => setTimeout(res, 100));
-        }
-
-        await uploadExclusiveBeat(formData);
-      }
-
-      if (tipoLicenca === 'livre') {
-        // Simulação de progresso
-        for (let i = 0; i <= 50; i += 20) {
-          setUploadProgress(i);
-          await new Promise(res => setTimeout(res, 100));
-        }
-
-        await uploadFreeBeat(formData);
+        await uploadExclusiveBeat(formData, onProgress);
+      } else {
+        await uploadFreeBeat(formData, onProgress);
       }
 
       // ✅ Sucesso total
@@ -238,7 +222,6 @@ export const usePostBeat = () => {
     } catch (error: any) {
       console.error('Erro ao publicar beat:', error);
       setUploadStatus('error');
-      // Se o erro vier do Axios/Api, tentamos pegar a mensagem do backend
       const serverError = error.response?.data?.error || t('postBeat.errors.uploadFailed');
       setUploadMessage(serverError);
     } finally {

@@ -1,5 +1,4 @@
 // app/contentCardBeatStoreScreens/exclusiveBeat-details/[id].tsx
-
 import React, { useCallback, useState, useEffect } from 'react';
 import {
     View,
@@ -176,7 +175,7 @@ export default function exclusiveBeatDetailsScreen() {
                                 <Text style={styles.artistName}>{currentExclusiveBeat.artist}</Text>
                                 <Text style={styles.detailText}>{currentExclusiveBeat.typeUse} • {currentExclusiveBeat.bpm} BPM</Text>
                                 <Text style={styles.detailText}>
-                                    {currentExclusiveBeat.category} • {currentExclusiveBeat.releaseYear || t('exclusiveBeatDetails.unknownYear')}
+                                    {currentExclusiveBeat.category} • {currentExclusiveBeat.createdAt || t('exclusiveBeatDetails.unknownYear')}
                                 </Text>
                             </View>
                         </TouchableOpacity>

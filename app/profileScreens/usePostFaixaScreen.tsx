@@ -1,11 +1,13 @@
+//app/profileScreen/usePostFaixaScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostFaixa'; // Importa o Hook
-import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
+//import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
+import { UploadModal } from '@/components/uploadModal';
 import {
     StyleSheet,
     ScrollView,
@@ -29,6 +31,15 @@ export default function PostFaixaScreen() {
     const router = useRouter();
     // Importa os estados e manipuladores do Hook
     const {
+        // Estados básicos
+        nomeProdutor,
+        setNomeProdutor,
+        tituloSingle,
+        setTituloSingle,
+        generoSingle,
+        setGeneroSingle,
+
+        // Participantes
         hasParticipants,
         noParticipants,
         dropdownOpen,
@@ -39,18 +50,23 @@ export default function PostFaixaScreen() {
         handleNoParticipants,
         handleNumParticipantsChange,
         handleParticipantNameChange,
+
+        // Upload
+        capaSingle,
+        audioFile,
+        pickSingleFile,
+        pickImageSingle,
+        uploadLoading,
+        uploadMessage,
+        handleUploadSingle,
+
+        uploadModalVisible,
+        setUploadModalVisible,
+        uploadProgress,
+        uploadStatus, resetForm
     } = usePostFaixa();
 
-    //HOOKS PARA O QUADRO DA CAPA DA FAIXA
-    const [capaSingle, setCapaSingle] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
-    const pickImageSingle = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-        if (!result.canceled) setCapaSingle(result.assets[0]);
-    };
+
     return (
         <>
             <Stack.Screen
@@ -88,24 +104,11 @@ export default function PostFaixaScreen() {
                 >
 
                     <View style={{
-                        width: "100%",
-                        marginBottom: 10,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        //backgroundColor: '#fff'
+                        width: "100%", marginBottom: 10, alignItems: 'center', justifyContent: 'center',
                     }}>
                         {/*Quadro onde a capa é carregada a capa do single* ------------------------------------------------------------------------------*/}
                         <TouchableOpacity
-                            style={{
-                                width: 150,           // Largura do quadrado
-                                height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
-                                borderRadius: 10,     // Cantos arredondados
-                                backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
-                                justifyContent: 'center',  // Centraliza conteúdo verticalmente
-                                alignItems: 'center',      // Centraliza conteúdo horizontalmente
-                                marginBottom: 10,      // Espaçamento abaixo
-                                overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
-                            }}
+                            style={styles.coverSingle}
                             onPress={pickImageSingle}      // Função para abrir o seletor de imagem
                         >
                             {capaSingle ? (
@@ -210,22 +213,75 @@ export default function PostFaixaScreen() {
                             </View>
                         )}
 
+                        {/* Campos de título, gênero e produtor */}
+                        <TextInput
+                            style={styles.inputTextBox}
+                            value={tituloSingle}
+                            onChangeText={setTituloSingle}
+                            placeholder={t('postFaixaScreen.fields.title')}
+                            placeholderTextColor="#FFFF"
+                        />
+                        <TextInput
+                            style={styles.inputTextBox}
+                            value={generoSingle}
+                            onChangeText={setGeneroSingle}
+                            placeholder={t('postFaixaScreen.fields.genre')}
+                            placeholderTextColor="#FFFF"
+                        />
+                        <TextInput
+                            style={styles.inputTextBox}
+                            value={nomeProdutor}
+                            onChangeText={setNomeProdutor}
+                            placeholder={t('postFaixaScreen.fields.producer')}
+                            placeholderTextColor="#FFFF"
+                        />
 
-                        {/* Campos comuns*/}
-                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.artistName')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.title')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.genre')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.producer')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.year')} placeholderTextColor="#FFFF" />
-                        <TextInput style={styles.inputTextBox} placeholder={t('postFaixaScreen.fields.trackNumber')} placeholderTextColor="#FFFF" />
+                        {audioFile &&
+                            <Text
+                                numberOfLines={1}
+                                ellipsizeMode='tail'
+                                style={{
+                                    color: '#fff',
+                                    fontSize: 16,
+                                    marginBottom: 8,
+                                    maxWidth: '100%'
+                                }}>
+                                {t('postBeat.uploadingFileLabel', { fileName: audioFile.name })}
+                            </Text>}
 
-                        {/* Botão para upload do auddio */}
-                        <TouchableOpacity style={styles.uploadArea}>
-                            <Text style={styles.uploadText}>{t('postFaixaScreen.uploadAudio')}</Text>
+
+                        {/* Botão para selecionar arquivo de áudio */}
+                        <TouchableOpacity style={styles.uploadArea} onPress={pickSingleFile}>
+                            <Text style={styles.uploadText}>{t('postFaixaScreen.selectFileButton')}</Text>
+                            <Ionicons name="save" size={20} color="#fff" />
+                        </TouchableOpacity>
+
+                        {/* Botão para enviar single */}
+                        <TouchableOpacity style={styles.uploadArea} onPress={handleUploadSingle} disabled={uploadLoading}>
+                            <Text style={styles.uploadText}>
+                                {uploadLoading ? t('postFaixaScreen.uploading') : t('postFaixaScreen.uploadAudio')}
+                            </Text>
                             <Ionicons name="cloud-upload" size={20} color="#fff" />
                         </TouchableOpacity>
+
                     </KeyboardAvoidingView>
                 </ScrollView>
+
+                <UploadModal
+                    visible={uploadModalVisible}
+                    progress={uploadProgress}
+                    status={uploadStatus}
+                    message={uploadMessage}
+                    onClose={() => {
+                        // 1. Se o upload foi um sucesso, limpamos os campos
+                        if (uploadStatus === 'success') {
+                            resetForm();
+                        }
+
+                        // 2. Fechamos o modal (independentemente de ser sucesso ou erro)
+                        setUploadModalVisible(false);
+                    }}
+                />
 
             </View >
 
@@ -311,6 +367,16 @@ export const styles = StyleSheet.create({
         marginLeft: 14,
         flex: 1,
         //textAlign: 'center',
+    },
+    coverSingle: {
+        width: 150,           // Largura do quadrado
+        height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
+        borderRadius: 10,     // Cantos arredondados
+        backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
+        justifyContent: 'center',  // Centraliza conteúdo verticalmente
+        alignItems: 'center',      // Centraliza conteúdo horizontalmente
+        marginBottom: 10,      // Espaçamento abaixo
+        overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
     },
 });
 

@@ -197,6 +197,7 @@ export interface ExclusiveBeat {
     duration?: number;
     category: 'beat'; // Categoria específica
     releaseYear: string;
+    createdAt: string;
     source: 'beatstore-feeds' | 'beatstore-favorites' | 'user-profile';
     viewsCount?: number;
     favoritesCount?: number;
@@ -221,6 +222,7 @@ export interface FreeBeat {
     duration?: number;
     category: 'beat'; // Categoria específica
     releaseYear: string;
+    createdAt: string;
     viewsCount?: number;
     favoritesCount?: number
     commentCount?: number

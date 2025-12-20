@@ -46,7 +46,8 @@ export default function PostBeatScreen() {
         currentCurrencySymbol,
         exclusiveCurrencies,
 
-        setCurrencyPickerOpen, currencyPickerOpen,
+        setCurrencyPickerOpen,
+        currencyPickerOpen,
 
         pickBeatFile,
         pickBeatFileAndAnalyze,
@@ -376,14 +377,6 @@ export default function PostBeatScreen() {
                                 <Ionicons name='save' size={20} color={'#fff'} />
                             </TouchableOpacity>
 
-                            {/** <TouchableOpacity
-                                style={styles.publishButton}>
-                                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 10, }}>
-                                    {t('postBeat.publishButton')}
-                                </Text>
-                                <Ionicons name='cloud-upload' size={20} color={'#fff'} />
-                            </TouchableOpacity> */}
-
                             <TouchableOpacity
                                 onPress={handleSubmitBeatWithModal}
                                 disabled={uploadLoading}
@@ -400,12 +393,7 @@ export default function PostBeatScreen() {
                                     </>
                                 )}
                             </TouchableOpacity>
-
-                            {uploadError && (
-                                <Text style={{ color: 'red', marginTop: 10 }}>
-                                    {uploadError}
-                                </Text>
-                            )}
+                            
                         </View>
                     )}
 

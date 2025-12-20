@@ -197,7 +197,7 @@ export default function feeBeatDetailsScreen() {
                                         return categoryText.charAt(0).toUpperCase() + categoryText.slice(1);
                                     })()}
                                     {' • '}
-                                    {currentFreeBeat.releaseYear || t('freeBeatdetails.unknownYear')}
+                                    {currentFreeBeat.createdAt || t('freeBeatdetails.unknownYear')}
                                 </Text>
 
                                 {/* Estatísticas e Gênero Secundário */}

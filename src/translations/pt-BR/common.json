@@ -141,6 +141,7 @@
             "trackNumber": "Número da faixa"
         },
         "uploadAudio": "Carregar áudio",
+        "selectFileButton": "Selecionar arquivo",
         "goBack": "Voltar"
     },
     "postEP": {
