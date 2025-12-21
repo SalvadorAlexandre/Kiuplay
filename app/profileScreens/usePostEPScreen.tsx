@@ -405,7 +405,7 @@ export default function PostEPScreen() {
                                 <TouchableOpacity
                                     style={styles.btnViewTracks}
                                     onPress={() => router.push({
-                                        pathname: "/profileScreens/DraftTracksList", // Certifica-te que o ficheiro existe em app/DraftTracksList.tsx
+                                        pathname: "/profileScreens/DraftEPTracksList", // Certifica-te que o ficheiro existe em app/DraftTracksList.tsx
                                         params: { epId: epData.id, title: tituloEP }
                                     })}
                                 >

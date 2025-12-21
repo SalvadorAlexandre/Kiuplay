@@ -1,4 +1,4 @@
-//app/profileScreens/DraftTracksList.tsx
+//app/profileScreens/DraftEPTracksList.tsx
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';

@@ -1,3 +1,4 @@
+//hooks/usePostEP.ts
 import { useState, useMemo, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from '@/src/translations/useTranslation';
@@ -307,16 +308,6 @@ const usePostExtendedPlay = () => {
       setIsSavingDraft(false);
     }
   };
-
-  //const finishRelease = async () => {
-  //  try {
-   //   await finalizeEP(epData.id);
-   //   alert("EP Publicado com sucesso!");
-      // Redirecionar usuário
-   // } catch (error) {
-   //   alert("Erro ao finalizar.");
-   // }
-  //};
 
   const finishRelease = async () => {
     if (!epData?.id) return;
