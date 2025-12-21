@@ -4,7 +4,7 @@ import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostEP'; // Importa o Hook
-import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
+//import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
 import {
     View,
@@ -16,7 +16,7 @@ import {
     Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-
+import { StatusAlbumEpModal } from '@/components/uploadAlbumEpModal';
 import { useTranslation } from '@/src/translations/useTranslation'
 
 /**
@@ -30,40 +30,59 @@ export default function PostEPScreen() {
     const router = useRouter()
     // Importa os estados e manipuladores do Hook
     const {
+        // Estados do EP
+        epData,
+        capaEP,
+        tituloEP,
+        setTituloEP,
+        generoPrincipal,
+        setGeneroPrincipal,
+        pickImageEP,
+        saveEPDraft,
+        isSavingDraft,
+
+        // Faixas
+        numFaixas,
+        setNumFaixas,
+        numFaixasOpen,
+        setNumFaixasOpen,
+        numFaixasItems,
+        setNumFaixasItems,
+        postedFaixa,
+
+        // Participantes
         hasParticipants,
         noParticipants,
         dropdownOpen,
+        setDropdownOpen,
         numParticipants,
         participantNames,
-        setDropdownOpen,
         handleHasParticipants,
         handleNoParticipants,
         handleNumParticipantsChange,
         handleParticipantNameChange,
+
+        titleFaixa,
+        setTitleFaixa,
+        genreFaixa,
+        setGenreFaixa,
+        producerFaixa,
+        setProducerFaixa,
+        audioFaixa,
+        setAudioFaixa,
+
+        modalVisible,
+        modalType,
+        modalMessage,
+        uploadProgress,
+        setModalVisible,
+        triggerAbortEP, // Use esta no botão de apagar
+        executeAbortEP, // Use esta no onConfirm do Modal
+        handleAddTrack,
+        finishRelease
     } = usePostFaixa();
 
-    // useState para controlar o estado do DropDownPicker
-    const [numFaixasOpen, setNumFaixasOpen] = useState(false);
-    const [numFaixas, setNumFaixas] = useState<number | null>(null);  // Correção: Tipo number | null para permitir seleção única
-    const [numFaixasItems, setNumFaixasItems] = useState<{ label: string; value: number }[]>(
-        Array.from({ length: 6 - 3 + 1 }, (_, i) => ({
-            label: t('postEP.trackCountOption', { count: i + 3 }),  // Correção: label tipado como string
-            value: i + 3,              // Correção: value tipado como number
-        }))
-    );
-    const [postedFaixa, setPostedFaixa] = useState<number>(0) //estado para controlar o numero de faixas que foram postadas
-
-    //HOOKS PARA O QUADRO DA CAPA DO ALBUM
-    const [capaEP, setCapaEP] = useState<any>(null);  // Pode usar ImagePicker para escolher imagem
-    const pickImageEP = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-        if (!result.canceled) setCapaEP(result.assets[0]);
-    };
-
+    const isStep1Complete = !!epData; // Booleano que indica se o rascunho já foi salvo
 
     return (
         <>
@@ -84,226 +103,119 @@ export default function PostEPScreen() {
                         onPress={() => router.back()}
                         style={styles.buttonBack}>
                         {/* Ícone de notificações*/}
-                        <Ionicons
-                            name='arrow-back'
-                            size={24}
-                            color='#fff'
-                        />
+                        <Ionicons name='arrow-back' size={24} color='#fff' />
                     </TouchableOpacity>
 
                     <Text style={styles.titleBack}>{t('postEP.headerTitle')}</Text>
                 </View>
 
                 <ScrollView
-                    horizontal={false} // Garante que esta rolagem seja vertical
-                    style={styles.scroll} // Aplica o estilo de fundo escuro
-                    contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
-                    showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
+                    horizontal={false}
+                    style={styles.scroll}
+                    contentContainerStyle={styles.container}
+                    showsHorizontalScrollIndicator={false}
                 >
-                    <View style={{
-                        width: "100%",
-                        marginBottom: 10,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        // backgroundColor: '#fff'
-                    }}>
-                        {/*Quadro onde a capa é carregada a capa do album* ------------------------------------------------------------------------------*/}
-                        <TouchableOpacity
-                            style={{
-                                width: 150,           // Largura do quadrado
-                                height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
-                                borderRadius: 10,     // Cantos arredondados
-                                backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
-                                justifyContent: 'center',  // Centraliza conteúdo verticalmente
-                                alignItems: 'center',      // Centraliza conteúdo horizontalmente
-                                marginBottom: 10,      // Espaçamento abaixo
-                                overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
-                            }}
-                            onPress={pickImageEP}      // Função para abrir o seletor de imagem
-                        >
-                            {capaEP ? (
-                                <Image
-                                    source={{ uri: capaEP.uri }}
-                                    style={{ width: '100%', height: '100%' }}
-                                />
-                            ) : (
-                                <Ionicons name="camera" size={40} color="#fff" />
-                            )}
-                        </TouchableOpacity>
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postEP.uploadCover')}</Text>
-                    </View>
+                    {/* --- SECÇÃO 1: DADOS DO EP VISUALIZAÇÃO APÓS SALVAR: O CARD DE RESUMO --- */}
+                    {isStep1Complete ? (
+                        <>
+                            <View style={styles.cardResumo}>
+                                {capaEP && (
+                                    <Image
+                                        source={{ uri: capaEP.uri }}
+                                        style={styles.miniCapa}
+                                        resizeMode="cover"
+                                    />
+                                )}
+                                <View style={{ flex: 1, marginLeft: 15 }}>
+                                    <Text style={styles.resumoTitle}>{tituloEP}</Text>
+                                    <Text style={styles.resumoSub}>{generoPrincipal}</Text>
 
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{t('postEP.sectionInfoTitle')}</Text>
+                                    {/* Barra de Progresso Visual das Músicas */}
+                                    <View style={styles.progressBarBg}>
+                                        <View style={[
+                                            styles.progressBarFill,
+                                            { width: `${(postedFaixa / (numFaixas || 1)) * 100}%` }
+                                        ]} />
+                                    </View>
+                                    <Text style={styles.progressText}>
+                                        {t('postEP.trackCountLabel', { total: numFaixas, posted: postedFaixa })}
+                                    </Text>
+                                </View>
+                                <Ionicons name="cloud-done" size={24} color="#4CAF50" />
+                            </View>
 
-                    <TextInput
-                        style={styles.inputTextBox}
-                        placeholder={t('postEP.artistNamePlaceholder')}
-                        placeholderTextColor="#FFFF"
+                            {/* NOVO BOTÃO: APAGAR POSTAGEM */}
+                            <TouchableOpacity
+                                style={styles.btnAbort}
+                                onPress={triggerAbortEP}
+                                disabled={isSavingDraft}
+                            >
+                                <Ionicons name="trash-outline" size={18} color="#FF5252" style={{ marginRight: 8 }} />
+                                <Text style={styles.btnAbortText}>
+                                    {isSavingDraft ? "A processar..." : "Apagar rascunho e recomeçar"}
+                                </Text>
+                            </TouchableOpacity>
+                        </>
 
-                    //value={nomeArtistaAlbum}
-                    //onChangeText={setNomeArtistaAlbum}
-                    />
+                    ) : (
+                        /* FORMULÁRIO ORIGINAL: APARECE APENAS SE NÃO ESTIVER COMPLETO */
+                        <>
+                            <View style={{
+                                width: "100%", marginBottom: 10, alignItems: 'center', justifyContent: 'center',
+                            }}>
+                                <TouchableOpacity
+                                    disabled={isStep1Complete}
+                                    style={[styles.coverUploadBox, isStep1Complete && { opacity: 0.7 }]}
+                                    onPress={pickImageEP}
+                                >
+                                    {capaEP ? (
+                                        <Image
+                                            source={{ uri: capaEP.uri }}
+                                            style={{ width: '100%', height: '100%' }}
+                                            resizeMode="cover"
+                                        />
+                                    ) : (
+                                        <Ionicons name="camera" size={40} color="#fff" />
+                                    )}
+                                </TouchableOpacity>
+                                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postEP.uploadCover')}</Text>
+                            </View>
 
-                    <TextInput
-                        style={styles.inputTextBox}
-                        placeholder={t('postEP.epTitlePlaceholder')}
-                        placeholderTextColor="#FFFF"
+                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{t('postEP.sectionInfoTitle')}</Text>
 
-                    //value={tituloAlbum}
-                    //onChangeText={setTitutloAlbum}
-                    //editable={!!nomeArtistaAlbum}
-                    />
-
-                    <TextInput
-                        style={styles.inputTextBox}
-                        placeholder={t('postEP.mainGenrePlaceholder')}
-                        placeholderTextColor="#FFFF"
-
-                    //value={generoAlbum}
-                    //onChangeText={setGeneroAlbum}
-                    //editable={!!tituloAlbum}
-                    />
-
-                    {/* dropdownpiker que permite escolher o número de faixas a postar de 8 a 30* */}
-                    <DropDownPicker<number>
-                        //  disabled={!generoAlbum}
-                        open={numFaixasOpen}
-                        value={numFaixas}
-                        items={numFaixasItems}
-                        setOpen={setNumFaixasOpen}
-                        setValue={setNumFaixas}  // Correção principal: adicionar setValue para gerenciar a seleção
-                        setItems={setNumFaixasItems}
-
-                        placeholder={t('postEP.numTracksPlaceholder')}
-                        style={{
-                            backgroundColor: '#2a2a2a',
-                            marginBottom: 10,
-                            borderWidth: 1,
-                            borderColor: '#555',
-                        }}
-                        textStyle={{ color: '#fff' }}
-                        placeholderStyle={{ color: '#ccc' }}
-                        dropDownContainerStyle={{
-                            backgroundColor: '#2a2a2a',
-                            borderColor: '#fff',
-                            borderWidth: 1,
-                        }}
-                        TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                        ArrowDownIconComponent={() => (
-                            <Ionicons
-                                name='chevron-down'
-                                size={20}
-                                color='#fff'
-                                style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
+                            <TextInput
+                                style={[styles.inputTextBox, isStep1Complete && { backgroundColor: '#252525', color: '#888' }]}
+                                placeholder={t('postEP.epTitlePlaceholder')}
+                                placeholderTextColor="#ccc"
+                                value={tituloEP}
+                                onChangeText={setTituloEP}
+                                editable={!isStep1Complete}
                             />
-                        )}
-                        ArrowUpIconComponent={() => (
-                            <Ionicons
-                                name='chevron-up'
-                                size={20}
-                                color='#fff'
-                                style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
+
+                            <TextInput
+                                style={[styles.inputTextBox, isStep1Complete && { backgroundColor: '#252525', color: '#888' }]}
+                                placeholder={t('postEP.mainGenrePlaceholder')}
+                                placeholderTextColor="#ccc"
+                                value={generoPrincipal}
+                                onChangeText={setGeneroPrincipal}
+                                editable={!isStep1Complete}
                             />
-                        )}
 
-                    />
+                            {/* dropdownpiker que permite escolher o número de faixas a postar de 8 a 30* */}
+                            <DropDownPicker<number>
+                                disabled={isStep1Complete}
+                                open={numFaixasOpen}
+                                value={numFaixas}
+                                items={numFaixasItems}
+                                setOpen={setNumFaixasOpen}
+                                setValue={setNumFaixas}  // Correção principal: adicionar setValue para gerenciar a seleção
+                                setItems={setNumFaixasItems}
 
-                    <TextInput
-                        style={styles.inputTextBox}
-                        placeholder={t('postEP.releaseYearPlaceholder')}
-                        placeholderTextColor="#FFFF"
-
-                    // value={anoLancamentoAlbum}
-                    // onChangeText={setAnoLancamentoAlbum}
-                    // editable={!!numFaixas}
-                    />
-
-                    <TextInput
-                        style={styles.inputTextBox}
-                        placeholder={t('postEP.epNumberPlaceholder')}
-                        placeholderTextColor="#FFFF"
-
-                    // value={numeroAlbum}
-                    // onChangeText={setNumeroAlbum}
-                    // editable={!!anoLancamentoAlbum}
-                    />
-
-                    {/*Aqui vem o botao salvar, Equanto o utilizador nao salvar os componentes abaixo comtinuarao desable podes fazer isso companheiro*/}
-                    <TouchableOpacity style={styles.uploadArea}>
-                        <Text style={styles.uploadText}>{t('postEP.saveEPButton')}</Text>
-                        <Ionicons name = 'save' size={20} color={'#fff'}/>
-                    </TouchableOpacity>
-
-                    <View
-                        style={{
-                            flexDirection: 'row',      // Coloca o Text e o ícone na mesma linha
-                            // justifyContent: 'space-between', // Um vai para esquerda e outro para a direita
-                            alignItems: 'center',      // Alinha verticalmente no centro
-                            // paddingHorizontal: 1,
-                            //marginBottom: 8,
-                            flex: 1
-                        }}
-                    >
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', }}>{t('postEP.singleTrackTitle')}</Text>
-                        {/*QUANDO O UTILIZADOR ESCOLHER O NUMERO DE FAIXAS A POSTAR ESSE TESTO SERA EXIBIDO* */}
-                        {numFaixas !== null && (
-                            <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>
-                                {t('postEP.trackCountLabel', { total: numFaixas, posted: postedFaixa })}
-                            </Text>
-                        )}
-                    </View>
-
-                    <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>{t('postEP.hasParticipantsQuestion')}</Text>
-
-                    {/* Checkbox Sim / Não */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Checkbox.Item
-                            label={t('postEP.yes')}
-                            status={hasParticipants ? 'checked' : 'unchecked'}
-                            onPress={handleHasParticipants}
-                            labelStyle={{ color: '#fff', fontSize: 14 }}
-                            style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
-                            position='leading'
-                        />
-                        <Checkbox.Item
-                            label={t('postEP.no')}
-                            status={noParticipants ? 'checked' : 'unchecked'}
-                            onPress={handleNoParticipants}
-                            labelStyle={{ color: '#fff', fontSize: 14 }}
-                            style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
-                            position='leading'
-                        />
-                    </View>
-
-                    {/* Campos se houver participantes */}
-                    {hasParticipants && (
-                        <View style={{ width: '100%' }}>
-                            <DropDownPicker
-                                open={dropdownOpen}
-                                value={numParticipants}
-                                items={Array.from({ length: 20 }, (_, i) => ({
-                                    label: t('postEP.participantName', { count: i + 1 }),
-                                    value: i + 1,
-                                }))}
-                                setOpen={setDropdownOpen}
-                                setValue={(callback) => {
-                                    const value = callback(numParticipants);
-                                    handleNumParticipantsChange(value as number);
-                                }}
-                                placeholder={t('postEP.numParticipantsPlaceholder')}
-                                style={{
-                                    backgroundColor: '#2a2a2a',
-                                    marginBottom: 10,
-                                    borderWidth: 1,
-                                    borderColor: '#555',
-                                }}
+                                placeholder={t('postEP.numTracksPlaceholder')}
+                                style={styles.dropdownStyle}
                                 textStyle={{ color: '#fff' }}
                                 placeholderStyle={{ color: '#ccc' }}
-                                dropDownContainerStyle={{
-                                    backgroundColor: '#2a2a2a',
-                                    borderColor: '#fff',
-                                    borderWidth: 1,
-                                }}
+                                dropDownContainerStyle={styles.dropdownContainerStyle}
                                 TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
                                 ArrowDownIconComponent={() => (
                                     <Ionicons
@@ -321,38 +233,164 @@ export default function PostEPScreen() {
                                         style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
                                     />
                                 )}
+
                             />
 
-                            {/* Campos de nomes dos participantes */}
-                            {numParticipants !== null && participantNames.map((name, index) => (
-                                <TextInput
-                                    key={index}
-                                    style={styles.inputTextBox}
-                                    value={name}
-                                    onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                    placeholder={t('postEP.participantNamePlaceholder', { index: index + 1 })}
-                                    placeholderTextColor="#FFFF"
-                                />
-                            ))}
-                        </View>
+                            <TouchableOpacity
+                                style={styles.uploadArea}
+                                onPress={saveEPDraft}
+                                disabled={isSavingDraft}
+                            >
+                                <Text style={styles.uploadText}>
+                                    {isSavingDraft ? "Salvando..." : t('postEP.saveEPButton')}
+                                </Text>
+                                <Ionicons name='save' size={20} color={'#fff'} />
+                            </TouchableOpacity>
+                        </>
                     )}
 
-                    {/* Campos comuns*/}
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.songTitlePlaceholder')} placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.songGenrePlaceholder')} placeholderTextColor="#FFFF" />
-                    <TextInput style={styles.inputTextBox} placeholder={t('postEP.producerPlaceholder')} placeholderTextColor="#FFFF" />                    
+                    <View style={{ height: 1, backgroundColor: '#333', marginVertical: 20 }} />
 
-                    {/* Botão para upload do auddio */}
-                    <TouchableOpacity style={styles.uploadArea}>
-                        <Text style={styles.uploadText}>{t('postEP.uploadAudioButton')}</Text>
-                        <Ionicons name="cloud-upload" size={20} color="#fff" />
-                    </TouchableOpacity>
+                    {/* --- SECÇÃO 2: DADOS DAS FAIXAS (BLOQUEADA ATÉ SALVAR EP) --- */}
+                    <View
+                        style={{ opacity: isStep1Complete ? 1 : 0.4 }}
+                        pointerEvents={isStep1Complete ? 'auto' : 'none'} // ESTA É A CHAVE: Impede cliques
+                    >
+                        <View
+                            style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}
+                        >
+                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', }}>{t('postEP.singleTrackTitle')}</Text>
+                            {/*QUANDO O UTILIZADOR ESCOLHER O NUMERO DE FAIXAS A POSTAR ESSE TESTO SERA EXIBIDO* */}
+                            {numFaixas !== null && (
+                                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>
+                                    {t('postEP.trackCountLabel', { total: numFaixas, posted: postedFaixa })}
+                                </Text>
+                            )}
+                        </View>
+
+                        <Text style={{ color: '#fff', fontSize: 16, marginTop: 10, }}>{t('postEP.hasParticipantsQuestion')}</Text>
+
+                        {/* Checkbox Sim / Não */}
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Checkbox.Item
+                                label={t('postEP.yes')}
+                                status={hasParticipants ? 'checked' : 'unchecked'}
+                                onPress={handleHasParticipants}
+                                labelStyle={{ color: '#fff', fontSize: 14 }}
+                                style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
+                                position='leading'
+                            />
+                            <Checkbox.Item
+                                label={t('postEP.no')}
+                                status={noParticipants ? 'checked' : 'unchecked'}
+                                onPress={handleNoParticipants}
+                                labelStyle={{ color: '#fff', fontSize: 14 }}
+                                style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
+                                position='leading'
+                            />
+                        </View>
+
+                        {/* Campos se houver participantes */}
+                        {hasParticipants && (
+                            <View style={{ width: '100%' }}>
+                                <DropDownPicker
+                                    open={dropdownOpen}
+                                    value={numParticipants}
+                                    items={Array.from({ length: 20 }, (_, i) => ({
+                                        label: t('postEP.participantName', { count: i + 1 }),
+                                        value: i + 1,
+                                    }))}
+                                    setOpen={setDropdownOpen}
+                                    setValue={(callback) => {
+                                        const value = callback(numParticipants);
+                                        handleNumParticipantsChange(value as number);
+                                    }}
+                                    placeholder={t('postEP.numParticipantsPlaceholder')}
+                                    style={styles.dropdownStyle}
+                                    textStyle={{ color: '#fff' }}
+                                    placeholderStyle={{ color: '#ccc' }}
+                                    dropDownContainerStyle={styles.dropdownContainerStyle}
+                                    TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                                    ArrowDownIconComponent={() => (
+                                        <Ionicons
+                                            name='chevron-down'
+                                            size={20}
+                                            color='#fff'
+                                            style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
+                                        />
+                                    )}
+                                    ArrowUpIconComponent={() => (
+                                        <Ionicons
+                                            name='chevron-up'
+                                            size={20}
+                                            color='#fff'
+                                            style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
+                                        />
+                                    )}
+                                />
+
+                                {/* Campos de nomes dos participantes */}
+                                {numParticipants !== null && participantNames.map((name, index) => (
+                                    <TextInput
+                                        key={index}
+                                        style={styles.inputTextBox}
+                                        value={name}
+                                        onChangeText={(text) => handleParticipantNameChange(index, text)}
+                                        placeholder={t('postEP.participantNamePlaceholder', { index: index + 1 })}
+                                        placeholderTextColor="#FFFF"
+                                    />
+                                ))}
+                            </View>
+                        )}
+
+                        {/* Campos comuns*/}
+                        <TextInput
+                            style={styles.inputTextBox}
+                            placeholder={t('postEP.songTitlePlaceholder')}
+                            value={titleFaixa}
+                            onChangeText={setTitleFaixa}
+                            placeholderTextColor="#FFFF" />
+                        <TextInput
+                            style={styles.inputTextBox}
+                            placeholder={t('postEP.songGenrePlaceholder')}
+                            value={genreFaixa}
+                            onChangeText={setGenreFaixa}
+                            placeholderTextColor="#FFFF" />
+                        <TextInput
+                            style={styles.inputTextBox}
+                            placeholder={t('postEP.producerPlaceholder')}
+                            value={producerFaixa}
+                            onChangeText={setProducerFaixa}
+                            placeholderTextColor="#FFFF"
+                        />
+
+                        {/* Botão para upload do auddio */}
+                        <TouchableOpacity style={styles.uploadArea}>
+                            <Text style={styles.uploadText}>{t('postEP.uploadAudioButton')}</Text>
+                            <Ionicons name="cloud-upload" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ height: 40 }} />
                 </ScrollView>
-            </View>
+
+                {/* O MODAL ÚNICO QUE GERE TUDO */}
+                < StatusAlbumEpModal
+                    visible={modalVisible}
+                    type={modalType}
+                    message={modalMessage}
+                    progress={uploadProgress}
+                    onClose={() => setModalVisible(false)}
+                    onConfirm={() => {
+                        // Quando clica em "Sim" no modal de confirmação
+                        executeAbortEP();
+                    }}
+                />
+            </View >
         </>
 
     );
 };
+
 
 export const styles = StyleSheet.create({
     scroll: {
@@ -431,6 +469,87 @@ export const styles = StyleSheet.create({
         marginLeft: 14,
         flex: 1,
         //textAlign: 'center',
+    },
+    coverUploadBox: {
+        width: 150,           // Largura do quadrado
+        height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
+        borderRadius: 10,     // Cantos arredondados
+        backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
+        justifyContent: 'center',  // Centraliza conteúdo verticalmente
+        alignItems: 'center',      // Centraliza conteúdo horizontalmente
+        marginBottom: 10,      // Espaçamento abaixo
+        overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
+    },
+    dropdownContainerStyle: {
+        backgroundColor: '#2a2a2a',
+        borderColor: '#fff',
+        borderWidth: 1,
+    },
+    dropdownStyle: {
+        backgroundColor: '#2a2a2a',
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#555',
+    },
+
+    cardResumo: {
+        backgroundColor: '#252525',
+        borderRadius: 12,
+        padding: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#333',
+    },
+    miniCapa: {
+        width: 70,
+        height: 70,
+        borderRadius: 8,
+    },
+    resumoTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    resumoSub: {
+        color: '#aaa',
+        fontSize: 14,
+        marginBottom: 8,
+    },
+    progressBarBg: {
+        height: 6,
+        backgroundColor: '#444',
+        borderRadius: 3,
+        width: '100%',
+        overflow: 'hidden',
+    },
+    progressBarFill: {
+        height: '100%',
+        backgroundColor: '#E02041', // Cor de destaque da sua app
+    },
+    progressText: {
+        color: '#fff',
+        fontSize: 12,
+        marginTop: 5,
+        fontWeight: '600',
+    },
+
+    btnAbort: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 10,
+        paddingVertical: 8,
+        backgroundColor: 'rgba(255, 82, 82, 0.1)', // Vermelho clarinho de fundo
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 82, 82, 0.3)',
+    },
+    btnAbortText: {
+        color: '#FF5252',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });
 

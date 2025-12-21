@@ -193,8 +193,6 @@ const usePostFaixa = () => {
     }
   };
 
-
-
   return {
     // Estados básicos
     nomeProdutor,
