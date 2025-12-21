@@ -397,6 +397,31 @@ export default function PostEPScreen() {
                             placeholderTextColor="#FFFF"
                         />
 
+                        {/* --- SECÇÃO 2: FORMULÁRIO DE ADICIONAR FAIXAS (STEP 2) --- */}
+                        {isStep1Complete && (
+                            <View >
+
+                                {/* BOTÃO PARA LISTAR FAIXAS JÁ ENVIADAS */}
+                                <TouchableOpacity
+                                    style={styles.btnViewTracks}
+                                    onPress={() => router.push({
+                                        pathname: "/profileScreens/DraftTracksList", // Certifica-te que o ficheiro existe em app/DraftTracksList.tsx
+                                        params: { epId: epData.id, title: tituloEP }
+                                    })}
+                                >
+                                    <Ionicons name="list-outline" size={20} color="#fff" />
+                                    <Text style={styles.btnViewTracksText}>
+                                        {postedFaixa > 0
+                                            ? `Ver músicas enviadas (${postedFaixa})`
+                                            : "Nenhuma música enviada ainda"}
+                                    </Text>
+                                    <Ionicons name="chevron-forward" size={18} color="#666" />
+                                </TouchableOpacity>
+
+                                {/* ... Restante do formulário de upload (Título, Picker de Áudio, etc) ... */}
+                            </View>
+                        )}
+
                         {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
                         <TouchableOpacity
                             style={[styles.uploadArea, audioFaixa && styles.uploadAreaSelected]}
@@ -590,7 +615,7 @@ export const styles = StyleSheet.create({
     },
     progressBarFill: {
         height: '100%',
-        backgroundColor: '#E02041', // Cor de destaque da sua app
+        backgroundColor: '#20e03aff', // Cor de destaque da sua app
     },
     progressText: {
         color: '#fff',
@@ -677,6 +702,23 @@ export const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 15,
+    },
+    btnViewTracks: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#1A1A1A',
+        padding: 15,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#333',
+        marginBottom: 20,
+    },
+    btnViewTracksText: {
+        color: '#FFF',
+        flex: 1, // Empurra o ícone chevron para a direita
+        marginLeft: 10,
+        fontSize: 14,
+        fontWeight: '500',
     },
 });
 
