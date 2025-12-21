@@ -4,7 +4,6 @@ import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Ionicons } from '@expo/vector-icons';
 import usePostFaixa from '@/hooks/usePostEP'; // Importa o Hook
-//import * as ImagePicker from 'expo-image-picker'; //importando o modulo responsavel por lidar com o carregamento de imagens
 import { Stack } from 'expo-router';
 import {
     View,
@@ -79,10 +78,22 @@ export default function PostEPScreen() {
         triggerAbortEP, // Use esta no botão de apagar
         executeAbortEP, // Use esta no onConfirm do Modal
         handleAddTrack,
-        finishRelease
+        finishRelease,
+
+        pickAudioEp
     } = usePostFaixa();
 
     const isStep1Complete = !!epData; // Booleano que indica se o rascunho já foi salvo
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-PT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
     return (
         <>
@@ -144,17 +155,39 @@ export default function PostEPScreen() {
                                 <Ionicons name="cloud-done" size={24} color="#4CAF50" />
                             </View>
 
-                            {/* NOVO BOTÃO: APAGAR POSTAGEM */}
-                            <TouchableOpacity
-                                style={styles.btnAbort}
-                                onPress={triggerAbortEP}
-                                disabled={isSavingDraft}
-                            >
-                                <Ionicons name="trash-outline" size={18} color="#FF5252" style={{ marginRight: 8 }} />
-                                <Text style={styles.btnAbortText}>
-                                    {isSavingDraft ? "A processar..." : "Apagar rascunho e recomeçar"}
+                            {/* TEXTO DE DATA PENDENTE */}
+                            {epData.createdAt && (
+                                <Text style={styles.pendingText}>
+                                    {t('postEP.pendingSince') || 'Pendente desde'}: {formatDate(epData.createdAt)}
                                 </Text>
-                            </TouchableOpacity>
+                            )}
+
+                            <View style={styles.actionButtonsRow}>
+                                {/* BOTÃO APAGAR */}
+                                <TouchableOpacity
+                                    style={[styles.btnActionSmall, styles.btnAbortBorder]}
+                                    onPress={triggerAbortEP}
+                                    disabled={isSavingDraft}
+                                >
+                                    <Ionicons name="trash-outline" size={18} color="#FF5252" />
+                                    <Text style={styles.btnAbortTextSmall}>Apagar</Text>
+                                </TouchableOpacity>
+
+                                {/* BOTÃO CONFIRMAR (Só aparece ou destaca quando todas as faixas forem enviadas) */}
+                                <TouchableOpacity
+                                    style={[
+                                        styles.btnActionSmall,
+                                        postedFaixa >= (numFaixas || 0) ? styles.btnConfirmActive : styles.btnConfirmDisabled
+                                    ]}
+                                    onPress={finishRelease}
+                                    disabled={isSavingDraft || postedFaixa < (numFaixas || 0)}
+                                >
+                                    <Ionicons name="checkmark-done-outline" size={18} color={postedFaixa >= (numFaixas || 0) ? "#000" : "#666"} />
+                                    <Text style={[styles.btnConfirmText, { color: postedFaixa >= (numFaixas || 0) ? "#000" : "#666" }]}>
+                                        Finalizar
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         </>
 
                     ) : (
@@ -364,11 +397,42 @@ export default function PostEPScreen() {
                             placeholderTextColor="#FFFF"
                         />
 
-                        {/* Botão para upload do auddio */}
-                        <TouchableOpacity style={styles.uploadArea}>
-                            <Text style={styles.uploadText}>{t('postEP.uploadAudioButton')}</Text>
-                            <Ionicons name="cloud-upload" size={20} color="#fff" />
+                        {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
+                        <TouchableOpacity
+                            style={[styles.uploadArea, audioFaixa && styles.uploadAreaSelected]}
+                            onPress={pickAudioEp}
+                        >
+                            {audioFaixa && (
+                                <Text style={styles.fileSizeText}>
+                                    {(audioFaixa.size / (1024 * 1024)).toFixed(2)} MB
+                                </Text>
+                            )}
+                            <Ionicons
+                                name={audioFaixa ? "document-text" : "musical-notes"}
+                                size={24}
+                                color={audioFaixa ? "#fff" : "#888"}
+                            />
+                            <Text
+                                numberOfLines={2}
+                                ellipsizeMode='tail'
+                                style={styles.uploadText}>
+                                {audioFaixa ? audioFaixa.name : t('postEP.selectAudio')}
+                            </Text>
                         </TouchableOpacity>
+
+                        {/* 2. BOTÃO DE ENVIAR PARA O BACKEND (SUBMIT) */}
+                        {audioFaixa && (
+                            <TouchableOpacity
+                                style={styles.btnConfirmUpload}
+                                onPress={handleAddTrack}
+                                disabled={isSavingDraft || !titleFaixa}
+                            >
+                                <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                <Text style={styles.btnConfirmUploadText}>
+                                    {t('postEP.confirmAndUpload') || "Confirmar e Enviar Faixa"}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                     <View style={{ height: 40 }} />
                 </ScrollView>
@@ -446,7 +510,7 @@ export const styles = StyleSheet.create({
     uploadText: {
         color: '#fff',
         fontSize: 16,
-        marginRight: 10,
+        marginLeft: 5,
     },
 
     containerBack: {
@@ -534,22 +598,85 @@ export const styles = StyleSheet.create({
         marginTop: 5,
         fontWeight: '600',
     },
-
-    btnAbort: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 10,
-        paddingVertical: 8,
-        backgroundColor: 'rgba(255, 82, 82, 0.1)', // Vermelho clarinho de fundo
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 82, 82, 0.3)',
-    },
     btnAbortText: {
         color: '#FF5252',
         fontSize: 14,
         fontWeight: '600',
+    },
+    actionButtonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 15,
+        gap: 10, // Espaço entre os botões
+    },
+    btnActionSmall: {
+        flex: 1, // Faz com que ambos tenham o mesmo tamanho
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+    },
+    btnAbortBorder: {
+        borderColor: '#FF5252',
+        backgroundColor: 'transparent',
+    },
+    btnAbortTextSmall: {
+        color: '#FF5252',
+        fontWeight: 'bold',
+        marginLeft: 5,
+    },
+    btnConfirmActive: {
+        backgroundColor: '#333', // Teu amarelo ouro
+        borderColor: '#333',
+    },
+    btnConfirmDisabled: {
+        backgroundColor: '#333',
+        borderColor: '#444',
+    },
+    btnConfirmText: {
+        fontWeight: 'bold',
+        marginLeft: 5,
+    },
+    pendingText: {
+        color: '#888', // Cinza para não roubar a atenção
+        fontSize: 18,
+        textAlign: 'center',
+        marginTop: 10,
+        marginBottom: 5,
+        fontStyle: 'italic',
+    },
+
+    uploadAreaSelected: {
+        borderColor: '#FFD700',
+        borderStyle: 'solid',
+        backgroundColor: '#222',
+    },
+
+    fileSizeText: {
+        color: '#888',
+        fontSize: 12,
+        marginTop: 5,
+    },
+    btnConfirmUpload: {
+        backgroundColor: '#333', // Cor de destaque para ação positiva
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 15,
+        borderRadius: 12,
+        marginTop: 5,
+        elevation: 3, // Sombra no Android
+        shadowColor: '#000', // Sombra no iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    btnConfirmUploadText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 15,
     },
 });
 

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from '@/src/translations/useTranslation';
-import { Alert } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
 import {
   startEPDraft,
   addTrackToEP,
@@ -69,6 +69,24 @@ const usePostExtendedPlay = () => {
     return `file://${capaEP.uri}`;
   }, [capaEP?.uri]);
 
+  // --- LÓGICA DE TRATAMENTO DE BINÁRIOS PARA ÁUDIO ---
+
+  const audioUri = useMemo(() => {
+    if (!audioFaixa?.uri) return null;
+
+    // Se já tiver o prefixo correto ou for web (blob/data), mantém
+    if (
+      audioFaixa.uri.startsWith('data:') ||
+      audioFaixa.uri.startsWith('blob:') ||
+      audioFaixa.uri.startsWith('file://')
+    ) {
+      return audioFaixa.uri;
+    }
+
+    // Caso contrário, força o prefixo file:// (comum no Android/iOS)
+    return `file://${audioFaixa.uri}`;
+  }, [audioFaixa?.uri]);
+
   // Conversor para Web (caso precise rodar no navegador)
   const uriToBlob = async (uri: string): Promise<Blob> => {
     const response = await fetch(uri);
@@ -98,6 +116,34 @@ const usePostExtendedPlay = () => {
       name: fileName,
       type: fileType,
     });
+  };
+
+  // 1. Função para selecionar o áudio
+  const pickAudioEp = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp4'], // Tipos aceites
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+
+        // Extrair nome e tipo de forma segura
+        const fileName = asset.name || `track-${Date.now()}.mp3`;
+        const fileType = asset.mimeType || 'audio/mpeg';
+
+        setAudioFaixa({
+          uri: asset.uri,
+          name: fileName,
+          type: fileType, // O Multer usa 'type' no FormData
+          size: asset.size
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao selecionar áudio:", err);
+      showModal('error', "Erro ao abrir o seletor de ficheiros.");
+    }
   };
 
   const handleHasParticipants = () => {
@@ -153,7 +199,6 @@ const usePostExtendedPlay = () => {
       const response = await startEPDraft(formData);
       showModal('success', "Rascunho criado com sucesso! Agora adicione as músicas.");
       setEpData(response.ep);
-      alert("Rascunho criado com sucesso! Agora adicione as músicas.");
     } catch (error: any) {
       showModal('error', error.response?.data?.error || "Erro ao salvar rascunho do EP.");
     } finally {
@@ -195,65 +240,115 @@ const usePostExtendedPlay = () => {
   }, []);
 
   // --- LOGICA DE COMUNICAÇÃO COM API (FAIXAS) ---
-
   const handleAddTrack = async () => {
+    // 1. Validação inicial
     if (!epData?.id || !audioFaixa || !titleFaixa) {
       showModal('error', "Preencha os dados da faixa e selecione o áudio.");
       return;
     }
 
-    showModal('loading', "A enviar faixa...", 1); // Inicia com 1%
+    // 2. Iniciar Feedback Visual
+    showModal('loading', `A enviar: ${titleFaixa}`, 1);
     setIsSavingDraft(true);
+
     try {
       const formData = new FormData();
       formData.append('title', titleFaixa);
       formData.append('genre', genreFaixa || generoPrincipal);
       formData.append('producer', producerFaixa);
 
-      // Seu backend espera 'feat' como uma string JSON
+      // O teu backend espera 'feat' como uma string JSON
       formData.append('feat', JSON.stringify(participantNames));
 
-      // Arquivo de Áudio
-      formData.append('audioFile', {
-        uri: audioFaixa.uri,
-        name: audioFaixa.name || 'track.mp3',
-        type: audioFaixa.mimeType || 'audio/mpeg',
-      } as any);
+      // 3. LÓGICA DE TRATAMENTO DE BINÁRIO (IGUAL À CAPA)
+      // Usamos o audioUri (do useMemo) que garante o prefixo file://
+      if (audioUri?.startsWith('data:') || audioUri?.startsWith('blob:')) {
+        // Caso estejas a testar em Web
+        const blob = await uriToBlob(audioUri);
+        formData.append('audioFile', blob, audioFaixa.name || 'track.mp3');
+      } else {
+        // Caso Mobile (Android/iOS) - Configuração ideal para o Multer
+        formData.append('audioFile', {
+          uri: audioUri, // URI normalizada
+          name: audioFaixa.name || 'track.mp3',
+          type: audioFaixa.type || 'audio/mpeg', // 'type' é a chave que o Multer procura
+        } as any);
+      }
 
-      // Chamar a função addTrackToEP que você já tem no uploadContentApi
+      // 4. Chamada à API com monitorização de progresso
       const response = await addTrackToEP(epData.id, formData, (progress) => {
-        setUploadProgress(progress); // Atualiza o progresso no Modal em tempo real
+        setUploadProgress(progress); // Atualiza a % no teu UploadAlbumEpModal
       });
 
+      // 5. Tratamento de Sucesso
       if (response.success) {
-        alert("Faixa adicionada!");
-        setPostedFaixa(prev => prev + 1);
+        const novoTotalPosted = postedFaixa + 1;
+        setPostedFaixa(novoTotalPosted);
 
-        // Limpar campos da faixa para a próxima
+        // Limpar campos para a próxima faixa
         setTitleFaixa('');
+        setGenreFaixa('');
+        setProducerFaixa('');
         setAudioFaixa(null);
         setParticipantNames([]);
 
-        // Verificar se terminou
-        if (postedFaixa + 1 >= numFaixas!) {
-          showModal('success', "Todas as faixas foram enviadas!");
+        // Verificar se o EP está completo
+        if (novoTotalPosted >= (numFaixas || 0)) {
+          showModal('success', "Todas as faixas foram enviadas com sucesso! Podes agora finalizar o EP.");
+        } else {
+          showModal('success', `Faixa ${novoTotalPosted} de ${numFaixas} enviada!`);
         }
       }
-    } catch (error) {
-      console.error(error);
-      showModal('error', "Erro ao enviar faixa.");
+    } catch (error: any) {
+      console.error("Erro no upload da faixa:", error);
+      const errorMsg = error.response?.data?.error || "Erro ao enviar faixa.";
+      showModal('error', errorMsg);
     } finally {
       setIsSavingDraft(false);
     }
   };
 
-  const finishRelease = async () => {
-    try {
-      await finalizeEP(epData.id);
-      alert("EP Publicado com sucesso!");
+  //const finishRelease = async () => {
+  //  try {
+   //   await finalizeEP(epData.id);
+   //   alert("EP Publicado com sucesso!");
       // Redirecionar usuário
-    } catch (error) {
-      alert("Erro ao finalizar.");
+   // } catch (error) {
+   //   alert("Erro ao finalizar.");
+   // }
+  //};
+
+  const finishRelease = async () => {
+    if (!epData?.id) return;
+
+    // 1. Abrir modal em estado de carregamento
+    showModal('loading', "A finalizar e publicar o teu EP...");
+    setIsSavingDraft(true);
+
+    try {
+      const response = await finalizeEP(epData.id);
+
+      if (response.success) {
+        // 2. Mostrar sucesso no modal
+        showModal('success', "EP Publicado com sucesso! O teu rascunho foi convertido em lançamento oficial.");
+
+        // 3. LIMPAR TODOS OS ESTADOS (O "Reset" que pediste)
+        // Ao fazer isto, o 'isStep1Complete' passará a ser false e a tela volta ao início
+        setEpData(null);
+        setCapaEP(null);
+        setTituloEP('');
+        setGeneroPrincipal('');
+        setNumFaixas(null);
+        setPostedFaixa(0);
+        setTitleFaixa('');
+        setAudioFaixa(null);
+        
+      }
+    } catch (error: any) {
+      console.error(error);
+      showModal('error', error.response?.data?.error || "Erro ao finalizar a publicação.");
+    } finally {
+      setIsSavingDraft(false);
     }
   };
 
@@ -333,7 +428,9 @@ const usePostExtendedPlay = () => {
     triggerAbortEP, // Use esta no botão de apagar
     executeAbortEP, // Use esta no onConfirm do Modal
     handleAddTrack,
-    finishRelease
+    finishRelease,
+
+    pickAudioEp
   };
 };
 
