@@ -91,6 +91,9 @@ export default function PostAlbumScreen() {
     //const userCurrency = useAppSelector(selectUserCurrencyCode);
     const userRegion = useAppSelector(selectUserAccountRegion);
 
+    //Verificador de conecção con a intenet
+    const isConnected = useAppSelector((state) => state.network.isConnected);
+
     // Booleano que indica se o rascunho do álbum já foi salvo
     const isStep1Complete = !!albumData;
 
@@ -110,6 +113,15 @@ export default function PostAlbumScreen() {
             minute: '2-digit'
         });
     };
+
+    const getDynamicAvatarSource = () => {
+        if (isConnected === false || !capaAlbum || capaAlbum.trim() === "") {
+            return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
+        }
+        return { uri: capaAlbum };
+    };
+
+    const albumCover = getDynamicAvatarSource()
 
     return (
 
@@ -151,7 +163,7 @@ export default function PostAlbumScreen() {
                             <View style={styles.cardResumo}>
                                 {capaAlbum && (
                                     <Image
-                                        source={{ uri: capaAlbum.uri }}
+                                        source={{ uri: albumCover.uri }}
                                         style={styles.miniCapa}
                                         resizeMode="cover"
                                     />
@@ -492,7 +504,7 @@ export default function PostAlbumScreen() {
                                 <TouchableOpacity
                                     style={styles.btnConfirmUpload}
                                     onPress={handleAddTrack}
-                                    //disabled={isSavingDraft || !titleFaixa}
+                                //disabled={isSavingDraft || !titleFaixa}
                                 >
                                     <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
                                     <Text style={styles.btnConfirmUploadText}>

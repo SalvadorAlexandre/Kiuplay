@@ -91,6 +91,9 @@ export default function PostEPScreen() {
     //const userCurrency = useAppSelector(selectUserCurrencyCode);
     const userRegion = useAppSelector(selectUserAccountRegion);
 
+    //Verificador de conecção com a internet
+    const isConnected = useAppSelector((state) => state.network.isConnected);
+
     const isStep1Complete = !!epData; // Booleano que indica se o rascunho já foi salvo
 
     // 2. Ajusta a função formatDate
@@ -109,6 +112,15 @@ export default function PostEPScreen() {
             minute: '2-digit'
         });
     };
+
+    const getDynamicAvatarSource = () => {
+        if (isConnected === false || !capaEP || capaEP.trim() === "") {
+            return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
+        }
+        return { uri: capaEP };
+    };
+
+    const epCover = getDynamicAvatarSource()
 
     return (
         <>
@@ -147,7 +159,7 @@ export default function PostEPScreen() {
                             <View style={styles.cardResumo}>
                                 {capaEP && (
                                     <Image
-                                        source={{ uri: capaEP.uri }}
+                                        source={{ uri: epCover.uri }}
                                         style={styles.miniCapa}
                                         resizeMode="cover"
                                     />
@@ -473,7 +485,7 @@ export default function PostEPScreen() {
                                 <TouchableOpacity
                                     style={styles.btnConfirmUpload}
                                     onPress={handleAddTrack}
-                                    //disabled={isSavingDraft || !titleFaixa}
+                                //disabled={isSavingDraft || !titleFaixa}
                                 >
                                     <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
                                     <Text style={styles.btnConfirmUploadText}>
