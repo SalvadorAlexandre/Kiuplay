@@ -320,7 +320,8 @@
       "minValue": "⚠️ The minimum allowed value is",
       "maxValue": "⚠️ The maximum allowed value is",
       "missingFields": "Please fill in all required fields (Producer, Title, Cover and Genre).",
-      "uploadFailed": "Failed to upload Beat. Check your connection."
+      "uploadFailed": "Failed to upload Beat. Check your connection.",
+      "invalidPrice": "The price entered is invalid!"
     },
     "currency": {
       "global": "Global",

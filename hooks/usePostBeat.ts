@@ -18,6 +18,11 @@ export const usePostBeat = () => {
   // const userCurrency = useAppSelector(selectUserCurrencyCode);
   //const userRegion = useAppSelector(selectUserAccountRegion);
 
+
+  //Valor maximo e minimo do preco de uma postagem exclusiva
+  const MIN_VALUE = 1;
+  const MAX_VALUE = 10000;
+
   // --- Campos básicos ---
   const [nomeProdutor, setNomeProdutor] = useState('');
   const [tituloBeat, setTituloBeat] = useState('');
@@ -153,12 +158,45 @@ export const usePostBeat = () => {
       }
 
       // 3. Validação de Preço (Licença Exclusiva)
-      if (tipoLicenca === 'exclusivo' && (!preco || preco <= 0)) {
-        const msg = t('postBeat.errors.invalidPrice');
-        setUploadStatus('error');
-        setUploadMessage(msg);
-        setUploadLoading(false);
-        return;
+      //if (tipoLicenca === 'exclusivo' && (!preco || preco <= 0)) {
+      // const msg = t('postBeat.errors.invalidPrice');
+      // setUploadStatus('error');
+      //  setUploadMessage(msg);
+      //  setUploadLoading(false);
+      //  return;
+      //}
+
+      // 3. Validação de Preço (Licença Exclusiva) - Aprimorada
+      if (tipoLicenca === 'exclusivo') {
+        const minValue = 1;
+        const maxValue = 10000;
+
+        // Se o preço for vazio ou zero
+        if (!preco || preco <= 0) {
+          const msg = t('postBeat.errors.invalidPrice');
+          setUploadStatus('error');
+          setUploadMessage(msg);
+          setUploadLoading(false);
+          return;
+        }
+
+        // Validação de MÍNIMO
+        if (preco < minValue) {
+          const msg = `${t('postBeat.errors.minValue')} ${currentCurrencySymbol}${minValue.toFixed(2)}`;
+          setUploadStatus('error');
+          setUploadMessage(msg);
+          setUploadLoading(false);
+          return;
+        }
+
+        // Validação de MÁXIMO
+        if (preco > maxValue) {
+          const msg = `${t('postBeat.errors.maxValue')} ${currentCurrencySymbol}${maxValue.toFixed(2)}`;
+          setUploadStatus('error');
+          setUploadMessage(msg);
+          setUploadLoading(false);
+          return;
+        }
       }
 
       // --- Se passou nas validações, continua o processo ---
@@ -345,8 +383,7 @@ export const usePostBeat = () => {
 
   /**
    * 💰 Validação do preço
-   */
-  const handlePrecoChange = (numericValue: number | null) => {
+   * const handlePrecoChange = (numericValue: number | null) => {
     setPreco(numericValue);
     setPrecoError(null);
 
@@ -366,6 +403,29 @@ export const usePostBeat = () => {
     }
     if (numericValue > maxValue) {
       setPrecoError(`${t('postBeat.errors.maxValue')} ${maxValue.toFixed(2)} ${selectedCurrency}`);
+      Vibration.vibrate(100);
+      return;
+    }
+  };
+   */
+  const handlePrecoChange = (numericValue: number | null) => {
+    setPreco(numericValue);
+    setPrecoError(null);
+
+    if (numericValue === null || numericValue === 0) return;
+
+    const minValue = MIN_VALUE;
+    const maxValue = MAX_VALUE;
+
+    if (numericValue < minValue) {
+      // Usamos o símbolo dinâmico que você já criou no useMemo
+      setPrecoError(`${t('postBeat.errors.minValue')} ${currentCurrencySymbol}${minValue.toFixed(2)}`);
+      Vibration.vibrate(100);
+      return;
+    }
+
+    if (numericValue > maxValue) {
+      setPrecoError(`${t('postBeat.errors.maxValue')} ${currentCurrencySymbol}${maxValue.toFixed(2)}`);
       Vibration.vibrate(100);
       return;
     }

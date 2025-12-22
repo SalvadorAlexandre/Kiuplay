@@ -320,7 +320,8 @@
             "minValue": "⚠️ O valor mínimo permitido é",
             "maxValue": "⚠️ O valor máximo permitido é",
             "missingFields": "Preencha todos os campos obrigatórios (Produtor, Título, Capa e Género).",
-            "uploadFailed": "Falha ao fazer upload do Beat. Verifica a ligação."
+            "uploadFailed": "Falha ao fazer upload do Beat. Verifica a ligação.",
+            "invalidPrice": "O Preço digitado é inválido!"
         },
         "currency": {
             "global": "Global",

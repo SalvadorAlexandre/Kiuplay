@@ -14,6 +14,8 @@ import {
     TouchableOpacity,
     ScrollView,
     ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -104,332 +106,341 @@ export default function PostBeatScreen() {
                     contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
+                    <KeyboardAvoidingView
+                        style={{ flex: 1, }}
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    >
 
-                    <View style={{
-                        width: "100%",
-                        marginBottom: 10,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        //backgroundColor: '#fff'
-                    }}>
-                        {/*Quadro onde a capa é carregada a capa do album* ---------------------------*/}
-                        <TouchableOpacity
-                            style={{
-                                width: 150,           // Largura do quadrado
-                                height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
-                                borderRadius: 10,     // Cantos arredondados
-                                backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
-                                justifyContent: 'center',  // Centraliza conteúdo verticalmente
-                                alignItems: 'center',      // Centraliza conteúdo horizontalmente
-                                marginBottom: 10,      // Espaçamento abaixo
-                                overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
-                            }}
-                            onPress={pickImageBeat}      // Função para abrir o seletor de imagem
-                        >
-                            {capaBeat ? (
-                                <Image
-                                    source={{ uri: capaBeat.uri }}
-                                    style={{ width: '100%', height: '100%' }}
-                                />
-                            ) : (
-                                <Ionicons name="camera" size={40} color="#fff" />
-                            )}
-                        </TouchableOpacity>
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postBeat.uploadCover')}</Text>
-                    </View>
+                        <View style={{
+                            width: "100%",
+                            marginBottom: 10,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            //backgroundColor: '#fff'
+                        }}>
+                            {/*Quadro onde a capa é carregada a capa do album* ---------------------------*/}
+                            <TouchableOpacity
+                                style={{
+                                    width: 150,           // Largura do quadrado
+                                    height: 150,          // Altura do quadrado (mesmo que a largura = quadrado)
+                                    borderRadius: 10,     // Cantos arredondados
+                                    backgroundColor: '#333', // Cor do fundo do quadrado (cinza escuro)
+                                    justifyContent: 'center',  // Centraliza conteúdo verticalmente
+                                    alignItems: 'center',      // Centraliza conteúdo horizontalmente
+                                    marginBottom: 10,      // Espaçamento abaixo
+                                    overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
+                                }}
+                                onPress={pickImageBeat}      // Função para abrir o seletor de imagem
+                            >
+                                {capaBeat ? (
+                                    <Image
+                                        source={{ uri: capaBeat.uri }}
+                                        style={{ width: '100%', height: '100%' }}
+                                    />
+                                ) : (
+                                    <Ionicons name="camera" size={40} color="#fff" />
+                                )}
+                            </TouchableOpacity>
+                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{t('postBeat.uploadCover')}</Text>
+                        </View>
 
-                    <TextInput
-                        value={nomeProdutor}
-                        onChangeText={setNomeProdutor}
-                        style={styles.inputTextBox}
-                        placeholder={t('postBeat.producerNamePlaceholder')}
-                        placeholderTextColor="#FFFF"
-                    />
-                    <TextInput
-                        value={tituloBeat}
-                        onChangeText={setTituloBeat}
-                        style={styles.inputTextBox}
-                        placeholder={t('postBeat.beatTitlePlaceholder')}
-                        placeholderTextColor="#FFFF"
-                    />
-
-                    <TextInput
-                        value={generoBeat}
-                        onChangeText={setGeneroBeat}
-                        style={styles.inputTextBox}
-                        placeholder={t('postBeat.beatGenrePlaceholder')}
-                        placeholderTextColor="#FFFF"
-                    />
-
-                    <TextInput
-                        value={bpm ? `${bpm} BPM` : ''}
-                        //onChangeText={}
-                        style={styles.inputTextBox}
-                        placeholder={t('postBeat.beatBpmPlaceholder')}
-                        placeholderTextColor="#FFFF"
-                    />
-
-                    {/* ✅ Combo box de seleção de tipo de licensa */}
-                    {/* ✅ Envolve tudo em uma View para controlar o empilhamento */}
-                    <View style={{ zIndex: 2000 }}>
-                        {/* ✅ Combo box de seleção de tipo de licença */}
-                        <DropDownPicker
-                            open={tipoLicencaOpen}
-                            value={tipoLicenca}
-                            items={tipoLicencaItems}
-                            // ✅ Ajuste do setOpen para TypeScript + fechar o outro picker
-                            setOpen={(stateOrCallback) => {
-                                const newState =
-                                    typeof stateOrCallback === 'function'
-                                        ? stateOrCallback(tipoLicencaOpen)
-                                        : stateOrCallback;
-                                setTipoLicencaOpen(newState);
-
-                                // Se este picker abrir, fecha o picker de moeda
-                                if (newState) setCurrencyPickerOpen(false);
-                            }}
-                            setValue={setTipoLicenca}
-                            setItems={setTipoLicencaItems}
-                            placeholder={t('postBeat.selectLicenseTypePlaceholder')}
-                            style={{
-                                backgroundColor: '#2a2a2a',
-                                marginBottom: 10,
-                                borderWidth: 1,
-                                borderColor: '#555',
-                            }}
-                            textStyle={{ color: '#fff' }}
-                            placeholderStyle={{ color: '#ccc' }}
-                            dropDownContainerStyle={{
-                                backgroundColor: '#2a2a2a',
-                                borderColor: '#fff',
-                                borderWidth: 1,
-                                zIndex: 3000, // ⬆️ prioridade mais alta
-                                elevation: 3000,
-                            }}
-                            TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                            ArrowDownIconComponent={() => (
-                                <Ionicons
-                                    name='chevron-down'
-                                    size={20}
-                                    color='#fff'
-                                    style={{ transform: [{ rotate: tipoLicencaOpen ? '180deg' : '0deg' }] }}
-                                />
-                            )}
-                            ArrowUpIconComponent={() => (
-                                <Ionicons
-                                    name='chevron-up'
-                                    size={20}
-                                    color='#fff'
-                                    style={{ transform: [{ rotate: tipoLicencaOpen ? '0deg' : '180deg' }] }}
-                                />
-                            )}
+                        <TextInput
+                            value={nomeProdutor}
+                            onChangeText={setNomeProdutor}
+                            style={styles.inputTextBox}
+                            placeholder={t('postBeat.producerNamePlaceholder')}
+                            placeholderTextColor="#FFFF"
                         />
-                        {tipoLicenca === 'exclusivo' && (
-                            <View style={{ zIndex: 1000 }}> {/* 🔹 prioridade menor, mas ainda acima do resto */}
-                                {/* ✅ Combo box de seleção de moeda */}
-                                <DropDownPicker
-                                    open={currencyPickerOpen}
-                                    value={selectedCurrency}
-                                    items={exclusiveCurrencies}
-                                    setOpen={(stateOrCallback) => {
-                                        const newState =
-                                            typeof stateOrCallback === 'function'
-                                                ? stateOrCallback(currencyPickerOpen)
-                                                : stateOrCallback;
-                                        console.log('DropdownPicker estado aberto/fechado', newState)
-                                        setCurrencyPickerOpen(newState);
+                        <TextInput
+                            value={tituloBeat}
+                            onChangeText={setTituloBeat}
+                            style={styles.inputTextBox}
+                            placeholder={t('postBeat.beatTitlePlaceholder')}
+                            placeholderTextColor="#FFFF"
+                        />
 
-                                        // Se este picker abrir, fecha o picker de licença
-                                        if (newState) {
-                                            console.log('Picker de licença foi fechado')
-                                            setTipoLicencaOpen(false);
-                                        }
-                                    }}
-                                    setValue={(callbackOrValue) => {
-                                        const newValue =
-                                            typeof callbackOrValue === 'function'
-                                                ? callbackOrValue(selectedCurrency)
-                                                : callbackOrValue;
+                        <TextInput
+                            value={generoBeat}
+                            onChangeText={setGeneroBeat}
+                            style={styles.inputTextBox}
+                            placeholder={t('postBeat.beatGenrePlaceholder')}
+                            placeholderTextColor="#FFFF"
+                        />
 
-                                        if (newValue === 'USD' || newValue === 'EUR') {
-                                            handleCurrencyChange(newValue);
-                                        }
-                                    }}
-                                    placeholder={t('postBeat.selectCurrencyPlaceholder')}
-                                    style={{
-                                        backgroundColor: '#2a2a2a',
-                                        marginBottom: 10,
-                                        borderWidth: 1,
-                                        borderColor: '#555',
-                                    }}
-                                    textStyle={{ color: '#fff' }}
-                                    placeholderStyle={{ color: '#ccc' }}
-                                    dropDownContainerStyle={{
-                                        backgroundColor: '#2a2a2a',
-                                        borderColor: '#fff',
-                                        borderWidth: 1,
-                                        zIndex: 2000,
-                                        elevation: 2000,
-                                    }}
-                                    TickIconComponent={() => (
-                                        <Ionicons name='checkmark' size={20} color={'#fff'} />
-                                    )}
-                                    ArrowDownIconComponent={() => (
-                                        <Ionicons name='chevron-down' size={20} color='#fff' />
-                                    )}
-                                    ArrowUpIconComponent={() => (
-                                        <Ionicons name='chevron-up' size={20} color='#fff' />
-                                    )}
-                                />
+                        <TextInput
+                            value={bpm ? `${bpm} BPM` : ''}
+                            //onChangeText={}
+                            style={styles.inputTextBox}
+                            placeholder={t('postBeat.beatBpmPlaceholder')}
+                            placeholderTextColor="#FFFF"
+                        />
 
-                                {/* ✅ Campo de preço com símbolo dinâmico */}
-                                <CurrencyInput
-                                    value={preco}
-                                    onChangeValue={(value) => {
-                                        console.log('💰 [CurrencyInput] onChangeValue → valor digitado:', value);
-                                        console.log('💲 [CurrencyInput] Símbolo atual:', currentCurrencySymbol);
-                                        console.log('🪙 [CurrencyInput] Moeda selecionada:', selectedCurrency);
-                                        handlePrecoChange(value)
-                                    }}
-                                    prefix={`${currentCurrencySymbol} `}
-                                    delimiter='.'
-                                    separator=','
-                                    precision={2}
-                                    keyboardType='numeric'
-                                    placeholder={precoPlaceholder}
-                                    style={[
-                                        styles.inputTextBox,
-                                        { borderColor: precoError ? 'red' : '#555' },
-                                    ]}
-                                />
-                                {precoError && <Text style={styles.errorText}>{precoError}</Text>}
-                            </View>
-                        )}
+                        {/* ✅ Combo box de seleção de tipo de licensa */}
+                        {/* ✅ Envolve tudo em uma View para controlar o empilhamento */}
+                        <View style={{ zIndex: 2000 }}>
+                            {/* ✅ Combo box de seleção de tipo de licença */}
+                            <DropDownPicker
+                                open={tipoLicencaOpen}
+                                value={tipoLicenca}
+                                items={tipoLicencaItems}
+                                // ✅ Ajuste do setOpen para TypeScript + fechar o outro picker
+                                setOpen={(stateOrCallback) => {
+                                    const newState =
+                                        typeof stateOrCallback === 'function'
+                                            ? stateOrCallback(tipoLicencaOpen)
+                                            : stateOrCallback;
+                                    setTipoLicencaOpen(newState);
 
-                        {/* --- SEÇÃO EXCLUSIVA --- */}
-                        {tipoLicenca === 'exclusivo' && (
-                            <View style={{ zIndex: 1000 }}>
-                                {/* DropDownPicker e CurrencyInput aqui... */}
-                                <View style={styles.infoCardExclusive}>
+                                    // Se este picker abrir, fecha o picker de moeda
+                                    if (newState) setCurrencyPickerOpen(false);
+                                }}
+                                setValue={setTipoLicenca}
+                                setItems={setTipoLicencaItems}
+                                placeholder={t('postBeat.selectLicenseTypePlaceholder')}
+                                style={{
+                                    backgroundColor: '#2a2a2a',
+                                    marginBottom: 10,
+                                    borderWidth: 1,
+                                    borderColor: '#555',
+                                }}
+                                textStyle={{ color: '#fff' }}
+                                placeholderStyle={{ color: '#ccc' }}
+                                dropDownContainerStyle={{
+                                    backgroundColor: '#2a2a2a',
+                                    borderColor: '#fff',
+                                    borderWidth: 1,
+                                    zIndex: 3000, // ⬆️ prioridade mais alta
+                                    elevation: 3000,
+                                }}
+                                TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                                ArrowDownIconComponent={() => (
+                                    <Ionicons
+                                        name='chevron-down'
+                                        size={20}
+                                        color='#fff'
+                                        style={{ transform: [{ rotate: tipoLicencaOpen ? '180deg' : '0deg' }] }}
+                                    />
+                                )}
+                                ArrowUpIconComponent={() => (
+                                    <Ionicons
+                                        name='chevron-up'
+                                        size={20}
+                                        color='#fff'
+                                        style={{ transform: [{ rotate: tipoLicencaOpen ? '0deg' : '180deg' }] }}
+                                    />
+                                )}
+                            />
+                            {tipoLicenca === 'exclusivo' && (
+                                <View style={{ zIndex: 1000 }}> {/* 🔹 prioridade menor, mas ainda acima do resto */}
+                                    {/* ✅ Combo box de seleção de moeda */}
+                                    <DropDownPicker
+                                        open={currencyPickerOpen}
+                                        value={selectedCurrency}
+                                        items={exclusiveCurrencies}
+                                        setOpen={(stateOrCallback) => {
+                                            const newState =
+                                                typeof stateOrCallback === 'function'
+                                                    ? stateOrCallback(currencyPickerOpen)
+                                                    : stateOrCallback;
+                                            console.log('DropdownPicker estado aberto/fechado', newState)
+                                            setCurrencyPickerOpen(newState);
+
+                                            // Se este picker abrir, fecha o picker de licença
+                                            if (newState) {
+                                                console.log('Picker de licença foi fechado')
+                                                setTipoLicencaOpen(false);
+                                            }
+                                        }}
+                                        setValue={(callbackOrValue) => {
+                                            const newValue =
+                                                typeof callbackOrValue === 'function'
+                                                    ? callbackOrValue(selectedCurrency)
+                                                    : callbackOrValue;
+
+                                            if (newValue === 'USD' || newValue === 'EUR') {
+                                                handleCurrencyChange(newValue);
+                                            }
+                                        }}
+                                        placeholder={t('postBeat.selectCurrencyPlaceholder')}
+                                        style={{
+                                            backgroundColor: '#2a2a2a',
+                                            marginBottom: 10,
+                                            borderWidth: 1,
+                                            borderColor: '#555',
+                                        }}
+                                        textStyle={{ color: '#fff' }}
+                                        placeholderStyle={{ color: '#ccc' }}
+                                        dropDownContainerStyle={{
+                                            backgroundColor: '#2a2a2a',
+                                            borderColor: '#fff',
+                                            borderWidth: 1,
+                                            zIndex: 2000,
+                                            elevation: 2000,
+                                        }}
+                                        TickIconComponent={() => (
+                                            <Ionicons name='checkmark' size={20} color={'#fff'} />
+                                        )}
+                                        ArrowDownIconComponent={() => (
+                                            <Ionicons name='chevron-down' size={20} color='#fff' />
+                                        )}
+                                        ArrowUpIconComponent={() => (
+                                            <Ionicons name='chevron-up' size={20} color='#fff' />
+                                        )}
+                                    />
+
+                                    {/* ✅ Campo de preço com símbolo dinâmico */}
+                                    <CurrencyInput
+                                        value={preco}
+                                        onChangeValue={(value) => {
+                                            console.log('💰 [CurrencyInput] onChangeValue valor digitado:', value);
+                                            console.log('💲 [CurrencyInput] Símbolo atual:', currentCurrencySymbol);
+                                            console.log('🪙 [CurrencyInput] Moeda selecionada:', selectedCurrency);
+                                            handlePrecoChange(value)
+                                        }}
+                                        prefix={`${currentCurrencySymbol}`}
+                                        delimiter='.'
+                                        separator=','
+                                        precision={2}
+                                        keyboardType='numeric'
+                                        placeholder={precoPlaceholder}
+                                        style={[
+                                            styles.inputTextBox,
+                                            { borderColor: precoError ? 'red' : '#555' },
+                                        ]}
+                                    />
+                                    {precoError && <Text style={styles.errorText}>{precoError}</Text>}
+                                </View>
+                            )}
+
+                            {/* --- SEÇÃO EXCLUSIVA --- */}
+                            {tipoLicenca === 'exclusivo' && (
+                                <View style={{ zIndex: 1000 }}>
+                                    {/* DropDownPicker e CurrencyInput aqui... */}
+                                    <View style={styles.infoCardExclusive}>
+                                        <View style={styles.infoTitleRow}>
+                                            <Ionicons name="shield-checkmark" size={20} color="#4CAF50" />
+                                            <Text style={styles.infoTitleGreen}>{t('postBeat.exclusiveInfo.title')}</Text>
+                                        </View>
+                                        <Text style={styles.infoBody}>
+                                            {t('postBeat.exclusiveInfo.body')}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* --- SEÇÃO LIVRE --- */}
+                            {tipoLicenca === 'livre' && (
+                                <View style={styles.infoCardFree}>
                                     <View style={styles.infoTitleRow}>
-                                        <Ionicons name="shield-checkmark" size={20} color="#4CAF50" />
-                                        <Text style={styles.infoTitleGreen}>{t('postBeat.exclusiveInfo.title')}</Text>
+                                        <Ionicons name="alert-circle" size={20} color="#FF9800" />
+                                        <Text style={styles.infoTitleOrange}>{t('postBeat.freeInfo.title')}</Text>
                                     </View>
                                     <Text style={styles.infoBody}>
-                                        {t('postBeat.exclusiveInfo.body')}
+                                        {t('postBeat.freeInfo.body')}
                                     </Text>
                                 </View>
-                            </View>
-                        )}
+                            )}
 
-                        {/* --- SEÇÃO LIVRE --- */}
-                        {tipoLicenca === 'livre' && (
-                            <View style={styles.infoCardFree}>
-                                <View style={styles.infoTitleRow}>
-                                    <Ionicons name="alert-circle" size={20} color="#FF9800" />
-                                    <Text style={styles.infoTitleOrange}>{t('postBeat.freeInfo.title')}</Text>
-                                </View>
-                                <Text style={styles.infoBody}>
-                                    {t('postBeat.freeInfo.body')}
-                                </Text>
-                            </View>
-                        )}
-
-                    </View>
+                        </View>
 
 
-                    {/**👇 INÍCIO: NOVO BLOCO DE STATUS BPM
+                        {/**👇 INÍCIO: NOVO BLOCO DE STATUS BPM
                     1. Status de Análise (Loading)
                     */}
-                    {loadingBPM && (
-                        <View style={[styles.bpmStatusContainer, styles.loadingBpmContainer]}>
-                            {/* Usamos ActivityIndicator aqui */}
-                            <ActivityIndicator size="small" color="#fff" />
-                            <Text style={styles.bpmStatusText}>
-                                {t('postBeat.bpmAnalyzing')}
-                            </Text>
-                        </View>
-                    )}
-
-                    {/** // 2. Erro na Análise*/}
-                    {bpmError && !loadingBPM && (
-                        <View style={styles.bpmStatusContainer}>
-                            <Ionicons name="alert-circle" size={20} color="#ff3333" />
-                            <Text style={styles.bpmErrorText}>
-                                {bpmError}
-                            </Text>
-                        </View>
-                    )}
-
-                    {/** 3. BPM Encontrado (Sucesso) */}
-                    {bpm !== null && !loadingBPM && (
-                        <View style={[styles.bpmStatusContainer, styles.successBpmContainer]}>
-                            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                            <Text style={styles.bpmStatusText}>
-                                BPM: {bpm} {t('postBeat.bpmSuccess')}
-                            </Text>
-                        </View>
-                    )}
-                    {/** 👆 FIM: BLOCO DE STATUS BPM*/}
-
-                    {(tipoLicenca === 'exclusivo' || tipoLicenca === 'livre') && (
-                        <View>
-
-                            {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
-                            <TouchableOpacity
-                                style={[
-                                    styles.selectFileButton,
-                                    beatFile && styles.uploadAreaSelected // Muda a cor se houver ficheiro
-                                ]}
-                                onPress={pickBeatFileAndAnalyze}
-                            >
-                                {beatFile && (
-                                    <Text style={styles.fileSizeText}>
-                                        {/* Usamos o operador ?. para evitar erro e verificamos se size existe */}
-                                        {beatFile.size
-                                            ? (beatFile.size / (1024 * 1024)).toFixed(2)
-                                            : "0.00"} MB
-                                    </Text>
-                                )}
-
-                                <Ionicons
-                                    name={beatFile ? "document-text" : "musical-notes"}
-                                    size={22}
-                                    color={beatFile ? "#fff" : "#888"}
-                                />
-                                <Text
-                                    numberOfLines={1}
-                                    ellipsizeMode='tail'
-                                    style={styles.uploadText}
-                                >
-                                    {beatFile ? beatFile.name : t('postBeat.selectFileButton')}
+                        {loadingBPM && (
+                            <View style={[styles.bpmStatusContainer, styles.loadingBpmContainer]}>
+                                {/* Usamos ActivityIndicator aqui */}
+                                <ActivityIndicator size="small" color="#fff" />
+                                <Text style={styles.bpmStatusText}>
+                                    {t('postBeat.bpmAnalyzing')}
                                 </Text>
+                            </View>
+                        )}
 
-                            </TouchableOpacity>
+                        {/** // 2. Erro na Análise*/}
+                        {bpmError && !loadingBPM && (
+                            <View style={styles.bpmStatusContainer}>
+                                <Ionicons name="alert-circle" size={20} color="#ff3333" />
+                                <Text style={styles.bpmErrorText}>
+                                    {bpmError}
+                                </Text>
+                            </View>
+                        )}
 
-                            {/* 2. BOTÃO DE ENVIAR (SUBMIT) */}
-                            {/* Condição: Tem de ter o ficheiro E não pode estar a carregar o BPM E o BPM tem de estar definido (ou erro de BPM tratado) */}
-                            {beatFile && !loadingBPM && bpm !== null && (
+                        {/** 3. BPM Encontrado (Sucesso) */}
+                        {bpm !== null && !loadingBPM && (
+                            <View style={[styles.bpmStatusContainer, styles.successBpmContainer]}>
+                                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                                <Text style={styles.bpmStatusText}>
+                                    BPM: {bpm} {t('postBeat.bpmSuccess')}
+                                </Text>
+                            </View>
+                        )}
+                        {/** 👆 FIM: BLOCO DE STATUS BPM*/}
+
+                        {(tipoLicenca === 'exclusivo' || tipoLicenca === 'livre') && (
+                            <View>
+
+                                {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
                                 <TouchableOpacity
-                                    onPress={handleSubmitBeatWithModal}
-                                    disabled={uploadLoading}
-                                    style={[styles.publishButton, { marginTop: 12 }]}
+                                    // 🔹 Desativamos o botão se loadingBPM for true
+                                    disabled={loadingBPM}
+                                    style={[
+                                        styles.selectFileButton,
+                                        beatFile && styles.uploadAreaSelected, // Muda a cor se houver ficheiro
+                                        // 🔹 Estilo opcional para parecer "apagado" quando desativado
+                                        loadingBPM && { opacity: 0.6 }
+                                    ]}
+                                    onPress={pickBeatFileAndAnalyze}
                                 >
-                                    {uploadLoading ? (
-                                        <ActivityIndicator color="#fff" />
-                                    ) : (
-                                        <>
-                                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
-                                                {t('postBeat.publishButton')}
-                                            </Text>
-                                            <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginLeft: 8 }} />
-                                        </>
+                                    {beatFile && (
+                                        <Text style={styles.fileSizeText}>
+                                            {/* Usamos o operador ?. para evitar erro e verificamos se size existe */}
+                                            {beatFile.size
+                                                ? (beatFile.size / (1024 * 1024)).toFixed(2)
+                                                : "0.00"} MB
+                                        </Text>
                                     )}
+
+                                    <Ionicons
+                                        name={beatFile ? "document-text" : "musical-notes"}
+                                        size={22}
+                                        color={beatFile ? "#fff" : "#888"}
+                                    />
+                                    <Text
+                                        numberOfLines={1}
+                                        ellipsizeMode='tail'
+                                        style={styles.uploadText}
+                                    >
+                                        {beatFile ? beatFile.name : t('postBeat.selectFileButton')}
+                                    </Text>
+
                                 </TouchableOpacity>
-                            )}
-                        </View>
-                    )}
-                    <View style={{ height: 50 }} />
+
+                                {/* 2. BOTÃO DE ENVIAR (SUBMIT) */}
+                                {/* Condição: Tem de ter o ficheiro E não pode estar a carregar o BPM E o BPM tem de estar definido (ou erro de BPM tratado) */}
+                                {beatFile && !loadingBPM && bpm !== null && (
+                                    <TouchableOpacity
+                                        onPress={handleSubmitBeatWithModal}
+                                        disabled={uploadLoading}
+                                        style={[styles.publishButton, { marginTop: 12 }]}
+                                    >
+                                        {uploadLoading ? (
+                                            <ActivityIndicator color="#fff" />
+                                        ) : (
+                                            <>
+                                                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                                                    {t('postBeat.publishButton')}
+                                                </Text>
+                                                <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginLeft: 8 }} />
+                                            </>
+                                        )}
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        )}
+                    </KeyboardAvoidingView>
+                    <View style={{ height: 80 }} />
                 </ScrollView>
 
                 <UploadModal
