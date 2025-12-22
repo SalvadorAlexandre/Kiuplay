@@ -303,8 +303,14 @@
       "free": "Free use"
     },
     "pricePlaceholder": "Enter the price",
-    "exclusiveInfo": "🟢 Kiuplay values exclusivity! If you’re posting a beat for sale here, it cannot be available on other platforms or for other buyers. This protects your rights and builds trust with our artists.",
-    "freeInfo": "🔴 This beat will be available for non-exclusive use. Other artists may download and use it for free.",
+    "exclusiveInfo": {
+      "title": "We Value Exclusivity!",
+      "body": "If you are posting a beat to sell here, it cannot be available on other platforms or with other buyers. This protects your rights and the trust of our artists."
+    },
+    "freeInfo": {
+      "title": "Non-Exclusive Use",
+      "body": "This beat will be made available for free. Other artists can acquire it at no cost and use it freely."
+    },
     "selectFileButton": "Select file",
     "uploadingFileLabel": "Upload: {{fileName}}",
     "publishButton": "Publish beat",
@@ -312,7 +318,9 @@
     "errors": {
       "onlyNumbers": "⚠️ Only numbers are allowed",
       "minValue": "⚠️ The minimum allowed value is",
-      "maxValue": "⚠️ The maximum allowed value is"
+      "maxValue": "⚠️ The maximum allowed value is",
+      "missingFields": "Please fill in all required fields (Producer, Title, Cover and Genre).",
+      "uploadFailed": "Failed to upload Beat. Check your connection."
     },
     "currency": {
       "global": "Global",
@@ -324,6 +332,13 @@
       "AOA": "Angolan Kwanza",
       "BRL": "Brazilian Real",
       "MZN": "Mozambican Metical"
+    },
+    "preparing": "Preparing Beat files...",
+    "uploading": "Uploading your Beat...",
+    "processing": "Processing audio and licenses...",
+    "uploadSuccess": "Your Beat has been published successfully!",
+    "bpmError": {
+      "generic": "Please enter a valid BPM."
     }
   },
   "promoteScreen": {

@@ -95,7 +95,6 @@ export const usePostBeat = () => {
     return await response.blob();
   };
 
-
   // -------------------------------
   // Função de seleção de beat e análise de BPM com Aubio Web
   const pickBeatFileAndAnalyze = async () => {
@@ -253,7 +252,7 @@ export const usePostBeat = () => {
   const pickBeatFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({
       type: 'audio/*',
-      copyToCacheDirectory: true, // 🔴 MUITO IMPORTANTE
+      copyToCacheDirectory: true,
     });
 
     if (result.canceled || !result.assets || result.assets.length === 0) return;
@@ -372,7 +371,7 @@ export const usePostBeat = () => {
     }
   };
 
-  // 🔁 Atualiza tipos de licença conforme idioma
+  // 🔁 Atualiza tipos de licença
   useEffect(() => {
     setTipoLicencaItems([
       { label: t('postBeat.licenseTypes.exclusive'), value: 'exclusivo' },

@@ -303,8 +303,14 @@
             "free": "Uso Livre"
         },
         "pricePlaceholder": "Digite o preço",
-        "exclusiveInfo": "🟢 O Kiuplay valoriza a exclusividade! Se você está postando um beat para vender aqui, ele não pode estar disponível em outras plataformas ou com outros compradores. Isso protege seus direitos e a confiança dos nossos artistas.",
-        "freeInfo": "🔴 Este beat será disponibilizado para uso não exclusivo. Outros artistas poderão adquiri-lo sem custos e utilizá-lo.",
+        "exclusiveInfo": {
+            "title": "Valorizamos a Exclusividade!",
+            "body": "Se você está postando um beat para vender aqui, ele não pode estar disponível em outras plataformas ou com outros compradores. Isso protege seus direitos e a confiança dos nossos artistas."
+        },
+        "freeInfo": {
+            "title": "Uso Não Exclusivo",
+            "body": "Este beat será disponibilizado gratuitamente. Outros artistas poderão adquiri-lo sem custos e utilizá-lo livremente."
+        },
         "selectFileButton": "Selecionar arquivo",
         "uploadingFileLabel": "Upload: {{fileName}}",
         "publishButton": "Publicar beat",
@@ -312,7 +318,9 @@
         "errors": {
             "onlyNumbers": "⚠️ Somente números são permitidos",
             "minValue": "⚠️ O valor mínimo permitido é",
-            "maxValue": "⚠️ O valor máximo permitido é"
+            "maxValue": "⚠️ O valor máximo permitido é",
+            "missingFields": "Preencha todos os campos obrigatórios (Produtor, Título, Capa e Género).",
+            "uploadFailed": "Falha ao fazer upload do Beat. Verifica a ligação."
         },
         "currency": {
             "global": "Global",
@@ -324,6 +332,13 @@
             "AOA": "Kwanza Angolano",
             "BRL": "Real Brasileiro",
             "MZN": "Metical Moçambicano"
+        },
+        "preparing": "Preparando arquivos do Beat...",
+        "uploading": "A carregar o teu Beat...",
+        "processing": "A processar áudio e licenças...",
+        "uploadSuccess": "O teu Beat foi publicado com sucesso!",
+        "bpmError": {
+            "generic": "Por favor, insere um BPM válido."
         }
     },
     "promoteScreen": {

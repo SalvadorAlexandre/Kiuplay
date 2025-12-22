@@ -112,7 +112,7 @@ export default function PostBeatScreen() {
                         justifyContent: 'center',
                         //backgroundColor: '#fff'
                     }}>
-                        {/*Quadro onde a capa é carregada a capa do album* ------------------------------------------------------------------------------*/}
+                        {/*Quadro onde a capa é carregada a capa do album* ---------------------------*/}
                         <TouchableOpacity
                             style={{
                                 width: 150,           // Largura do quadrado
@@ -183,7 +183,6 @@ export default function PostBeatScreen() {
                                     typeof stateOrCallback === 'function'
                                         ? stateOrCallback(tipoLicencaOpen)
                                         : stateOrCallback;
-
                                 setTipoLicencaOpen(newState);
 
                                 // Se este picker abrir, fecha o picker de moeda
@@ -304,19 +303,40 @@ export default function PostBeatScreen() {
                                     ]}
                                 />
                                 {precoError && <Text style={styles.errorText}>{precoError}</Text>}
+                            </View>
+                        )}
 
-                                <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>
-                                    {t('postBeat.exclusiveInfo')}
+                        {/* --- SEÇÃO EXCLUSIVA --- */}
+                        {tipoLicenca === 'exclusivo' && (
+                            <View style={{ zIndex: 1000 }}>
+                                {/* DropDownPicker e CurrencyInput aqui... */}
+                                <View style={styles.infoCardExclusive}>
+                                    <View style={styles.infoTitleRow}>
+                                        <Ionicons name="shield-checkmark" size={20} color="#4CAF50" />
+                                        <Text style={styles.infoTitleGreen}>{t('postBeat.exclusiveInfo.title')}</Text>
+                                    </View>
+                                    <Text style={styles.infoBody}>
+                                        {t('postBeat.exclusiveInfo.body')}
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
+
+                        {/* --- SEÇÃO LIVRE --- */}
+                        {tipoLicenca === 'livre' && (
+                            <View style={styles.infoCardFree}>
+                                <View style={styles.infoTitleRow}>
+                                    <Ionicons name="alert-circle" size={20} color="#FF9800" />
+                                    <Text style={styles.infoTitleOrange}>{t('postBeat.freeInfo.title')}</Text>
+                                </View>
+                                <Text style={styles.infoBody}>
+                                    {t('postBeat.freeInfo.body')}
                                 </Text>
                             </View>
                         )}
 
-                        {tipoLicenca === 'livre' && (
-                            <Text style={{ color: '#aaa', fontSize: 15, marginBottom: 10 }}>
-                                {t('postBeat.freeInfo')}
-                            </Text>
-                        )}
                     </View>
+
 
                     {/**👇 INÍCIO: NOVO BLOCO DE STATUS BPM
                     1. Status de Análise (Loading)
@@ -372,14 +392,11 @@ export default function PostBeatScreen() {
                                     </Text>
                                 )}
 
-
-
                                 <Ionicons
                                     name={beatFile ? "document-text" : "musical-notes"}
                                     size={22}
                                     color={beatFile ? "#fff" : "#888"}
                                 />
-
                                 <Text
                                     numberOfLines={1}
                                     ellipsizeMode='tail'
@@ -609,6 +626,48 @@ const styles = StyleSheet.create({
         color: '#888',
         fontSize: 12,
         marginTop: 5,
+    },
+
+
+    infoCardExclusive: {
+        backgroundColor: 'rgba(76, 175, 80, 0.1)', // Verde suave atrás
+        padding: 15,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(76, 175, 80, 0.3)',
+        //marginTop: 15,
+        marginBottom: 10,
+    },
+    infoCardFree: {
+        backgroundColor: 'rgba(255, 152, 0, 0.1)', // Laranja suave atrás
+        padding: 15,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 152, 0, 0.3)',
+        //marginTop: 5,
+        marginBottom: 10,
+    },
+    infoTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    infoTitleGreen: {
+        color: '#4CAF50',
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    infoTitleOrange: {
+        color: '#FF9800',
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    infoBody: {
+        color: '#ccc',
+        fontSize: 16,
+        lineHeight: 20,
     },
 
 })
