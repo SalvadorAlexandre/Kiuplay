@@ -1,4 +1,4 @@
-// app/profileScreens/postAlbumScreen.tsx (ou o nome que preferires)
+// app/profileScreens/postAlbumScreen.tsx
 import React, { useState } from 'react';
 import { Checkbox } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -21,7 +21,6 @@ import { StatusAlbumEpModal } from '@/components/uploadAlbumEpModal';
 import { useTranslation } from '@/src/translations/useTranslation'
 import { useAppSelector, } from '@/src/redux/hooks';
 import { selectUserCurrencyCode, selectUserAccountRegion, } from '@/src/redux/userSessionAndCurrencySlice';
-
 
 /**
  * Componente responsável por renderizar a interface de
@@ -178,7 +177,7 @@ export default function PostAlbumScreen() {
                             {/* TEXTO DE DATA PENDENTE */}
                             {albumData.createdAt && (
                                 <Text style={styles.pendingText}>
-                                    {t('postAlbum.pendingSince') || 'Pendente desde'}: {formatDate(albumData.createdAt)}
+                                    {t('postAlbum.pendingSince')}: {formatDate(albumData.createdAt)}
                                 </Text>
                             )}
 
@@ -190,7 +189,8 @@ export default function PostAlbumScreen() {
                                     disabled={isSavingDraft}
                                 >
                                     <Ionicons name="trash-outline" size={18} color="#FF5252" />
-                                    <Text style={styles.btnAbortTextSmall}>Apagar</Text>
+
+                                    <Text style={styles.btnAbortTextSmall}>{t('postAlbum.delete')}</Text>
                                 </TouchableOpacity>
 
                                 {/* BOTÃO CONFIRMAR (Finalizar Álbum) */}
@@ -208,7 +208,7 @@ export default function PostAlbumScreen() {
                                         color={postedFaixa >= (numFaixas || 0) ? "#000" : "#666"}
                                     />
                                     <Text style={[styles.btnConfirmText, { color: postedFaixa >= (numFaixas || 0) ? "#000" : "#666" }]}>
-                                        Finalizar
+                                        {t('postAlbum.finalize')}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -450,8 +450,9 @@ export default function PostAlbumScreen() {
                                         <Ionicons name="list-outline" size={20} color="#fff" />
                                         <Text style={styles.btnViewTracksText}>
                                             {postedFaixa > 0
-                                                ? `Ver músicas enviadas (${postedFaixa})`
-                                                : "Nenhuma música enviada ainda"}
+                                                ? t('postAlbum.viewTracks.withCount', { count: postedFaixa })
+                                                : t('postAlbum.viewTracks.none')
+                                            }
                                         </Text>
                                         <Ionicons name="chevron-forward" size={18} color="#666" />
                                     </TouchableOpacity>
@@ -491,18 +492,17 @@ export default function PostAlbumScreen() {
                                 <TouchableOpacity
                                     style={styles.btnConfirmUpload}
                                     onPress={handleAddTrack}
-                                    disabled={isSavingDraft || !titleFaixa}
+                                    //disabled={isSavingDraft || !titleFaixa}
                                 >
                                     <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
                                     <Text style={styles.btnConfirmUploadText}>
-                                        {t('postAlbum.confirmAndUpload') || "Confirmar e Enviar Faixa"}
+                                        {t('postAlbum.confirmAndUpload')}
                                     </Text>
                                 </TouchableOpacity>
                             )}
                         </View>
                     </KeyboardAvoidingView>
-                    <View style={{ height: 40 }} />
-
+                    <View style={{ height: 50 }} />
                 </ScrollView>
 
                 {/* O MODAL ÚNICO QUE GERE TUDO (Carregamento, Erro, Sucesso e Abortar) */}
@@ -758,7 +758,7 @@ export const styles = StyleSheet.create({
         color: '#FFF',
         flex: 1, // Empurra o ícone chevron para a direita
         marginLeft: 10,
-        fontSize: 14,
-        fontWeight: '500',
+        fontSize: 15,
+        //fontWeight: '500',
     },
 });         

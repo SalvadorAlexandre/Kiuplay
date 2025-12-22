@@ -191,7 +191,7 @@
             "pickerError": "Erro ao abrir o seletor de ficheiros.",
             "missingMainFields": "Por favor, preencha a capa, título, género e o número de faixas.",
             "saveDraftError": "Erro ao salvar rascunho do EP.",
-            "missingTrackData": "Preencha os dados da faixa e selecione o áudio.",
+            "missingTrackData": "Preencha os dados da faixa.",
             "uploadTrackError": "Erro ao enviar faixa.",
             "finalizeError": "Erro ao finalizar a publicação.",
             "deleteDraftError": "Erro ao eliminar o rascunho."
@@ -199,7 +199,8 @@
         "loading": {
             "creatingDraft": "A criar rascunho do EP...",
             "finalizing": "A finalizar e publicar o teu EP...",
-            "deleting": "A eliminar rascunho e ficheiros..."
+            "deleting": "A eliminar rascunho e ficheiros...",
+            "uploadingTrack": "A enviar: {{title}}"
         },
         "success": {
             "draftCreated": "Rascunho criado com sucesso! Agora adicione as músicas.",
@@ -251,7 +252,41 @@
         "producerPlaceholder": "Produzido por",
         "trackYearPlaceholder": "Ano de lançamento",
         "trackNumberPlaceholder": "Número da faixa",
-        "uploadAudioButton": "Carregar áudio"
+        "uploadAudioButton": "Carregar áudio",
+        "pendingSince": "Pendente desde",
+        "delete": "Apagar",
+        "finalize": "Finalizar",
+        "confirmAndUpload": "Confirmar e Enviar Faixa",
+        "selectAudio": "Selecionar áudio da faixa",
+        "viewTracks": {
+            "none": "Nenhuma música enviada ainda",
+            "withCount": "Ver músicas enviadas ({{count}})"
+        },
+        "errors": {
+            "pickerError": "Erro ao abrir o seletor de ficheiros.",
+            "missingMainFields": "Por favor, preencha a capa, título.",
+            "saveDraftError": "Erro ao salvar rascunho do álbum.",
+            "missingTrackData": "Preencha os dados da faixa e selecione o áudio.",
+            "uploadTrackError": "Erro ao enviar faixa.",
+            "finalizeError": "Erro ao finalizar a publicação.",
+            "deleteDraftError": "Erro ao eliminar o rascunho do álbum."
+        },
+        "loading": {
+            "creatingDraft": "A criar rascunho do álbum...",
+            "uploadingTrack": "A enviar: {{title}}",
+            "finalizing": "A finalizar e publicar o teu álbum...",
+            "deleting": "A eliminar rascunho e ficheiros do álbum..."
+        },
+        "success": {
+            "draftCreated": "Rascunho criado com sucesso! Agora adicione as músicas.",
+            "allTracksUploaded": "Todas as faixas foram enviadas com sucesso! Podes agora finalizar o álbum.",
+            "trackProgress": "Faixa {{current}} de {{total}} enviada!",
+            "published": "Álbum publicado com sucesso! O teu rascunho foi convertido em lançamento oficial.",
+            "deleted": "Rascunho de álbum eliminado com sucesso."
+        },
+        "confirm": {
+            "abort": "Desejas apagar este rascunho de álbum e todos os ficheiros?"
+        }
     },
     "postBeat": {
         "headerTitle": "Postar Beat",
@@ -503,6 +538,7 @@
         "btnRetry": "Tentar Novamente"
     },
     "draftTracksList": {
+        "defaultTitle": "Extended Play",
         "noTitle": "Sem título",
         "noGenre": "Género não definido",
         "sectionTitle": "Faixas enviadas ({{count}})",
@@ -510,5 +546,19 @@
         "emptyText": "As músicas que carregares no rascunho aparecerão listadas aqui.",
         "btnBack": "Voltar para Upload",
         "errorFetch": "Erro ao carregar faixas:"
+    },
+    "commonModals": {
+        "yesDelete": "Sim, Apagar",
+        "no": "Não",
+        "ok": "Ok"
+    },
+    "draftAlbumTracksList": {
+        "defaultTitle": "Álbum",
+        "noTitle": "Sem título",
+        "noGenre": "Género não definido",
+        "sectionTitle": "Faixas enviadas ({{count}})",
+        "emptyTitle": "Nenhuma faixa enviada ainda",
+        "emptyText": "As músicas que carregares no rascunho do álbum aparecerão listadas aqui.",
+        "btnBack": "Voltar para Upload"
     }
 }

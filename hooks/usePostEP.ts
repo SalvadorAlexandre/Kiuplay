@@ -243,43 +243,41 @@ const usePostExtendedPlay = () => {
 
   // --- LOGICA DE COMUNICAÇÃO COM API (FAIXAS) ---
   const handleAddTrack = async () => {
-    // 1. Validação inicial
-    if (!epData?.id || !audioFaixa || !titleFaixa) {
+    // 1. Validação inicial robusta
+    // Verifica se o ID do EP existe, se há áudio, título E género da faixa
+    if (!epData?.id || !audioFaixa || !titleFaixa.trim() || !genreFaixa) {
       showModal('error', t('postEP.errors.missingTrackData'));
       return;
     }
 
-    // 2. Iniciar Feedback Visual
-    showModal('loading', `A enviar: ${titleFaixa}`, 1);   ///FALTOU ESTA
+    // 2. Iniciar Feedback Visual com tradução dinâmica
+    showModal('loading', t('postEP.loading.uploadingTrack', { title: titleFaixa }));
     setIsSavingDraft(true);
 
     try {
       const formData = new FormData();
-      formData.append('title', titleFaixa);
+      formData.append('title', titleFaixa.trim());
       formData.append('genre', genreFaixa || generoPrincipal);
-      formData.append('producer', producerFaixa);
+      formData.append('producer', producerFaixa || '');
 
-      // O teu backend espera 'feat' como uma string JSON
+      // Backend espera 'feat' como string JSON
       formData.append('feat', JSON.stringify(participantNames));
 
-      // 3. LÓGICA DE TRATAMENTO DE BINÁRIO (IGUAL À CAPA)
-      // Usamos o audioUri (do useMemo) que garante o prefixo file://
+      // 3. Tratamento de Binário (Mobile/Web)
       if (audioUri?.startsWith('data:') || audioUri?.startsWith('blob:')) {
-        // Caso estejas a testar em Web
         const blob = await uriToBlob(audioUri);
         formData.append('audioFile', blob, audioFaixa.name || 'track.mp3');
       } else {
-        // Caso Mobile (Android/iOS) - Configuração ideal para o Multer
         formData.append('audioFile', {
-          uri: audioUri, // URI normalizada
+          uri: audioUri,
           name: audioFaixa.name || 'track.mp3',
-          type: audioFaixa.type || 'audio/mpeg', // 'type' é a chave que o Multer procura
+          type: audioFaixa.type || 'audio/mpeg',
         } as any);
       }
 
-      // 4. Chamada à API com monitorização de progresso
+      // 4. Chamada à API com monitorização
       const response = await addTrackToEP(epData.id, formData, (progress) => {
-        setUploadProgress(progress); // Atualiza a % no teu UploadAlbumEpModal
+        setUploadProgress(progress);
       });
 
       // 5. Tratamento de Sucesso
@@ -306,6 +304,7 @@ const usePostExtendedPlay = () => {
       }
     } catch (error: any) {
       console.error("Erro no upload da faixa:", error);
+      // Inverti para priorizar a sua tradução conforme resolvemos antes
       const errorMsg = t('postEP.errors.uploadTrackError') || error.response?.data?.error;
       showModal('error', errorMsg);
     } finally {

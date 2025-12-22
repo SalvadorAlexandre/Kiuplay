@@ -6,8 +6,12 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 // Importamos a função específica para Álbuns que criámos no Hook
 import { getPendingAlbum } from '@/src/api/uploadContentApi';
+import { useTranslation } from '@/src/translations/useTranslation'
 
 export default function DraftAlbumTracksList() {
+
+const { t } = useTranslation()
+
     // Recebemos albumId em vez de epId
     const { albumId, title } = useLocalSearchParams();
     const router = useRouter();
@@ -46,11 +50,11 @@ export default function DraftAlbumTracksList() {
 
                 <View style={styles.trackInfo}>
                     <Text style={styles.trackTitle} numberOfLines={1}>
-                        {trackData?.title || "Sem título"}
+                        {trackData?.title || t('draftAlbumTracksList.noTitle')}
                     </Text>
 
                     <Text style={styles.trackSubtitle} numberOfLines={1}>
-                        {trackData?.genre || 'Género não definido'}
+                        {trackData?.genre || t('draftAlbumTracksList.noGenre')}
                         {trackData?.feat && trackData.feat.length > 0
                             ? ` • feat. ${trackData.feat.join(', ')}`
                             : ''}
@@ -65,7 +69,7 @@ export default function DraftAlbumTracksList() {
         <>
             <Stack.Screen
                 options={{
-                    title: (title as string) || 'Álbum', // Título dinâmico
+                    title: (title as string) || t('draftAlbumTracksList.defaultTitle'), // Título dinâmico
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     headerShown: true,
@@ -79,7 +83,7 @@ export default function DraftAlbumTracksList() {
                     </View>
                 ) : tracks.length > 0 ? (
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.sectionTitle}>Faixas enviadas ({tracks.length})</Text>
+                        <Text style={styles.sectionTitle}>{t('draftAlbumTracksList.sectionTitle', { count: tracks.length })}</Text>
                         <FlatList
                             data={tracks}
                             keyExtractor={(item, index) => item?.trackId?.toString() || index.toString()}
@@ -92,15 +96,15 @@ export default function DraftAlbumTracksList() {
                     /* ESTADO VAZIO */
                     <View style={styles.center}>
                         <Ionicons name="musical-notes" size={90} color="#333" />
-                        <Text style={styles.emptyTitle}>Nenhuma faixa enviada ainda</Text>
+                        <Text style={styles.emptyTitle}>{t('draftAlbumTracksList.emptyTitle')}</Text>
                         <Text style={styles.emptyText}>
-                            As músicas que carregares no rascunho do álbum aparecerão listadas aqui.
+                             {t('draftAlbumTracksList.emptyText')}
                         </Text>
                         <TouchableOpacity
                             style={styles.btnVoltar}
                             onPress={() => router.back()}
                         >
-                            <Text style={styles.btnVoltarText}>Voltar para Upload</Text>
+                            <Text style={styles.btnVoltarText}>{t('draftAlbumTracksList.btnBack')}</Text>
                         </TouchableOpacity>
                     </View>
                 )}

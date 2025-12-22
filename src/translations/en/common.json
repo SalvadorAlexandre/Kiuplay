@@ -191,7 +191,7 @@
       "pickerError": "Error opening file picker.",
       "missingMainFields": "Please fill in the cover, title, genre, and number of tracks.",
       "saveDraftError": "Error saving EP draft.",
-      "missingTrackData": "Fill in the track details and select the audio.",
+      "missingTrackData": "Fill in the track details.",
       "uploadTrackError": "Error uploading track.",
       "finalizeError": "Error finalizing the publication.",
       "deleteDraftError": "Error deleting the draft."
@@ -199,7 +199,8 @@
     "loading": {
       "creatingDraft": "Creating EP draft...",
       "finalizing": "Finalizing and publishing your EP...",
-      "deleting": "Deleting draft and files..."
+      "deleting": "Deleting draft and files...",
+      "uploadingTrack": "Uploading: {{title}}"
     },
     "success": {
       "draftCreated": "Draft created successfully! Now add the tracks.",
@@ -251,7 +252,41 @@
     "producerPlaceholder": "Produced by",
     "trackYearPlaceholder": "Release Year",
     "trackNumberPlaceholder": "Track Number",
-    "uploadAudioButton": "Upload Audio"
+    "uploadAudioButton": "Upload Audio",
+    "pendingSince": "Pending since",
+    "delete": "Delete",
+    "finalize": "Finalize",
+    "confirmAndUpload": "Confirm and Upload Track",
+    "selectAudio": "Select track audio",
+    "viewTracks": {
+      "none": "No tracks uploaded yet",
+      "withCount": "View uploaded tracks ({{count}})"
+    },
+    "errors": {
+      "pickerError": "Error opening file picker.",
+      "missingMainFields": "Please fill in the cover, title, genre, and number of tracks.",
+      "saveDraftError": "Error saving album draft.",
+      "missingTrackData": "Fill in the track details.",
+      "uploadTrackError": "Error uploading track.",
+      "finalizeError": "Error finalizing the publication.",
+      "deleteDraftError": "Error deleting the album draft."
+    },
+    "loading": {
+      "creatingDraft": "Creating album draft...",
+      "uploadingTrack": "Uploading: {{title}}",
+      "finalizing": "Finalizing and publishing your album...",
+      "deleting": "Deleting album draft and files..."
+    },
+    "success": {
+      "draftCreated": "Draft created successfully! Now add the tracks.",
+      "allTracksUploaded": "All tracks uploaded successfully! You can now finalize the album.",
+      "trackProgress": "Track {{current}} of {{total}} uploaded!",
+      "published": "Album published successfully! Your draft has been converted to an official release.",
+      "deleted": "Album draft deleted successfully."
+    },
+    "confirm": {
+      "abort": "Do you want to delete this album draft and all files?"
+    }
   },
   "postBeat": {
     "headerTitle": "Post Beat",
@@ -502,6 +537,7 @@
     "btnRetry": "Try Again"
   },
   "draftTracksList": {
+    "defaultTitle": "Extended Play",
     "noTitle": "No title",
     "noGenre": "Genre not defined",
     "sectionTitle": "Uploaded tracks ({{count}})",
@@ -509,5 +545,19 @@
     "emptyText": "The songs you upload to the draft will appear listed here.",
     "btnBack": "Back to Upload",
     "errorFetch": "Error loading tracks:"
+  },
+  "commonModals": {
+    "yesDelete": "Yes",
+    "no": "No",
+    "ok": "Ok"
+  },
+  "draftAlbumTracksList": {
+    "defaultTitle": "Album",
+    "noTitle": "No title",
+    "noGenre": "Genre not defined",
+    "sectionTitle": "Uploaded tracks ({{count}})",
+    "emptyTitle": "No tracks uploaded yet",
+    "emptyText": "The songs you upload to the album draft will appear listed here.",
+    "btnBack": "Back to Upload"
   }
 }

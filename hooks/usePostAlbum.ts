@@ -146,7 +146,7 @@ const usePostAlbum = () => {
       }
     } catch (err) {
       console.error("Erro ao selecionar áudio:", err);
-      showModal('error', "Erro ao abrir o seletor de ficheiros.");
+      showModal('error', t('postAlbum.errors.pickerError'));
     }
   };
 
@@ -178,11 +178,11 @@ const usePostAlbum = () => {
   const saveAlbumDraft = async () => {
     // Verificamos as variáveis do álbum
     if (!capaAlbum || !tituloAlbum || !generoPrincipal || !numFaixas) {
-      showModal('error', "Por favor, preencha a capa, título, género e o número de faixas.");
+      showModal('error', t('postAlbum.errors.missingMainFields'));
       return;
     }
 
-    showModal('loading', "A criar rascunho do álbum...");
+    showModal('loading', t('postAlbum.loading.creatingDraft'));
     setIsSavingDraft(true);
     try {
       const formData = new FormData();
@@ -204,11 +204,11 @@ const usePostAlbum = () => {
 
       // Chama a rota específica de álbum
       const response = await startAlbumDraft(formData);
-      showModal('success', "Rascunho criado com sucesso! Agora adicione as músicas.");
+      showModal('success', t('postAlbum.success.draftCreated'));
 
       setAlbumData(response.album); // Guardamos os dados do álbum (que contém o ID)
     } catch (error: any) {
-      showModal('error', error.response?.data?.error || "Erro ao salvar rascunho do álbum.");
+      showModal('error', t('postAlbum.errors.saveDraftError') || error.response?.data?.error);
     } finally {
       setIsSavingDraft(false);
     }
@@ -243,7 +243,6 @@ const usePostAlbum = () => {
         console.log("Sem rascunho de álbum pendente.");
       }
     };
-
     checkAlbumDraft();
   }, []);
 
@@ -252,12 +251,12 @@ const usePostAlbum = () => {
   const handleAddTrack = async () => {
     // 1. Validação inicial usando albumData
     if (!albumData?.id || !audioFaixa || !titleFaixa) {
-      showModal('error', "Preencha os dados da faixa e selecione o áudio.");
+      showModal('error', t('postAlbum.errors.missingTrackData'));
       return;
     }
 
     // 2. Iniciar Feedback Visual
-    showModal('loading', `A enviar: ${titleFaixa}`, 1);
+    showModal('loading', t('postAlbum.loading.uploadingTrack', { title: titleFaixa }), 1);
     setIsSavingDraft(true);
 
     try {
@@ -301,14 +300,17 @@ const usePostAlbum = () => {
 
         // Verificar se o Álbum está completo
         if (novoTotalPosted >= (numFaixas || 0)) {
-          showModal('success', "Todas as faixas foram enviadas com sucesso! Podes agora finalizar o álbum.");
+          showModal('success', t('postAlbum.success.allTracksUploaded'));
         } else {
-          showModal('success', `Faixa ${novoTotalPosted} de ${numFaixas} enviada!`);
+          showModal('success', t('postAlbum.success.trackProgress', {
+            current: novoTotalPosted,
+            total: numFaixas
+          }));
         }
       }
     } catch (error: any) {
       console.error("Erro no upload da faixa do álbum:", error);
-      const errorMsg = error.response?.data?.error || "Erro ao enviar faixa.";
+      const errorMsg = t('postAlbum.errors.uploadTrackError') || error.response?.data?.error;
       showModal('error', errorMsg);
     } finally {
       setIsSavingDraft(false);
@@ -321,7 +323,7 @@ const usePostAlbum = () => {
     if (!albumData?.id) return;
 
     // 1. Abrir modal em estado de carregamento
-    showModal('loading', "A finalizar e publicar o teu álbum...");
+    showModal('loading', t('postAlbum.loading.finalizing'));
     setIsSavingDraft(true);
 
     try {
@@ -329,7 +331,7 @@ const usePostAlbum = () => {
 
       if (response.success) {
         // 2. Mostrar sucesso no modal
-        showModal('success', "Álbum publicado com sucesso! O teu rascunho foi convertido em lançamento oficial.");
+        showModal('success', t('postAlbum.success.published'));
 
         // 3. LIMPAR TODOS OS ESTADOS (O "Reset" completo)
         setAlbumData(null);
@@ -347,7 +349,7 @@ const usePostAlbum = () => {
       }
     } catch (error: any) {
       console.error(error);
-      showModal('error', error.response?.data?.error || "Erro ao finalizar a publicação.");
+      showModal('error', t('postAlbum.errors.finalizeError') || error.response?.data?.error );
     } finally {
       setIsSavingDraft(false);
     }
@@ -356,14 +358,14 @@ const usePostAlbum = () => {
   // 1. Apenas abre o modal de confirmação para o Álbum
   const triggerAbortAlbum = () => {
     if (!albumData?.id) return;
-    showModal('confirm', t('postAlbum.abortMessage') || "Desejas apagar este rascunho de álbum e todos os ficheiros?");
+    showModal('confirm',  t('postAlbum.confirm.abort'));
   };
 
   // 2. A função que realmente apaga (chamada pelo onConfirm do Modal no contexto do Álbum)
   const executeAbortAlbum = async () => {
     if (!albumData?.id) return;
 
-    showModal('loading', "A eliminar rascunho e ficheiros do álbum...");
+    showModal('loading', t('postAlbum.loading.deleting'));
     try {
       await abortAlbum(albumData.id); // Chamada à API de Álbum
 
@@ -378,9 +380,9 @@ const usePostAlbum = () => {
       setAudioFaixa(null);
       setParticipantNames([]);
 
-      showModal('success', "Rascunho de álbum eliminado com sucesso.");
+      showModal('success', t('postAlbum.success.deleted'));
     } catch (error) {
-      showModal('error', "Erro ao eliminar o rascunho do álbum.");
+      showModal('error', t('postAlbum.errors.deleteDraftError'));
     }
   };
 

@@ -412,7 +412,7 @@ export default function PostBeatScreen() {
                             )}
                         </View>
                     )}
-
+                    <View style={{ height: 50 }} />
                 </ScrollView>
 
                 <UploadModal

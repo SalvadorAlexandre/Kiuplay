@@ -8,6 +8,7 @@ import {
     StyleSheet
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '@/src/translations/useTranslation'
 
 interface StatusModalProps {
     visible: boolean;
@@ -19,6 +20,11 @@ interface StatusModalProps {
 }
 
 export const StatusAlbumEpModal = ({ visible, type, message, onClose, onConfirm, progress }: StatusModalProps) => {
+
+
+    const { t } = useTranslation()
+
+
     return (
         <Modal visible={visible} transparent animationType="fade">
             <View style={styles.overlay}>
@@ -41,16 +47,16 @@ export const StatusAlbumEpModal = ({ visible, type, message, onClose, onConfirm,
                         {type === 'confirm' ? (
                             <>
                                 <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={onClose}>
-                                    <Text style={styles.btnText}>Não</Text>
+                                    <Text style={styles.btnText}>{t('commonModals.no')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.btn, styles.btnConfirm]} onPress={onConfirm}>
-                                    <Text style={styles.btnText}>Sim, Apagar</Text>
+                                    <Text style={styles.btnText}> {t('commonModals.yesDelete')}</Text>
                                 </TouchableOpacity>
                             </>
                         ) : (
                             type !== 'loading' && (
                                 <TouchableOpacity style={styles.btnClose} onPress={onClose}>
-                                    <Text style={styles.btnText}>Ok</Text>
+                                    <Text style={styles.btnText}>{t('commonModals.ok')}</Text>
                                 </TouchableOpacity>
                             )
                         )}

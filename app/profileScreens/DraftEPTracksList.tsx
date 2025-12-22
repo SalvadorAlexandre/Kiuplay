@@ -67,7 +67,7 @@ export default function DraftTracksList() {
         <>
             <Stack.Screen
                 options={{
-                    title: (title as string) || 'Extended Play',
+                    title: (title as string) || t('draftTracksList.defaultTitle'),
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     headerShown: true, // Mostra o cabeçalho superior

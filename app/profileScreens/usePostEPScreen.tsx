@@ -395,8 +395,6 @@ export default function PostEPScreen() {
                                 </View>
                             )}
 
-
-
                             {/* Campos comuns*/}
                             <TextInput
                                 style={styles.inputTextBox}
@@ -475,7 +473,7 @@ export default function PostEPScreen() {
                                 <TouchableOpacity
                                     style={styles.btnConfirmUpload}
                                     onPress={handleAddTrack}
-                                    disabled={isSavingDraft || !titleFaixa}
+                                    //disabled={isSavingDraft || !titleFaixa}
                                 >
                                     <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
                                     <Text style={styles.btnConfirmUploadText}>
@@ -485,7 +483,7 @@ export default function PostEPScreen() {
                             )}
                         </View>
                     </KeyboardAvoidingView>
-                    <View style={{ height: 40 }} />
+                    <View style={{ height: 50 }} />
                 </ScrollView>
 
                 {/* O MODAL ÚNICO QUE GERE TUDO */}
