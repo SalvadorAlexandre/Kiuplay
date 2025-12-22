@@ -136,40 +136,39 @@ export const usePostBeat = () => {
 
   const handleSubmitBeatWithModal = async () => {
     try {
+      // 1. Reset inicial e abertura do modal no estado 'idle' (carregando)
       setUploadLoading(true);
-
-      // 🔹 Abre o modal e reseta estados
-      setUploadModalVisible(true);
       setUploadProgress(0);
       setUploadStatus('idle');
       setUploadError(null);
-      setUploadMessage(t('postBeat.preparing')); // Mensagem inicial
+      setUploadMessage(t('postBeat.preparing'));
+      setUploadModalVisible(true);
 
-      // 🔴 Validações essenciais
+      // 2. Validações essenciais (Campos vazios)
       if (!tituloBeat || !generoBeat || !beatFile || !capaBeat || !tipoLicenca) {
         const msg = t('postBeat.errors.missingFields');
-        setUploadError(msg);
-        setUploadStatus('error');
-        setUploadMessage(msg);
-        return;
+        setUploadStatus('error'); // Muda o visual do modal para ERRO
+        setUploadMessage(msg);     // Define a mensagem do i18n
+        setUploadLoading(false);   // Para o loading
+        return; // Interrompe a execução
       }
 
+      // 3. Validação de Preço (Licença Exclusiva)
       if (tipoLicenca === 'exclusivo' && (!preco || preco <= 0)) {
         const msg = t('postBeat.errors.invalidPrice');
-        setUploadError(msg);
         setUploadStatus('error');
         setUploadMessage(msg);
+        setUploadLoading(false);
         return;
       }
 
-      // 📦 Criar o FormData
+      // --- Se passou nas validações, continua o processo ---
+
       const formData = new FormData();
       formData.append('title', tituloBeat);
       formData.append('producer', nomeProdutor);
       formData.append('genre', generoBeat);
       formData.append('bpm', String(bpm || 0));
-
-      // --- TRATAMENTO DOS ARQUIVOS (Conversão para Blob se for Web) ---
 
       // Capa
       if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
@@ -191,15 +190,13 @@ export const usePostBeat = () => {
         } as any);
       }
 
-      // --- LÓGICA DE ENVIO COM PROGRESSO REAL ---
-
-      // Função auxiliar para atualizar o progresso no Modal
+      // Monitoramento de progresso
       const onProgress = (percent: number) => {
         setUploadProgress(percent);
         if (percent < 100) {
           setUploadMessage(`${t('postBeat.uploading')} ${percent}%`);
         } else {
-          setUploadMessage(t('postBeat.processing')); // O servidor está salvando
+          setUploadMessage(t('postBeat.processing'));
         }
       };
 
@@ -207,7 +204,6 @@ export const usePostBeat = () => {
         formData.append('price', String(preco));
         formData.append('currency', selectedCurrency);
         formData.append('region', selectedRegion);
-
         await uploadExclusiveBeat(formData, onProgress);
       } else {
         await uploadFreeBeat(formData, onProgress);

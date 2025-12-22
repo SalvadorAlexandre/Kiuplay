@@ -142,7 +142,14 @@
     },
     "uploadAudio": "Upload audio",
     "selectFileButton": "Select file",
-    "goBack": "Go back"
+    "uploading": "Uploading...",
+    "goBack": "Go back",
+    "errorFields": "Please fill in all required fields (Title, Genre, Cover, and Audio).",
+    "preparing": "Preparing files...",
+    "uploadingProgress": "Uploading your files... {{progress}}%",
+    "success": "Your Single has been published successfully!",
+    "uploadError": "Upload failed. Please check your connection.",
+    "confirmAndUpload": "Confirm and Upload Single"
   },
   "postEP": {
     "headerTitle": "Post EP",
@@ -176,7 +183,41 @@
     "producerPlaceholder": "Produced by",
     "trackYearPlaceholder": "Release Year",
     "trackNumberPlaceholder": "Track Number",
-    "uploadAudioButton": "Upload Audio"
+    "uploadAudioButton": "Upload Audio",
+    "selectAudio": "Select track audio",
+    "confirmAndUpload": "Confirm and Upload Track",
+    "uploading": "Uploading track...",
+    "errors": {
+      "pickerError": "Error opening file picker.",
+      "missingMainFields": "Please fill in the cover, title, genre, and number of tracks.",
+      "saveDraftError": "Error saving EP draft.",
+      "missingTrackData": "Fill in the track details and select the audio.",
+      "uploadTrackError": "Error uploading track.",
+      "finalizeError": "Error finalizing the publication.",
+      "deleteDraftError": "Error deleting the draft."
+    },
+    "loading": {
+      "creatingDraft": "Creating EP draft...",
+      "finalizing": "Finalizing and publishing your EP...",
+      "deleting": "Deleting draft and files..."
+    },
+    "success": {
+      "draftCreated": "Draft created successfully! Now add the tracks.",
+      "allTracksUploaded": "All tracks uploaded successfully! You can now finalize the EP.",
+      "trackProgress": "Track {{current}} of {{total}} uploaded!",
+      "published": "EP Published successfully! Your draft has been converted to an official release.",
+      "deleted": "Draft deleted successfully."
+    },
+    "confirm": {
+      "abort": "Do you want to delete this draft and all files?"
+    },
+    "viewTracks": {
+      "none": "No tracks uploaded yet",
+      "withCount": "View uploaded tracks ({{count}})"
+    },
+    "finalize": "Finalize",
+    "delete": "Delete",
+    "pendingSince": "Pending since"
   },
   "postAlbum": {
     "headerTitle": "Post Album",
@@ -451,5 +492,22 @@
     "noLinkedAccounts": "No linked accounts",
     "walletModalTitle": "My wallets",
     "availableForWithdraw": "Available for withdrawal"
+  },
+  "uploadModal": {
+    "uploadingTitle": "Uploading content...",
+    "waitingMessage": "Please wait while we process your file.",
+    "successTitle": "Success!",
+    "errorTitle": "Oops! Something went wrong",
+    "btnContinue": "Continue",
+    "btnRetry": "Try Again"
+  },
+  "draftTracksList": {
+    "noTitle": "No title",
+    "noGenre": "Genre not defined",
+    "sectionTitle": "Uploaded tracks ({{count}})",
+    "emptyTitle": "No tracks uploaded yet",
+    "emptyText": "The songs you upload to the draft will appear listed here.",
+    "btnBack": "Back to Upload",
+    "errorFetch": "Error loading tracks:"
   }
 }

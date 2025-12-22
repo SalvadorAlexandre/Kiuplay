@@ -4,12 +4,18 @@ import { Vibration } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadSingle } from '@/src/api';
+import { useTranslation } from '@/src/translations/useTranslation'
 
 /**
  * Hook personalizado para gerenciar o estado e lógica
  * da postagem de Faixa Single no Kiuplay.
  */
 const usePostFaixa = () => {
+
+
+  const { t } = useTranslation()
+
+
   // --- Campos básicos ---
   const [nomeProdutor, setNomeProdutor] = useState('');
   const [tituloSingle, setTituloSingle] = useState('');
@@ -85,6 +91,7 @@ const usePostFaixa = () => {
       uri: file.uri.startsWith('file://') ? file.uri : file.uri,
       name: file.name || 'track.mp3',
       type: file.mimeType || 'audio/mpeg',
+      size: file.size,
     });
   };
 
@@ -130,19 +137,23 @@ const usePostFaixa = () => {
     setParticipantNames(updatedNames);
   };
 
-  // ── Lógica de Upload com Progresso ──
+  // ── Lógica de Upload com Progresso para single ──
   const handleUploadSingle = async () => {
+    // 1. Validação com feedback visual no Modal
     if (!audioFile || !capaSingle || !tituloSingle || !generoSingle) {
-      setUploadMessage('Por favor, preencha todos os campos obrigatórios.');
+      setUploadStatus('error'); // Define o estado visual de erro
+      setUploadMessage(t('postFaixaScreen.errorFields'));
+      setUploadModalVisible(true); // Abre o modal para avisar o utilizador
       return;
     }
 
     try {
+      // 2. Início do processo
       setUploadLoading(true);
       setUploadModalVisible(true);
       setUploadProgress(0);
-      setUploadStatus('idle');
-      setUploadMessage('Preparando arquivos...');
+      setUploadStatus('idle'); // Ativa o spinner e barra de progresso
+      setUploadMessage(t('postFaixaScreen.preparing'));;
 
       const formData = new FormData();
       formData.append('title', tituloSingle);
@@ -174,20 +185,23 @@ const usePostFaixa = () => {
         } as any);
       }
 
-      // Chamada da API com monitoramento de progresso
+      // 3. Chamada da API com progresso
       const response = await uploadSingle(formData, (progress) => {
         setUploadProgress(progress);
-        setUploadMessage(`Enviando: ${progress}%`);
+        // Opcional: Manter a mensagem dinâmica no modal
+        setUploadMessage(t('postFaixaScreen.uploadingProgress', { progress })); 
       });
 
+      // 4. Sucesso
       setUploadStatus('success');
-      setUploadMessage('Single publicado com sucesso!');
+      setUploadMessage(t('postFaixaScreen.success'));
       Vibration.vibrate(200);
 
     } catch (err: any) {
       console.error(err);
+      // 5. Erro no Upload
       setUploadStatus('error');
-      setUploadMessage(err.response?.data?.error || 'Falha ao fazer upload.');
+      setUploadMessage(t('postFaixaScreen.uploadError') || err.response?.data?.error );
     } finally {
       setUploadLoading(false);
     }

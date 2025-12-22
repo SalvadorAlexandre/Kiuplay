@@ -13,10 +13,15 @@ import {
     StyleSheet,
     ScrollView,
     Image,
+    KeyboardAvoidingView,
+    Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusAlbumEpModal } from '@/components/uploadAlbumEpModal';
 import { useTranslation } from '@/src/translations/useTranslation'
+import { useAppSelector, } from '@/src/redux/hooks';
+import { selectUserCurrencyCode, selectUserAccountRegion, } from '@/src/redux/userSessionAndCurrencySlice';
+
 
 /**
  * Componente responsável por renderizar a interface de
@@ -84,13 +89,21 @@ export default function PostAlbumScreen() {
         pickAudioAlbum     // Antes pickAudioEp
     } = usePostAlbum(); // Chamada ao Hook correto
 
+    //const userCurrency = useAppSelector(selectUserCurrencyCode);
+    const userRegion = useAppSelector(selectUserAccountRegion);
 
     // Booleano que indica se o rascunho do álbum já foi salvo
     const isStep1Complete = !!albumData;
 
+    // 2. Ajusta a função formatDate
     const formatDate = (dateString: string) => {
+        if (!dateString) return '';
+
         const date = new Date(dateString);
-        return date.toLocaleDateString('pt-PT', {
+
+        // Usamos a variável userRegion em vez de 'pt-PT'
+        // Caso userRegion seja nulo ou indefinido, usamos 'default' como fallback
+        return date.toLocaleDateString(userRegion || 'default', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
@@ -98,8 +111,6 @@ export default function PostAlbumScreen() {
             minute: '2-digit'
         });
     };
-
-
 
     return (
 
@@ -299,189 +310,197 @@ export default function PostAlbumScreen() {
 
                     <View style={{ height: 1, backgroundColor: '#333', marginVertical: 20 }} />
 
-                    {/* --- SECÇÃO 2: DADOS DAS FAIXAS (BLOQUEADA ATÉ SALVAR O RASCUNHO DO ÁLBUM) --- */}
-                    <View
-                        style={{ opacity: isStep1Complete ? 1 : 0.4 }}
-                        pointerEvents={isStep1Complete ? 'auto' : 'none'} // Bloqueia interações se o rascunho não existir
+                    <KeyboardAvoidingView
+                        style={{ flex: 1, }}
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     >
-                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
-                                {t('postAlbum.singleTrackTitle')}
-                            </Text>
-
-                            {/* Contador de progresso: Ex: 2 de 12 */}
-                            {numFaixas !== null && (
-                                <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>
-                                    {t('postAlbum.trackCountLabel', { total: numFaixas, posted: postedFaixa })}
-                                </Text>
-                            )}
-                        </View>
-
-                        <Text style={{ color: '#fff', fontSize: 16, marginTop: 10 }}>
-                            {t('postAlbum.hasParticipantsQuestion')}
-                        </Text>
-
-                        {/* Checkbox Sim / Não para Participantes (Feats) */}
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Checkbox.Item
-                                label={t('postAlbum.yes')}
-                                status={hasParticipants ? 'checked' : 'unchecked'}
-                                onPress={handleHasParticipants}
-                                labelStyle={{ color: '#fff', fontSize: 14 }}
-                                style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
-                                position='leading'
-                            />
-                            <Checkbox.Item
-                                label={t('postAlbum.no')}
-                                status={noParticipants ? 'checked' : 'unchecked'}
-                                onPress={handleNoParticipants}
-                                labelStyle={{ color: '#fff', fontSize: 14 }}
-                                style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
-                                position='leading'
-                            />
-                        </View>
-
-                        {/* Dropdown e Inputs para nomes dos participantes */}
-                        {hasParticipants && (
-                            <View style={{ width: '100%' }}>
-                                <DropDownPicker
-                                    open={dropdownOpen}
-                                    value={numParticipants}
-                                    items={Array.from({ length: 20 }, (_, i) => ({
-                                        label: t('postAlbum.participantName', { count: i + 1 }),
-                                        value: i + 1,
-                                    }))}
-                                    setOpen={setDropdownOpen}
-                                    setValue={(callback) => {
-                                        const value = callback(numParticipants);
-                                        handleNumParticipantsChange(value as number);
-                                    }}
-                                    placeholder={t('postAlbum.numParticipantsPlaceholder')}
-                                    style={styles.dropdownStyle}
-                                    textStyle={{ color: '#fff' }}
-                                    placeholderStyle={{ color: '#ccc' }}
-                                    dropDownContainerStyle={styles.dropdownContainerStyle}
-                                    TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
-                                    ArrowDownIconComponent={() => (
-                                        <Ionicons
-                                            name='chevron-down'
-                                            size={20}
-                                            color='#fff'
-                                            style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
-                                        />
-                                    )}
-                                    ArrowUpIconComponent={() => (
-                                        <Ionicons
-                                            name='chevron-up'
-                                            size={20}
-                                            color='#fff'
-                                            style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
-                                        />
-                                    )}
-                                />
-
-                                {/* Renderiza inputs dinâmicos conforme o número de participantes selecionado */}
-                                {numParticipants !== null && participantNames.map((name, index) => (
-                                    <TextInput
-                                        key={index}
-                                        style={styles.inputTextBox}
-                                        value={name}
-                                        onChangeText={(text) => handleParticipantNameChange(index, text)}
-                                        placeholder={t('postAlbum.participantNamePlaceholder', { index: index + 1 })}
-                                        placeholderTextColor="#FFFF"
-                                    />
-                                ))}
-                            </View>
-                        )}
-
-                        {/* Campos comuns das faixas do Álbum */}
-                        <TextInput
-                            style={styles.inputTextBox}
-                            placeholder={t('postAlbum.songTitlePlaceholder')}
-                            value={titleFaixa}
-                            onChangeText={setTitleFaixa}
-                            placeholderTextColor="#FFFF"
-                        />
-                        <TextInput
-                            style={styles.inputTextBox}
-                            placeholder={t('postAlbum.songGenrePlaceholder')}
-                            value={genreFaixa}
-                            onChangeText={setGenreFaixa}
-                            placeholderTextColor="#FFFF"
-                        />
-                        <TextInput
-                            style={styles.inputTextBox}
-                            placeholder={t('postAlbum.producerPlaceholder')}
-                            value={producerFaixa}
-                            onChangeText={setProducerFaixa}
-                            placeholderTextColor="#FFFF"
-                        />
-
-                        {/* --- SECÇÃO 2: FORMULÁRIO DE ADICIONAR FAIXAS (STEP 2) --- */}
-                        {isStep1Complete && (
-                            <View>
-                                {/* BOTÃO PARA LISTAR FAIXAS JÁ ENVIADAS */}
-                                <TouchableOpacity
-                                    style={styles.btnViewTracks}
-                                    onPress={() => router.push({
-                                        pathname: "/profileScreens/DraftAlbumTracksList",
-                                        // Passamos o albumId em vez de epId
-                                        params: {
-                                            albumId: albumData.id,
-                                            title: tituloAlbum
-                                        }
-                                    })}
-                                >
-                                    <Ionicons name="list-outline" size={20} color="#fff" />
-                                    <Text style={styles.btnViewTracksText}>
-                                        {postedFaixa > 0
-                                            ? `Ver músicas enviadas (${postedFaixa})`
-                                            : "Nenhuma música enviada ainda"}
-                                    </Text>
-                                    <Ionicons name="chevron-forward" size={18} color="#666" />
-                                </TouchableOpacity>
-
-                                {/* ... Restante do formulário de upload ... */}
-                            </View>
-                        )}
-
-                        {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
-                        <TouchableOpacity
-                            style={[styles.uploadArea, audioFaixa && styles.uploadAreaSelected]}
-                            onPress={pickAudioAlbum} // Atualizado para Álbum
+                        {/* --- SECÇÃO 2: DADOS DAS FAIXAS (BLOQUEADA ATÉ SALVAR O RASCUNHO DO ÁLBUM) --- */}
+                        <View
+                            style={{ opacity: isStep1Complete ? 1 : 0.4 }}
+                            pointerEvents={isStep1Complete ? 'auto' : 'none'} // Bloqueia interações se o rascunho não existir
                         >
-                            {audioFaixa && (
-                                <Text style={styles.fileSizeText}>
-                                    {(audioFaixa.size / (1024 * 1024)).toFixed(2)} MB
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                                    {t('postAlbum.singleTrackTitle')}
                                 </Text>
-                            )}
-                            <Ionicons
-                                name={audioFaixa ? "document-text" : "musical-notes"}
-                                size={24}
-                                color={audioFaixa ? "#fff" : "#888"}
-                            />
-                            <Text
-                                numberOfLines={2}
-                                ellipsizeMode='tail'
-                                style={styles.uploadText}>
-                                {audioFaixa ? audioFaixa.name : t('postAlbum.selectAudio')}
-                            </Text>
-                        </TouchableOpacity>
 
-                        {/* 2. BOTÃO DE ENVIAR PARA O BACKEND (SUBMIT) */}
-                        {audioFaixa && (
+                                {/* Contador de progresso: Ex: 2 de 12 */}
+                                {numFaixas !== null && (
+                                    <Text style={{ color: '#fff', fontSize: 16, marginLeft: 5 }}>
+                                        {t('postAlbum.trackCountLabel', { total: numFaixas, posted: postedFaixa })}
+                                    </Text>
+                                )}
+                            </View>
+
+                            <Text style={{ color: '#fff', fontSize: 16, marginTop: 10 }}>
+                                {t('postAlbum.hasParticipantsQuestion')}
+                            </Text>
+
+                            {/* Checkbox Sim / Não para Participantes (Feats) */}
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Checkbox.Item
+                                    label={t('postAlbum.yes')}
+                                    status={hasParticipants ? 'checked' : 'unchecked'}
+                                    onPress={handleHasParticipants}
+                                    labelStyle={{ color: '#fff', fontSize: 14 }}
+                                    style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
+                                    position='leading'
+                                />
+                                <Checkbox.Item
+                                    label={t('postAlbum.no')}
+                                    status={noParticipants ? 'checked' : 'unchecked'}
+                                    onPress={handleNoParticipants}
+                                    labelStyle={{ color: '#fff', fontSize: 14 }}
+                                    style={{ paddingLeft: 0, marginLeft: -10, marginBottom: 0 }}
+                                    position='leading'
+                                />
+                            </View>
+
+                            {/* Dropdown e Inputs para nomes dos participantes */}
+                            {hasParticipants && (
+                                <View style={{ width: '100%' }}>
+                                    <DropDownPicker
+                                        open={dropdownOpen}
+                                        value={numParticipants}
+                                        items={Array.from({ length: 20 }, (_, i) => ({
+                                            label: t('postAlbum.participantName', { count: i + 1 }),
+                                            value: i + 1,
+                                        }))}
+                                        setOpen={setDropdownOpen}
+                                        setValue={(callback) => {
+                                            const value = callback(numParticipants);
+                                            handleNumParticipantsChange(value as number);
+                                        }}
+                                        placeholder={t('postAlbum.numParticipantsPlaceholder')}
+                                        style={styles.dropdownStyle}
+                                        textStyle={{ color: '#fff' }}
+                                        placeholderStyle={{ color: '#ccc' }}
+                                        dropDownContainerStyle={styles.dropdownContainerStyle}
+                                        TickIconComponent={() => <Ionicons name='checkmark' size={20} color={'#fff'} />}
+                                        ArrowDownIconComponent={() => (
+                                            <Ionicons
+                                                name='chevron-down'
+                                                size={20}
+                                                color='#fff'
+                                                style={{ transform: [{ rotate: dropdownOpen ? '180deg' : '0deg' }] }}
+                                            />
+                                        )}
+                                        ArrowUpIconComponent={() => (
+                                            <Ionicons
+                                                name='chevron-up'
+                                                size={20}
+                                                color='#fff'
+                                                style={{ transform: [{ rotate: dropdownOpen ? '0deg' : '180deg' }] }}
+                                            />
+                                        )}
+                                    />
+
+                                    {/* Renderiza inputs dinâmicos conforme o número de participantes selecionado */}
+                                    {numParticipants !== null && participantNames.map((name, index) => (
+                                        <TextInput
+                                            key={index}
+                                            style={styles.inputTextBox}
+                                            value={name}
+                                            onChangeText={(text) => handleParticipantNameChange(index, text)}
+                                            placeholder={t('postAlbum.participantNamePlaceholder', { index: index + 1 })}
+                                            placeholderTextColor="#FFFF"
+                                        />
+                                    ))}
+                                </View>
+                            )}
+
+                            {/* Campos comuns das faixas do Álbum */}
+                            <TextInput
+                                style={styles.inputTextBox}
+                                placeholder={t('postAlbum.songTitlePlaceholder')}
+                                value={titleFaixa}
+                                onChangeText={setTitleFaixa}
+                                placeholderTextColor="#FFFF"
+                            />
+                            <TextInput
+                                style={styles.inputTextBox}
+                                placeholder={t('postAlbum.songGenrePlaceholder')}
+                                value={genreFaixa}
+                                onChangeText={setGenreFaixa}
+                                placeholderTextColor="#FFFF"
+                            />
+                            <TextInput
+                                style={styles.inputTextBox}
+                                placeholder={t('postAlbum.producerPlaceholder')}
+                                value={producerFaixa}
+                                onChangeText={setProducerFaixa}
+                                placeholderTextColor="#FFFF"
+                            />
+
+                            {/* --- SECÇÃO 2: FORMULÁRIO DE ADICIONAR FAIXAS (STEP 2) --- */}
+                            {isStep1Complete && (
+                                <View>
+                                    {/* BOTÃO PARA LISTAR FAIXAS JÁ ENVIADAS */}
+                                    <TouchableOpacity
+                                        style={styles.btnViewTracks}
+                                        onPress={() => router.push({
+                                            pathname: "/profileScreens/DraftAlbumTracksList",
+                                            // Passamos o albumId em vez de epId
+                                            params: {
+                                                albumId: albumData.id,
+                                                title: tituloAlbum
+                                            }
+                                        })}
+                                    >
+                                        <Ionicons name="list-outline" size={20} color="#fff" />
+                                        <Text style={styles.btnViewTracksText}>
+                                            {postedFaixa > 0
+                                                ? `Ver músicas enviadas (${postedFaixa})`
+                                                : "Nenhuma música enviada ainda"}
+                                        </Text>
+                                        <Ionicons name="chevron-forward" size={18} color="#666" />
+                                    </TouchableOpacity>
+
+                                    {/* ... Restante do formulário de upload ... */}
+                                </View>
+                            )}
+
+                            {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
                             <TouchableOpacity
-                                style={styles.btnConfirmUpload}
-                                onPress={handleAddTrack}
-                                disabled={isSavingDraft || !titleFaixa}
+                                style={[styles.uploadArea, audioFaixa && styles.uploadAreaSelected]}
+                                onPress={pickAudioAlbum} // Atualizado para Álbum
                             >
-                                <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
-                                <Text style={styles.btnConfirmUploadText}>
-                                    {t('postAlbum.confirmAndUpload') || "Confirmar e Enviar Faixa"}
+                                {audioFaixa && (
+                                    <Text style={styles.fileSizeText}>
+                                        {/* Usamos o operador ?. para evitar erro e verificamos se size existe */}
+                                        {audioFaixa.size
+                                            ? (audioFaixa.size / (1024 * 1024)).toFixed(2)
+                                            : "0.00"} MB
+                                    </Text>
+                                )}
+                                <Ionicons
+                                    name={audioFaixa ? "document-text" : "musical-notes"}
+                                    size={24}
+                                    color={audioFaixa ? "#fff" : "#888"}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    ellipsizeMode='tail'
+                                    style={styles.uploadText}>
+                                    {audioFaixa ? audioFaixa.name : t('postAlbum.selectAudio')}
                                 </Text>
                             </TouchableOpacity>
-                        )}
-                    </View>
+
+                            {/* 2. BOTÃO DE ENVIAR PARA O BACKEND (SUBMIT) */}
+                            {audioFaixa && (
+                                <TouchableOpacity
+                                    style={styles.btnConfirmUpload}
+                                    onPress={handleAddTrack}
+                                    disabled={isSavingDraft || !titleFaixa}
+                                >
+                                    <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                    <Text style={styles.btnConfirmUploadText}>
+                                        {t('postAlbum.confirmAndUpload') || "Confirmar e Enviar Faixa"}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </KeyboardAvoidingView>
                     <View style={{ height: 40 }} />
 
                 </ScrollView>

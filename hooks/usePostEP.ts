@@ -12,6 +12,7 @@ import {
 } from '@/src/api/uploadContentApi';
 
 const usePostExtendedPlay = () => {
+
   const { t } = useTranslation();
 
   // --- 1. ESTADOS DO EP (RASCUNHO) ---
@@ -143,7 +144,7 @@ const usePostExtendedPlay = () => {
       }
     } catch (err) {
       console.error("Erro ao selecionar áudio:", err);
-      showModal('error', "Erro ao abrir o seletor de ficheiros.");
+      showModal('error', t('postEP.errors.pickerError'));
     }
   };
 
@@ -173,11 +174,11 @@ const usePostExtendedPlay = () => {
   // --- 6. LOGICA DE COMUNICAÇÃO COM API (AJUSTADA) ---
   const saveEPDraft = async () => {
     if (!capaEP || !tituloEP || !generoPrincipal || !numFaixas) {
-      showModal('error', "Por favor, preencha a capa, título, género e o número de faixas.");
+      showModal('error', t('postEP.errors.missingMainFields'));
       return;
     }
 
-    showModal('loading', "A criar rascunho do EP...");
+    showModal('loading', t('postEP.loading.creatingDraft'));
     setIsSavingDraft(true);
     try {
       const formData = new FormData();
@@ -198,10 +199,10 @@ const usePostExtendedPlay = () => {
       }
 
       const response = await startEPDraft(formData);
-      showModal('success', "Rascunho criado com sucesso! Agora adicione as músicas.");
+      showModal('success', t('postEP.success.draftCreated'));
       setEpData(response.ep);
     } catch (error: any) {
-      showModal('error', error.response?.data?.error || "Erro ao salvar rascunho do EP.");
+      showModal('error', t('postEP.errors.saveDraftError') || error.response?.data?.error);
     } finally {
       setIsSavingDraft(false);
     }
@@ -244,12 +245,12 @@ const usePostExtendedPlay = () => {
   const handleAddTrack = async () => {
     // 1. Validação inicial
     if (!epData?.id || !audioFaixa || !titleFaixa) {
-      showModal('error', "Preencha os dados da faixa e selecione o áudio.");
+      showModal('error', t('postEP.errors.missingTrackData'));
       return;
     }
 
     // 2. Iniciar Feedback Visual
-    showModal('loading', `A enviar: ${titleFaixa}`, 1);
+    showModal('loading', `A enviar: ${titleFaixa}`, 1);   ///FALTOU ESTA
     setIsSavingDraft(true);
 
     try {
@@ -295,14 +296,17 @@ const usePostExtendedPlay = () => {
 
         // Verificar se o EP está completo
         if (novoTotalPosted >= (numFaixas || 0)) {
-          showModal('success', "Todas as faixas foram enviadas com sucesso! Podes agora finalizar o EP.");
+          showModal('success', t('postEP.success.allTracksUploaded'));
         } else {
-          showModal('success', `Faixa ${novoTotalPosted} de ${numFaixas} enviada!`);
+          showModal('success', t('postEP.success.trackProgress', {
+            current: novoTotalPosted,
+            total: numFaixas
+          }));
         }
       }
     } catch (error: any) {
       console.error("Erro no upload da faixa:", error);
-      const errorMsg = error.response?.data?.error || "Erro ao enviar faixa.";
+      const errorMsg = t('postEP.errors.uploadTrackError') || error.response?.data?.error;
       showModal('error', errorMsg);
     } finally {
       setIsSavingDraft(false);
@@ -313,7 +317,7 @@ const usePostExtendedPlay = () => {
     if (!epData?.id) return;
 
     // 1. Abrir modal em estado de carregamento
-    showModal('loading', "A finalizar e publicar o teu EP...");
+    showModal('loading', t('postEP.loading.finalizing'));
     setIsSavingDraft(true);
 
     try {
@@ -321,7 +325,7 @@ const usePostExtendedPlay = () => {
 
       if (response.success) {
         // 2. Mostrar sucesso no modal
-        showModal('success', "EP Publicado com sucesso! O teu rascunho foi convertido em lançamento oficial.");
+        showModal('success', t('postEP.success.published'));
 
         // 3. LIMPAR TODOS OS ESTADOS (O "Reset" que pediste)
         // Ao fazer isto, o 'isStep1Complete' passará a ser false e a tela volta ao início
@@ -333,11 +337,11 @@ const usePostExtendedPlay = () => {
         setPostedFaixa(0);
         setTitleFaixa('');
         setAudioFaixa(null);
-        
+
       }
     } catch (error: any) {
       console.error(error);
-      showModal('error', error.response?.data?.error || "Erro ao finalizar a publicação.");
+      showModal('error', t('postEP.errors.finalizeError') || error.response?.data?.error);
     } finally {
       setIsSavingDraft(false);
     }
@@ -346,12 +350,12 @@ const usePostExtendedPlay = () => {
   // 1. Apenas abre o modal de confirmação
   const triggerAbortEP = () => {
     if (!epData?.id) return;
-    showModal('confirm', t('postEP.abortMessage') || "Desejas apagar este rascunho e todos os ficheiros?");
+    showModal('confirm', t('postEP.confirm.abort'));
   };
 
   // 2. A função que realmente apaga (será chamada pelo onConfirm do Modal)
   const executeAbortEP = async () => {
-    showModal('loading', "A eliminar rascunho e ficheiros...");
+    showModal('loading', t('postEP.loading.deleting'));
     try {
       await abortEP(epData.id);
 
@@ -363,9 +367,9 @@ const usePostExtendedPlay = () => {
       setNumFaixas(null);
       setPostedFaixa(0);
 
-      showModal('success', "Rascunho eliminado com sucesso.");
+      showModal('success', t('postEP.success.deleted'));
     } catch (error) {
-      showModal('error', "Erro ao eliminar o rascunho.");
+      showModal('error', t('postEP.errors.deleteDraftError'));
     }
   };
 

@@ -142,7 +142,14 @@
         },
         "uploadAudio": "Carregar áudio",
         "selectFileButton": "Selecionar arquivo",
-        "goBack": "Voltar"
+        "goBack": "Voltar",
+        "errorFields": "Por favor, preencha todos os campos obrigatórios (Título, Género, Capa e Áudio).",
+        "preparing": "Preparando arquivos...",
+        "uploadingProgress": "A carregar os teus ficheiros... {{progress}}%",
+        "success": "O teu Single foi publicado com sucesso!",
+        "uploadError": "Falha ao fazer upload. Verifica a tua ligação.",
+        "confirmAndUpload": "Confirmar e Enviar Single",
+        "uploading": "A enviar..."
     },
     "postEP": {
         "headerTitle": "Postar EP",
@@ -176,7 +183,41 @@
         "producerPlaceholder": "Produtor",
         "trackYearPlaceholder": "Ano de lançamento",
         "trackNumberPlaceholder": "Número da faixa",
-        "uploadAudioButton": "Carregar áudio"
+        "uploadAudioButton": "Carregar áudio",
+        "selectAudio": "Selecionar áudio da faixa",
+        "confirmAndUpload": "Confirmar e Enviar Faixa",
+        "uploading": "A enviar faixa...",
+        "errors": {
+            "pickerError": "Erro ao abrir o seletor de ficheiros.",
+            "missingMainFields": "Por favor, preencha a capa, título, género e o número de faixas.",
+            "saveDraftError": "Erro ao salvar rascunho do EP.",
+            "missingTrackData": "Preencha os dados da faixa e selecione o áudio.",
+            "uploadTrackError": "Erro ao enviar faixa.",
+            "finalizeError": "Erro ao finalizar a publicação.",
+            "deleteDraftError": "Erro ao eliminar o rascunho."
+        },
+        "loading": {
+            "creatingDraft": "A criar rascunho do EP...",
+            "finalizing": "A finalizar e publicar o teu EP...",
+            "deleting": "A eliminar rascunho e ficheiros..."
+        },
+        "success": {
+            "draftCreated": "Rascunho criado com sucesso! Agora adicione as músicas.",
+            "allTracksUploaded": "Todas as faixas foram enviadas com sucesso! Podes agora finalizar o EP.",
+            "trackProgress": "Faixa {{current}} de {{total}} enviada!",
+            "published": "EP Publicado com sucesso! O teu rascunho foi convertido em lançamento oficial.",
+            "deleted": "Rascunho eliminado com sucesso."
+        },
+        "confirm": {
+            "abort": "Desejas apagar este rascunho e todos os ficheiros?"
+        },
+        "viewTracks": {
+            "none": "Nenhuma música enviada ainda",
+            "withCount": "Ver músicas enviadas ({{count}})"
+        },
+        "finalize": "Finalizar",
+        "delete": "Apagar",
+        "pendingSince": "Pendente desde"
     },
     "postAlbum": {
         "headerTitle": "Postar Álbum",
@@ -452,5 +493,22 @@
         "noLinkedAccounts": "Nenhuma conta vinculada",
         "walletModalTitle": "Minhas carteiras",
         "availableForWithdraw": "Disponível para saque"
+    },
+    "uploadModal": {
+        "uploadingTitle": "Enviando conteúdo...",
+        "waitingMessage": "Aguarde enquanto processamos o seu arquivo.",
+        "successTitle": "Sucesso!",
+        "errorTitle": "Ops! Algo falhou",
+        "btnContinue": "Continuar",
+        "btnRetry": "Tentar Novamente"
+    },
+    "draftTracksList": {
+        "noTitle": "Sem título",
+        "noGenre": "Género não definido",
+        "sectionTitle": "Faixas enviadas ({{count}})",
+        "emptyTitle": "Nenhuma faixa enviada ainda",
+        "emptyText": "As músicas que carregares no rascunho aparecerão listadas aqui.",
+        "btnBack": "Voltar para Upload",
+        "errorFetch": "Erro ao carregar faixas:"
     }
 }

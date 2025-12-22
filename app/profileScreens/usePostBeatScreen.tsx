@@ -144,8 +144,6 @@ export default function PostBeatScreen() {
                         style={styles.inputTextBox}
                         placeholder={t('postBeat.producerNamePlaceholder')}
                         placeholderTextColor="#FFFF"
-                    //value={nomeArtistaAlbum}
-                    //onChangeText={setNomeArtistaAlbum}
                     />
                     <TextInput
                         value={tituloBeat}
@@ -319,18 +317,6 @@ export default function PostBeatScreen() {
                             </Text>
                         )}
                     </View>
-                    {beatFile &&
-                        <Text
-                            numberOfLines={1}
-                            ellipsizeMode='tail'
-                            style={{
-                                color: '#fff',
-                                fontSize: 16,
-                                marginBottom: 5,
-                                maxWidth: '100%'
-                            }}>
-                            {t('postBeat.uploadingFileLabel', { fileName: beatFile.name })}
-                        </Text>}
 
                     {/**👇 INÍCIO: NOVO BLOCO DE STATUS BPM
                     1. Status de Análise (Loading)
@@ -358,7 +344,7 @@ export default function PostBeatScreen() {
                     {/** 3. BPM Encontrado (Sucesso) */}
                     {bpm !== null && !loadingBPM && (
                         <View style={[styles.bpmStatusContainer, styles.successBpmContainer]}>
-                            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
                             <Text style={styles.bpmStatusText}>
                                 BPM: {bpm} {t('postBeat.bpmSuccess')}
                             </Text>
@@ -367,38 +353,68 @@ export default function PostBeatScreen() {
                     {/** 👆 FIM: BLOCO DE STATUS BPM*/}
 
                     {(tipoLicenca === 'exclusivo' || tipoLicenca === 'livre') && (
-
                         <View>
+
+                            {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
                             <TouchableOpacity
-                                style={styles.selectFileButton}
+                                style={[
+                                    styles.selectFileButton,
+                                    beatFile && styles.uploadAreaSelected // Muda a cor se houver ficheiro
+                                ]}
                                 onPress={pickBeatFileAndAnalyze}
                             >
-                                <Text style={{ color: '#fff', fontSize: 16 }}>{t('postBeat.selectFileButton')}</Text>
-                                <Ionicons name='save' size={20} color={'#fff'} />
+                                {beatFile && (
+                                    <Text style={styles.fileSizeText}>
+                                        {/* Usamos o operador ?. para evitar erro e verificamos se size existe */}
+                                        {beatFile.size
+                                            ? (beatFile.size / (1024 * 1024)).toFixed(2)
+                                            : "0.00"} MB
+                                    </Text>
+                                )}
+
+
+
+                                <Ionicons
+                                    name={beatFile ? "document-text" : "musical-notes"}
+                                    size={22}
+                                    color={beatFile ? "#fff" : "#888"}
+                                />
+
+                                <Text
+                                    numberOfLines={1}
+                                    ellipsizeMode='tail'
+                                    style={styles.uploadText}
+                                >
+                                    {beatFile ? beatFile.name : t('postBeat.selectFileButton')}
+                                </Text>
+
                             </TouchableOpacity>
 
-                            <TouchableOpacity
-                                onPress={handleSubmitBeatWithModal}
-                                disabled={uploadLoading}
-                                style={styles.publishButton}
-                            >
-                                {uploadLoading ? (
-                                    <ActivityIndicator color="#fff" />
-                                ) : (
-                                    <>
-                                        <Text style={{ color: '#fff', fontSize: 16 }}>
-                                            {t('postBeat.publishButton')}
-                                        </Text>
-                                        <Ionicons name="cloud-upload" size={20} color="#fff" />
-                                    </>
-                                )}
-                            </TouchableOpacity>
-                            
+                            {/* 2. BOTÃO DE ENVIAR (SUBMIT) */}
+                            {/* Condição: Tem de ter o ficheiro E não pode estar a carregar o BPM E o BPM tem de estar definido (ou erro de BPM tratado) */}
+                            {beatFile && !loadingBPM && bpm !== null && (
+                                <TouchableOpacity
+                                    onPress={handleSubmitBeatWithModal}
+                                    disabled={uploadLoading}
+                                    style={[styles.publishButton, { marginTop: 12 }]}
+                                >
+                                    {uploadLoading ? (
+                                        <ActivityIndicator color="#fff" />
+                                    ) : (
+                                        <>
+                                            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                                                {t('postBeat.publishButton')}
+                                            </Text>
+                                            <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginLeft: 8 }} />
+                                        </>
+                                    )}
+                                </TouchableOpacity>
+                            )}
                         </View>
                     )}
 
                 </ScrollView>
-               
+
                 <UploadModal
                     visible={uploadModalVisible}
                     progress={uploadProgress}
@@ -533,7 +549,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         gap: 10, // Espaçamento entre o ícone e o texto
         borderWidth: 1,
-        // Cor da borda será definida pelo sucesso/erro/loading, mas podemos usar um padrão.
         borderColor: '#555',
     },
     // Estilo para o texto de status (usado para Loading e Sucesso)
@@ -569,20 +584,31 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#555',
-        marginBottom: 10,
-        gap: 10,
+        //marginBottom: 12,
     },
     publishButton: {
+        backgroundColor: '#333', // Cor de destaque para ação positiva
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#333',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#555',
-        marginBottom: 10,
-        gap: 10,
-    }
+        padding: 15,
+        borderRadius: 12,
+        marginTop: 5,
+        elevation: 3, // Sombra no Android
+        shadowColor: '#000', // Sombra no iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    uploadAreaSelected: {
+        borderColor: '#FFD700',
+        borderStyle: 'solid',
+        backgroundColor: '#222',
+    },
+    fileSizeText: {
+        color: '#888',
+        fontSize: 12,
+        marginTop: 5,
+    },
+
 })

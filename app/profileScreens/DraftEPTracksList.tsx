@@ -5,6 +5,7 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity }
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { getPendingEP } from '@/src/api/uploadContentApi'; // Reutilizando para pegar as tracks
+import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function DraftTracksList() {
     const { epId, title } = useLocalSearchParams();
@@ -12,6 +13,8 @@ export default function DraftTracksList() {
 
     const [tracks, setTracks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const { t } = useTranslation()
 
     useEffect(() => {
         fetchTracks();
@@ -44,12 +47,12 @@ export default function DraftTracksList() {
 
                 <View style={styles.trackInfo}>
                     <Text style={styles.trackTitle} numberOfLines={1}>
-                        {trackData?.title || "Sem título"}
+                        {trackData?.title || t('draftTracksList.noTitle')}
                     </Text>
 
                     {/* Mostra o gênero e, se houver feats, mostra-os também */}
                     <Text style={styles.trackSubtitle} numberOfLines={1}>
-                        {trackData?.genre || 'Género não definido'}
+                        {trackData?.genre || t('draftTracksList.noGenre')}
                         {trackData?.feat && trackData.feat.length > 0
                             ? ` • feat. ${trackData.feat.join(', ')}`
                             : ''}
@@ -64,7 +67,7 @@ export default function DraftTracksList() {
         <>
             <Stack.Screen
                 options={{
-                    title: (title as string) || 'EP',
+                    title: (title as string) || 'Extended Play',
                     headerStyle: { backgroundColor: '#191919' },
                     headerTintColor: '#fff',
                     headerShown: true, // Mostra o cabeçalho superior
@@ -79,7 +82,7 @@ export default function DraftTracksList() {
                     </View>
                 ) : tracks.length > 0 ? (
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.sectionTitle}>Faixas enviadas ({tracks.length})</Text>
+                        <Text style={styles.sectionTitle}>{t('draftTracksList.sectionTitle', { count: tracks.length })}</Text>
                         <FlatList
                             data={tracks}
                             // Se o trackId falhar, usa o índice do array como string
@@ -93,15 +96,15 @@ export default function DraftTracksList() {
                     /* ESTADO VAZIO */
                     <View style={styles.center}>
                         <Ionicons name="musical-notes" size={90} color="#333" />
-                        <Text style={styles.emptyTitle}>Nenhuma faixa enviada ainda</Text>
+                        <Text style={styles.emptyTitle}>{t('draftTracksList.emptyTitle')}</Text>
                         <Text style={styles.emptyText}>
-                            As músicas que carregares no rascunho aparecerão listadas aqui.
+                            {t('draftTracksList.emptyText')}
                         </Text>
                         <TouchableOpacity
                             style={styles.btnVoltar}
                             onPress={() => router.back()}
                         >
-                            <Text style={styles.btnVoltarText}>Voltar para Upload</Text>
+                            <Text style={styles.btnVoltarText}>{t('draftTracksList.btnBack')}</Text>
                         </TouchableOpacity>
                     </View>
                 )}

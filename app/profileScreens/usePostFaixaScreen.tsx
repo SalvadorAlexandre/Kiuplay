@@ -17,7 +17,6 @@ import {
     Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-
 import { useTranslation } from '@/src/translations/useTranslation'
 
 /**
@@ -236,33 +235,45 @@ export default function PostFaixaScreen() {
                             placeholderTextColor="#FFFF"
                         />
 
-                        {audioFile &&
+                        {/* 1. BOTÃO DE SELECIONAR (PICKER) */}
+                        <TouchableOpacity
+                            style={[styles.uploadArea, audioFile && styles.uploadAreaSelected]}
+                            onPress={pickSingleFile}
+                        >
+                            {audioFile && (
+                                <Text style={styles.fileSizeText}>
+                                    {/* Usamos o operador ?. para evitar erro e verificamos se size existe */}
+                                    {audioFile.size
+                                        ? (audioFile.size / (1024 * 1024)).toFixed(2)
+                                        : "0.00"} MB
+                                </Text>
+                            )}
+                            <Ionicons
+                                name={audioFile ? "document-text" : "musical-notes"}
+                                size={24}
+                                color={audioFile ? "#fff" : "#888"}
+                            />
                             <Text
                                 numberOfLines={1}
                                 ellipsizeMode='tail'
-                                style={{
-                                    color: '#fff',
-                                    fontSize: 16,
-                                    marginBottom: 8,
-                                    maxWidth: '100%'
-                                }}>
-                                {t('postBeat.uploadingFileLabel', { fileName: audioFile.name })}
-                            </Text>}
-
-
-                        {/* Botão para selecionar arquivo de áudio */}
-                        <TouchableOpacity style={styles.uploadArea} onPress={pickSingleFile}>
-                            <Text style={styles.uploadText}>{t('postFaixaScreen.selectFileButton')}</Text>
-                            <Ionicons name="save" size={20} color="#fff" />
-                        </TouchableOpacity>
-
-                        {/* Botão para enviar single */}
-                        <TouchableOpacity style={styles.uploadArea} onPress={handleUploadSingle} disabled={uploadLoading}>
-                            <Text style={styles.uploadText}>
-                                {uploadLoading ? t('postFaixaScreen.uploading') : t('postFaixaScreen.uploadAudio')}
+                                style={styles.uploadText}>
+                                {audioFile ? audioFile.name : t('postFaixaScreen.selectFileButton')}
                             </Text>
-                            <Ionicons name="cloud-upload" size={20} color="#fff" />
                         </TouchableOpacity>
+
+                        {/* 2. BOTÃO DE ENVIAR (SUBMIT) - Aparece apenas após selecionar o áudio */}
+                        {audioFile && (
+                            <TouchableOpacity
+                                style={[styles.btnConfirmUpload,]}
+                                onPress={handleUploadSingle}
+                                disabled={uploadLoading}
+                            >
+                                <Ionicons name="cloud-upload" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                <Text style={styles.btnConfirmUploadText}>
+                                    {uploadLoading ? t('postFaixaScreen.uploading') : t('postFaixaScreen.uploadAudio')}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
 
                     </KeyboardAvoidingView>
                 </ScrollView>
@@ -346,7 +357,6 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         marginRight: 10,
     },
-
     containerBack: {
         //backgroundColor: '#191919',      // Cor de fundo escura
         paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
@@ -377,6 +387,35 @@ export const styles = StyleSheet.create({
         alignItems: 'center',      // Centraliza conteúdo horizontalmente
         marginBottom: 10,      // Espaçamento abaixo
         overflow: 'hidden',    // Faz a imagem se encaixar dentro do quadrado
+    },
+    uploadAreaSelected: {
+        borderColor: '#FFD700',
+        borderStyle: 'solid',
+        backgroundColor: '#222',
+    },
+    fileSizeText: {
+        color: '#888',
+        fontSize: 12,
+        marginTop: 5,
+    },
+    btnConfirmUpload: {
+        backgroundColor: '#333', // Cor de destaque para ação positiva
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 15,
+        borderRadius: 12,
+        marginTop: 5,
+        elevation: 3, // Sombra no Android
+        shadowColor: '#000', // Sombra no iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    btnConfirmUploadText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 15,
     },
 });
 
