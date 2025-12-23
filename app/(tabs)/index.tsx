@@ -28,10 +28,8 @@ import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
 // NOVO IMPORT: Importa o tipo ExclusiveBeat
 import { ExclusiveBeat } from '@/src/types/contentType';
-import { setProfileActiveTab } from '@/src/redux/persistTabProfile';
+import { setProfileActiveTab, ProfileTabKey } from '@/src/redux/persistTabProfile';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
-import { analyzeBpm } from '@/src/aubio/aubioBpm';
-import { any } from 'zod';
 
 export default function ProfileScreen() {
 
@@ -45,36 +43,13 @@ export default function ProfileScreen() {
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
   const [currentTabPlaying, setCurrentTabPlaying] = useState<string | null>(null);
-
-  //Estados para comtrolar o modal
   const [isProfileModalVisible, setProfileModalVisible] = React.useState(false);
-
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
-
-  // Pegamos o ID do usuário logado
   const currentUserId = useAppSelector(selectCurrentUserId);
-
-  // Selecionamos o perfil completo
   const userProfile = useAppSelector(selectUserById(currentUserId!));
-
-  // 🛑 AJUSTE 1: USAR O SLICE CORRETO PARA BEATS COMPRADOS
-  // Agora puxamos diretamente do purchasesSlice, que é a biblioteca do usuário comprador.
   const purchasedBeats = useAppSelector((state) => state.purchases.items);
-
-  // Lista de IDs dos beats comprados para FILTRAGEM. 
-  // Em uma aplicação real, você usaria o beatStoreSlice (com a ação markBeatAsSold) para saber quais beats
-  // deste artista foram marcados como 'vendidos' ou 'não disponíveis'.
-  // Para esta simulação, vamos usar a lista de beats COMPRADOS pelo *próprio* usuário como mock para beats vendidos (embora a lógica real seja inversa).
   const soldBeatIds: string[] = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
-
-
-  // ---------------------------------------------------------
-  // 🆕 LÓGICA DE FILTRAGEM
-  // Filtra os beats exclusivos do artista (a venda) para remover aqueles que já foram comprados
-  // (A compra por A deve remover o beat da aba 'a venda' do perfil do VENDEDOR B, mas aqui estamos assumindo
-  // que o MOCKED_PROFILE[0] *é* o utilizador logado e vamos usar a lista de IDs comprados como um mock.
-  // O ideal seria usar o estado global do BeatStore filtrado por artistId.)
 
   // Garante que 'userProfile.exclusiveBeats' seja um array antes de chamar '.filter'
   const exclusiveBeatsForSale = (userProfile.exclusiveBeats ?? [])
@@ -95,17 +70,27 @@ export default function ProfileScreen() {
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
 
 
-
-  const activeTab = useAppSelector((state) => state.profile.activeTab);
-  // 🛑 AJUSTE 2: NOVAS ABAS DE BEATS
-  const tabs = [
+  /**
+   * const tabs = [
     { key: 'single', label: t('tabs.single') },
     { key: 'extendedPlay', label: t('tabs.extendedPlay') },
     { key: 'album', label: t('tabs.album') },
-    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') }, // 🎧 Beats comprados por mim
-    { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') }, // 💰 Beats A VENDA (vendidos por mim)
+    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') }, 
+    { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') }, 
     { key: 'freeBeats', label: t('tabs.freeBeats') },
-  ];  
+  ];
+   */
+
+  
+  const activeTab = useAppSelector((state) => state.profile.activeTab);
+  const tabs: { key: ProfileTabKey; label: string }[] = [
+    { key: 'single', label: t('tabs.single') },
+    { key: 'extendedPlay', label: t('tabs.extendedPlay') },
+    { key: 'album', label: t('tabs.album') },
+    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') }, // 
+    { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') },
+    { key: 'freeBeats', label: t('tabs.freeBeats') },
+  ];
 
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
@@ -236,7 +221,7 @@ export default function ProfileScreen() {
                 <TouchableOpacity
                   key={tab.key}
                   style={[styles.tabButton, activeTab === tab.key && styles.activeTabButton]}
-                  onPress={() => dispatch(setProfileActiveTab(tab.key as any))}
+                  onPress={() => dispatch(setProfileActiveTab(tab.key))}
                 >
                   <Text
                     style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}

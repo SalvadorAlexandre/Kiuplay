@@ -362,6 +362,9 @@
   "selectContentScreen": {
     "title": "Select Content",
     "searchPlaceholder": "Search by title...",
+    "loading": "Loading Content...",
+    "errorLoading": "Ops! We couldn't load your content right now.",
+    "noGenre": "Unknown Genre",
     "tabs": {
       "singles": "Singles",
       "extendedPlay": "Extended Play",
@@ -375,7 +378,8 @@
     },
     "emptyList": "No content found.",
     "button": {
-      "continue": "Continue"
+      "continue": "Continue",
+      "retry": "Try Again"
     }
   },
   "setupPromotion": {

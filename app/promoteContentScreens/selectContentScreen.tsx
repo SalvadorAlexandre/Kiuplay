@@ -1,5 +1,5 @@
 // components/promoteContentScreen/selectContentScreen.tsx
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { router, Stack } from 'expo-router';
 import {
   View,
@@ -11,60 +11,119 @@ import {
   FlatList,
   Alert,
   TextInput,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { MOCKED_PROFILE } from '@/src/types/contentServer';
-import { useAppSelector } from '@/src/redux/hooks';
-import debounce from 'lodash.debounce'; // ✅ Importado o debounce
-
+import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import debounce from 'lodash.debounce';
 import { useTranslation } from '@/src/translations/useTranslation'
+import { selectCurrentUserId, selectUserById, setUser } from '@/src/redux/userSessionAndCurrencySlice';
+import { userApi } from '@/src/api';
+import { ArtistProfile } from '@/src/types/contentType';
+import { setPromoteActiveTab, PromoteTabKey } from '@/src/redux/persistTabPromote';
 
 
+type ContentItem = {
+  id: string;
+  title: string;
 
-// Tipagem para os itens de conteúdo
-type ContentItem = { id: string; title: string; cover?: string };
-//type TabName = 'Singles' | 'Extended Play' | 'Álbuns' | 'Exclusive Beats' | 'Free Beats';
+  // imagem
+  cover?: string | null;
 
-// Imagem padrão
-const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
-
+  // categoria / género
+  genre?: string | null;
+  mainGenre?: string | null;
+};
 
 export default function SelectContentScreen() {
 
   const { t } = useTranslation()
+  const dispatch = useAppDispatch();
+  const activeTab = useAppSelector((state) => state.promoteTabs.activeTab);
+  const isConnected = useAppSelector((state) => state.network.isConnected);
+  const currentUserId = useAppSelector(selectCurrentUserId);
+  const userProfile = useAppSelector(selectUserById(currentUserId!));
 
-  // Assume que o MOCKED_PROFILE é uma array e pegamos o primeiro item
-  const userProfile = MOCKED_PROFILE[0];
+  // Criamos um estado local para os dados "frescos" que vêm da API
+  const [fullProfile, setFullProfile] = useState<ArtistProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-
-  // Dados de navegação para as tabs, usando os dados do perfil mockado
-  const contentTabs = useMemo(() => ({
-    [t('selectContentScreen.tabs.singles')]: userProfile.singles || [],
-    [t('selectContentScreen.tabs.extendedPlay')]: userProfile.eps || [],
-    [t('selectContentScreen.tabs.albums')]: userProfile.albums || [],
-    [t('selectContentScreen.tabs.exclusiveBeats')]: userProfile.exclusiveBeats || [],
-    [t('selectContentScreen.tabs.freeBeats')]: userProfile.freeBeats || [],
-  }), [t]);
-
-  const tabs: string[] = useMemo(() => [
-    t('selectContentScreen.tabs.singles'),
-    t('selectContentScreen.tabs.extendedPlay'),
-    t('selectContentScreen.tabs.albums'),
-    t('selectContentScreen.tabs.exclusiveBeats'),
-    t('selectContentScreen.tabs.freeBeats'),
-  ], [t]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
   const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<string>(t('selectContentScreen.tabs.singles'));
+  const loadFreshContent = async () => {
+    setIsLoading(true);
+    setHasError(false); // Resetamos o erro ao iniciar nova tentativa
 
-  // 1. Estado para o texto digitado (feedback visual imediato)
-  const [searchQuery, setSearchQuery] = useState<string>('');
+    try {
+      const data = await userApi.getMe();
+      if (data) {
+        setFullProfile(data);
+        dispatch(setUser(data));
+      } else {
+        throw new Error("Dados vazios");
+      }
+    } catch (error) {
+      console.error("Erro ao carregar conteúdos:", error);
+      setHasError(true); // Ativa a UI de erro
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // 2. Estado para o termo de busca DEBOUNCED (usado para o filtro)
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
+  useEffect(() => {
+    loadFreshContent();
+  }, []); // Executa ao montar a tela
 
-  // Lógica de verificação de conexão
-  const isConnected = useAppSelector((state) => state.network.isConnected);
+
+  // 1. Alinha as chaves das Tabs com as chaves que vêm do Backend/Profile
+  const tabs: { key: PromoteTabKey; label: string }[] = [
+    { key: 'singles', label: t('selectContentScreen.tabs.singles') },
+    { key: 'eps', label: t('selectContentScreen.tabs.extendedPlay') },
+    { key: 'albums', label: t('selectContentScreen.tabs.albums') },
+    { key: 'exclusiveBeats', label: t('selectContentScreen.tabs.exclusiveBeats') },
+    { key: 'freeBeats', label: t('selectContentScreen.tabs.freeBeats') },
+  ];
+
+  const contentTabs: Record<PromoteTabKey, ContentItem[]> = useMemo(() => ({
+    singles: (fullProfile?.singles ?? []).map(item => ({
+      id: item.id,
+      title: item.title,
+      cover: item.cover,
+      genre: item.genre,
+    })),
+
+    eps: (fullProfile?.eps ?? []).map(item => ({
+      id: item.id,
+      title: item.title,
+      cover: item.cover,
+      mainGenre: item.mainGenre,
+    })),
+
+    albums: (fullProfile?.albums ?? []).map(item => ({
+      id: item.id,
+      title: item.title,
+      cover: item.cover,
+      mainGenre: item.mainGenre,
+    })),
+
+    exclusiveBeats: (fullProfile?.exclusiveBeats ?? []).map(item => ({
+      id: item.id,
+      title: item.title,
+      cover: item.cover,
+      genre: item.genre,
+    })),
+
+    freeBeats: (fullProfile?.freeBeats ?? []).map(item => ({
+      id: item.id,
+      title: item.title,
+      cover: item.cover,
+      genre: item.genre,
+    })),
+  }), [fullProfile]);
+
 
   // Função interna que atualiza o estado de busca 'lento'
   const filterContent = (term: string) => {
@@ -91,24 +150,54 @@ export default function SelectContentScreen() {
       return;
     }
 
-    const selectedItem = (contentTabs[activeTab] as ContentItem[]).find(
+    // Corrigido: Tratamos activeTab como PromoteTabKey para indexar o objeto
+    const selectedItem = contentTabs[activeTab as PromoteTabKey].find(
       (item) => item.id === selectedContentId
     );
+
     console.log('Conteúdo selecionado:', selectedItem);
+
     router.push({
       pathname: `/promoteContentScreens/setup-promotion`,
       params: { contentId: selectedContentId, contentType: activeTab },
     });
   };
 
+  const filteredContent = useMemo(() => {
+    // Corrigido: Acessando o conteúdo de forma segura
+    const currentContent = contentTabs[activeTab as PromoteTabKey];
+
+    if (!debouncedSearchTerm) return currentContent;
+
+    const lowercasedTerm = debouncedSearchTerm.toLowerCase();
+
+    return currentContent.filter(item =>
+      item.title.toLowerCase().includes(lowercasedTerm)
+    );
+  }, [activeTab, debouncedSearchTerm, contentTabs]);
+
+
+
+  const getDynamicAvatarUser = () => {
+    if (isConnected === false || !fullProfile?.avatar || fullProfile.avatar.trim() === "") {
+      return require("@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png");
+    }
+    return { uri: fullProfile.avatar };
+  };
+
+  const avatarUser = getDynamicAvatarUser()
+
   const renderContentItem = useCallback(({ item }: { item: ContentItem }) => {
     const isSelected = item.id === selectedContentId;
 
-    // Lógica para obter a fonte da imagem da capa
-    const coverSource =
-      isConnected && item.cover && item.cover.trim() !== ''
-        ? { uri: item.cover }
-        : defaultCoverSource;
+    const getContentCover = () => {
+      if (!isConnected || !item.cover || item.cover.trim() === "") {
+        return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
+      }
+      return { uri: item.cover };
+    };
+
+    const coverSource = getContentCover();
 
     return (
       <TouchableOpacity
@@ -116,35 +205,32 @@ export default function SelectContentScreen() {
         onPress={() => setSelectedContentId(item.id)}
       >
         <Image source={coverSource} style={styles.contentCover} />
-        <Text style={styles.contentTitle} numberOfLines={1}>
-          {item.title}
-        </Text>
+
+        {/* Adicionamos uma View para agrupar os textos à esquerda do botão de seleção */}
+        <View style={styles.contentInfoContainer}>
+          <Text style={styles.contentTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+
+          {/* Exibimos a categoria do perfil ou do item */}
+          <Text style={styles.contentCategory} numberOfLines={1}>
+            {item.genre || item.mainGenre || t('selectContentScreen.noGenre')}
+          </Text>
+        </View>
+
         <TouchableOpacity
           style={styles.circleContainer}
           onPress={() => setSelectedContentId(isSelected ? null : item.id)}
         >
-          {isSelected && (
+          {isSelected ? (
             <Ionicons name="checkmark-circle" size={24} color="#1E90FF" />
-          )}
-          {!isSelected && (
+          ) : (
             <Ionicons name="radio-button-off" size={24} color="#666" />
           )}
         </TouchableOpacity>
-      </TouchableOpacity>
+      </TouchableOpacity >
     );
-  }, [selectedContentId, isConnected]); // Adicionado isConnected às dependências
-
-  // ✅ Otimização: Usa useMemo para recalcular o filtro APENAS quando a tab ou o termo debounced mudam
-  const filteredContent = useMemo(() => {
-    const currentContent = contentTabs[activeTab] as ContentItem[];
-    if (!debouncedSearchTerm) {
-      return currentContent;
-    }
-    const lowercasedTerm = debouncedSearchTerm.toLowerCase();
-    return currentContent.filter(item =>
-      item.title.toLowerCase().includes(lowercasedTerm)
-    );
-  }, [activeTab, debouncedSearchTerm]);
+  }, [selectedContentId, isConnected, fullProfile]);
 
 
   return (
@@ -158,89 +244,106 @@ export default function SelectContentScreen() {
         }}
       />
       <View style={{ flex: 1, backgroundColor: '#191919' }}>
-        {/* Campo de busca */}
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('selectContentScreen.searchPlaceholder')}
-            placeholderTextColor="#888"
-            // ✅ Usa o novo handler debounced
-            onChangeText={handleSearchChange}
-            // ✅ Usa o estado rápido para manter o texto atualizado
-            value={searchQuery}
-          />
-        </View>
 
-        {/* Abas de conteúdo */}
-        <View style={styles.tabBarContainer}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.tabsScrollView}
-            contentContainerStyle={styles.tabsContainer}
-          >
-            {tabs.map((tab) => (
-              <TouchableOpacity
-                key={tab}
-                style={[
-                  styles.tabButton,
-                  activeTab === tab && styles.activeTabButton,
-                ]}
-                onPress={() => {
-                  setActiveTab(tab);
-                  setSelectedContentId(null);
-                  // ✅ Limpa AMBOS os estados de busca e cancela o debounce pendente
-                  setSearchQuery('');
-                  setDebouncedSearchTerm('');
-                  debouncedFilter.cancel();
-                }}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === tab && styles.activeTabText,
-                  ]}
-                >
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Lista de conteúdo filtrado */}
-        {filteredContent.length > 0 ? (
-          <FlatList
-            data={filteredContent as ContentItem[]}
-            renderItem={renderContentItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.contentList}
-          />
-        ) : (
-          <View style={styles.emptyListContainer}>
-            <Text style={styles.emptyListText}>
-              {t('selectContentScreen.emptyList')}
-            </Text>
+        {/* 1. ESTADO DE CARREGAMENTO INICIAL */}
+        {!fullProfile && isLoading ? (
+          <View style={styles.centeredContainer}>
+            <ActivityIndicator size="large" color="#1E90FF" />
+            <Text style={styles.loadingText}>{t('selectContentScreen.loading')}</Text>
           </View>
-        )}
+        ) : hasError ? (
+          /* 2. ESTADO DE ERRO */
+          <View style={styles.centeredContainer}>
+            <Ionicons name="alert-circle-outline" size={70} color="#ff4444" />
+            <Text style={styles.errorText}>{t('selectContentScreen.errorLoading')}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={loadFreshContent}
+            >
+              <Ionicons name="refresh" size={20} color="#fff" />
+              <Text style={styles.buttonText}>{t('selectContentScreen.button.retry')}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          /* 3. ESTADO DE SUCESSO (CONTEÚDO) */
+          <>
+            {/* Cabeçalho do Artista */}
+            <View style={styles.artistContainer}>
+              <Image source={avatarUser} style={styles.artistCover} />
+              <Text style={styles.artistName}>{fullProfile?.name || userProfile?.name}</Text>
+            </View>
 
-        {/* Barra inferior com botão */}
-        <View style={styles.bottomBar}>
-          <TouchableOpacity
-            style={[
-              styles.buttonLoadContent,
-              !selectedContentId && styles.buttonDisabled,
-            ]}
-            onPress={handleContinue}
-            disabled={!selectedContentId}
-          >
-            <Text style={styles.buttonText}>
-              {t('selectContentScreen.button.continue')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            {/* Campo de busca */}
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t('selectContentScreen.searchPlaceholder')}
+                placeholderTextColor="#888"
+                onChangeText={handleSearchChange}
+                value={searchQuery}
+              />
+            </View>
+
+            {/* Abas de conteúdo */}
+            <View style={styles.tabBarContainer}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tabsContainer} // Use contentContainerStyle para padding
+              >
+                {tabs.map((tab) => (
+                  <TouchableOpacity
+                    key={tab.key}
+                    style={[styles.tabButton, activeTab === tab.key && styles.activeTabButton]}
+                    onPress={() => {
+                      // Atualiza o Redux imediatamente
+                      dispatch(setPromoteActiveTab(tab.key));
+                      // Limpa estados de seleção e busca
+                      setSelectedContentId(null);
+                      setSearchQuery('');
+                      setDebouncedSearchTerm('');
+                      debouncedFilter.cancel();
+                    }}
+                  >
+                    <Text style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}>
+                      {tab.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Lista de Itens */}
+            {filteredContent.length > 0 ? (
+              <FlatList
+                data={filteredContent as ContentItem[]}
+                renderItem={renderContentItem}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.contentList}
+              />
+            ) : (
+              <View style={styles.emptyListContainer}>
+                <Text style={styles.emptyListText}>{t('selectContentScreen.emptyList')}</Text>
+              </View>
+            )}
+
+            {/* Barra inferior fixa */}
+            <View style={styles.bottomBar}>
+              <TouchableOpacity
+                style={[
+                  styles.buttonLoadContent,
+                  !selectedContentId && styles.buttonDisabled
+                ]}
+                onPress={handleContinue}
+                disabled={!selectedContentId}
+              >
+                <Text style={styles.buttonText}>{t('selectContentScreen.button.continue')}</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </>
   );
@@ -253,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2b2b2b',
     borderRadius: 8,
     marginHorizontal: 15,
-    marginTop: 10,
+    //marginTop: 4,
     marginBottom: 5,
     paddingHorizontal: 10,
   },
@@ -328,6 +431,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  //contentItemContainer: {
+  // flexDirection: 'row', // Alinha Imagem | Textos | Checkbox
+  // alignItems: 'center',
+  // padding: 12,
+  // backgroundColor: '#222',
+  // borderRadius: 12,
+  // marginBottom: 10,
+  //},
+  contentInfoContainer: {
+    flex: 1, // Faz com que os textos ocupem o espaço disponível entre a imagem e o círculo
+    marginLeft: 12,
+  },
+  // contentTitle: {
+  // color: '#fff',
+  // fontSize: 16,
+  // fontWeight: 'bold',
+  // },
+  contentCategory: {
+    color: '#888', // Cinzento para dar menos peso que o título
+    fontSize: 13,
+    marginTop: 2,
+    textTransform: 'capitalize', // Formata ex: "rapper" para "Rapper"
+  },
+
+
   bottomBar: {
     padding: 10,
     borderTopWidth: 1,
@@ -358,5 +487,50 @@ const styles = StyleSheet.create({
     color: '#aaa',
     fontSize: 16,
     textAlign: 'center',
+  },
+
+
+  artistContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15
+  },
+  artistCover: {
+    width: 40,
+    height: 40,
+    borderRadius: 20
+  },
+  artistName: {
+    color: '#fff',
+    marginLeft: 12,
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    color: '#888',
+    marginTop: 15,
+    fontSize: 16,
+  },
+  errorText: {
+    color: '#ccc',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    backgroundColor: '#1E90FF',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 30,
+    alignItems: 'center',
   },
 });

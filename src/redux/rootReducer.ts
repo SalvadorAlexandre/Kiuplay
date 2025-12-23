@@ -5,6 +5,7 @@ import usersReducer from './userSessionAndCurrencySlice';
 import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃO: Seu novo slice de músicas favoritas
 import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer
 import promotionsReducer from './promotionsSlice';
+import promoteTabsReducer from './persistTabPromote'
 
 
 const rootReducer = combineReducers({
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   favoriteMusic: favoriteMusicReducer, // <-- NOVA ADIÇÃO: Para suas músicas favoritas 
   network: networkReducer,// NOVO: Adicione o networkReducer aqui
   promotions: promotionsReducer,
+  promoteTabs: promoteTabsReducer
   // Se tiver outros slices no futuro (ex: user, auth, beats), adicione-os aqui
   // user: userReducer,
   // auth: authReducer,

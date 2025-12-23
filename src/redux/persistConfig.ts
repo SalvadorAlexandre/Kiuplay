@@ -21,6 +21,7 @@ import walletReducer from './walletSlice'
 import libraryReducer from './persistTabLibrery'
 import beatStoreTabsSlice from './persistTabBeatStore'
 import profileTabsSlice from './persistTabProfile'
+import promoteTabsReducer from './persistTabPromote';
 
 const rootReducer = combineReducers({
   player: playerReducer,
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
   library: libraryReducer,
   beatstore: beatStoreTabsSlice,
   profile: profileTabsSlice,
+  promoteTabs: promoteTabsReducer,
 });
 
 const persistConfig = {
@@ -53,6 +55,7 @@ const persistConfig = {
     'library',
     'beatstore',
     'profile',
+    'promoteTabs',
   ], // Persistir apenas favoritos
 };
 

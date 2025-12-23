@@ -56,7 +56,7 @@ export default function SetupPromotionScreen() {
 
     // Aplica a localização dinâmica ao dayjs
     const local = dayjs.locale(locale?.toLowerCase?.() || "pt-br");
-    console.log('Língua atual:', local)
+    //console.log('Língua atual:', local)
 
 
     const router = useRouter();
