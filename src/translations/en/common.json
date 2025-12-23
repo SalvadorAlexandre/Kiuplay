@@ -386,7 +386,7 @@
     "title": "Set Up Promotion",
     "section1": "1. Promotion Information",
     "adTitlePlaceholder": "Ad title (e.g., New Single: 'Urban Rhythm')",
-    "messagePlaceholder": "Custom message (optional)",
+    "messagePlaceholder": "Custom message about this promotion...",
     "section2": "2. Set Campaign Start and End Dates",
     "startDateLabel": "Start:",
     "endDateLabel": "End:",
@@ -399,7 +399,12 @@
     "promotionActiveRange": "Active promotion from {{startDate}} to {{endDate}}",
     "publishButton": "Publish Promotion",
     "errorTitle": "Error",
-    "errorContentNotFound": "Content not found for promotion."
+    "errorContentNotFound": "Content not found for promotion.",
+    "preparingToPromote": "Preparing to promote",
+    "tips": {
+      "title": "Pro Tip",
+      "body": "Write a cool message! Share a fun fact about the work or what inspired you. This really helps catch the audience's attention."
+    }
   },
   "search_screen_profile": {
     "placeholder": "Search in {{name}}'s profile...",

@@ -153,7 +153,7 @@ export default function SelectContentScreen() {
     // Corrigido: Tratamos activeTab como PromoteTabKey para indexar o objeto
     const selectedItem = contentTabs[activeTab as PromoteTabKey].find(
       (item) => item.id === selectedContentId
-    );
+    ); 
 
     console.log('Conteúdo selecionado:', selectedItem);
 

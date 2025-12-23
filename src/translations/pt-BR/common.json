@@ -386,7 +386,7 @@
         "title": "Configurar Promoção",
         "section1": "1. Informações da Promoção",
         "adTitlePlaceholder": "Título do anúncio (ex: Novo Single: 'Ritmo Urbano')",
-        "messagePlaceholder": "Mensagem personalizada (opcional)",
+        "messagePlaceholder": "Digite uma mensagem personalizada sobre esta promoção...",
         "section2": "2. Configurar início e término da Campanha",
         "startDateLabel": "Início",
         "endDateLabel": "Fim",
@@ -399,7 +399,12 @@
         "promotionActiveRange": "Promoção ativa de {{startDate}} a {{endDate}}",
         "publishButton": "Publicar Promoção",
         "errorTitle": "Erro",
-        "errorContentNotFound": "Conteúdo não encontrado para promoção."
+        "errorContentNotFound": "Conteúdo não encontrado para promoção.",
+        "preparingToPromote": "Preparar para promover",
+        "tips": {
+            "title": "Dica de Mestre",
+            "body": "Escreva uma mensagem bacana! Conte uma curiosidade sobre a obra ou o que te inspirou. Isso ajuda muito a chamar a atenção do público."
+        }
     },
     "search_screen_profile": {
         "placeholder": "Pesquisar no perfil de {{name}}...",

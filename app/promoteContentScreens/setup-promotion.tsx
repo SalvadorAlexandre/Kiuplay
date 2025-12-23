@@ -1,5 +1,5 @@
 // app/promoteContentScreens/setup-promotion.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     View,
     Text,
@@ -14,11 +14,9 @@ import {
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { MOCKED_PROFILE } from '@/src/types/contentServer';
+//import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import { Promotion } from '@/src/types/contentType';
-
 import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // ✅ IMPORTA O HOOK
-
 import { useTranslation } from '@/src/translations/useTranslation'
 
 // Importações para a biblioteca de data
@@ -28,6 +26,10 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import "dayjs/locale/pt-br"; // localização em português
 
+
+// Adicione/Verifique estas importações:
+import { useAppSelector } from '@/src/redux/hooks';
+import { selectCurrentUserId, selectUserById } from '@/src/redux/userSessionAndCurrencySlice';
 
 // Estenda o Day.js com os plugins necessários
 dayjs.extend(isSameOrBefore);
@@ -39,29 +41,24 @@ dayjs.extend(isSameOrAfter);
 import { useAppDispatch } from '@/src/redux/hooks';
 import { addPromotion } from '@/src/redux/promotionsSlice';
 
-const userProfile = MOCKED_PROFILE[0];
+//const userProfile = MOCKED_PROFILE[0];
 
 // Tipagem para os itens de conteúdo
 type ContentItem = { id: string; title: string; cover?: string | null };
-
-// Imagem padrão
-const defaultCoverSource = require("@/assets/images/Default_Profile_Icon/unknown_track.png");
 
 export default function SetupPromotionScreen() {
 
     const { t } = useTranslation()
 
-    // ✅ Usa o hook de localização aqui
-    const { locale } = useUserLocation();
-
-    // Aplica a localização dinâmica ao dayjs
-    const local = dayjs.locale(locale?.toLowerCase?.() || "pt-br");
-    //console.log('Língua atual:', local)
-
-
+    // Usa o hook de localização aqui
+    //const { locale } = useUserLocation();
+    //const local = dayjs.locale(locale?.toLowerCase?.() || "pt-br");
     const router = useRouter();
     const { contentId, contentType } = useLocalSearchParams();
     const dispatch = useAppDispatch();
+    const isConnected = useAppSelector((state) => state.network.isConnected);
+    const currentUserId = useAppSelector(selectCurrentUserId);
+    const userProfile = useAppSelector(selectUserById(currentUserId!));
 
     // 1. Estados da Promoção
     const [adTitle, setAdTitle] = useState('');
@@ -75,42 +72,57 @@ export default function SetupPromotionScreen() {
         return !startDate || !endDate || startDate.isSameOrAfter(endDate, 'day');
     }, [startDate, endDate]);
 
-    // LÓGICA ATUALIZADA: O botão fica desabilitado se o título, as datas ou o status não estiverem corretos.
+    // LÓGICA ATUALIZADA: O botão fica desabilitado se o título, a mensagem, as datas ou o status não estiverem corretos.
     const isButtonDisabled = useMemo(() => {
-        return !adTitle.trim() || isDateRangeInvalid || publishStatus === 'publishing';
-    }, [adTitle, isDateRangeInvalid, publishStatus]);
+        // 1. Verifica se o título não está vazio
+        const isTitleEmpty = !adTitle.trim();
+
+        // 2. Verifica se a mensagem não está vazia (Nova condição que você pediu)
+        const isMessageEmpty = !customMessage.trim();
+
+        // 3. Verifica se as datas são inválidas ou se falta alguma
+        // (A variável isDateRangeInvalid já deve conter !startDate || !endDate || startDate >= endDate)
+
+        // O botão fica DESABILITADO se qualquer uma dessas for verdadeira:
+        return isTitleEmpty || isMessageEmpty || isDateRangeInvalid || publishStatus === 'publishing';
+
+    }, [adTitle, customMessage, isDateRangeInvalid, publishStatus]);
 
     const selectedContent = useMemo(() => {
         let contentList: ContentItem[] = [];
+
+        // As chaves agora batem com o que vem do params (Redux)
         switch (contentType) {
-            case 'Singles':
+            case 'singles':
                 contentList = userProfile.singles || [];
                 break;
-            case 'Extended Play':
+            case 'eps':
                 contentList = userProfile.eps || [];
                 break;
-            case 'Álbuns':
+            case 'albums':
                 contentList = userProfile.albums || [];
                 break;
-            case 'Exclusive Beats':
+            case 'exclusiveBeats':
                 contentList = userProfile.exclusiveBeats || [];
                 break;
-            case 'Free Beats':
+            case 'freeBeats':
                 contentList = userProfile.freeBeats || [];
                 break;
             default:
+                console.log("DEBUG: contentType não mapeado ->", contentType);
                 break;
         }
         return contentList.find(item => item.id === contentId) || null;
-    }, [contentId, contentType]);
+    }, [contentId, contentType, userProfile]);
 
-    const getCoverSource = () => {
-        if (selectedContent?.cover && selectedContent.cover.trim() !== '') {
-            return { uri: selectedContent.cover };
+    // Este efeito vai rodar sempre que o selectedContent mudar
+    useEffect(() => {
+        if (selectedContent?.title && !adTitle) {
+            setAdTitle(selectedContent.title);
         }
-        return defaultCoverSource;
-    };
+    }, [selectedContent]);
 
+    /**======================================== */
     const publishPromotion = async () => {
         if (!adTitle.trim()) return;
         if (!startDate || !endDate || startDate.isSameOrAfter(endDate)) return;
@@ -233,6 +245,25 @@ export default function SetupPromotionScreen() {
         }
     };
 
+    const getDynamicAvatarUser = () => {
+        // Verificamos se há conexão, se o perfil existe e se tem avatar
+        if (isConnected === false || !userProfile?.avatar || userProfile.avatar.trim() === "") {
+            return require("@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png");
+        }
+        return { uri: userProfile.avatar };
+    };
+
+    const getDynamicCover = () => {
+        // Verificamos se há conexão, se o perfil existe e se tem avatar
+        if (isConnected === false || !userProfile?.avatar || userProfile.avatar.trim() === "") {
+            return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
+        }
+        return { uri: userProfile.avatar };
+    };
+
+    const coverContent = getDynamicCover();
+    const avatarUser = getDynamicAvatarUser();
+
 
     return (
         <View style={styles.container}>
@@ -248,6 +279,16 @@ export default function SetupPromotionScreen() {
                 horizontal={false}
                 contentContainerStyle={styles.scrollContent}
             >
+                {/* Título dinâmico do conteúdo selecionado */}
+                <View style={styles.headerInfoContainer}>
+                    <Text style={styles.headerInfoText}>
+                        {t('setupPromotion.preparingToPromote')}:
+                        <Text style={styles.contentHighlight}> '{selectedContent?.title}'</Text>
+                    </Text>
+                </View>
+
+                <View style={{ height: 1, backgroundColor: '#7c7c7cff', marginVertical: 20 }} />
+
                 {/* 1. Informações da Promoção */}
                 <Text style={styles.sectionTitle}>{t('setupPromotion.section1')}</Text>
                 <TextInput
@@ -263,9 +304,27 @@ export default function SetupPromotionScreen() {
                     placeholderTextColor="#888"
                     multiline
                     numberOfLines={3}
+                    maxLength={100}
                     value={customMessage}
                     onChangeText={setCustomMessage}
                 />
+
+                {/* --- RENDERIZAÇÃO CONDICIONAL DA DICA DE MENSAGEM --- */}
+                {!customMessage.trim() && (
+                    <View style={styles.infoCardOrange}>
+                        <View style={styles.infoTitleRow}>
+                            <Ionicons name="bulb-outline" size={20} color="#FF9800" />
+                            <Text style={styles.infoTitleOrange}>
+                                {t('setupPromotion.tips.title')}
+                            </Text>
+                        </View>
+                        <Text style={styles.infoBody}>
+                            {t('setupPromotion.tips.body')}
+                        </Text>
+                    </View>
+                )}
+
+                <View style={{ height: 1, backgroundColor: '#7c7c7cff', marginVertical: 20 }} />
 
                 {/* 2. Configuração da Campanha */}
                 <Text style={styles.sectionTitle}>{t('setupPromotion.section2')}</Text>
@@ -273,14 +332,14 @@ export default function SetupPromotionScreen() {
                     <View style={styles.dateView}>
                         <Ionicons name="calendar" size={28} color="#fff" />
                         <Text style={{ color: "#1E90FF", marginTop: 5, fontSize: 16 }}>
-                             {t('setupPromotion.startDateLabel')}: {startDate ? startDate.format("DD/MM/YYYY") : "—"}
+                            {t('setupPromotion.startDateLabel')}: {startDate ? startDate.format("DD/MM/YYYY") : "—"}
                         </Text>
                     </View>
 
                     <View style={styles.dateView}>
                         <Ionicons name="calendar" size={28} color="#fff" />
                         <Text style={{ color: "#FF6347", marginTop: 5, fontSize: 16, marginBottom: 10 }}>
-                             {t('setupPromotion.endDateLabel')}: {endDate ? endDate.format("DD/MM/YYYY") : "—"}
+                            {t('setupPromotion.endDateLabel')}: {endDate ? endDate.format("DD/MM/YYYY") : "—"}
                         </Text>
                     </View>
                 </View>
@@ -299,23 +358,16 @@ export default function SetupPromotionScreen() {
                         arrowColor: '#fff',
                         todayTextColor: '#1E90FF',
                     }}
-                    style={{ borderRadius: 12, backgroundColor: "#2b2b2b" }}
+                    style={{ borderRadius: 12, backgroundColor: "#2b2b2b", marginBottom: 10 }}
                 />
-                <View style={styles.audienceContainer}>
-                    <Image
-                        source={require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
-                        style={styles.audienceImage}
-                    />
-                    <View style={styles.audienceTextContainer}>
-                        <Text style={styles.audienceTitle}>{t('setupPromotion.audienceDescription')}</Text>
-                    </View>
-                </View>
+
+                <View style={{ height: 1, backgroundColor: '#7c7c7cff', marginVertical: 20 }} />
 
                 {/* 3. Resumo da Promoção (Preview) */}
                 <Text style={styles.sectionTitle}>{t('setupPromotion.section3')}</Text>
                 <View style={styles.previewContainer}>
                     <View style={styles.previewHeader}>
-                        <Image source={getCoverSource()} style={styles.previewAvatar} />
+                        <Image source={avatarUser} style={styles.previewAvatar} />
                         <View>
                             {/* adTitle agora reflete o campo Promotion.title */}
                             <Text style={styles.previewTitle} numberOfLines={1}>
@@ -326,7 +378,7 @@ export default function SetupPromotionScreen() {
                     </View>
 
                     <View style={styles.previewBody}>
-                        <Image source={getCoverSource()} style={styles.previewImage} />
+                        <Image source={coverContent} style={styles.previewImage} />
 
                         {/* customMessage agora reflete o campo Promotion.message */}
                         {customMessage.trim() ? (
@@ -384,7 +436,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         //fontWeight: 'bold',
         color: '#fff',
-        marginTop: 20,
+        marginTop: 10,
         marginBottom: 5,
     },
     input: {
@@ -565,5 +617,50 @@ const styles = StyleSheet.create({
         //fontWeight: 'bold',
         color: '#fff',
         marginBottom: 4,
+    },
+
+    headerInfoContainer: {
+        //marginBottom: 20,
+        padding: 15,
+        backgroundColor: '#2b2b2b', // Um cinza levemente mais claro que o fundo
+        borderRadius: 10,
+        borderLeftWidth: 4,
+        borderLeftColor: '#1E90FF', // Uma barra azul lateral para dar destaque
+    },
+    headerInfoText: {
+        fontSize: 18,
+        color: '#fff',
+        fontWeight: '500',
+    },
+    contentHighlight: {
+        color: '#1E90FF', // O título da música em destaque azul
+        fontWeight: 'bold',
+    },
+
+    infoCardOrange: {
+        backgroundColor: 'rgba(255, 152, 0, 0.1)', // Laranja suave atrás
+        padding: 15,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 152, 0, 0.3)',
+        marginTop: 5, // Ajustado para ficar próximo ao input
+        marginBottom: 5,
+    },
+    infoTitleOrange: {
+        color: '#FF9800',
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    // Reutilizando os que você já tem
+    infoTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    infoBody: {
+        color: '#ccc',
+        fontSize: 16,
+        lineHeight: 20,
     },
 });
