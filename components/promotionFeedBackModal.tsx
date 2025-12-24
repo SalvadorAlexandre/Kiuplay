@@ -5,40 +5,65 @@ import { useTranslation } from '@/src/translations/useTranslation';
 
 interface FeedbackModalProps {
     isVisible: boolean;
-    type: 'success' | 'error';
+    type: 'success' | 'error' | 'confirm'; // Adicionado 'confirm'
     message: string;
     onClose: () => void;
+    onConfirm?: () => void; // Função para quando o user aceita apagar
 }
 
-export const PromotionFeedbackModal = ({ isVisible, type, message, onClose }: FeedbackModalProps) => {
-    const isSuccess = type === 'success';
+export const PromotionFeedbackModal = ({ isVisible, type, message, onClose, onConfirm }: FeedbackModalProps) => {
     const { t } = useTranslation();
+
+    // Lógica para definir ícone e cor
+    const getModalConfig = () => {
+        switch (type) {
+            case 'success': return { icon: "checkmark-circle", color: "#4BB543" };
+            case 'error': return { icon: "alert-circle", color: "#FF3333" };
+            case 'confirm': return { icon: "help-circle", color: "#FFA500" }; // Cor Laranja para aviso
+        }
+    };
+
+    const config = getModalConfig();
+
     return (
         <Modal visible={isVisible} transparent animationType="fade">
             <View style={styles.overlay}>
                 <View style={styles.modalContainer}>
-                    <Ionicons
-                        name={isSuccess ? "checkmark-circle" : "alert-circle"}
-                        size={60}
-                        color={isSuccess ? "#4BB543" : "#FF3333"}
-                    />
+                    <Ionicons name={config.icon as any} size={60} color={config.color} />
 
-                    {/* Título Traduzido */}
                     <Text style={styles.title}>
-                        {isSuccess ? t('promotionFeedBackModal.successTitle') : t('promotionFeedBackModal.errorTitle')}
+                        {type === 'confirm' ? t('promotionFeedBackModal.confirmTitle') :
+                            type === 'success' ? t('promotionFeedBackModal.successTitle') :
+                                t('promotionFeedBackModal.errorTitle')}
                     </Text>
 
                     <Text style={styles.message}>{message}</Text>
 
-                    <TouchableOpacity
-                        style={[styles.button, { backgroundColor: isSuccess ? "#4BB543" : "#333" }]}
-                        onPress={onClose}
-                    >
-                        {/* Texto do Botão Traduzido */}
-                        <Text style={styles.buttonText}>
-                            {isSuccess ? t('promotionFeedBackModal.successButton') : t('promotionFeedBackModal.errorButton')}
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={styles.buttonContainer}>
+                        {type === 'confirm' ? (
+                            <>
+                                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+                                    <Text style={styles.buttonText}>{t('common.cancel')}</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[styles.button, { backgroundColor: "#FF3333" }]}
+                                    onPress={onConfirm}
+                                >
+                                    <Text style={styles.buttonText}>{t('common.delete')}</Text>
+                                </TouchableOpacity>
+                            </>
+                        ) : (
+                            <TouchableOpacity
+                                style={[styles.button, { backgroundColor: config.color }]}
+                                onPress={onClose}
+                            >
+                                <Text style={styles.buttonText}>
+                                    {type === 'success' ? t('promotionFeedBackModal.successButton') : t('promotionFeedBackModal.errorButton')}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
             </View>
         </Modal>
@@ -73,15 +98,24 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 20
     },
-    button: {
-        width: '100%',
-        padding: 15,
-        borderRadius: 12,
-        alignItems: 'center'
+     button: {
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 8,
+        minWidth: 100,
+        alignItems: 'center',
     },
     buttonText: {
         color: '#FFF',
         fontWeight: 'bold',
         fontSize: 16
-    }
+    },
+    buttonContainer: {
+        flexDirection: 'row', // Botões lado a lado no modo confirm
+        gap: 10,
+        marginTop: 20,
+    },
+    cancelButton: {
+        backgroundColor: '#333',
+    },
 });

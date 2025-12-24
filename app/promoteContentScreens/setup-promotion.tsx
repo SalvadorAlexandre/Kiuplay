@@ -13,7 +13,7 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 //import { MOCKED_PROFILE } from '@/src/types/contentServer';
-import { Promotion } from '@/src/types/contentType';
+//import { Promotion } from '@/src/types/contentType';
 //import { useUserLocation } from '@/hooks/localization/useUserLocalization'
 import { useTranslation } from '@/src/translations/useTranslation'
 import { createPromotion } from '@/src/api/promotionApi';
@@ -38,8 +38,8 @@ dayjs.extend(isSameOrAfter);
 
 
 // IMPORTAÇÕES DO REDUX
-import { useAppDispatch } from '@/src/redux/hooks';
-import { addPromotion } from '@/src/redux/promotionsSlice'; //DEPOIS VAMOS APAGAR DO REDUX
+//import { useAppDispatch } from '@/src/redux/hooks';
+//import { addPromotion } from '@/src/redux/promotionsSlice'; //DEPOIS VAMOS APAGAR DO REDUX
 
 //const userProfile = MOCKED_PROFILE[0];
 
@@ -55,7 +55,7 @@ export default function SetupPromotionScreen() {
     //const local = dayjs.locale(locale?.toLowerCase?.() || "pt-br");
     const router = useRouter();
     const { contentId, contentType } = useLocalSearchParams();
-    const dispatch = useAppDispatch();
+    //const dispatch = useAppDispatch();
     const isConnected = useAppSelector((state) => state.network.isConnected);
     const currentUserId = useAppSelector(selectCurrentUserId);
     const userProfile = useAppSelector(selectUserById(currentUserId!));
@@ -130,65 +130,6 @@ export default function SetupPromotionScreen() {
     }, [selectedContent]);
 
     /**======================================== */
-
-    /**
-     * const publishPromotion = async () => {
-        if (!adTitle.trim()) return;
-        if (!startDate || !endDate || startDate.isSameOrAfter(endDate)) return;
-
-        setPublishStatus("publishing");
-
-        try {
-            // Determina status dinamicamente
-            let status: Promotion["status"] = "pending";
-            const now = dayjs();
-
-            if (startDate.isSameOrBefore(now) && endDate.isSameOrAfter(now)) {
-                status = "active";
-            } else if (endDate.isBefore(now)) {
-                status = "expired";
-            }
-
-            const newPromotion: Promotion = {
-                id: `promo_${Date.now()}`,
-                contentId: contentId as string,
-                contentType: (contentType as Promotion["contentType"]) || "single",
-                promoterId: userProfile.id,
-                title: adTitle,
-                message: customMessage.trim() || undefined,
-                thumbnail: selectedContent?.cover || undefined,
-                artistAvatar: userProfile.avatar || undefined,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                targetAudience: "all",
-                notify: true,
-                createdAt: new Date().toISOString(),
-                category: "promotion",
-                status, // calculado dinamicamente
-            };
-
-            dispatch(addPromotion(newPromotion));
-
-            setPublishStatus("success");
-
-            setAdTitle('')
-            setCustomMessage('')
-            setStartDate(dayjs())
-            setEndDate(dayjs().add(7, 'day'))
-
-
-            // Navega direto sem Alert
-            router.replace("/profileScreens/usePostPromoteScreen");
-
-            // volta para idle depois de 1s
-            setTimeout(() => setPublishStatus("idle"), 1000);
-        } catch (error) {
-            console.error("Erro ao publicar promoção:", error);
-            setPublishStatus("idle");
-        }
-    };
-     */
-
     const publishPromotion = async () => {
         // 1. Validações Básicas
         if (!adTitle.trim()) return;
@@ -519,7 +460,7 @@ export default function SetupPromotionScreen() {
                     setModalConfig({ ...modalConfig, visible: false });
                     // Se foi sucesso, aí sim navegamos para fora da tela
                     if (modalConfig.type === 'success') {
-                        router.replace("/profileScreens/usePostPromoteScreen");
+                        router.back()
                     }
                 }}
             />

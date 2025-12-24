@@ -1,5 +1,5 @@
 // app/profileScreens/usePromoteScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { router, Stack } from 'expo-router';
 import {
   View,
@@ -9,23 +9,109 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { removePromotion } from '@/src/redux/promotionsSlice';
 import { Promotion } from '@/src/types/contentType';
-
 import { useTranslation } from '@/src/translations/useTranslation'
+import { getMyPromotions, deletePromotion } from '@/src/api/promotionApi';
+import { PromotionFeedbackModal } from '@/components/promotionFeedBackModal';
 
 export default function PromoteUserScreen() {
   const [activeTab, setActiveTab] = useState<'configurar' | 'ativas'>('configurar');
-  const dispatch = useAppDispatch();
-  const activePromotions = useAppSelector((state) => state.promotions.activePromotions);
-
+  //const dispatch = useAppDispatch();
+  //const activePromotions = useAppSelector((state) => state.promotions.activePromotions);
+  const isConnected = useAppSelector((state) => state.network.isConnected);
   const { t } = useTranslation()
+
+  // Substitui os seletores do Redux por isto:
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    type: 'success' as 'success' | 'error' | 'confirm',
+    message: ''
+  });
+  const loadPromotions = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getMyPromotions();
+      setPromotions(data);
+    } catch (error: any) {
+      console.error("Erro ao carregar promoções:", error);
+
+      // 1. Tenta capturar o código vindo do Back-end, senão usa o genérico
+      const errorCode = t('promoteScreen.errors.loading') || error.response?.data?.errorCode;
+
+      // 2. Dispara o teu modal de erro com a tradução correta
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        message: errorCode
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'ativas') {
+      loadPromotions();
+    }
+  }, [activeTab]); // Sempre que a aba mudar, ele verifica se deve carregar
+
+  const getDynamicCover = (thumbnail?: string) => {
+    if (isConnected === false || !thumbnail || thumbnail.trim() === "") {
+      return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
+    }
+    return { uri: thumbnail };
+  };
+
+  const confirmDelete = (id: string) => {
+    setSelectedId(id); // Guarda o ID temporariamente
+    setModalConfig({
+      visible: true,
+      type: 'confirm',
+      message: t('promoteScreen.confirmDeleteMessage')
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!selectedId) return;
+
+    setModalConfig(prev => ({ ...prev, visible: false })); // Fecha o modal de confirmação
+
+    try {
+      await deletePromotion(selectedId);
+      setPromotions(prev => prev.filter(p => p.id !== selectedId));
+
+      await loadPromotions();
+      // Abre o modal de sucesso
+      setModalConfig({
+        visible: true,
+        type: 'success',
+        message: t('promoteScreen.success.deleted')
+      });
+
+    } catch (error: any) {
+      const errorCode = t('promoteScreen.errors.notAuthorized') || error.response?.data?.errorCode;
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        message: errorCode
+      });
+    } finally {
+      setSelectedId(null);
+    }
+  };
 
   // Função para renderizar cada item da lista de promoções
   const renderPromotionItem = ({ item }: { item: Promotion }) => {
+
+    const coverSource = getDynamicCover(item.thumbnail);
     const startDate = new Date(item.startDate).toLocaleDateString();
     const endDate = new Date(item.endDate).toLocaleDateString();
 
@@ -33,11 +119,7 @@ export default function PromoteUserScreen() {
       <View style={styles.promotionItemContainer}>
         <View style={styles.promoItemHeader}>
           <Image
-            source={
-              item.thumbnail
-                ? { uri: item.thumbnail }
-                : require('@/assets/images/Default_Profile_Icon/unknown_track.png')
-            }
+            source={coverSource}
             style={styles.promoCover}
           />
           <View style={styles.promoDetails}>
@@ -52,10 +134,9 @@ export default function PromoteUserScreen() {
           </View>
         </View>
 
-        {/* Botão direto sem Alert */}
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => dispatch(removePromotion(item.id))}
+          onPress={() => confirmDelete(item.id)}
         >
           <Ionicons name="trash-outline" size={24} color="#FF6347" />
         </TouchableOpacity>
@@ -107,21 +188,36 @@ export default function PromoteUserScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            <FlatList
-              data={activePromotions}
-              renderItem={renderPromotionItem}
-              keyExtractor={(item) => item.id}
-              ListEmptyComponent={() => (
-                <View style={styles.emptyListContainer}>
-                  <Text style={styles.emptyListText}>
-                    {t('promoteScreen.active.empty')}
-                  </Text>
-                </View>
-              )}
-              contentContainerStyle={styles.promoListContainer}
-            />
+            /* Se estiver a carregar, mostra o indicador. Se não, mostra a FlatList */
+            isLoading ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#fff" />
+                <Text style={{ color: '#fff', marginTop: 10 }}>{t('promoteScreen.loading')}</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={promotions} // Lembra-te de usar o estado local 'promotions' que criámos
+                renderItem={renderPromotionItem}
+                keyExtractor={(item) => item.id}
+                ListEmptyComponent={() => (
+                  <View style={styles.emptyListContainer}>
+                    <Text style={styles.emptyListText}>
+                      {t('promoteScreen.active.empty')}
+                    </Text>
+                  </View>
+                )}
+                contentContainerStyle={styles.promoListContainer}
+              />
+            )
           )}
         </View>
+        <PromotionFeedbackModal
+          isVisible={modalConfig.visible}
+          type={modalConfig.type}
+          message={modalConfig.message}
+          onClose={() => setModalConfig({ ...modalConfig, visible: false })}
+          onConfirm={handleDelete} // Passa a função aqui!
+        />
       </View>
     </>
   );
@@ -194,6 +290,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 8,
     marginRight: 15,
+    resizeMode: 'cover',
   },
   promoDetails: {
     flex: 1,

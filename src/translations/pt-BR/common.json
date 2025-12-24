@@ -357,7 +357,16 @@
             "start": "Início: {{date}}",
             "end": "Término: {{date}}"
         },
-        "delete": "Remover promoção"
+        "delete": "Remover promoção",
+        "confirmDeleteMessage": "Tens a certeza que desejas eliminar esta promoção? Esta acção não pode ser desfeita.",
+        "success": {
+            "deleted": "Promoção eliminada com sucesso!"
+        },
+        "errors": {
+            "notAuthorized": "Não tens permissão para eliminar esta promoção.",
+            "loading": "Ocorreu um erro ao carregar as tuas promoções. Por favor, tenta novamente mais tarde."
+        },
+        "loading": "Carregando promoções..."
     },
     "selectContentScreen": {
         "title": "Selecionar conteúdo",
@@ -455,7 +464,8 @@
         "error": "Erro",
         "success": "Sucesso",
         "cancel": "Cancelar",
-        "confirm": "Confirmar"
+        "confirm": "Confirmar",
+        "delete": "Apagar"
     },
     "freeBeatdetails": {
         "notFound": "Beat não encontrado.",
@@ -601,6 +611,7 @@
         "successButton": "Excelente",
         "errorButton": "Tentar Novamente",
         "deleteSuccess": "A tua promoção foi eliminada com sucesso.",
-        "createSuccess": "A tua promoção foi criada com sucesso!"
+        "createSuccess": "A tua promoção foi criada com sucesso!",
+        "confirmTitle": "Apaga promoção"
     }
 }
