@@ -404,6 +404,15 @@
         "tips": {
             "title": "Dica de Mestre",
             "body": "Escreva uma mensagem bacana! Conte uma curiosidade sobre a obra ou o que te inspirou. Isso ajuda muito a chamar a atenção do público."
+        },
+        "errors": {
+            "invalidDates": "A data de término deve ser posterior à data de início.",
+            "limitReached": "Limite atingido! Já tens 5 promoções ativas ou pendentes. Elimina uma ou aguarda que o prazo de uma delas termine para continuar.",
+            "duplicateContent": "Este conteúdo já está a ser promovido no momento. Por favor, escolhe outro.",
+            "genericError": "Ocorreu um erro ao criar a promoção. Por favor, tenta novamente mais tarde."
+        },
+        "success": {
+            "created": "A tua promoção foi criada com sucesso!"
         }
     },
     "search_screen_profile": {
@@ -585,5 +594,13 @@
         "emptyTitle": "Nenhuma faixa enviada ainda",
         "emptyText": "As músicas que carregares no rascunho do álbum aparecerão listadas aqui.",
         "btnBack": "Voltar para Upload"
+    },
+    "promotionFeedBackModal": {
+        "successTitle": "Sucesso!",
+        "errorTitle": "Atenção",
+        "successButton": "Excelente",
+        "errorButton": "Tentar Novamente",
+        "deleteSuccess": "A tua promoção foi eliminada com sucesso.",
+        "createSuccess": "A tua promoção foi criada com sucesso!"
     }
 }

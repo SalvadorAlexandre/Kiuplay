@@ -8,16 +8,16 @@ import {
     TextInput,
     TouchableOpacity,
     Image,
-    Alert,
-    Platform,
     ActivityIndicator,
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 //import { MOCKED_PROFILE } from '@/src/types/contentServer';
 import { Promotion } from '@/src/types/contentType';
-import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // ✅ IMPORTA O HOOK
+//import { useUserLocation } from '@/hooks/localization/useUserLocalization'
 import { useTranslation } from '@/src/translations/useTranslation'
+import { createPromotion } from '@/src/api/promotionApi';
+import { PromotionFeedbackModal } from '@/components/promotionFeedBackModal';
 
 // Importações para a biblioteca de data
 import { Calendar } from 'react-native-calendars';
@@ -39,7 +39,7 @@ dayjs.extend(isSameOrAfter);
 
 // IMPORTAÇÕES DO REDUX
 import { useAppDispatch } from '@/src/redux/hooks';
-import { addPromotion } from '@/src/redux/promotionsSlice';
+import { addPromotion } from '@/src/redux/promotionsSlice'; //DEPOIS VAMOS APAGAR DO REDUX
 
 //const userProfile = MOCKED_PROFILE[0];
 
@@ -66,7 +66,14 @@ export default function SetupPromotionScreen() {
     const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
     const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().add(7, 'day'));
 
+    //const [publishStatus, setPublishStatus] = useState<'idle' | 'publishing' | 'success'>('idle');
+
     const [publishStatus, setPublishStatus] = useState<'idle' | 'publishing' | 'success'>('idle');
+    const [modalConfig, setModalConfig] = useState({
+        visible: false,
+        type: 'error' as 'success' | 'error',
+        message: ''
+    });
 
     const isDateRangeInvalid = useMemo(() => {
         return !startDate || !endDate || startDate.isSameOrAfter(endDate, 'day');
@@ -123,7 +130,9 @@ export default function SetupPromotionScreen() {
     }, [selectedContent]);
 
     /**======================================== */
-    const publishPromotion = async () => {
+
+    /**
+     * const publishPromotion = async () => {
         if (!adTitle.trim()) return;
         if (!startDate || !endDate || startDate.isSameOrAfter(endDate)) return;
 
@@ -176,6 +185,88 @@ export default function SetupPromotionScreen() {
         } catch (error) {
             console.error("Erro ao publicar promoção:", error);
             setPublishStatus("idle");
+        }
+    };
+     */
+
+    const publishPromotion = async () => {
+        // 1. Validações Básicas
+        if (!adTitle.trim()) return;
+        if (!startDate || !endDate || startDate.isSameOrAfter(endDate)) {
+            setModalConfig({
+                visible: true,
+                type: 'error',
+                message: t('setupPromotion.errors.invalidDates')
+            });
+            return;
+        }
+
+        setPublishStatus("publishing");
+
+        try {
+            // 2. Prepara o Payload para o Servidor
+            // Nota: O back-end já ignora o promoterId do body e usa o do Token (segurança!)
+            const payload = {
+                contentId: contentId,
+                category: contentType || "single", // 'single', 'album', etc.
+                title: adTitle.trim(),
+                message: customMessage.trim() || undefined,
+                thumbnail: selectedContent?.cover || undefined,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                targetAudience: "all",
+                notify: true,
+            };
+
+            // 3. Chamada à API Real
+            await createPromotion(payload);
+
+            // 4. Sucesso!
+            setPublishStatus("success");
+
+            // Limpa os campos
+            setAdTitle('');
+            setCustomMessage('');
+            setStartDate(dayjs());
+            setEndDate(dayjs().add(7, 'day'));
+
+            // Mostra o Modal de Sucesso antes de navegar
+            setModalConfig({
+                visible: true,
+                type: 'success',
+                message: t('setupPromotion.success.created')
+            });
+
+        } catch (error: any) {
+            setPublishStatus("idle");
+            console.error("Erro ao publicar promoção:", error);
+
+            // 1. Extraímos o código do erro vindo da API
+            // Nota: dependendo do teu interceptor, pode ser error.errorCode ou error.response.data.errorCode
+            const code = error?.response?.data?.errorCode;
+
+            let finalMessage = "";
+
+            // 2. Lógica de decisão por código (Mapping)
+            if (code === "PROMOTION_LIMIT_REACHED") {
+                // Mensagem específica de limite
+                finalMessage = t('setupPromotion.errors.limitReached');
+            }
+            else if (code === "DUPLICATE_PROMOTION") {
+                // Mensagem específica de conteúdo repetido
+                finalMessage = t('setupPromotion.errors.duplicateContent');
+            }
+            else {
+                // 3. Qualquer outro erro (500, timeout, erro de rede, etc) cai aqui
+                finalMessage = t('setupPromotion.errors.genericError');
+            }
+
+            // 4. Exibe o Modal com a mensagem decidida acima
+            setModalConfig({
+                visible: true,
+                type: 'error',
+                message: finalMessage
+            });
         }
     };
 
@@ -419,6 +510,19 @@ export default function SetupPromotionScreen() {
                     )}
                 </TouchableOpacity>
             </View>
+
+            <PromotionFeedbackModal
+                isVisible={modalConfig.visible}
+                type={modalConfig.type}
+                message={modalConfig.message}
+                onClose={() => {
+                    setModalConfig({ ...modalConfig, visible: false });
+                    // Se foi sucesso, aí sim navegamos para fora da tela
+                    if (modalConfig.type === 'success') {
+                        router.replace("/profileScreens/usePostPromoteScreen");
+                    }
+                }}
+            />
         </View>
     );
 }

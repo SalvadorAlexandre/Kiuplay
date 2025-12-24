@@ -404,6 +404,15 @@
     "tips": {
       "title": "Pro Tip",
       "body": "Write a cool message! Share a fun fact about the work or what inspired you. This really helps catch the audience's attention."
+    },
+    "success": {
+      "created": "Your promotion has been created successfully!"
+    },
+    "errors": {
+      "invalidDates": "The end date must be later than the start date.",
+      "limitReached": "Limit reached! You already have 5 active or pending promotions. Delete one or wait for a promotion to expire to continue.",
+      "duplicateContent": "This content is already being promoted. Please choose another one.",
+      "genericError": "An error occurred while creating the promotion. Please try again later."
     }
   },
   "search_screen_profile": {
@@ -584,5 +593,13 @@
     "emptyTitle": "No tracks uploaded yet",
     "emptyText": "The songs you upload to the album draft will appear listed here.",
     "btnBack": "Back to Upload"
+  },
+  "promotionFeedBackModal": {
+    "successTitle": "Success!",
+    "errorTitle": "Attention",
+    "successButton": "Great",
+    "errorButton": "Try Again",
+    "deleteSuccess": "Your promotion has been successfully deleted.",
+    "createSuccess": "Your promotion has been created successfully!"
   }
 }
