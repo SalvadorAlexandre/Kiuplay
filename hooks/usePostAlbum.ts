@@ -241,6 +241,9 @@ const usePostAlbum = () => {
         }
       } catch (error) {
         console.log("Sem rascunho de álbum pendente.");
+        showModal(
+          'error', t('postAlbum.errors.draftLoadFailed')
+        )
       }
     };
     checkAlbumDraft();

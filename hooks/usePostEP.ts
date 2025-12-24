@@ -235,6 +235,11 @@ const usePostExtendedPlay = () => {
         }
       } catch (error) {
         console.log("Sem rascunho pendente.");
+        // Ajuste: Informar o utilizador que algo falhou
+        // Usamos o tipo 'error' para ele saber que a tentativa de recuperar o rascunho falhou
+        showModal(
+          'error', t('postEP.errors.draftLoadFailed')
+        )
       }
     };
 

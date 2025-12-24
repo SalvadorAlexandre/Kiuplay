@@ -1,3 +1,5 @@
+//app/profileScreensuseOptionsPostScreen.ts
+
 {/*TELA ONDE APARECEM A LISTA DOS TIPOS DE POSTAGEM*/ }
 import React, { useState, useTransition } from 'react'
 import { Ionicons } from '@expo/vector-icons';
@@ -11,13 +13,13 @@ import {
     TouchableOpacity,
     Animated,
 } from 'react-native';
-
 import { useTranslation } from '@/src/translations/useTranslation'
+import { useCheckDrafts } from '@/hooks/useCheckDraft';
 
 export default function OptionsListPostScreen() {
 
     const { t } = useTranslation()
-
+    const { hasEPDraft, hasAlbumDraft, isLoadingDrafts } = useCheckDrafts();
     //hooks para o btn postar single----------------------------------------------
     const [scaleValuePostSingle] = useState(new Animated.Value(1))
     const handlePressInPostSingle = () => {
@@ -168,6 +170,9 @@ export default function OptionsListPostScreen() {
                             {/* Texto do botão */}
                             <Text style={styles.buttonText}>{t('screens.buttons.postEP')}</Text>
 
+                            {/* INDICADOR DE RASCUNHO PENDENTE */}
+                            {hasEPDraft && <View style={styles.dotBadge} />}
+
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
                         </TouchableOpacity>
@@ -194,6 +199,10 @@ export default function OptionsListPostScreen() {
 
                             {/* Texto do botão */}
                             <Text style={styles.buttonText}>{t('screens.buttons.postAlbum')}</Text>
+
+                             {/* INDICADOR DE RASCUNHO PENDENTE */}
+                            {hasEPDraft && <View style={styles.dotBadge} />}
+                            
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
                         </TouchableOpacity>
@@ -299,4 +308,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         //fontWeight: 'bold',
     },
+    dotBadge: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#007AFF', // Azul sistema
+        position: 'absolute',
+        right: 45, // Ajusta este valor para ficar logo antes da seta (chevron)
+        top: '50%',
+        marginTop: -5, // Metade da altura para centralizar verticalmente
+        borderWidth: 1.5,
+        borderColor: '#191919', // Cria um "aro" para destacar no fundo escuro
+    }
 })

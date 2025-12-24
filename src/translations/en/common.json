@@ -194,7 +194,8 @@
       "missingTrackData": "Fill in the track details.",
       "uploadTrackError": "Error uploading track.",
       "finalizeError": "Error finalizing the publication.",
-      "deleteDraftError": "Error deleting the draft."
+      "deleteDraftError": "Error deleting the draft.",
+      "draftLoadFailed": "Could not recover your draft."
     },
     "loading": {
       "creatingDraft": "Creating EP draft...",
@@ -269,7 +270,8 @@
       "missingTrackData": "Fill in the track details.",
       "uploadTrackError": "Error uploading track.",
       "finalizeError": "Error finalizing the publication.",
-      "deleteDraftError": "Error deleting the album draft."
+      "deleteDraftError": "Error deleting the album draft.",
+      "draftLoadFailed": "Could not recover your draft."
     },
     "loading": {
       "creatingDraft": "Creating album draft...",

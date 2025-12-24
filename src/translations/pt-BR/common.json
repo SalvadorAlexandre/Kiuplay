@@ -194,7 +194,8 @@
             "missingTrackData": "Preencha os dados da faixa.",
             "uploadTrackError": "Erro ao enviar faixa.",
             "finalizeError": "Erro ao finalizar a publicação.",
-            "deleteDraftError": "Erro ao eliminar o rascunho."
+            "deleteDraftError": "Erro ao eliminar o rascunho.",
+            "draftLoadFailed": "Não foi possível recuperar o teu rascunho."
         },
         "loading": {
             "creatingDraft": "A criar rascunho do EP...",
@@ -269,7 +270,8 @@
             "missingTrackData": "Preencha os dados da faixa e selecione o áudio.",
             "uploadTrackError": "Erro ao enviar faixa.",
             "finalizeError": "Erro ao finalizar a publicação.",
-            "deleteDraftError": "Erro ao eliminar o rascunho do álbum."
+            "deleteDraftError": "Erro ao eliminar o rascunho do álbum.",
+            "draftLoadFailed": "Não foi possível recuperar o teu rascunho."
         },
         "loading": {
             "creatingDraft": "A criar rascunho do álbum...",
