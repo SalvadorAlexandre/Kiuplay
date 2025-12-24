@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   promoCover: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     borderRadius: 8,
     marginRight: 15,
     resizeMode: 'cover',
