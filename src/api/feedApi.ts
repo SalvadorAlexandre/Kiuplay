@@ -9,17 +9,33 @@ export const getBeatById = async (id: string): Promise<BeatStoreFeedItem> => {
   return response.data.data;
 };
 
-export const getBeatStoreFeed = async (page = 1, limit = 20): Promise<{ data: BeatStoreFeedItem[], total: number }> => {
+//export const getBeatStoreFeed = async (page = 1, limit = 20): Promise<{ data: BeatStoreFeedItem[], total: number }> => {
+//  const response = await apiClient.get(`/feed/beatstore?page=${page}&limit=${limit}`);
+//  return {
+//    data: response.data.data,
+//    total: response.data.pagination.total // Caminho correto conforme o teu log do Insomnia
+//  };
+//};
+
+// Altere a Promise para incluir totalPages
+export const getBeatStoreFeed = async (page = 1, limit = 20): Promise<{
+  data: BeatStoreFeedItem[],
+  total: number,
+  totalPages: number,
+  success: boolean
+}> => {
   const response = await apiClient.get(`/feed/beatstore?page=${page}&limit=${limit}`);
 
-  // Extraímos os dados e o total que está dentro de pagination
+  // Usando o mesmo padrão visual do Library para manter a consistência
   return {
+    success: response.data.success,
     data: response.data.data,
-    total: response.data.pagination.total // Caminho correto conforme o teu log do Insomnia
+    total: response.data.pagination.total,
+    totalPages: response.data.pagination.totalPages
   };
 };
 
-// Feed da Library
+
 // Feed da Library - Ajustado para o padrão com pagination
 export const getLibraryFeed = async (page = 1, limit = 20): Promise<{
   data: LibraryFeedItem[],

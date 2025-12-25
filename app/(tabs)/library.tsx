@@ -14,7 +14,6 @@ import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
 import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
 import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
-import LocalMusicScreen from '@/app/audioLocalComponent/useMusicLocalList';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
@@ -29,6 +28,7 @@ import { setLocalTab, setCloudTab, setLibraryContent } from '@/src/redux/persist
 const LibraryHeader = ({ t, router }: { t: any, router: any }) => {
     return (
         <View style={headerStyles.containerTopBar}>
+
             <Text
                 style={headerStyles.titleTopBar}
                 numberOfLines={1}
@@ -205,6 +205,7 @@ export default function LibraryScreen() {
                         }
                     }}
                     onEndReachedThreshold={0.3} // 0.3 costuma ser mais fluido que 0.5
+                    removeClippedSubviews={true} // Melhora performance de memória
                     ListFooterComponent={() =>
                         isLoading && page > 1 ? (
                             <View style={{ paddingVertical: 20 }}>

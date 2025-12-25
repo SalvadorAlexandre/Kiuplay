@@ -1,7 +1,6 @@
 // app/(tabs)/beatstore.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
-    ScrollView,
     View,
     Text,
     TouchableOpacity,
@@ -11,74 +10,127 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { RootState } from '@/src/redux/store';
-import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { useAppSelector } from '@/src/redux/hooks';
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
-//import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
-import { BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
+import { BeatStoreFeedItem } from '@/src/types/contentType';
 import { Ionicons } from '@expo/vector-icons';
 import { getBeatStoreFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
-import { setActiveTab } from '@/src/redux/persistTabBeatStore';
+
+
+const BeatStoreHeader = ({ t, router }: { t: any, router: any }) => {
+    return (
+        <View style={headerStyles.containerTopBar}>
+
+            <Text
+                style={headerStyles.titleTopBar}
+                numberOfLines={1}
+            >
+                {t('screens.beatStoreTitle')}
+            </Text>
+
+            {/**BTN DE CURTIDOS*/}
+            <TouchableOpacity
+                onPress={() => router.push('/searchScreens//searchBeatStore')}
+                style={headerStyles.buttonTopBar}
+            >
+                <Ionicons name='heart-outline' size={26} color='#fff' />
+            </TouchableOpacity>
+
+            {/* Botão de pesquisa */}
+            <TouchableOpacity
+                onPress={() => router.push(`/searchScreens/searchBeatStore`)}
+                style={headerStyles.buttonTopBar}>
+                <Ionicons
+                    name='search-outline'
+                    size={26}
+                    color='#fff'
+                />
+            </TouchableOpacity>
+        </View>
+    );
+};
+
+// Estilos para os itens da FlatList
+const headerStyles = StyleSheet.create({
+    containerTopBar: {
+        backgroundColor: '#191919',      // Cor de fundo escura
+        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
+        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
+        borderBottomWidth: 1,            // Borda inferior com 1 pixel
+        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
+        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
+        gap: 10,
+    },
+    titleTopBar: {
+        color: '#fff',
+        fontSize: 20,
+        flex: 1,
+    },
+    buttonTopBar: {
+        padding: 6,  // Espaçamento interno do botão
+    },
+
+});
+
 
 export default function BeatStoreScreen() {
 
     const router = useRouter();
     const { t } = useTranslation(); // Usa o hook customizado de tradução
-    const dispatch = useAppDispatch();
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
-    const activeTab = useAppSelector((state) => state.beatstore.activeTab);
     const [feedData, setFeedData] = React.useState<BeatStoreFeedItem[]>([]);
-    const [loading, setLoading] = React.useState<boolean>(false);
+    const [isLoading, setLoading] = React.useState<boolean>(false);
     const [error, setError] = React.useState<string | null>(null);
     const [page, setPage] = React.useState<number>(1);
     const [hasMore, setHasMore] = React.useState<boolean>(true); // se ainda tem mais páginas
-    
 
-    const fetchFeed = async (pageToLoad = 1) => {
-        if (!hasMore && pageToLoad !== 1) return;
 
-        setLoading(true);
+    const loadFeeds = async (pageToLoad = 1) => {
+        // 1. Trava de segurança contra múltiplas chamadas ou fim da lista
+        if (isLoading || (!hasMore && pageToLoad !== 1)) return;
+
         try {
-            const { data, total } = await getBeatStoreFeed(pageToLoad, 20);
-            setFeedData(prev => pageToLoad === 1 ? data : [...prev, ...data]);
-            // Verifica se ainda há mais páginas
-            if ((pageToLoad * 20) >= total) {
-                setHasMore(false);
+            setLoading(true); // Usando 'loading' conforme definido no seu componente
+            setError(null);
+
+            // Chamada ajustada para o serviço da BeatStore
+            const response = await getBeatStoreFeed(pageToLoad, 20);
+
+            if (response.success) {
+                // Atualiza os dados: substitui se for página 1, concatena se for scroll
+                setFeedData(prev => pageToLoad === 1 ? response.data : [...prev, ...response.data]);
+
+                // Trava de segurança definitiva baseada no cálculo do servidor
+                if (pageToLoad >= response.totalPages || response.data.length < 20) {
+                    setHasMore(false);
+                } else {
+                    setHasMore(true);
+                }
             } else {
-                setHasMore(true);
+                // Caso o servidor responda success: false
+                setHasMore(false);
+                setError("Erro ao processar beats.");
             }
         } catch (err) {
-            console.error("Erro ao carregar feed:", err);
-            setError("Falha ao carregar os beats.");
+            console.error("Erro no loadFeeds da BeatStore:", err);
+            setError("Falha na conexão com o servidor.");
+            setHasMore(false);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        // Só dispara a busca se estivermos na aba 'feeds' e ainda não houver dados
-        if (activeTab === 'feeds' && feedData.length === 0) {
-            fetchFeed(1);
+        // 1. Verificamos se já existem feeds carregados para evitar chamadas duplicadas
+        // 2. Verificamos se NÃO está ocorrendo um carregamento no momento
+        if (feedData.length === 0 && !isLoading) {
+            // Resetamos o estado de paginação para garantir consistência no primeiro load
+            setPage(1);
+            setHasMore(true);
+            loadFeeds(1);
         }
-    }, [activeTab]); // Detecta quando o usuário troca de aba
+    }, []); // Executa apenas na montagem
 
-    const handleTabChange = (tab: 'feeds' | 'curtidas' | 'seguindo') => {
-        dispatch(setActiveTab(tab));
-    };
-    //const { activeTab, handleTabChange } = useBeatStoreTabs();
-
-    // O filtro aqui já funciona, pois FavoritedMusic estende Track, que por sua vez inclui ExclusiveBeat e FreeBeat
-    const favoritedBeatStoreMusics: (ExclusiveBeat | FreeBeat)[] = favoritedMusics.filter(
-        (music) =>
-            music.category === 'beat' && ( // Adicionado filtro por categoria 'beat'
-                music.source === 'beatstore-favorites' ||
-                music.source === 'beatstore-feeds'
-            )
-    ) as (ExclusiveBeat | FreeBeat)[]; // Casting para o tipo correto
-
-    const filteredFavoritedBeats = favoritedBeatStoreMusics;
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
         // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
@@ -91,177 +143,65 @@ export default function BeatStoreScreen() {
         }
     };
 
-    const handleNavigateToArtistProfile = (artistId: string) => {
-        router.push(`/contentCardLibraryScreens/artist-profile/${artistId}`);
-    };
+    const renderHeader = useCallback(() => (
+        <BeatStoreHeader t={t} router={router} />
+    ), [t, router]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#191919' }}>
-
-            {/**TopBar customizada */}
-            <View style={styles.containerTopBar}>
-                <Text style={styles.titleTopBar}>{t('screens.beatStoreTitle')}</Text>
-
-                {/* Botão de pesquisa */}
-                <TouchableOpacity
-                    onPress={() => router.push(`/searchScreens/searchBeatStore`)}
-                    style={styles.button}>
-                    <Ionicons
-                        name='search-outline'
-                        size={26}
-                        color='#fff'
-                    />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.tabsContainer}>
-                {[
-                    { key: 'feeds', label: t('tabs.feeds'), icon: 'musical-notes' },
-                    { key: 'curtidas', label: t('tabs.likes'), icon: 'heart' },
-                    { key: 'seguindo', label: t('tabs.following'), icon: 'people' },
-                ].map((tab) => (
-                    <TouchableOpacity
-                        key={tab.key}
-                        onPress={() => handleTabChange(tab.key as 'feeds' | 'curtidas' | 'seguindo')}
-                        style={[
-                            styles.tabButton,
-                            activeTab === tab.key && styles.activeTabButton,
-                        ]}
-                    >
-                        <View style={styles.tabContent}>
-                            <Ionicons
-                                name={tab.icon as any}
-                                size={18}
-                                color={activeTab === tab.key ? '#fff' : '#aaa'}
-                                style={{ marginRight: 6 }}
-                            />
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    activeTab === tab.key && styles.activeTabText,
-                                ]}
-                            >
-                                {tab.label}
+        <View style={styles.mainContainer}>
+            {/* Carregamento centralizado apenas para a primeira página */}
+            {isLoading && page === 1 ? (
+                <View style={styles.centerLoader}>
+                    <ActivityIndicator size="large" color="#fff" />
+                </View>
+            ) : (
+                <FlatList
+                    data={feedData}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    columnWrapperStyle={styles.flatlistColumn}
+                    ListHeaderComponent={renderHeader}
+                    stickyHeaderIndices={[0]}
+                    renderItem={({ item }) => (
+                        <BeatStoreMusicItem
+                            item={item}
+                            onPress={handleBeatStoreItemPress}
+                        />
+                    )}
+                    ListEmptyComponent={() => (
+                        <View style={{ marginTop: 100, alignItems: 'center' }}>
+                            <Text style={styles.emptyText}>
+                                {error ? error : t('alerts.noBeatsInFeed')}
                             </Text>
                         </View>
-                    </TouchableOpacity>
-                ))}
-            </View>
-
-            <ScrollView
-                horizontal={false}
-                style={styles.scroll}
-                contentContainerStyle={styles.container}
-                showsHorizontalScrollIndicator={false}
-            >
-                {activeTab === 'feeds' && (
-                    <View style={styles.beatStoreMusicListContainer}>
-                        {/* Spinner para o carregamento inicial */}
-                        {loading && page === 1 ? (
-                            <ActivityIndicator
-                                size="large"
-                                color="#fff"
-                                style={{ marginTop: 50 }}
-                            />
-                        ) : (
-                            <FlatList
-                                data={feedData}
-                                keyExtractor={(item) => item.id}
-                                numColumns={2}
-                                columnWrapperStyle={styles.row}
-                                renderItem={({ item }) => (
-                                    <BeatStoreMusicItem item={item} onPress={handleBeatStoreItemPress} />
-                                )}
-                                contentContainerStyle={{ paddingBottom: 20 }}
-                                ListEmptyComponent={() => (
-                                    <Text style={styles.emptyListText}>
-                                        {error ? error : t('alerts.noBeatsInFeed')}
-                                    </Text>
-                                )}
-                                onEndReached={() => {
-                                    if (hasMore && !loading) {
-                                        const nextPage = page + 1;
-                                        setPage(nextPage);
-                                        fetchFeed(nextPage);
-                                    }
-                                }}
-                                onEndReachedThreshold={0.5}
-                                // Mostra um spinner menor no final da lista enquanto carrega mais páginas
-                                ListFooterComponent={() =>
-                                    loading && page > 1 ? <ActivityIndicator size="small" color="#fff" /> : null
-                                }
-                            />
-                        )}
-                    </View>
-                )}
-
-                {activeTab === 'curtidas' && (
-                    <View style={styles.favoritedMusicListContainer}>
-                        {favoritedBeatStoreMusics.length === 0 ? (
-                            <Text style={styles.emptyListText}>
-                                {t('alerts.noLikedBeats')}
-                            </Text>
-                        ) : (
-                            <FlatList
-
-                                data={filteredFavoritedBeats}
-                                keyExtractor={(item) => item.id}
-                                numColumns={2}
-                                columnWrapperStyle={styles.row}
-                                renderItem={({ item }) => (
-                                    <BeatStoreMusicItem
-                                        item={item}
-                                        onPress={handleBeatStoreItemPress}
-                                    />
-                                )}
-                                contentContainerStyle={{ paddingBottom: 20 }}
-                            />
-                        )}
-                    </View>
-                )}
-
-                {/* Conteúdo da tab 'seguindo' (AGORA EXIBE OS ARTISTAS SEGUIDOS DO REDUX) */}
-                {activeTab === 'seguindo' && (
-                    <FlatList
-                        data={followedArtists}
-                        keyExtractor={(item) => item.id}
-                        ListEmptyComponent={() => (
-                            <View style={styles.tabContentTextContainer}>
-                                <Text style={styles.tabContentText}>
-                                    {t('alerts.noFollowedArtists')}
-                                </Text>
+                    )}
+                    onEndReached={() => {
+                        // Mantendo a lógica de paginação segura
+                        if (hasMore && !isLoading && feedData.length >= 20) {
+                            const nextPage = page + 1;
+                            setPage(nextPage);
+                            loadFeeds(nextPage);
+                        }
+                    }}
+                    onEndReachedThreshold={0.3}
+                    removeClippedSubviews={true}
+                    ListFooterComponent={() =>
+                        isLoading && page > 1 ? (
+                            <View style={{ paddingVertical: 20 }}>
+                                <ActivityIndicator size="small" color="#fff" />
                             </View>
-                        )}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={styles.followedArtistItem}
-                                onPress={() => handleNavigateToArtistProfile(item.id)}
-                            >
-                                <Image
-                                    source={
-                                        item.profileImageUrl
-                                            ? { uri: item.profileImageUrl }
-                                            : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')
-                                    }
-                                    style={styles.followedArtistProfileImage}
-                                />
-                                <Text style={styles.followedArtistName}>{item.name}</Text>
-                            </TouchableOpacity>
-                        )}
-                        contentContainerStyle={styles.flatListContentContainer}
-                        showsVerticalScrollIndicator={false}
-                        scrollEnabled={false}
-                    />
-                )}
-
-                <View style={{ height: 110 }}></View>
-            </ScrollView>
+                        ) : (
+                            /* O espaço de 150px garante que o FloatingButton não cubra o último beat */
+                            <View style={{ height: 100 }} />
+                        )
+                    }
+                />
+            )}
 
             <TouchableOpacity
                 style={styles.floatingButton}
                 onPress={() => {
                     router.push('/autoSearchBeatScreens/useSearchBeatScreen');
-                    console.log('Botão da Beat Store pressionado!');
                 }}
             >
                 <Image
@@ -269,17 +209,14 @@ export default function BeatStoreScreen() {
                     style={{ width: 50, height: 40, tintColor: '#fff' }}
                 />
             </TouchableOpacity>
-        </View>
+        </View >
     );
 }
 
 const styles = StyleSheet.create({
-    scroll: {
+    mainContainer: {
         flex: 1,
         backgroundColor: '#191919',
-    },
-    container: {
-        flexGrow: 1,
     },
     floatingButton: {
         position: 'absolute',
@@ -297,127 +234,18 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
     },
-    tabsContainer: {
-        flexDirection: 'row',
-        //marginLeft: 10,
-        paddingVertical: 15,
-        alignItems: 'center',
+    flatlistColumn: {
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+    },
+    centerLoader: {
+        flex: 1,
         justifyContent: 'center',
-
+        alignItems: 'center',
     },
-    tabButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        backgroundColor: '#333',
-        marginHorizontal: 10,
-    },
-    activeTabButton: {
-        backgroundColor: '#1565C0',
-    },
-    tabText: {
-        color: '#aaa',
-        fontWeight: 'bold',
-    },
-    activeTabText: {
-        color: '#fff',
-    },
-    title: {
-        color: '#fff',
-        marginTop: 20,
-        marginLeft: 15,
-        marginBottom: 10,
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    favoritedMusicListContainer: {
-        flex: 1,
-        paddingHorizontal: 10,
-    },
-    beatStoreMusicListContainer: {
-        flex: 1,
-        paddingHorizontal: 10,
-    },
-    emptyListText: {
+    emptyText: {
         color: '#aaa',
         textAlign: 'center',
-        marginTop: 30,
-        fontSize: 15,
-        marginHorizontal: 20,
-    },
-    infoMessage: {
-        color: '#ccc',
-        fontSize: 13,
-        marginHorizontal: 15,
-        marginBottom: 20,
-        textAlign: 'justify',
-        lineHeight: 18,
-    },
-    row: {
-        //flex: 1,
-        justifyContent: 'space-between',
-        //marginBottom: 8,
-    },
-    followedArtistItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 10,
-        //borderBottomWidth: 1,
-        //borderBottomColor: '#333',
-        marginHorizontal: 15,
-    },
-    followedArtistProfileImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 10,
-        backgroundColor: '#555',
-    },
-    followedArtistName: {
-        color: '#fff',
         fontSize: 16,
-        fontWeight: 'bold',
-        flex: 1,
-    },
-    tabContentTextContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    tabContentText: {
-        color: '#fff',
-        fontSize: 16,
-    },
-    flatListContentContainer: {
-        paddingBottom: 20,
-    },
-
-    //Estilo do topbar
-    containerTopBar: {
-        backgroundColor: '#191919',      // Cor de fundo escura
-        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-        borderBottomWidth: 1,            // Borda inferior com 1 pixel
-        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
-        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
-        //alignItems: 'center',            // Alinha verticalmente ao centro
-    },
-    // Estilo do botão (área clicável)
-    button: {
-        padding: 6,  // Espaçamento interno do botão
-    },
-    titleTopBar: {
-        color: '#fff',
-        fontSize: 20,
-        //marginBottom: 8,
-        flex: 1,
-        //textAlign: 'center',
-    },
-
-    tabContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 });
