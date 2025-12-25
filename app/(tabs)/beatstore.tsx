@@ -34,6 +34,7 @@ export default function BeatStoreScreen() {
     const [error, setError] = React.useState<string | null>(null);
     const [page, setPage] = React.useState<number>(1);
     const [hasMore, setHasMore] = React.useState<boolean>(true); // se ainda tem mais páginas
+    
 
     const fetchFeed = async (pageToLoad = 1) => {
         if (!hasMore && pageToLoad !== 1) return;
@@ -159,7 +160,7 @@ export default function BeatStoreScreen() {
                         {loading && page === 1 ? (
                             <ActivityIndicator
                                 size="large"
-                                color="#FFD700"
+                                color="#fff"
                                 style={{ marginTop: 50 }}
                             />
                         ) : (

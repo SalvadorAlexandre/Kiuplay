@@ -112,6 +112,8 @@ const trackItemStyles = StyleSheet.create({
 });
 
 
+
+
 export default function EpDetailsScreen() {
 
   const { t } = useTranslation()
@@ -138,13 +140,8 @@ export default function EpDetailsScreen() {
   const currentEp: ExtendedPlayEP = EpData;
 
   const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-  // Verifica se o EP em si é favoritado (se ExtendedPlayEP tiver um ID para favoritar)
-  // Ou se qualquer uma das músicas do EP é favoritada
 
-  //Verifica se alguma faixa esta nos favoritos
-  //const isAnyTrackFavorited = currentEp.tracks?.some(track =>
-  //favoritedMusics.some(favTrack => favTrack.id === track.id)
-  //);
+  
   const { currentTrack } = useAppSelector((state) => state.player);
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
@@ -175,24 +172,6 @@ export default function EpDetailsScreen() {
       shouldPlay: true,
     }));
   }, [dispatch, currentEp]);
-
-
-  //Embaralha e inicia reproducao do EP
-  //const handleShufflePlayEp = useCallback(() => {
-  //  if (!currentEp.tracks || currentEp.tracks.length === 0) {
-  //    Alert.alert("Erro", "Este EP não possui faixas para reproduzir.");
-  //   return;
-  // }
-
-  // Embaralha a lista de faixas
-  // const shuffledTracks = [...currentEp.tracks].sort(() => Math.random() - 0.5);
-  // dispatch(setPlaylistAndPlayThunk({
-  //   newPlaylist: shuffledTracks,
-  //   startIndex: 0,
-  //   shouldPlay: true,
-  // }));
-  //}, [dispatch, currentEp]);
-
 
 
   //Inicia reproducao a partir de uma faixa clicada

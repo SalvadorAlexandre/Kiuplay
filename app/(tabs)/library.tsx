@@ -109,6 +109,8 @@ export default function LibraryScreen() {
     const [feeds, setFeeds] = useState<LibraryFeedItem[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState<number>(1);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     const selectSubTab = (group: 'local' | 'cloud', tab: TypeSubTab) => {
         if (group === 'local') dispatch(setLocalTab(tab));
@@ -157,31 +159,38 @@ export default function LibraryScreen() {
         router.push(`/contentCardLibraryScreens/artist-profile/${artistId}`);
     };
 
-    // 2. Função assíncrona para buscar os dados
-    const loadFeeds = async () => {
+    const loadFeeds = async (pageToLoad = 1) => {
+        // Se já carregamos tudo e não é um "reset" (pág 1), não faz nada
+        if (!hasMore && pageToLoad !== 1) return;
+
         try {
             setIsLoading(true);
-            setError(null);
+            const response = await getLibraryFeed(pageToLoad, 20);
 
-            // Chamada da API passando página 1 e limite 20
-            const response = await getLibraryFeed(1, 20);
+            // Se for página 1, substitui. Se for página > 1, concatena.
+            setFeeds(prev => pageToLoad === 1 ? response.data : [...prev, ...response.data]);
 
-            // Salvamos apenas o array 'data' no nosso estado
-            setFeeds(response.data);
+            // Lógica para saber se chegamos ao fim
+            if ((pageToLoad * 20) >= response.total) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
         } catch (err) {
+            console.error("Erro ao carregar feed:", err);
             setError("Erro ao carregar os dados");
-            console.error(err);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // 3. Monitora as mudanças de aba para disparar a API
     useEffect(() => {
-        if (selectedLibraryContent === 'cloud' && getSelectedSubTab('cloud') === 'feeds') {
-            loadFeeds();
+        const isCloudFeeds = selectedLibraryContent === 'cloud' && getSelectedSubTab('cloud') === 'feeds';
+        // SÓ chama a API se estiver na aba correta E se ainda não tivermos dados carregados
+        if (isCloudFeeds && feeds.length === 0) {
+            loadFeeds(1);
         }
-    }, [selectedLibraryContent, selectedCloudTab]); // Dependências: se mudar, ele executa.
+    }, [selectedLibraryContent, selectedCloudTab, feeds.length]);
 
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
@@ -229,125 +238,133 @@ export default function LibraryScreen() {
                 )}
             </View>
 
-            <ScrollView
-                horizontal={false}
-                style={styles.scroll}
-                contentContainerStyle={styles.container}
-                showsVerticalScrollIndicator={false}
-            >
-                {selectedLibraryContent === 'local' && (
-                    <>
-                        {getSelectedSubTab('local') === 'tudo' &&
-                            <View>
-                                <LocalMusicScreen />
-                            </View>
-                        }
-                        {getSelectedSubTab('local') === 'pastas' &&
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                {/* ✅ 7. Traduz a mensagem de indisponibilidade de Pastas */}
-                                <Text style={styles.text}>{t('alerts.foldersUnavailable')}</Text>
-                            </View>}
-                        {getSelectedSubTab('local') === 'downloads' &&
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                {/* ✅ 7. Traduz a mensagem de indisponibilidade de Downloads */}
-                                <Text style={styles.text}>{t('alerts.downloadsUnavailable')}</Text>
-                            </View>}
-                    </>
-                )}
 
-                {selectedLibraryContent === 'cloud' && (
-                    <>
-                        {/* Aba 'Feeds' da Cloud */}
-                        {getSelectedSubTab('cloud') === 'feeds' && (
-                            <View style={styles.cloudMusicListContainer}>
-                                {/* Se estiver carregando, mostra o spinner */}
-                                {isLoading ? (
-                                    <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
-                                ) : (
-                                    <FlatList
-                                        data={feeds} // Agora usa os dados da API!
-                                        keyExtractor={(item) => item.id.toString()}
-                                        numColumns={2}
-                                        columnWrapperStyle={styles.flatlistColun}
-                                        scrollEnabled={false} // Já que está dentro de um ScrollView
-                                        renderItem={({ item }) => (
-                                            <LibraryContentCard
-                                                item={item}
-                                                onPress={handleCloudItemPress}
-                                            />
-                                        )}
-                                        ListEmptyComponent={() => (
-                                            <Text style={styles.emptyListText}>
-                                                {error ? t('alerts.noCloudFeedContent'): "..." }
-                                            </Text>
-                                        )}
-                                    />
-                                )}
-                            </View>
-                        )}
+            {selectedLibraryContent === 'local' && (
+                <>
+                    {getSelectedSubTab('local') === 'tudo' &&
+                        <View>
+                            <LocalMusicScreen />
+                        </View>
+                    }
+                    {getSelectedSubTab('local') === 'pastas' &&
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            {/* ✅ 7. Traduz a mensagem de indisponibilidade de Pastas */}
+                            <Text style={styles.text}>{t('alerts.foldersUnavailable')}</Text>
+                        </View>}
+                    {getSelectedSubTab('local') === 'downloads' &&
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            {/* ✅ 7. Traduz a mensagem de indisponibilidade de Downloads */}
+                            <Text style={styles.text}>{t('alerts.downloadsUnavailable')}</Text>
+                        </View>}
+                </>
+            )}
 
-                        {/* Aba 'Curtidas' da Cloud */}
-                        {getSelectedSubTab('cloud') === 'curtidas' && (
-                            <View style={styles.cloudMusicListContainer}>
-                                {favoritedCloudTracks.length === 0 ? (
-                                    <Text style={styles.emptyListText}>
-                                        {/* ✅ 9. Traduz a mensagem de lista vazia de Curtidas */}
-                                        {t('alerts.noLikedTracks')}
-                                    </Text>
-                                ) : (
-                                    <FlatList
-                                        data={favoritedCloudTracks}
-                                        keyExtractor={(item) => item.id}
-                                        numColumns={2}
-                                        columnWrapperStyle={{ justifyContent: 'space-between' }}
-                                        renderItem={({ item }) => (
-                                            <LibraryContentCard
-                                                item={item as unknown as LibraryFeedItem}
-                                                onPress={handleCloudItemPress}
-                                            />
-                                        )}
-                                        contentContainerStyle={styles.flatListContentContainer}
-                                    />
-                                )}
-                            </View>
-                        )}
-
-                        {/* Aba 'Seguindo' da Cloud */}
-                        {getSelectedSubTab('cloud') === 'seguindo' && (
-                            <View style={styles.followedArtistsContainer}>
-                                {followedArtists.length === 0 ? (
-                                    <View style={styles.tabContentTextContainer}>
-                                        <Text style={styles.tabContentText}>
-                                            {/* ✅ 10. Traduz a mensagem de lista vazia de Artistas Seguidos */}
-                                            {t('alerts.noFollowedArtistsLibrary')}
+            {selectedLibraryContent === 'cloud' && (
+                <>
+                    {/* Aba 'Feeds' da Cloud */}
+                    {getSelectedSubTab('cloud') === 'feeds' && (
+                        <View style={styles.cloudMusicListContainer}>
+                            {/* Spinner apenas no primeiro carregamento */}
+                            {isLoading && page === 1 ? (
+                                <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
+                            ) : (
+                                <FlatList
+                                    data={feeds}
+                                    keyExtractor={(item) => item.id.toString()}
+                                    numColumns={2}
+                                    columnWrapperStyle={styles.flatlistColun}
+                                    scrollEnabled={true} // Mantém false se o ScrollView pai existir
+                                    renderItem={({ item }) => (
+                                        <LibraryContentCard
+                                            item={item}
+                                            onPress={handleCloudItemPress}
+                                        />
+                                    )}
+                                    ListEmptyComponent={() => (
+                                        <Text style={styles.emptyListText}>
+                                            {error ? error : t('alerts.noCloudFeedContent')}
                                         </Text>
-                                    </View>
-                                ) : (
-                                    <FlatList
-                                        data={followedArtists}
-                                        keyExtractor={(item) => item.id}
-                                        renderItem={({ item }) => (
-                                            <TouchableOpacity
-                                                style={styles.followedArtistItem}
-                                                onPress={() => handleNavigateToArtistProfile(item.id)}
-                                            >
-                                                <Image
-                                                    source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
-                                                    style={styles.followedArtistProfileImage}
-                                                />
-                                                <Text style={styles.followedArtistName}>{item.name}</Text>
-                                            </TouchableOpacity>
-                                        )}
-                                        contentContainerStyle={styles.flatListContentContainer}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                )}
-                            </View>
-                        )}
-                    </>
-                )}
-                <View style={{ height: 110, }}></View>
-            </ScrollView>
+                                    )}
+                                    // --- LÓGICA DE INFINITE SCROLL ---
+                                    onEndReached={() => {
+                                        if (hasMore && !isLoading) {
+                                            const nextPage = page + 1;
+                                            setPage(nextPage);
+                                            loadFeeds(nextPage);
+                                        }
+                                    }}
+                                    onEndReachedThreshold={0.5}
+                                    ListFooterComponent={() =>
+                                        isLoading && page > 1 ? (
+                                            <ActivityIndicator size="small" color="#fff" style={{ marginVertical: 10 }} />
+                                        ) : null
+                                    }
+                                />
+                            )}
+                        </View>
+                    )}
+
+                    {/* Aba 'Curtidas' da Cloud */}
+                    {getSelectedSubTab('cloud') === 'curtidas' && (
+                        <View style={styles.cloudMusicListContainer}>
+                            {favoritedCloudTracks.length === 0 ? (
+                                <Text style={styles.emptyListText}>
+                                    {/* ✅ 9. Traduz a mensagem de lista vazia de Curtidas */}
+                                    {t('alerts.noLikedTracks')}
+                                </Text>
+                            ) : (
+                                <FlatList
+                                    data={favoritedCloudTracks}
+                                    keyExtractor={(item) => item.id}
+                                    numColumns={2}
+                                    columnWrapperStyle={{ justifyContent: 'space-between' }}
+                                    renderItem={({ item }) => (
+                                        <LibraryContentCard
+                                            item={item as unknown as LibraryFeedItem}
+                                            onPress={handleCloudItemPress}
+                                        />
+                                    )}
+                                    contentContainerStyle={styles.flatListContentContainer}
+                                />
+                            )}
+                        </View>
+                    )}
+
+                    {/* Aba 'Seguindo' da Cloud */}
+                    {getSelectedSubTab('cloud') === 'seguindo' && (
+                        <View style={styles.followedArtistsContainer}>
+                            {followedArtists.length === 0 ? (
+                                <View style={styles.tabContentTextContainer}>
+                                    <Text style={styles.tabContentText}>
+                                        {/* ✅ 10. Traduz a mensagem de lista vazia de Artistas Seguidos */}
+                                        {t('alerts.noFollowedArtistsLibrary')}
+                                    </Text>
+                                </View>
+                            ) : (
+                                <FlatList
+                                    data={followedArtists}
+                                    keyExtractor={(item) => item.id}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            style={styles.followedArtistItem}
+                                            onPress={() => handleNavigateToArtistProfile(item.id)}
+                                        >
+                                            <Image
+                                                source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('@/assets/images/Default_Profile_Icon/unknown_artist.png')}
+                                                style={styles.followedArtistProfileImage}
+                                            />
+                                            <Text style={styles.followedArtistName}>{item.name}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    contentContainerStyle={styles.flatListContentContainer}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            )}
+                        </View>
+                    )}
+                </>
+            )}
+
 
             {/* Botões Locais/Cloud permanecem sem tradução de texto, pois são ícones/imagens */}
             <View style={styles.floatingBox}>
@@ -377,6 +394,8 @@ export default function LibraryScreen() {
                     />
                 </TouchableOpacity>
             </View>
+
+            
         </View>
     );
 }
