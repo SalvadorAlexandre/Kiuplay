@@ -465,7 +465,7 @@ export default function PostAlbumScreen() {
                                             }
                                         })}
                                     >
-                                        <Ionicons name="list-outline" size={20} color="#fff" />
+                                        <Ionicons name="menu" size={20} color="#fff" />
                                         <Text style={styles.btnViewTracksText}>
                                             {postedFaixa > 0
                                                 ? t('postAlbum.viewTracks.withCount', { count: postedFaixa })

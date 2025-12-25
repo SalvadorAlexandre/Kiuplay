@@ -12,6 +12,8 @@
         "language": "Idioma",
         "producer": "Produtor"
     },
+
+    
     "screens": {
         "beatStoreTitle": "Loja de Beats",
         "homeTitle": "Início",
@@ -43,7 +45,8 @@
             "unknownArtist": "Artista desconhecido",
             "unknownSize": "Tamanho desconhecido",
             "unknownTitle": "Título desconhecido",
-            "unknownGenre": "Gênero Desconhecido"
+            "unknownGenre": "Gênero Desconhecido",
+            "playlist": "Playlist"
         },
         "notifications": {
             "title": "Notificações",
@@ -61,6 +64,8 @@
             "postPromote": "Promover uma postagem"
         }
     },
+
+    
     "auth": {
         "loginTitle": "Entrar no Kiuplay",
         "emailLabel": "E-mail",

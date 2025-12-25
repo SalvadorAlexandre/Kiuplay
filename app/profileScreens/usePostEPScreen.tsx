@@ -451,7 +451,7 @@ export default function PostEPScreen() {
                                             params: { epId: epData.id, title: tituloEP }
                                         })}
                                     >
-                                        <Ionicons name="list-outline" size={20} color="#fff" />
+                                        <Ionicons name="menu" size={20} color="#fff" />
                                         <Text style={styles.btnViewTracksText}>
                                             {postedFaixa > 0
                                                 ? t('postEP.viewTracks.withCount', { count: postedFaixa })

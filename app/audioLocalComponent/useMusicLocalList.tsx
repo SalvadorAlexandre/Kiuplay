@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 import { parseBlob } from 'music-metadata';
-
+import { Stack } from 'expo-router'
 // Importe Track e as thunks do seu playerSlice
 import {
     Track, // ADIÇÃO: Importa a interface Track
@@ -32,7 +32,7 @@ interface MusicItemProps {
 // Componente para exibir uma música na lista
 const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
 
-    const { t, language, setLanguage} = useTranslation();
+    const { t, language, setLanguage } = useTranslation();
     const imageSource = music.cover
         ? { uri: music.cover }
         : require('@/assets/images/Default_Profile_Icon/unknown_track.png'); // imagem de fallback
@@ -51,7 +51,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
                 <Image
                     source={imageSource}
                     style={styles.coverImage}
-                  
+
                 />
                 <View style={styles.musicTextContainer}>
                     <Text numberOfLines={1} style={styles.musicName}>
@@ -75,7 +75,7 @@ const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
 
 // Componente principal da tela de músicas locais
 export default function LocalMusicScreen() {
-    const { t, language, setLanguage} = useTranslation();
+    const { t, language, setLanguage } = useTranslation();
     const dispatch = useAppDispatch();
     const {
         currentIndex: reduxCurrentIndex,
@@ -155,34 +155,45 @@ export default function LocalMusicScreen() {
     };
 
     return (
-        <View style={{ flex: 1, paddingHorizontal: 13, }}>
-            <TouchableOpacity
-                onPress={handleSelectAndPlayMusics}
-                style={styles.button}
-                testID="select-music-button"
-            >
-                <Text style={styles.buttonText}>{t("screens.localMusic.selectMusicButton")}</Text>
-            </TouchableOpacity>
+        <>
+            <Stack.Screen
+                options={{
+                    title: t('screens.localMusic.playlist'),
+                    headerStyle: { backgroundColor: '#191919', },
+                    headerTintColor: '#fff',
+                    //headerTitleStyle: { fontWeight: 'bold' },
+                    headerShown: true,
+                }}
+            />
+            <View style={{ flex: 1, paddingHorizontal: 13, backgroundColor: '#191919' }}>
+                <TouchableOpacity
+                    onPress={handleSelectAndPlayMusics}
+                    style={styles.button}
+                    testID="select-music-button"
+                >
+                    <Text style={styles.buttonText}>{t("screens.localMusic.selectMusicButton")}</Text>
+                </TouchableOpacity>
 
-            {playlist.length === 0 ? (
-                <Text style={styles.empty}>{t("screens.localMusic.emptyPlaylist")}</Text>
-            ) : (
-                <FlatList
-                    data={playlist}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item, index }) => (
-                        <MusicItem
-                            music={item}
-                            index={index}
-                            isCurrent={index === reduxCurrentIndex}
-                            onPress={() => handlePlaySpecificMusic(index)}
-                        />
-                    )}
-                    contentContainerStyle={{ paddingBottom: 100, }}
-                    showsVerticalScrollIndicator={false}
-                />
-            )}
-        </View>
+                {playlist.length === 0 ? (
+                    <Text style={styles.empty}>{t("screens.localMusic.emptyPlaylist")}</Text>
+                ) : (
+                    <FlatList
+                        data={playlist}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item, index }) => (
+                            <MusicItem
+                                music={item}
+                                index={index}
+                                isCurrent={index === reduxCurrentIndex}
+                                onPress={() => handlePlaySpecificMusic(index)}
+                            />
+                        )}
+                        contentContainerStyle={{ paddingBottom: 100, }}
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
+            </View>
+        </>
     );
 }
 
@@ -197,6 +208,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 10,
         marginBottom: 20,
+        marginTop: 20,
     },
     buttonText: {
         color: 'white',

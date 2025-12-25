@@ -12,6 +12,8 @@
     "language": "Language",
     "producer": "Producer"
   },
+
+
   "screens": {
     "beatStoreTitle": "Beat Store",
     "homeTitle": "Home",
@@ -43,7 +45,8 @@
       "unknownArtist": "Unknown artist",
       "unknownSize": "Unknown size",
       "unknownTitle": "Unknown title",
-      "unknownGenre": "Unknown Genre"
+      "unknownGenre": "Unknown Genre",
+      "playlist": "Playlist"
     },
     "notifications": {
       "title": "Notifications",
@@ -61,6 +64,9 @@
       "postPromote": "Promote a post"
     }
   },
+
+
+  
   "auth": {
     "loginTitle": "Sign In to Kiuplay",
     "emailLabel": "Email",
