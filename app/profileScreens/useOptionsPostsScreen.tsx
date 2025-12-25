@@ -22,62 +22,38 @@ export default function OptionsListPostScreen() {
     const { hasEPDraft, hasAlbumDraft, isLoadingDrafts } = useCheckDrafts();
     //hooks para o btn postar single----------------------------------------------
     const [scaleValuePostSingle] = useState(new Animated.Value(1))
-    const handlePressInPostSingle = () => {
-        Animated.spring(scaleValuePostSingle, { toValue: 0.96, useNativeDriver: true, }).start()
-    }
-    const handlePressOutPostSingle = () => {
-        Animated.spring(scaleValuePostSingle, { toValue: 1, useNativeDriver: true, }).start()
-    }
+    const handlePressInPostSingle = () => { Animated.spring(scaleValuePostSingle, { toValue: 0.96, useNativeDriver: true, }).start() }
+    const handlePressOutPostSingle = () => { Animated.spring(scaleValuePostSingle, { toValue: 1, useNativeDriver: true, }).start() }
     //---------------------------------------------------------------------------------------
 
     //hooks para o btn postar EP----------------------------------------------
     const [scaleValuePostEP] = useState(new Animated.Value(1))
-    const handlePressInPostEP = () => {
-        Animated.spring(scaleValuePostEP, { toValue: 0.96, useNativeDriver: true, }).start()
-    }
-    const handlePressOutPostEP = () => {
-        Animated.spring(scaleValuePostEP, { toValue: 1, useNativeDriver: true, }).start()
-    }
+    const handlePressInPostEP = () => { Animated.spring(scaleValuePostEP, { toValue: 0.96, useNativeDriver: true, }).start() }
+    const handlePressOutPostEP = () => { Animated.spring(scaleValuePostEP, { toValue: 1, useNativeDriver: true, }).start() }
     //---------------------------------------------------------------------------------------
 
     //hooks para o btn postar Album----------------------------------------------
     const [scaleValuePostAlbum] = useState(new Animated.Value(1))
-    const handlePressInPostAlbum = () => {
-        Animated.spring(scaleValuePostAlbum, { toValue: 0.96, useNativeDriver: true, }).start()
-    }
-    const handlePressOutPostAlbum = () => {
-        Animated.spring(scaleValuePostAlbum, { toValue: 1, useNativeDriver: true, }).start()
-    }
+    const handlePressInPostAlbum = () => { Animated.spring(scaleValuePostAlbum, { toValue: 0.96, useNativeDriver: true, }).start() }
+    const handlePressOutPostAlbum = () => { Animated.spring(scaleValuePostAlbum, { toValue: 1, useNativeDriver: true, }).start() }
     //---------------------------------------------------------------------------------------
 
     //hooks para o btn postar Beat----------------------------------------------
     const [scaleValuePostBeat] = useState(new Animated.Value(1))
-    const handlePressInPostBeat = () => {
-        Animated.spring(scaleValuePostBeat, { toValue: 0.96, useNativeDriver: true, }).start()
-    }
-    const handlePressOutPostBeat = () => {
-        Animated.spring(scaleValuePostBeat, { toValue: 1, useNativeDriver: true, }).start()
-    }
+    const handlePressInPostBeat = () => { Animated.spring(scaleValuePostBeat, { toValue: 0.96, useNativeDriver: true, }).start() }
+    const handlePressOutPostBeat = () => { Animated.spring(scaleValuePostBeat, { toValue: 1, useNativeDriver: true, }).start() }
     //---------------------------------------------------------------------------------------
 
     //hooks para o btn postar Video----------------------------------------------
     const [scaleValuePostVideo] = useState(new Animated.Value(1))
-    const handlePressInPostVideo = () => {
-        Animated.spring(scaleValuePostVideo, { toValue: 0.96, useNativeDriver: true, }).start()
-    }
-    const handlePressOutPostVideo = () => {
-        Animated.spring(scaleValuePostVideo, { toValue: 1, useNativeDriver: true, }).start()
-    }
+    const handlePressInPostVideo = () => { Animated.spring(scaleValuePostVideo, { toValue: 0.96, useNativeDriver: true, }).start() }
+    const handlePressOutPostVideo = () => { Animated.spring(scaleValuePostVideo, { toValue: 1, useNativeDriver: true, }).start() }
     //---------------------------------------------------------------------------------------
 
-    //hooks para o btn postar Video----------------------------------------------
+    //hooks para o btn postar promotion----------------------------------------------
     const [scaleValuePostPromote] = useState(new Animated.Value(1))
-    const handlePressInPostPromote = () => {
-        Animated.spring(scaleValuePostPromote, { toValue: 0.96, useNativeDriver: true, }).start()
-    }
-    const handlePressOutPostPromote = () => {
-        Animated.spring(scaleValuePostPromote, { toValue: 1, useNativeDriver: true, }).start()
-    }
+    const handlePressInPostPromote = () => { Animated.spring(scaleValuePostPromote, { toValue: 0.96, useNativeDriver: true, }).start() }
+    const handlePressOutPostPromote = () => { Animated.spring(scaleValuePostPromote, { toValue: 1, useNativeDriver: true, }).start() }
     //---------------------------------------------------------------------------------------
 
     return (
@@ -100,28 +76,6 @@ export default function OptionsListPostScreen() {
                     contentContainerStyle={styles.container} // Define padding e crescimento do conteúdo
                     showsHorizontalScrollIndicator={false} //Oculta a barra de rolagem
                 >
-                    {/** <View style={{
-                        //backgroundColor: '#fff',
-                        marginBottom: 10,
-                        // marginTop: -20,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: "100%", // Defina o tamanho desejado para a View
-                        height: 400, // Defina a altura desejada para a View
-                        overflow: 'hidden', // Garante que a imagem não ultrapasse a View
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-
-                    }}>
-                        <Image
-                            source={require('@/assets/images/4/Promote.png')}
-                            style={{ width: '100%', height: '100%' }} // Preenche toda a View
-                            resizeMode='stretch' // Ajusta a imagem para cobrir toda a área
-                        />
-                    </View>*/}
-
-
-
 
                     {/*View do botão postar Single-----------------------------------------------------------------*/}
                     <Animated.View style={[
@@ -200,9 +154,9 @@ export default function OptionsListPostScreen() {
                             {/* Texto do botão */}
                             <Text style={styles.buttonText}>{t('screens.buttons.postAlbum')}</Text>
 
-                             {/* INDICADOR DE RASCUNHO PENDENTE */}
-                            {hasEPDraft && <View style={styles.dotBadge} />}
-                            
+                            {/* INDICADOR DE RASCUNHO PENDENTE */}
+                            {hasAlbumDraft && <View style={styles.dotBadge} />}
+
                             {/* Ícone seta para direita */}
                             <Ionicons name="chevron-forward" size={20} color="#fff" />
                         </TouchableOpacity>

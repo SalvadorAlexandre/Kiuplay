@@ -3,13 +3,23 @@
 import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { selectCurrentUserId, selectUserById } from '@/src/redux/userSessionAndCurrencySlice';
+import { selectCurrentUserId, selectUserById, setUser } from '@/src/redux/userSessionAndCurrencySlice';
 import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
 import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
 import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
 import ExclusiveBeatCard from '@/components/musicItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
 import FreeBeatCard from '@/components/musicItems/TabProfileFreeBeatItem/FreeBeatCard';
 import BottomModal from '@/components/profileModal'; // caminho ajusta conforme tua pasta
+import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
+import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
+import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
+import { useTranslation } from '@/src/translations/useTranslation';
+// NOVO IMPORT: Importa o tipo ExclusiveBeat
+import { ExclusiveBeat } from '@/src/types/contentType';
+import { setProfileActiveTab, ProfileTabKey } from '@/src/redux/persistTabProfile';
+import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
+import { userApi } from '@/src/api';
+
 import {
   ScrollView,
   View,
@@ -22,14 +32,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
-import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
-import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
-import { useTranslation } from '@/src/translations/useTranslation';
-// NOVO IMPORT: Importa o tipo ExclusiveBeat
-import { ExclusiveBeat } from '@/src/types/contentType';
-import { setProfileActiveTab, ProfileTabKey } from '@/src/redux/persistTabProfile';
-import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
+
 
 export default function ProfileScreen() {
 
@@ -37,8 +40,10 @@ export default function ProfileScreen() {
     id: string;
   }
 
+  // Estado que controla o carregamento visual
+  const [refreshing, setRefreshing] = useState(false);
   const { handleWalletAccess } = useMonetizationFlow();
-
+  const isConnected = useAppSelector((state) => state.network.isConnected);
   const { t, } = useTranslation();
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
@@ -50,11 +55,9 @@ export default function ProfileScreen() {
   const userProfile = useAppSelector(selectUserById(currentUserId!));
   const purchasedBeats = useAppSelector((state) => state.purchases.items);
   const soldBeatIds: string[] = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
-
   // Garante que 'userProfile.exclusiveBeats' seja um array antes de chamar '.filter'
   const exclusiveBeatsForSale = (userProfile.exclusiveBeats ?? [])
     .filter((beat: Beat) => !soldBeatIds.includes(beat.id));
-  // ---------------------------------------------------------
 
   // Hooks para os botões de animação (mantidos do seu código original)
   const [scaleValueConfig] = useState(new Animated.Value(1));
@@ -69,19 +72,6 @@ export default function ProfileScreen() {
   const handlePressInMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 0.96, useNativeDriver: true }).start(); };
   const handlePressOutMonetization = () => { Animated.spring(scaleValueMonetization, { toValue: 1, useNativeDriver: true }).start(); };
 
-
-  /**
-   * const tabs = [
-    { key: 'single', label: t('tabs.single') },
-    { key: 'extendedPlay', label: t('tabs.extendedPlay') },
-    { key: 'album', label: t('tabs.album') },
-    { key: 'purchasedBeats', label: t('tabs.purchasedBeats') }, 
-    { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') }, 
-    { key: 'freeBeats', label: t('tabs.freeBeats') },
-  ];
-   */
-
-  
   const activeTab = useAppSelector((state) => state.profile.activeTab);
   const tabs: { key: ProfileTabKey; label: string }[] = [
     { key: 'single', label: t('tabs.single') },
@@ -92,8 +82,6 @@ export default function ProfileScreen() {
     { key: 'freeBeats', label: t('tabs.freeBeats') },
   ];
 
-  const isConnected = useAppSelector((state) => state.network.isConnected);
-
   const getDynamicAvatarSource = () => {
     if (isConnected === false || !userProfile.avatar || userProfile.avatar.trim() === "") {
       return require("@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png");
@@ -102,6 +90,25 @@ export default function ProfileScreen() {
   };
 
   const avatarUser = getDynamicAvatarSource()
+
+  // Função de atualização
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Reutiliza a mesma chamada que usas no AuthProvider
+      const updatedUser = await userApi.getMe();
+
+      // Atualiza o Redux com os novos dados (Singles, EPs, etc)
+      dispatch(setUser(updatedUser));
+
+      console.log("Perfil atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao puxar dados do perfil:", error);
+      // Aqui poderias usar a tua função showModal('error', ...) se quiseres
+    } finally {
+      setRefreshing(false);
+    }
+  }, [dispatch]);
 
   //Logica para carrar lista de audio no player baseando se na aba ativa
   const getTracksForActiveTab = () => {
@@ -142,6 +149,17 @@ export default function ProfileScreen() {
         <View style={styles.containerTopBar}>
           <Text style={styles.titleTopBar}>{t('screens.profileTitle')}</Text>
           <View style={{ flexDirection: 'row', gap: 10, }}>
+            <TouchableOpacity
+              onPress={onRefresh}
+              disabled={refreshing}
+              style={styles.buttonTopBar}
+            >
+              {refreshing ? (
+                <ActivityIndicator size="small" color="#007AFF" />
+              ) : (
+                <Ionicons name="refresh" size={25} color="#fff" />
+              )}
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/notificationsScreens/notifications')}
               style={styles.buttonTopBar}
