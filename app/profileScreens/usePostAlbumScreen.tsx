@@ -115,12 +115,18 @@ export default function PostAlbumScreen() {
     };
 
     const getDynamicAvatarSource = () => {
-        if (isConnected === false || !capaAlbum || capaAlbum.trim() === "") {
+        // 1. Verifica se há conexão
+        // 2. Verifica se capaAlbum existe
+        // 3. Se for string, verifica se não está vazia. Se não for string (objeto), apenas verifica se existe.
+        const isInvalidCapa = !capaAlbum || (typeof capaAlbum === 'string' && capaAlbum.trim() === "");
+
+        if (isConnected === false || isInvalidCapa) {
             return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
         }
-        return { uri: capaAlbum };
-    };
 
+        // Se já for um objeto com uri, retorna direto, senão monta o objeto
+        return typeof capaAlbum === 'string' ? { uri: capaAlbum } : capaAlbum;
+    };
     const albumCover = getDynamicAvatarSource()
 
     return (

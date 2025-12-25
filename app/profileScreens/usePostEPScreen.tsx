@@ -114,10 +114,21 @@ export default function PostEPScreen() {
     };
 
     const getDynamicAvatarSource = () => {
-        if (isConnected === false || !capaEP || capaEP.trim() === "") {
+        // 1. Verificamos se NÃO existe conexão 
+        // 2. OU se a capaEP é nula/undefined
+        // 3. OU se, sendo uma string, ela está vazia após o trim
+        const isInvalid =
+            isConnected === false ||
+            !capaEP ||
+            (typeof capaEP === 'string' && capaEP.trim() === "");
+
+        if (isInvalid) {
             return require("@/assets/images/Default_Profile_Icon/unknown_track.png");
         }
-        return { uri: capaEP };
+
+        // Se chegou aqui, temos um valor válido. 
+        // Se for string, montamos o objeto { uri }. Se já for objeto, passamos direto.
+        return typeof capaEP === 'string' ? { uri: capaEP } : capaEP;
     };
 
     const epCover = getDynamicAvatarSource()
