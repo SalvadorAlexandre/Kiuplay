@@ -460,7 +460,8 @@
         "playsLabel": "{{count}} Plays • {{genre}}",
         "buyButton": "Comprar por {{price}}",
         "downloadButton": "Baixar Beat",
-        "downloadAlert": "A função de download será implementada aqui."
+        "downloadAlert": "A função de download será implementada aqui.",
+        "loadingBeats": "A carregar..."
     },
     "common": {
         "error": "Erro",
@@ -474,7 +475,8 @@
         "backButton": "Voltar",
         "unknownGenre": "Gênero Desconhecido",
         "unknownYear": "Ano Desconhecido",
-        "producerLabel": "Produtor:"
+        "producerLabel": "Produtor:",
+        "loadingBeats": "A carregar..."
     },
     "albumDetails": {
         "emptyList": "Nenhuma faixa encontrada neste Álbum.",

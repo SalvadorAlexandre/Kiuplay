@@ -1,5 +1,5 @@
 // app/(tabs)/library.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ScrollView,
     View,
@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     Image,
     FlatList,
+    ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
@@ -18,12 +19,12 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
 import { LibraryFeedItem, } from '@/src/types/contentType';
-import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+//import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Ionicons } from '@expo/vector-icons';
 // ✅ 1. Importa o hook de tradução
 import { useTranslation } from '@/src/translations/useTranslation';
-import { setLocalTab, setCloudTab, setLibraryContent} from '@/src/redux/persistTabLibrery';
-
+import { setLocalTab, setCloudTab, setLibraryContent } from '@/src/redux/persistTabLibrery';
+import { getLibraryFeed } from '@/src/api/feedApi';
 
 // Mapeamento das chaves da aba para o caminho do JSON de tradução
 const tabTranslationKeys: Record<TypeSubTab, string> = {
@@ -94,18 +95,20 @@ const SubTabBar = ({
 };
 
 export default function LibraryScreen() {
-    const router = useRouter();
-    // ✅ 4. Inicializa o hook de tradução
-    const { t } = useTranslation();
 
-    {/** const {
-        isSelectedSubTab,
-        selectSubTab,
-        getSelectedSubTab,
-    } = useSubTabSelectorLibrary();*/}
+    const router = useRouter();
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const selectedLocalTab = useAppSelector(state => state.library.selectedLocalTab);
     const selectedCloudTab = useAppSelector(state => state.library.selectedCloudTab);
+    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
+    const selectedLibraryContent = useAppSelector((state) => state.library.selectedLibraryContent);
+
+    // 1. Estados para armazenar os dados e o status da conexão
+    const [feeds, setFeeds] = useState<LibraryFeedItem[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     const selectSubTab = (group: 'local' | 'cloud', tab: TypeSubTab) => {
         if (group === 'local') dispatch(setLocalTab(tab));
@@ -118,9 +121,6 @@ export default function LibraryScreen() {
     const isSelectedSubTab = (group: 'local' | 'cloud', tab: TypeSubTab) =>
         getSelectedSubTab(group) === tab;
 
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
-
     const favoritedCloudTracks: Track[] = favoritedMusics.filter(
         (music) =>
             music.category === 'single' && (
@@ -130,11 +130,6 @@ export default function LibraryScreen() {
             )
     ) as Track[];
 
-    // const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
-    const selectedLibraryContent = useAppSelector(
-        (state) => state.library.selectedLibraryContent
-    );
-    //const { selectedLibraryContent, setSelectedLibraryContent } = useSelectedMusic();
     const isSelected = (current: TypeMusic, type: TypeMusic): boolean => {
         return current === type;
     };
@@ -161,6 +156,32 @@ export default function LibraryScreen() {
     const handleNavigateToArtistProfile = (artistId: string) => {
         router.push(`/contentCardLibraryScreens/artist-profile/${artistId}`);
     };
+
+    // 2. Função assíncrona para buscar os dados
+    const loadFeeds = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            // Chamada da API passando página 1 e limite 20
+            const response = await getLibraryFeed(1, 20);
+
+            // Salvamos apenas o array 'data' no nosso estado
+            setFeeds(response.data);
+        } catch (err) {
+            setError("Erro ao carregar os dados");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 3. Monitora as mudanças de aba para disparar a API
+    useEffect(() => {
+        if (selectedLibraryContent === 'cloud' && getSelectedSubTab('cloud') === 'feeds') {
+            loadFeeds();
+        }
+    }, [selectedLibraryContent, selectedCloudTab]); // Dependências: se mudar, ele executa.
 
     return (
         <View style={{ flex: 1, backgroundColor: '#191919' }}>
@@ -239,25 +260,29 @@ export default function LibraryScreen() {
                         {/* Aba 'Feeds' da Cloud */}
                         {getSelectedSubTab('cloud') === 'feeds' && (
                             <View style={styles.cloudMusicListContainer}>
-                                <FlatList
-                                    data={MOCKED_CLOUD_FEED_DATA}
-                                    keyExtractor={(item) => item.id}
-                                    numColumns={2}
-                                    columnWrapperStyle={styles.flatlistColun}
-                                    renderItem={({ item }) => (
-                                        <LibraryContentCard
-                                            item={item}
-                                            onPress={handleCloudItemPress}
-                                        />
-                                    )}
-                                    contentContainerStyle={styles.flatListContentContainer}
-                                    ListEmptyComponent={() => (
-                                        <Text style={styles.emptyListText}>
-                                            {/* ✅ 8. Traduz a mensagem de lista vazia do Feed */}
-                                            {t('alerts.noCloudFeedContent')}
-                                        </Text>
-                                    )}
-                                />
+                                {/* Se estiver carregando, mostra o spinner */}
+                                {isLoading ? (
+                                    <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
+                                ) : (
+                                    <FlatList
+                                        data={feeds} // Agora usa os dados da API!
+                                        keyExtractor={(item) => item.id.toString()}
+                                        numColumns={2}
+                                        columnWrapperStyle={styles.flatlistColun}
+                                        scrollEnabled={false} // Já que está dentro de um ScrollView
+                                        renderItem={({ item }) => (
+                                            <LibraryContentCard
+                                                item={item}
+                                                onPress={handleCloudItemPress}
+                                            />
+                                        )}
+                                        ListEmptyComponent={() => (
+                                            <Text style={styles.emptyListText}>
+                                                {error ? t('alerts.noCloudFeedContent'): "..." }
+                                            </Text>
+                                        )}
+                                    />
+                                )}
                             </View>
                         )}
 

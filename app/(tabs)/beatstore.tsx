@@ -8,34 +8,32 @@ import {
     Image,
     FlatList,
     StyleSheet,
+    ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
-import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
+//import { MOCKED_BEATSTORE_FEED_DATA } from '@/src/types/contentServer';
 import { BeatStoreFeedItem, ExclusiveBeat, FreeBeat } from '@/src/types/contentType';
 import { Ionicons } from '@expo/vector-icons';
 import { getBeatStoreFeed } from '@/src/api/feedApi';
-// ✅ Importa o hook de tradução personalizado
 import { useTranslation } from '@/src/translations/useTranslation';
 import { setActiveTab } from '@/src/redux/persistTabBeatStore';
 
 export default function BeatStoreScreen() {
 
+    const router = useRouter();
+    const { t } = useTranslation(); // Usa o hook customizado de tradução
+    const dispatch = useAppDispatch();
+    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
+    const activeTab = useAppSelector((state) => state.beatstore.activeTab);
     const [feedData, setFeedData] = React.useState<BeatStoreFeedItem[]>([]);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [error, setError] = React.useState<string | null>(null);
-
     const [page, setPage] = React.useState<number>(1);
     const [hasMore, setHasMore] = React.useState<boolean>(true); // se ainda tem mais páginas
-
-    // 🛑 SELETOR DE ESTADO DE POSSE
-    //const purchasedBeatIds = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
-    // 🆕 FILTRAGEM DOS BEATS DO FEED
-   // const filteredFeedData = MOCKED_BEATSTORE_FEED_DATA.filter(
-   //     (item) => !purchasedBeatIds.includes(item.id)
-   // );
 
     const fetchFeed = async (pageToLoad = 1) => {
         if (!hasMore && pageToLoad !== 1) return;
@@ -58,24 +56,17 @@ export default function BeatStoreScreen() {
         }
     };
 
-    // Carrega a primeira página
     useEffect(() => {
-        fetchFeed(1);
-    }, []); // apenas se os IDs de comprados mudarem
-
-    const router = useRouter();
-    const { t } = useTranslation(); // Usa o hook customizado de tradução
-
-    const dispatch = useAppDispatch();
-    const activeTab = useAppSelector((state) => state.beatstore.activeTab);
+        // Só dispara a busca se estivermos na aba 'feeds' e ainda não houver dados
+        if (activeTab === 'feeds' && feedData.length === 0) {
+            fetchFeed(1);
+        }
+    }, [activeTab]); // Detecta quando o usuário troca de aba
 
     const handleTabChange = (tab: 'feeds' | 'curtidas' | 'seguindo') => {
         dispatch(setActiveTab(tab));
     };
     //const { activeTab, handleTabChange } = useBeatStoreTabs();
-
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
 
     // O filtro aqui já funciona, pois FavoritedMusic estende Track, que por sua vez inclui ExclusiveBeat e FreeBeat
     const favoritedBeatStoreMusics: (ExclusiveBeat | FreeBeat)[] = favoritedMusics.filter(
@@ -164,29 +155,42 @@ export default function BeatStoreScreen() {
             >
                 {activeTab === 'feeds' && (
                     <View style={styles.beatStoreMusicListContainer}>
-                        <FlatList
-                            data={feedData}
-                            keyExtractor={(item) => item.id}
-                            numColumns={2}
-                            columnWrapperStyle={styles.row}
-                            renderItem={({ item }) => (
-                                <BeatStoreMusicItem item={item} onPress={handleBeatStoreItemPress}/>
-                            )}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                            ListEmptyComponent={() => (
-                                <Text style={styles.emptyListText}>
-                                    {loading ? t('alerts.loadingBeats') : error ? error : t('alerts.noBeatsInFeed')}
-                                </Text>
-                            )}
-                            onEndReached={() => {
-                                if (hasMore && !loading) {
-                                    const nextPage = page + 1;
-                                    setPage(nextPage);
-                                    fetchFeed(nextPage);
+                        {/* Spinner para o carregamento inicial */}
+                        {loading && page === 1 ? (
+                            <ActivityIndicator
+                                size="large"
+                                color="#FFD700"
+                                style={{ marginTop: 50 }}
+                            />
+                        ) : (
+                            <FlatList
+                                data={feedData}
+                                keyExtractor={(item) => item.id}
+                                numColumns={2}
+                                columnWrapperStyle={styles.row}
+                                renderItem={({ item }) => (
+                                    <BeatStoreMusicItem item={item} onPress={handleBeatStoreItemPress} />
+                                )}
+                                contentContainerStyle={{ paddingBottom: 20 }}
+                                ListEmptyComponent={() => (
+                                    <Text style={styles.emptyListText}>
+                                        {error ? error : t('alerts.noBeatsInFeed')}
+                                    </Text>
+                                )}
+                                onEndReached={() => {
+                                    if (hasMore && !loading) {
+                                        const nextPage = page + 1;
+                                        setPage(nextPage);
+                                        fetchFeed(nextPage);
+                                    }
+                                }}
+                                onEndReachedThreshold={0.5}
+                                // Mostra um spinner menor no final da lista enquanto carrega mais páginas
+                                ListFooterComponent={() =>
+                                    loading && page > 1 ? <ActivityIndicator size="small" color="#fff" /> : null
                                 }
-                            }}
-                            onEndReachedThreshold={0.5} // carrega quando faltar metade da lista
-                        />
+                            />
+                        )}
                     </View>
                 )}
 
@@ -198,7 +202,7 @@ export default function BeatStoreScreen() {
                             </Text>
                         ) : (
                             <FlatList
-                                
+
                                 data={filteredFavoritedBeats}
                                 keyExtractor={(item) => item.id}
                                 numColumns={2}

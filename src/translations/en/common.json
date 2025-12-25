@@ -462,7 +462,8 @@
     "playsLabel": "{{count}} Plays • {{genre}}",
     "buyButton": "Buy for {{price}}",
     "downloadButton": "Download Beat",
-    "downloadAlert": "The download feature will be implemented here."
+    "downloadAlert": "The download feature will be implemented here.",
+    "loadingBeats": "Loading..."
   },
   "common": {
     "error": "Error",
@@ -476,7 +477,8 @@
     "backButton": "Back",
     "unknownGenre": "Unknown Genre",
     "unknownYear": "Unknown Year",
-    "producerLabel": "Producer:"
+    "producerLabel": "Producer:",
+    "loadingBeats": "Loading..."
   },
   "albumDetails": {
     "emptyList": "No tracks found in this album.",

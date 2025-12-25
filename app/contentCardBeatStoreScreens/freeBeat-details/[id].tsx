@@ -10,6 +10,7 @@ import {
     ImageBackground,
     Platform,
     SafeAreaView,
+    ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,7 +20,6 @@ import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 import { FreeBeat } from '@/src/types/contentType';
 import { getBeatById } from '@/src/api';
-
 import { useTranslation } from '@/src/translations/useTranslation';
 
 export default function feeBeatDetailsScreen() {
@@ -111,11 +111,23 @@ export default function feeBeatDetailsScreen() {
     // 6. VERIFICAÇÕES CONDICIONAIS (Fim da lista de Hooks)
     if (loading) {
         return (
-            <View style={[styles.errorContainer, { backgroundColor: '#000', justifyContent: 'center' }]}>
-                <Text style={{ color: '#fff' }}>{t('alerts.loadingBeats') || 'Carregando...'}</Text>
+            <View style={[styles.errorContainer, { backgroundColor: '#1e1e1e', justifyContent: 'center', alignItems: 'center' }]}>
+                <Stack.Screen options={{ headerShown: false }} />
+
+                {/* O Spinner/ActivityIndicator */}
+                <ActivityIndicator
+                    size="large"
+                    color="#fff" // Ou a cor principal da tua App (ex: #FFD700 para Gold)
+                    style={{ marginBottom: 15 }}
+                />
+
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '500' }}>
+                    {t('freeBeatdetails.loadingBeats')}
+                </Text>
             </View>
         );
     }
+
 
     if (!currentFreeBeat) {
         return (
