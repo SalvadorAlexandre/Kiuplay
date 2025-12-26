@@ -8,6 +8,7 @@ import usersReducer from './userSessionAndCurrencySlice';
 import followedArtistsReducer from './followedArtistsSlice'; // <-- IMPORTANTE: Novo import
 
 import favoriteMusicReducer from './favoriteMusicSlice'; // <-- NOVA IMPORTAÇÃO: Seu slice de músicas favoritas
+import favoriteBeatsReducer from './favoriteBeatsSlice'; // <-- 1. IMPORTAR
 import networkReducer from './networkSlice'; // NOVO: Importe o networkReducer
 
 import notificationsReducer from '../redux/notificationsSlice';
@@ -23,11 +24,17 @@ import beatStoreTabsSlice from './persistTabBeatStore'
 import profileTabsSlice from './persistTabProfile'
 import promoteTabsReducer from './persistTabPromote';
 
+import draftsReducer from './draftsSlice';
+
+
 const rootReducer = combineReducers({
   player: playerReducer,
   users: usersReducer,
+
   followedArtists: followedArtistsReducer,
   favoriteMusic: favoriteMusicReducer, // <-- NOVA ADIÇÃO: Para suas músicas favoritas
+  favoriteBeats: favoriteBeatsReducer, // <-- 2. ADICIONAR AO REDUCER
+
   network: networkReducer,
   notifications: notificationsReducer,
   promotions: promotionsReducer,
@@ -38,6 +45,7 @@ const rootReducer = combineReducers({
   beatstore: beatStoreTabsSlice,
   profile: profileTabsSlice,
   promoteTabs: promoteTabsReducer,
+  drafts: draftsReducer,
 });
 
 const persistConfig = {
@@ -56,6 +64,7 @@ const persistConfig = {
     'beatstore',
     'profile',
     'promoteTabs',
+    'drafts',
   ], // Persistir apenas favoritos
 };
 

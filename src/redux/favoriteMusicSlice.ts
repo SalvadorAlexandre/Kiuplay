@@ -1,13 +1,10 @@
-// src/redux/favoriteMusicSlice.ts (NOVO ARQUIVO)
+// src/redux/favoriteMusicSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Single, ExtendedPlayEP, Album } from '../types/contentType';
 
-// Definimos o que pode ser guardado neste estado de favoritos
-// Removemos ArtistProfile daqui conforme o teu pedido.
 export type FavoritedContent = Single | ExtendedPlayEP | Album;
 
 interface FavoriteMusicState {
-  // Mudamos o nome para 'items' ou 'favorites' para não parecer que são apenas músicas
   items: FavoritedContent[];
 }
 
@@ -19,30 +16,40 @@ const favoriteMusicSlice = createSlice({
   name: 'favoriteMusic',
   initialState,
   reducers: {
-    // Adiciona qualquer um dos 3 tipos
+    // 1. Toggle: Ideal para o botão de coração na lista de músicas/álbuns
     toggleFavorite: (state, action: PayloadAction<FavoritedContent>) => {
       const index = state.items.findIndex(item => item.id === action.payload.id);
-      
       if (index !== -1) {
-        // Se já existe, remove (comportamento de toggle)
         state.items.splice(index, 1);
       } else {
-        // Se não existe, adiciona
         state.items.push(action.payload);
       }
     },
     
+    // 2. Remove: Ideal para quando tens um botão "Remover da Biblioteca" (usa apenas ID)
     removeFavorite: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter(item => item.id !== action.payload);
     },
 
+    // 3. Set: Carregamento inicial vindo do teu Backend/Banco de dados
     setFavorites: (state, action: PayloadAction<FavoritedContent[]>) => {
       state.items = action.payload;
     },
+
+    // 4. Clear: Segurança de dados no Logout
+    clearFavorites: (state) => {
+      state.items = [];
+    }
   },
 });
 
-export const { toggleFavorite, removeFavorite, setFavorites } = favoriteMusicSlice.actions;
+export const { 
+  toggleFavorite, 
+  removeFavorite, 
+  setFavorites, 
+  clearFavorites 
+} = favoriteMusicSlice.actions;
+
 export default favoriteMusicSlice.reducer;
 
 

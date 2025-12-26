@@ -30,6 +30,9 @@ export const uploadSingle = async (
   }
 };
 
+
+
+
 /**
  * 💿 Gerenciamento de EP
  */
@@ -88,8 +91,11 @@ export const getPendingEP = async (): Promise<ReleaseResponse> => {
   }
 };
 
+
+
+
 /**
- * 🎹 Gerenciamento de ÁLBUM
+ * Gerenciamento de ÁLBUM
  */
 
 export const startAlbumDraft = async (formData: FormData): Promise<ReleaseResponse> => {

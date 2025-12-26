@@ -31,7 +31,7 @@ const BeatStoreHeader = ({ t, router }: { t: any, router: any }) => {
 
             {/**BTN DE CURTIDOS*/}
             <TouchableOpacity
-                onPress={() => router.push('/searchScreens//searchBeatStore')}
+                onPress={() => router.push('/favoriteScreens/beatStoreFavoritesScreen')}
                 style={headerStyles.buttonTopBar}
             >
                 <Ionicons name='heart-outline' size={26} color='#fff' />
@@ -163,6 +163,7 @@ export default function BeatStoreScreen() {
                     columnWrapperStyle={styles.flatlistColumn}
                     ListHeaderComponent={renderHeader}
                     stickyHeaderIndices={[0]}
+                    showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
                         <BeatStoreMusicItem
                             item={item}

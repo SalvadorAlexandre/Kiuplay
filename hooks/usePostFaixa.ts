@@ -12,9 +12,7 @@ import { useTranslation } from '@/src/translations/useTranslation'
  */
 const usePostFaixa = () => {
 
-
   const { t } = useTranslation()
-
 
   // --- Campos básicos ---
   const [nomeProdutor, setNomeProdutor] = useState('');
@@ -137,7 +135,82 @@ const usePostFaixa = () => {
     setParticipantNames(updatedNames);
   };
 
-  // ── Lógica de Upload com Progresso para single ──
+
+  // ── Lógica de Upload com Progresso para single (Simplificada) ──
+  const handleUploadSingle = async () => {
+    // 1. Validação inicial
+    if (!audioFile || !capaSingle || !tituloSingle || !generoSingle) {
+      setUploadStatus('error');
+      setUploadMessage(t('postFaixaScreen.errorFields'));
+      setUploadModalVisible(true);
+      return;
+    }
+
+    // 2. Início do processo e feedback visual
+    setUploadLoading(true);
+    setUploadModalVisible(true);
+    setUploadProgress(0);
+    setUploadStatus('idle');
+    setUploadMessage(t('postFaixaScreen.preparing'));
+
+    // Criamos o FormData
+    const formData = new FormData();
+    formData.append('title', tituloSingle);
+    formData.append('genre', generoSingle);
+    if (nomeProdutor) formData.append('producer', nomeProdutor);
+    if (hasParticipants) formData.append('feat', JSON.stringify(participantNames));
+
+    // Tratamento de Capa (Mobile/Web)
+    if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(coverUri);
+      formData.append('coverFile', blob, 'cover.jpg');
+    } else {
+      formData.append('coverFile', {
+        uri: coverUri,
+        name: 'cover.jpg',
+        type: 'image/jpeg',
+      } as any);
+    }
+
+    // Tratamento de Áudio (Mobile/Web)
+    if (audioUri?.startsWith('data:') || audioUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(audioUri);
+      formData.append('audioFile', blob, audioFile.name);
+    } else {
+      formData.append('audioFile', {
+        uri: audioUri,
+        name: audioFile.name,
+        type: audioFile.type,
+      } as any);
+    }
+
+    // 3. Chamada da API 
+    // Como a API já tem try/catch, ela sempre retornará um objeto ReleaseResponse
+    const response = await uploadSingle(formData, (progress) => {
+      setUploadProgress(progress);
+      setUploadMessage(t('postFaixaScreen.uploadingProgress', { progress }));
+    });
+
+    // 4. Tratamento do Resultado
+    if (response.success) {
+      setUploadStatus('success');
+      setUploadMessage(t('postFaixaScreen.success'));
+      Vibration.vibrate(200);
+
+      // Opcional: Resetar após 2 segundos
+      // setTimeout(() => { setUploadModalVisible(false); resetForm(); }, 2000);
+    } else {
+      // Aqui o response.error já contém a mensagem da API ou o fallback "Erro ao subir Single."
+      setUploadStatus('error');
+      setUploadMessage(t('postFaixaScreen.uploadError'));
+    }
+
+    setUploadLoading(false);
+  };
+
+
+  {/**
+    // ── Lógica de Upload com Progresso para single ──
   const handleUploadSingle = async () => {
     // 1. Validação com feedback visual no Modal
     if (!audioFile || !capaSingle || !tituloSingle || !generoSingle) {
@@ -212,6 +285,7 @@ const usePostFaixa = () => {
       setUploadLoading(false);
     }
   };
+    */}
 
   return {
     // Estados básicos

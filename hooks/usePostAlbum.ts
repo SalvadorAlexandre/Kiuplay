@@ -27,11 +27,20 @@ const usePostAlbum = () => {
 
   // Configuração atualizada: 8 a 30 faixas
   const [numFaixasItems, setNumFaixasItems] = useState<{ label: string; value: number }[]>(
+    // Calculamos a diferença: 30 (máximo) - 3 (mínimo) + 1 = 28 itens no total
+    Array.from({ length: 30 - 3 + 1 }, (_, i) => ({
+      label: t('postAlbum.trackCountOption', { count: i + 3 }),
+      value: i + 3,
+    }))
+  );
+
+  {/** Configuração atualizada: 8 a 30 faixas
+  const [numFaixasItems, setNumFaixasItems] = useState<{ label: string; value: number }[]>(
     Array.from({ length: 30 - 8 + 1 }, (_, i) => ({
       label: t('postAlbum.trackCountOption', { count: i + 8 }),
       value: i + 8,
     }))
-  );
+  ); */}
 
   const [postedFaixa, setPostedFaixa] = useState<number>(0);
 
@@ -173,8 +182,8 @@ const usePostAlbum = () => {
     updatedNames[index] = text;
     setParticipantNames(updatedNames);
   };
-
-  // --- 9. LÓGICA DE COMUNICAÇÃO COM API (ADAPTADA PARA ÁLBUM) ---
+  {/**
+  
   const saveAlbumDraft = async () => {
     // Verificamos as variáveis do álbum
     if (!capaAlbum || !tituloAlbum || !generoPrincipal || !numFaixas) {
@@ -213,7 +222,89 @@ const usePostAlbum = () => {
       setIsSavingDraft(false);
     }
   };
+  */}
 
+
+  // --- 9. LÓGICA DE COMUNICAÇÃO COM API (ADAPTADA PARA ÁLBUM) ---
+  const saveAlbumDraft = async () => {
+    if (!capaAlbum || !tituloAlbum || !generoPrincipal || !numFaixas) {
+      showModal('error', t('postAlbum.errors.missingMainFields'));
+      return;
+    }
+
+    showModal('loading', t('postAlbum.loading.creatingDraft'));
+    setIsSavingDraft(true);
+
+    const formData = new FormData();
+    formData.append('title', tituloAlbum);
+    formData.append('mainGenre', generoPrincipal);
+    formData.append('totalTracks', String(numFaixas));
+
+    if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(coverUri);
+      formData.append('coverFile', blob, capaAlbum.name || 'cover.jpg');
+    } else {
+      formData.append('coverFile', {
+        uri: coverUri,
+        name: capaAlbum.name || 'cover.jpg',
+        type: capaAlbum.type || 'image/jpeg',
+      } as any);
+    }
+
+    // Chamada à API ajustada
+    const response = await startAlbumDraft(formData);
+
+    if (response.success) {
+      // De acordo com a tua API: return { success: true, data: response.data };
+      // Ajustamos para ler de response.data.album (ou apenas response.data dependendo do teu backend)
+      setAlbumData(response.data.album || response.data);
+      showModal('success', t('postAlbum.success.draftCreated'));
+    } else {
+      // Usa o erro amigável vindo da API
+      showModal('error', t('postAlbum.errors.saveDraftError'));
+    }
+
+    setIsSavingDraft(false);
+  };
+
+  // ── 10. RECUPERAÇÃO DE RASCUNHO (CORRIGIDO) ──
+  useEffect(() => {
+    const checkAlbumDraft = async () => {
+      // Como a API já trata o erro, não precisamos obrigatoriamente de try/catch aqui
+      const response = await getPendingAlbum();
+
+      // Verificamos se teve sucesso e se existe o objeto album dentro de data
+      if (response.success && response.data?.album) {
+        const album = response.data.album; // Criamos uma constante para facilitar o acesso
+
+        // 1. Guarda os dados do Álbum no estado
+        setAlbumData(album);
+
+        // 2. Preenche os campos de texto para o Card de Resumo
+        setTituloAlbum(album.title);
+        setGeneroPrincipal(album.mainGenre);
+
+        // 3. Define a capa com a URL que veio do Supabase
+        setCapaAlbum({ uri: album.cover });
+
+        // 4. Define o número total de faixas esperado
+        setNumFaixas(album.totalTracks);
+
+        // 5. Atualiza o contador de faixas já enviadas
+        if (album.tracks && Array.isArray(album.tracks)) {
+          setPostedFaixa(album.tracks.length);
+        }
+      } else {
+        // Caso não haja rascunho, apenas logamos (evita mostrar modal de erro desnecessário)
+        console.log("Informação: Nenhum rascunho de álbum pendente encontrado.");
+      }
+    };
+
+    checkAlbumDraft();
+  }, []);
+
+
+  {/** 
   // ── 10. RECUPERAÇÃO DE RASCUNHO (ADAPTADO PARA ÁLBUM) ──
   useEffect(() => {
     const checkAlbumDraft = async () => {
@@ -248,10 +339,11 @@ const usePostAlbum = () => {
     };
     checkAlbumDraft();
   }, []);
+    
+    */}
 
-
-  // --- 11. LÓGICA DE COMUNICAÇÃO COM API (FAIXAS DO ÁLBUM) ---
-  const handleAddTrack = async () => {
+  {/**
+     const handleAddTrack = async () => {
     // 1. Validação inicial usando albumData
     if (!albumData?.id || !audioFaixa || !titleFaixa) {
       showModal('error', t('postAlbum.errors.missingTrackData'));
@@ -319,9 +411,78 @@ const usePostAlbum = () => {
       setIsSavingDraft(false);
     }
   };
+    */}
+
+  // --- 11. LÓGICA DE COMUNICAÇÃO COM API (FAIXAS DO ÁLBUM) ---
+  const handleAddTrack = async () => {
+    // 1. Validação inicial usando albumData
+    if (!albumData?.id || !audioFaixa || !titleFaixa) {
+      showModal('error', t('postAlbum.errors.missingTrackData'));
+      return;
+    }
+
+    // 2. Iniciar Feedback Visual
+    showModal('loading', t('postAlbum.loading.uploadingTrack', { title: titleFaixa }), 1);
+    setIsSavingDraft(true);
+
+    // O FormData continua igual, pois a API precisa dele
+    const formData = new FormData();
+    formData.append('title', titleFaixa);
+    formData.append('genre', genreFaixa || generoPrincipal);
+    formData.append('producer', producerFaixa);
+    formData.append('feat', JSON.stringify(participantNames));
+
+    // 3. LÓGICA DE TRATAMENTO DE BINÁRIO (ÁUDIO DA FAIXA DO ÁLBUM)
+    if (audioUri?.startsWith('data:') || audioUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(audioUri);
+      formData.append('audioFile', blob, audioFaixa.name || 'track.mp3');
+    } else {
+      formData.append('audioFile', {
+        uri: audioUri,
+        name: audioFaixa.name || 'track.mp3',
+        type: audioFaixa.type || 'audio/mpeg',
+      } as any);
+    }
+
+    // 4. Chamada à API (O try/catch já é feito dentro de addTrackToAlbum)
+    const response = await addTrackToAlbum(albumData.id, formData, (progress) => {
+      setUploadProgress(progress);
+    });
+
+    // 5. Tratamento de Sucesso ou Erro baseado na resposta da API
+    if (response.success) {
+      const novoTotalPosted = postedFaixa + 1;
+      setPostedFaixa(novoTotalPosted);
+
+      // Limpar campos para a próxima faixa
+      setTitleFaixa('');
+      setGenreFaixa('');
+      setProducerFaixa('');
+      setAudioFaixa(null);
+      setParticipantNames([]);
+      handleNoParticipants();
+
+      // Verificar se o Álbum está completo
+      if (novoTotalPosted >= (numFaixas || 0)) {
+        showModal('success', t('postAlbum.success.allTracksUploaded'));
+      } else {
+        showModal('success', t('postAlbum.success.trackProgress', {
+          current: novoTotalPosted,
+          total: numFaixas
+        }));
+      }
+    } else {
+      // Aqui usamos o erro amigável retornado pela API
+      console.error("Erro no upload da faixa:", response.error);
+      showModal('error', t('postAlbum.errors.uploadTrackError'));
+    }
+
+    // Finaliza o estado de carregamento independente de sucesso ou erro
+    setIsSavingDraft(false);
+  };
 
 
-  // --- 12. FINALIZAÇÃO E CANCELAMENTO (ADAPTADO PARA ÁLBUM) ---
+  {/**
   const finishAlbumRelease = async () => {
     if (!albumData?.id) return;
 
@@ -352,21 +513,85 @@ const usePostAlbum = () => {
       }
     } catch (error: any) {
       console.error(error);
-      showModal('error', t('postAlbum.errors.finalizeError') || error.response?.data?.error );
+      showModal('error', t('postAlbum.errors.finalizeError') || error.response?.data?.error);
     } finally {
       setIsSavingDraft(false);
     }
+  };
+  
+  */}
+  // --- 12. FINALIZAÇÃO E CANCELAMENTO (ADAPTADO PARA ÁLBUM) ---
+  const finishAlbumRelease = async () => {
+    if (!albumData?.id) return;
+
+    showModal('loading', t('postAlbum.loading.finalizing'));
+    setIsSavingDraft(true);
+
+    // Chamada à API (já encapsulada com try/catch)
+    const response = await finalizeAlbum(albumData.id);
+
+    if (response.success) {
+      showModal('success', t('postAlbum.success.published'));
+
+      // RESET TOTAL DOS ESTADOS
+      setAlbumData(null);
+      setCapaAlbum(null);
+      setTituloAlbum('');
+      setGeneroPrincipal('');
+      setNumFaixas(null);
+      setPostedFaixa(0);
+      setTitleFaixa('');
+      setAudioFaixa(null);
+      setGenreFaixa('');
+      setProducerFaixa('');
+      setParticipantNames([]);
+      handleNoParticipants();
+    } else {
+      // Exibe o erro específico que você definiu na API
+      showModal('error', t('postAlbum.errors.finalizeError'));
+    }
+
+    setIsSavingDraft(false);
   };
 
   // 1. Apenas abre o modal de confirmação para o Álbum
   const triggerAbortAlbum = () => {
     if (!albumData?.id) return;
-    showModal('confirm',  t('postAlbum.confirm.abort'));
+    showModal('confirm', t('postAlbum.confirm.abort'));
+  };
+
+
+  const executeAbortAlbum = async () => {
+    if (!albumData?.id) return;
+
+    showModal('loading', t('postAlbum.loading.deleting'));
+
+    const response = await abortAlbum(albumData.id);
+
+    if (response.success) {
+      // RESET TOTAL DOS ESTADOS
+      setAlbumData(null);
+      setCapaAlbum(null);
+      setTituloAlbum('');
+      setGeneroPrincipal('');
+      setNumFaixas(null);
+      setPostedFaixa(0);
+      setTitleFaixa('');
+      setAudioFaixa(null);
+      setParticipantNames([]);
+      handleNoParticipants();
+
+      showModal('success', t('postAlbum.success.deleted'));
+    } else {
+      showModal('error', response.error || t('postAlbum.errors.deleteDraftError'));
+    }
   };
 
   // 2. A função que realmente apaga (chamada pelo onConfirm do Modal no contexto do Álbum)
+  {/**
   const executeAbortAlbum = async () => {
     if (!albumData?.id) return;
+
 
     showModal('loading', t('postAlbum.loading.deleting'));
     try {
@@ -386,8 +611,10 @@ const usePostAlbum = () => {
       showModal('success', t('postAlbum.success.deleted'));
     } catch (error) {
       showModal('error', t('postAlbum.errors.deleteDraftError'));
-    }
+    } 
+    
   };
+*/}
 
   return {
     // Estados do Álbum

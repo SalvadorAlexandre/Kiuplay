@@ -180,6 +180,43 @@ const usePostExtendedPlay = () => {
 
     showModal('loading', t('postEP.loading.creatingDraft'));
     setIsSavingDraft(true);
+
+    const formData = new FormData();
+    formData.append('title', tituloEP);
+    formData.append('mainGenre', generoPrincipal);
+    formData.append('totalTracks', String(numFaixas));
+
+    if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(coverUri);
+      formData.append('coverFile', blob, capaEP.name || 'cover.jpg');
+    } else {
+      formData.append('coverFile', {
+        uri: coverUri,
+        name: capaEP.name || 'cover.jpg',
+        type: capaEP.type || 'image/jpeg',
+      } as any);
+    }
+
+    const response = await startEPDraft(formData);
+
+    if (response.success) {
+      // Ajuste: O dado real costuma vir em response.data.ep ou response.data
+      setEpData(response.data?.ep || response.data);
+      showModal('success', t('postEP.success.draftCreated'));
+    } else {
+      showModal('error', t('postEP.errors.saveDraftError'));
+    }
+    setIsSavingDraft(false);
+  };
+  {/**
+    const saveEPDraft = async () => {
+    if (!capaEP || !tituloEP || !generoPrincipal || !numFaixas) {
+      showModal('error', t('postEP.errors.missingMainFields'));
+      return;
+    }
+
+    showModal('loading', t('postEP.loading.creatingDraft'));
+    setIsSavingDraft(true);
     try {
       const formData = new FormData();
       formData.append('title', tituloEP);
@@ -207,8 +244,31 @@ const usePostExtendedPlay = () => {
       setIsSavingDraft(false);
     }
   };
+   */}
 
-  // Dentro do seu Hook usePostExtendedPlay
+  useEffect(() => {
+    const checkDraft = async () => {
+      const response = await getPendingEP();
+
+      if (response.success && response.data?.ep) {
+        const ep = response.data.ep;
+        setEpData(ep);
+        setTituloEP(ep.title);
+        setGeneroPrincipal(ep.mainGenre);
+        setCapaEP({ uri: ep.cover });
+        setNumFaixas(ep.totalTracks);
+
+        if (ep.tracks) {
+          setPostedFaixa(ep.tracks.length);
+        }
+      } else {
+        console.log("Nenhum rascunho de EP pendente.");
+      }
+    };
+    checkDraft();
+  }, []);
+
+  {/**
   useEffect(() => {
     const checkDraft = async () => {
       try {
@@ -245,9 +305,62 @@ const usePostExtendedPlay = () => {
 
     checkDraft();
   }, []);
+  */}
+
 
   // --- LOGICA DE COMUNICAÇÃO COM API (FAIXAS) ---
+
   const handleAddTrack = async () => {
+    if (!epData?.id || !audioFaixa || !titleFaixa.trim() || !genreFaixa) {
+      showModal('error', t('postEP.errors.missingTrackData'));
+      return;
+    }
+
+    showModal('loading', t('postEP.loading.uploadingTrack', { title: titleFaixa }));
+    setIsSavingDraft(true);
+
+    const formData = new FormData();
+    formData.append('title', titleFaixa.trim());
+    formData.append('genre', genreFaixa || generoPrincipal);
+    formData.append('producer', producerFaixa || '');
+    formData.append('feat', JSON.stringify(participantNames));
+
+    if (audioUri?.startsWith('data:') || audioUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(audioUri);
+      formData.append('audioFile', blob, audioFaixa.name || 'track.mp3');
+    } else {
+      formData.append('audioFile', {
+        uri: audioUri,
+        name: audioFaixa.name || 'track.mp3',
+        type: audioFaixa.type || 'audio/mpeg',
+      } as any);
+    }
+
+    const response = await addTrackToEP(epData.id, formData, (progress) => {
+      setUploadProgress(progress);
+    });
+
+    if (response.success) {
+      const novoTotalPosted = postedFaixa + 1;
+      setPostedFaixa(novoTotalPosted);
+
+      // Limpeza
+      setTitleFaixa(''); setGenreFaixa(''); setProducerFaixa('');
+      setAudioFaixa(null); setParticipantNames([]);
+
+      if (novoTotalPosted >= (numFaixas || 0)) {
+        showModal('success', t('postEP.success.allTracksUploaded'));
+      } else {
+        showModal('success', t('postEP.success.trackProgress', { current: novoTotalPosted, total: numFaixas }));
+      }
+    } else {
+      showModal('error', response.error || t('postEP.errors.uploadTrackError'));
+    }
+    setIsSavingDraft(false);
+  };
+
+  {/**
+    const handleAddTrack = async () => {
     // 1. Validação inicial robusta
     // Verifica se o ID do EP existe, se há áudio, título E género da faixa
     if (!epData?.id || !audioFaixa || !titleFaixa.trim() || !genreFaixa) {
@@ -315,8 +428,29 @@ const usePostExtendedPlay = () => {
     } finally {
       setIsSavingDraft(false);
     }
+  }; 
+    */}
+
+
+  const finishRelease = async () => {
+    if (!epData?.id) return;
+    showModal('loading', t('postEP.loading.finalizing'));
+    setIsSavingDraft(true);
+
+    const response = await finalizeEP(epData.id);
+
+    if (response.success) {
+      showModal('success', t('postEP.success.published'));
+      setEpData(null); setCapaEP(null); setTituloEP('');
+      setGeneroPrincipal(''); setNumFaixas(null); setPostedFaixa(0);
+      setTitleFaixa(''); setAudioFaixa(null);
+    } else {
+      showModal('error', response.error || t('postEP.errors.finalizeError'));
+    }
+    setIsSavingDraft(false);
   };
 
+  {/**
   const finishRelease = async () => {
     if (!epData?.id) return;
 
@@ -350,6 +484,9 @@ const usePostExtendedPlay = () => {
       setIsSavingDraft(false);
     }
   };
+  
+  */}
+
 
   // 1. Apenas abre o modal de confirmação
   const triggerAbortEP = () => {
@@ -359,6 +496,22 @@ const usePostExtendedPlay = () => {
 
   // 2. A função que realmente apaga (será chamada pelo onConfirm do Modal)
   const executeAbortEP = async () => {
+    if (!epData?.id) return;
+    showModal('loading', t('postEP.loading.deleting'));
+
+    const response = await abortEP(epData.id);
+
+    if (response.success) {
+      setEpData(null); setCapaEP(null); setTituloEP('');
+      setGeneroPrincipal(''); setNumFaixas(null); setPostedFaixa(0);
+      showModal('success', t('postEP.success.deleted'));
+    } else {
+      showModal('error', response.error || t('postEP.errors.deleteDraftError'));
+    }
+  };
+
+  {/**
+     const executeAbortEP = async () => {
     showModal('loading', t('postEP.loading.deleting'));
     try {
       await abortEP(epData.id);
@@ -376,6 +529,8 @@ const usePostExtendedPlay = () => {
       showModal('error', t('postEP.errors.deleteDraftError'));
     }
   };
+
+    */}
 
   return {
     // Estados do EP

@@ -99,14 +99,14 @@ export default function LibraryScreen() {
     const [page, setPage] = useState<number>(1);
     const [hasMore, setHasMore] = useState<boolean>(true);
 
-   // const favoritedCloudTracks: Track[] = favoritedMusics.filter(
+    // const favoritedCloudTracks: Track[] = favoritedMusics.filter(
     //    (music) =>
     //        music.category === 'single' && (
     //            music.source === 'library-cloud-feeds' ||
     //            music.source === 'library-cloud-favorites' ||
     //            music.source === 'library-local'
     //        )
-   // ) as Track[];
+    // ) as Track[];
 
     // ... (Funções de navegação permanecem inalteradas)
     //const handleCloudItemPress = (item: LibraryFeedItem) => {
@@ -209,6 +209,7 @@ export default function LibraryScreen() {
                     columnWrapperStyle={styles.flatlistColumn}
                     ListHeaderComponent={renderHeader}
                     stickyHeaderIndices={[0]} // Opcional: mantém o header fixo no topo
+                    showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
                         <LibraryContentCard
                             item={item}

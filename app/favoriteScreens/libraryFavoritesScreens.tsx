@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
@@ -19,20 +19,32 @@ export default function LibraryFavoritesScreen() {
     const [activeFilter, setActiveFilter] = useState<'all' | 'single' | 'album' | 'ep'>('all');
 
     // 2. Filtragem dinâmica com a tipagem correta
-    const filteredData = favoritedItems.filter(item =>
-        activeFilter === 'all' ? true : item.category === activeFilter
-    );
+    // O operador '|| []' garante que se favoritedItems for undefined, o código não quebra
+    const filteredData = (favoritedItems || []).filter(item => {
+        // Adicionamos também uma verificação no 'item' para evitar erros de leitura de propriedade
+        if (!item) return false;
+        return activeFilter === 'all' ? true : item.category === activeFilter;
+    });
 
     const handleItemPress = useCallback((item: LibraryFavoritesFeedItem) => {
-        const routes = {
-            single: `/contentCardLibraryScreens/single-details/${item.id}`,
-            album: `/contentCardLibraryScreens/album-details/${item.id}`,
-            ep: `/contentCardLibraryScreens/ep-details/${item.id}`,
+        const pathnames: Record<LibraryFavoritesFeedItem['category'], string> = {
+            single: "/contentCardLibraryScreens/single-details/[id]",
+            album: "/contentCardLibraryScreens/album-details/[id]",
+            ep: "/contentCardLibraryScreens/ep-details/[id]",
         };
 
-        // @ts-ignore - caminho dinâmico do expo-router
-        const targetRoute = routes[item.category as keyof typeof routes];
-        if (targetRoute) router.push(targetRoute);
+        const targetPath = pathnames[item.category];
+
+        if (targetPath) {
+            // Criamos o objeto de navegação
+            const route = {
+                pathname: targetPath,
+                params: { id: item.id }
+            };
+
+            // Forçamos o push a aceitar o objeto como um Href genérico
+            router.push(route as any);
+        }
     }, [router]);
 
     const FilterButton = ({ type, label }: { type: typeof activeFilter, label: string }) => (

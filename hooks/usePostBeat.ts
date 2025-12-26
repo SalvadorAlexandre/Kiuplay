@@ -137,7 +137,111 @@ export const usePostBeat = () => {
     }
   };
 
+  const handleSubmitBeatWithModal = async () => {
+    // 1. Reset inicial e abertura do modal
+    setUploadLoading(true);
+    setUploadProgress(0);
+    setUploadStatus('idle');
+    setUploadError(null);
+    setUploadMessage(t('postBeat.preparing'));
+    setUploadModalVisible(true);
 
+    // 2. Validações de Campos
+    if (!tituloBeat || !generoBeat || !beatFile || !capaBeat || !tipoLicenca) {
+      setUploadStatus('error');
+      setUploadMessage(t('postBeat.errors.missingFields'));
+      setUploadLoading(false);
+      return;
+    }
+
+    // 3. Validação de Preço (Licença Exclusiva)
+    if (tipoLicenca === 'exclusivo') {
+      const minValue = 1;
+      const maxValue = 10000;
+
+      if (!preco || preco <= 0) {
+        setUploadStatus('error');
+        setUploadMessage(t('postBeat.errors.invalidPrice'));
+        setUploadLoading(false);
+        return;
+      }
+
+      if (preco < minValue) {
+        setUploadStatus('error');
+        setUploadMessage(`${t('postBeat.errors.minValue')} ${currentCurrencySymbol}${minValue.toFixed(2)}`);
+        setUploadLoading(false);
+        return;
+      }
+
+      if (preco > maxValue) {
+        setUploadStatus('error');
+        setUploadMessage(`${t('postBeat.errors.maxValue')} ${currentCurrencySymbol}${maxValue.toFixed(2)}`);
+        setUploadLoading(false);
+        return;
+      }
+    }
+
+    // --- Preparação do FormData ---
+    const formData = new FormData();
+    formData.append('title', tituloBeat);
+    formData.append('producer', nomeProdutor);
+    formData.append('genre', generoBeat);
+    formData.append('bpm', String(bpm || 0));
+
+    // Capa
+    if (coverUri?.startsWith('data:') || coverUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(coverUri);
+      formData.append('coverFile', blob, 'cover.jpg');
+    } else {
+      formData.append('coverFile', { uri: coverUri!, name: 'cover.jpg', type: 'image/jpeg' } as any);
+    }
+
+    // Áudio
+    if (beatUri?.startsWith('data:') || beatUri?.startsWith('blob:')) {
+      const blob = await uriToBlob(beatUri);
+      formData.append('audioFile', blob, beatFile.name || 'beat.mp3');
+    } else {
+      formData.append('audioFile', {
+        uri: beatUri!,
+        name: beatFile.name || 'beat.mp3',
+        type: beatFile.type || 'audio/mpeg'
+      } as any);
+    }
+
+    // Callback de progresso
+    const onProgress = (percent: number) => {
+      setUploadProgress(percent);
+      setUploadMessage(percent < 100 ? `${t('postBeat.uploading')} ${percent}%` : t('postBeat.processing'));
+    };
+
+    // 4. Chamada da API (Removido try/catch redundante)
+    let response;
+    if (tipoLicenca === 'exclusivo') {
+      formData.append('price', String(preco));
+      formData.append('currency', selectedCurrency);
+      formData.append('region', selectedRegion);
+      response = await uploadExclusiveBeat(formData, onProgress);
+    } else {
+      response = await uploadFreeBeat(formData, onProgress);
+    }
+
+    // 5. Tratamento de Resposta baseada na Interface UploadResponse
+    if (response.success) {
+      setUploadProgress(100);
+      setUploadStatus('success');
+      setUploadMessage(t('postBeat.uploadSuccess'));
+      Vibration.vibrate(200);
+      // Aqui você pode adicionar um resetForm() se desejar
+    } else {
+      setUploadStatus('error');
+      // Mostra o erro vindo da API ou a tradução local caso falhe
+      setUploadMessage(t('postBeat.errors.uploadFailed'));
+    }
+
+    setUploadLoading(false);
+  };
+
+  {/**
   const handleSubmitBeatWithModal = async () => {
     try {
       // 1. Reset inicial e abertura do modal no estado 'idle' (carregando)
@@ -157,14 +261,6 @@ export const usePostBeat = () => {
         return; // Interrompe a execução
       }
 
-      // 3. Validação de Preço (Licença Exclusiva)
-      //if (tipoLicenca === 'exclusivo' && (!preco || preco <= 0)) {
-      // const msg = t('postBeat.errors.invalidPrice');
-      // setUploadStatus('error');
-      //  setUploadMessage(msg);
-      //  setUploadLoading(false);
-      //  return;
-      //}
 
       // 3. Validação de Preço (Licença Exclusiva) - Aprimorada
       if (tipoLicenca === 'exclusivo') {
@@ -261,6 +357,9 @@ export const usePostBeat = () => {
       setUploadLoading(false);
     }
   };
+
+  
+  */}
 
   const resetForm = useCallback(() => {
     // Campos básicos
