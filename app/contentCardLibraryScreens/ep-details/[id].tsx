@@ -1,5 +1,5 @@
 // app/contentCardLibraryScreens/ep-details/[id].tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,17 +10,18 @@ import {
   Alert,
   ImageBackground,
   Platform,
+  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice'; // Adicionado para favoritar EP/faixas
 import { Ionicons } from '@expo/vector-icons';
-import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+//import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { ExtendedPlayEP, Single } from '@/src/types/contentType'; // Importado Single também
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { getLibraryContentDetails } from '@/src/api/feedApi'; // Importa a tua nova API
 
 import { useTranslation } from '@/src/translations/useTranslation';
 
@@ -34,7 +35,6 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
 }) => {
   const isConnected = useAppSelector((state) => state.network.isConnected)
   // NOVO: Obtenha o currentTrack do estado do player
-
 
   const getImageSource = () => {
     if (isConnected === false || !track.cover || track.cover.trim() === '') {
@@ -56,7 +56,7 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
       <Image
         source={imageSource}
         style={trackItemStyles.coverImage}
-        
+
       />
       <View style={trackItemStyles.infoContainer}>
         <Text style={trackItemStyles.title} numberOfLines={1}>
@@ -111,59 +111,82 @@ const trackItemStyles = StyleSheet.create({
   },
 });
 
-
-
-
 export default function EpDetailsScreen() {
 
   const { t } = useTranslation()
-
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const EpData = MOCKED_CLOUD_FEED_DATA.find(
-    (item) => item.id === id && item.category === 'ep'
-  ) as ExtendedPlayEP | undefined;
-
-  if (!id || !EpData) {
-    return (
-      <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
-        <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-        <Text style={styles.errorText}>{t('epDetails.notFound')}</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>{t('epDetails.backButton')}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-  const currentEp: ExtendedPlayEP = EpData;
-
   const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-
-  
   const { currentTrack } = useAppSelector((state) => state.player);
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
+  // --- Estados para gerir a API ---
+  const [currentEp, setCurrentEp] = useState<ExtendedPlayEP | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    async function fetchEp() {
+      if (!id) return;
+
+      setLoading(true);
+      // Aqui o result.data vem como LibraryFeedItem (Union Type)
+      const result = await getLibraryContentDetails(id as string);
+
+      if (result.success && result.data) {
+        // Usamos uma variável temporária com 'any' ou fazemos um cast para acessar .tracks
+        const rawData = result.data as any;
+
+        // Verificamos se realmente existem tracks antes de mapear
+        if (rawData.tracks && Array.isArray(rawData.tracks)) {
+          const flattenedTracks = rawData.tracks.map((item: any) => ({
+            ...item.track,
+            // Garante que o source seja o correto para esta tela
+            source: 'library-artistProfile'
+          }));
+
+          setCurrentEp({
+            ...rawData,
+            tracks: flattenedTracks,
+            category: 'ep' // Forçamos a categoria correta
+          } as ExtendedPlayEP);
+        } else {
+          // Se não tiver tracks, talvez seja um Single sendo aberto como EP
+          setError(t('epDetails.notFound'));
+        }
+      } else {
+        setError(result.error || t('epDetails.notFound'));
+      }
+
+      setLoading(false);
+    }
+
+    fetchEp();
+  }, [id, t]);
+
   const getDynamicCoverSource = () => {
-    if (isConnected === false || !currentEp.cover || currentEp.cover.trim() === '') {
+    if (!isConnected || !currentEp?.cover?.trim()) {
       return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     }
     return { uri: currentEp.cover };
   };
-  const coverSource = getDynamicCoverSource();
 
   const getDynamicUserAvatar = () => {
-    if (isConnected === false || !currentEp.artistAvatar || currentEp.artistAvatar.trim() === '') {
+    if (!isConnected || !currentEp?.artistAvatar?.trim()) {
       return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
     }
     return { uri: currentEp.artistAvatar };
   };
+
+  const coverSource = getDynamicCoverSource();
   const artistAvatarSrc = getDynamicUserAvatar();
 
   const handlePlayEp = useCallback(() => {
-    if (!currentEp.tracks || currentEp.tracks.length === 0) {
-      Alert.alert("Erro", "Este EP não possui faixas para reproduzir.");
+    if (!currentEp || !currentEp.tracks || currentEp.tracks.length === 0) {
+      console.log("Erro", "Este EP não possui faixas para reproduzir.");
       return;
     }
     dispatch(setPlaylistAndPlayThunk({
@@ -173,92 +196,151 @@ export default function EpDetailsScreen() {
     }));
   }, [dispatch, currentEp]);
 
-
   //Inicia reproducao a partir de uma faixa clicada
   const handlePlayTrack = useCallback((track: Single) => {
-    if (!track.uri) {
-      Alert.alert("Erro", "URI da faixa não disponível para reprodução.");
+    if (!currentEp || !currentEp.tracks) {
+      console.log("Erro", "Faixas do EP não disponíveis.");
       return;
     }
+
+    if (!track.uri) {
+      console.log("Erro", "URI da faixa não disponível para reprodução.");
+      return;
+    }
+
     dispatch(setPlaylistAndPlayThunk({
-      newPlaylist: currentEp.tracks, // Toca a partir da lista completa do EP
-      startIndex: currentEp.tracks.findIndex(t => t.id === track.id), // Encontra o índice da faixa clicada
+      newPlaylist: currentEp.tracks,
+      startIndex: currentEp.tracks.findIndex(t => t.id === track.id),
       shouldPlay: true,
     }));
   }, [dispatch, currentEp]);
-
 
   //Adiciona ou remove uma faixa dos favoritos
   const handleToggleFavoriteTrack = useCallback((track: Single) => {
     const isCurrentlyFavorited = favoritedMusics.some(favTrack => favTrack.id === track.id);
     if (isCurrentlyFavorited) {
       dispatch(removeFavoriteMusic(track.id));
-      Alert.alert("Removido", `"${track.title}" removida dos favoritos.`);
+      console.log("Removido", `"${track.title}" removida dos favoritos.`);
     } else {
       dispatch(addFavoriteMusic(track));
-      Alert.alert("Adicionado", `"${track.title}" adicionada aos favoritos.`);
+      console.log("Adicionado", `"${track.title}" adicionada aos favoritos.`);
     }
   }, [dispatch, favoritedMusics]);
 
 
-  // NOVO: Componente/Função para o cabeçalho da FlatList
-  const ListHeaderComponent = useCallback(() => (
-    <View style={styles.headerContentContainer}> {/* Novo estilo para o conteúdo do cabeçalho */}
-      <ImageBackground
-        source={coverSource}
-        blurRadius={Platform.OS === 'android' ? 10 : 0}
-        style={styles.imageBackground} // Este estilo vai precisar de ajustes
-        
-      >
-        <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
 
-          {/* Header Bar (Voltar e Artista Info) */}
-          <View style={styles.headerBar}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={30} color="#fff" />
-            </TouchableOpacity>
-            <View style={styles.artistInfo}>
-              <Image source={artistAvatarSrc} style={styles.profileImage} />
-              <Text style={styles.artistMainName} numberOfLines={1}>
-                {currentEp.artist}
+  // 1. Move este bloco para ANTES dos "if (loading)"
+  const ListHeaderComponent = useCallback(() => {
+    // Se o loading ainda estiver a correr, não renderizamos nada no Header
+    if (!currentEp) return null;
+
+    return (
+      <View style={styles.headerContentContainer}> {/* Novo estilo para o conteúdo do cabeçalho */}
+        <ImageBackground
+          source={coverSource}
+          blurRadius={Platform.OS === 'android' ? 10 : 0}
+          style={styles.imageBackground} // Este estilo vai precisar de ajustes
+
+        >
+          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
+
+            {/* Header Bar (Voltar e Artista Info) */}
+            <View style={styles.headerBar}>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={30} color="#fff" />
+              </TouchableOpacity>
+              <View style={styles.artistInfo}>
+                <Image source={artistAvatarSrc} style={styles.profileImage} />
+                <Text style={styles.artistMainName} numberOfLines={1}>
+                  {currentEp.artist}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.coverAndDetailsSection}> {/* Novo View para alinhar capa e textos */}
+              <Image source={coverSource} style={styles.coverImage} />
+
+              {/* Detalhes do EP (Título, Artista, Produtor, Feat, Ano, Gênero, Plays, Faixas) */}
+              <Text style={styles.title}>{currentEp.title}</Text>
+              <Text style={styles.artistName}>{currentEp.artist}</Text>
+
+              <Text style={styles.detailText}>
+                {`${currentEp.category.charAt(0).toUpperCase() + currentEp.category.slice(1)} • ${currentEp.releaseYear || t('epDetails.unknownYear')} • ${t('epDetails.tracksCount', { count: currentEp.tracks?.length || 0 })}`}
+              </Text>
+
+              <Text style={styles.detailText}>
+                {currentEp.mainGenre || t('epDetails.unknownGenre')}
               </Text>
             </View>
-          </View>
 
-          <View style={styles.coverAndDetailsSection}> {/* Novo View para alinhar capa e textos */}
-            <Image source={coverSource} style={styles.coverImage} />
+            {/* *** ADICIONANDO O DEGRADÊ AQUI *** */}
+            <LinearGradient
+              colors={['transparent', styles.container.backgroundColor || '#191919']}
+              style={styles.fadeOverlay}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+            />
 
-            {/* Detalhes do EP (Título, Artista, Produtor, Feat, Ano, Gênero, Plays, Faixas) */}
-            <Text style={styles.title}>{currentEp.title}</Text>
-            <Text style={styles.artistName}>{currentEp.artist}</Text>
+            <View style={styles.playButtonContainer}> {/* Novo estilo para o botão de play */}
+              <TouchableOpacity onPress={handlePlayEp}>
+                <Ionicons name={'play-circle'} size={48} color="#fff" />
+              </TouchableOpacity>
+            </View>
 
-            <Text style={styles.detailText}>
-              {`${currentEp.category.charAt(0).toUpperCase() + currentEp.category.slice(1)} • ${currentEp.releaseYear || t('epDetails.unknownYear')} • ${t('epDetails.tracksCount', { count: currentEp.tracks?.length || 0 })}`}
-            </Text>
+          </BlurView>
+        </ImageBackground>
+      </View>
+    );
+  }, [currentEp, coverSource, artistAvatarSrc, handlePlayEp, router, isConnected]);
 
-            <Text style={styles.detailText}>
-              {currentEp.mainGenre || t('epDetails.unknownGenre')}
-            </Text>
-          </View>
+  if (loading) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: '#000' }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
 
-          {/* *** ADICIONANDO O DEGRADÊ AQUI *** */}
-          <LinearGradient
-            colors={['transparent', styles.container.backgroundColor || '#191919']}
-            style={styles.fadeOverlay}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
+  if (error || !currentEp) {
+    return (
+      <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+
+        {/* Ícone visual para preencher o vazio */}
+        <View style={styles.errorIconCircle}>
+          <Ionicons
+            name="musical-notes-outline"
+            size={80}
+            color="rgba(255, 255, 255, 0.2)"
           />
+          <Ionicons
+            name="alert-circle"
+            size={30}
+            color="#FF3D00"
+            style={styles.errorAlertBadge}
+          />
+        </View>
 
-          <View style={styles.playButtonContainer}> {/* Novo estilo para o botão de play */}
-            <TouchableOpacity onPress={handlePlayEp}>
-              <Ionicons name={'play-circle'} size={48} color="#fff" />
-            </TouchableOpacity>
-          </View>
+        <Text style={styles.errorTitle}>
+          {t('epDetails.errorTitle') || 'Ops!'}
+        </Text>
 
-        </BlurView>
-      </ImageBackground>
-    </View>
-  ), [currentEp, coverSource, artistAvatarSrc, handlePlayEp, router, isConnected]); // Dependências do useCallback
+        <Text style={styles.errorText}>
+          {t('epDetails.notFound') || error }
+        </Text>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={20} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.backButtonText}>{t('epDetails.backButton')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -411,5 +493,23 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 160, // Ajuste a altura conforme necessário para o efeito desejado
+  },
+
+  errorIconCircle: {
+    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  errorAlertBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  },
+  errorTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
 });

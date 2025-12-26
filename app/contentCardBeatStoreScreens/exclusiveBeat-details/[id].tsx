@@ -43,16 +43,25 @@ export default function exclusiveBeatDetailsScreen() {
     useEffect(() => {
         const fetchBeat = async () => {
             if (!id) return;
-            try {
-                setLoading(true);
-                const data = await getBeatById(id as string);
-                setCurrentExclusiveBeat(data as ExclusiveBeat);
-            } catch (error) {
-                console.error("Erro ao buscar beat exclusivo:", error);
-            } finally {
-                setLoading(false);
+
+            setLoading(true);
+            // Chamamos a API blindada
+            const response = await getBeatById(id as string);
+
+            // 1. Verificamos se a chamada foi um sucesso e se temos dados
+            if (response.success && response.data) {
+                // 2. Extraímos apenas o conteúdo (.data) para o estado
+                // Usamos 'unknown' como ponte para o TypeScript não reclamar da conversão
+                setCurrentExclusiveBeat(response.data as unknown as ExclusiveBeat);
+            } else {
+                // 3. Tratamento amigável de erro
+                console.error("Erro ao carregar beat exclusivo:", response.error);
+                // Aqui podias setar um estado de erro para mostrar ao utilizador
             }
+
+            setLoading(false);
         };
+
         fetchBeat();
     }, [id]);
 

@@ -473,7 +473,8 @@
         "success": "Sucesso",
         "cancel": "Cancelar",
         "confirm": "Confirmar",
-        "delete": "Apagar"
+        "delete": "Apagar",
+        "retry": "Recarregar"
     },
     "freeBeatdetails": {
         "notFound": "Beat não encontrado.",
@@ -497,7 +498,8 @@
         "unknownYear": "Ano Desconhecido",
         "tracksCount": "{{count}} faixas",
         "backButton": "Voltar",
-        "notFound": "EP não encontrado."
+        "notFound": "EP não encontrado.",
+        "errorTitle": "Conteúdo não disponível"
     },
     "artistProfile": {
         "notFound": "Artista não encontrado.",

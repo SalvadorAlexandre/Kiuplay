@@ -1,5 +1,5 @@
 // app/contentCardLibraryScreens/artist-profile/[id].tsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,40 +8,143 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store'; // NOVO: Importa RootState
 import { addFollowedArtist, removeFollowedArtist, FollowedArtist } from '@/src/redux/followedArtistsSlice';
-import { MOCKED_CLOUD_FEED_DATA, MOCKED_PROFILE } from '@/src/types/contentServer';
+//import { MOCKED_CLOUD_FEED_DATA, MOCKED_PROFILE } from '@/src/types/contentServer';
 import { ArtistProfile, } from '@/src/types/contentType'; // Importado Single também
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
+//import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { Ionicons } from '@expo/vector-icons';
-
+import { getLibraryContentDetails } from '@/src/api/feedApi'; // Importa a tua nova API
 import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
 import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
 import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
 import ExclusiveBeatCard from '@/components/musicItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
 import FreeBeatCard from '@/components/musicItems/TabProfileFreeBeatItem/FreeBeatCard';
-
 import { useTranslation } from '@/src/translations/useTranslation';
 
 
 export default function ArtistProfileScreen() {
 
   const { t } = useTranslation()
-
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch(); // NOVO: Inicializa useDispatch
-  const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists); // NOVO: Obtém artistas seguidos do Redux
+  ; // NOVO: Obtém artistas seguidos do Redux
 
-  const ArtistData = MOCKED_CLOUD_FEED_DATA.find(
-    (item) => item.id === id && item.category === 'artist'
-  ) as ArtistProfile | undefined;
+  const isConnected = useAppSelector((state) => state.network.isConnected);
 
-  if (!id || !ArtistData) {
+
+  const [currentArtist, setCurrentArtist] = useState<ArtistProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    async function fetchArtist() {
+      if (!id) return;
+
+      setLoading(true);
+
+      const result = await getLibraryContentDetails(id as string);
+
+      if (result.success && result.data) {
+        setCurrentArtist(result.data as ArtistProfile);
+      } else {
+        setError(result.error || t('artistProfile.notFound'));
+      }
+
+      setLoading(false);
+    }
+
+    fetchArtist();
+  }, [id, t]);
+
+  //const tabs = ['Single', 'Extended Play', 'Album', 'Free Beats', 'Exclusive Beats'];
+  // const tabs = [
+  //  t('artistProfile.tabs.single'),
+  //  t('artistProfile.tabs.ep'),
+  /// t('artistProfile.tabs.album'),
+  // t('artistProfile.tabs.freeBeats'),
+  // t('artistProfile.tabs.exclusiveBeats'),
+  //];
+  //const [activeTab, setActiveTab] = useState('Single');
+
+  const tabs = [
+    t('artistProfile.tabs.single'),
+    t('artistProfile.tabs.ep'),
+    t('artistProfile.tabs.album'),
+    t('artistProfile.tabs.freeBeats'),
+    t('artistProfile.tabs.exclusiveBeats'),
+  ];
+
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+
+
+  // NOVO: Função para alternar o status de seguir
+  //const handleToggleFollow = () => {
+  // if (isFollowing) {
+  //   dispatch(removeFollowedArtist(currentArtist.id));
+  //   console.log(`Deixou de seguir: ${currentArtist.name}`);
+  // } else {
+  // Cria um objeto FollowedArtist com os dados necessários
+  //   const artistToFollow: FollowedArtist = {
+  //     id: currentArtist.id,
+  //     name: currentArtist.name,
+  //     profileImageUrl: currentArtist.avatar,
+  // Adicione outras propriedades se a interface FollowedArtist exigir
+  //  };
+  //  dispatch(addFollowedArtist(artistToFollow));
+  //  console.log(`Começou a seguir: ${currentArtist.name}`);
+  // }
+  //};
+
+  const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
+  const isFollowing = currentArtist
+    ? followedArtists.some(artist => artist.id === currentArtist.id)
+    : false;
+
+  const handleToggleFollow = useCallback(() => {
+    if (!currentArtist) return;
+
+    if (isFollowing) {
+      dispatch(removeFollowedArtist(currentArtist.id));
+      console.log(`Deixou de seguir: ${currentArtist.name}`);
+    } else {
+      const artistToFollow: FollowedArtist = {
+        id: currentArtist.id,
+        name: currentArtist.name,
+        profileImageUrl: currentArtist.avatar,
+      };
+      dispatch(addFollowedArtist(artistToFollow));
+      console.log(`Começou a seguir: ${currentArtist.name}`);
+    }
+  }, [dispatch, currentArtist, isFollowing]);
+
+  const getDynamicUserAvatar = () => {
+    if (!isConnected || !currentArtist?.avatar?.trim()) {
+      return require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png');
+    }
+    return { uri: currentArtist.avatar };
+  };
+
+  const artistAvatarSrc = getDynamicUserAvatar();
+
+
+
+  if (loading) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: '#000' }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error || !currentArtist) {
     return (
       <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
         <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
@@ -52,49 +155,6 @@ export default function ArtistProfileScreen() {
       </View>
     );
   }
-  const currentArtist: ArtistProfile = ArtistData;
-
-  //const tabs = ['Single', 'Extended Play', 'Album', 'Free Beats', 'Exclusive Beats'];
-  const tabs = [
-    t('artistProfile.tabs.single'),
-    t('artistProfile.tabs.ep'),
-    t('artistProfile.tabs.album'),
-    t('artistProfile.tabs.freeBeats'),
-    t('artistProfile.tabs.exclusiveBeats'),
-  ];
-  const [activeTab, setActiveTab] = useState('Single');
-
-  // NOVO: Verifica se o artista atual é seguido
-  const isFollowing = followedArtists.some(artist => artist.id === currentArtist.id);
-
-
-  // NOVO: Função para alternar o status de seguir
-  const handleToggleFollow = () => {
-    if (isFollowing) {
-      dispatch(removeFollowedArtist(currentArtist.id));
-      console.log(`Deixou de seguir: ${currentArtist.name}`);
-    } else {
-      // Cria um objeto FollowedArtist com os dados necessários
-      const artistToFollow: FollowedArtist = {
-        id: currentArtist.id,
-        name: currentArtist.name,
-        profileImageUrl: currentArtist.avatar,
-        // Adicione outras propriedades se a interface FollowedArtist exigir
-      };
-      dispatch(addFollowedArtist(artistToFollow));
-      console.log(`Começou a seguir: ${currentArtist.name}`);
-    }
-  };
-
-  const isConnected = useAppSelector((state) => state.network.isConnected);
-
-  const getDynamicUserAvatar = () => {
-    if (isConnected === false || !currentArtist.avatar || currentArtist.avatar.trim() === '') {
-      return require('@/assets/images/Default_Profile_Icon/icon_profile_white_120px.png');
-    }
-    return { uri: currentArtist.avatar };
-  };
-  const artistAvatarSrc = getDynamicUserAvatar();
 
 
   return (

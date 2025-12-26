@@ -1,5 +1,59 @@
 // src/redux/favoriteMusicSlice.ts (NOVO ARQUIVO)
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Single, ExtendedPlayEP, Album } from '../types/contentType';
+
+// Definimos o que pode ser guardado neste estado de favoritos
+// Removemos ArtistProfile daqui conforme o teu pedido.
+export type FavoritedContent = Single | ExtendedPlayEP | Album;
+
+interface FavoriteMusicState {
+  // Mudamos o nome para 'items' ou 'favorites' para não parecer que são apenas músicas
+  items: FavoritedContent[];
+}
+
+const initialState: FavoriteMusicState = {
+  items: [],
+};
+
+const favoriteMusicSlice = createSlice({
+  name: 'favoriteMusic',
+  initialState,
+  reducers: {
+    // Adiciona qualquer um dos 3 tipos
+    toggleFavorite: (state, action: PayloadAction<FavoritedContent>) => {
+      const index = state.items.findIndex(item => item.id === action.payload.id);
+      
+      if (index !== -1) {
+        // Se já existe, remove (comportamento de toggle)
+        state.items.splice(index, 1);
+      } else {
+        // Se não existe, adiciona
+        state.items.push(action.payload);
+      }
+    },
+    
+    removeFavorite: (state, action: PayloadAction<string>) => {
+      state.items = state.items.filter(item => item.id !== action.payload);
+    },
+
+    setFavorites: (state, action: PayloadAction<FavoritedContent[]>) => {
+      state.items = action.payload;
+    },
+  },
+});
+
+export const { toggleFavorite, removeFavorite, setFavorites } = favoriteMusicSlice.actions;
+export default favoriteMusicSlice.reducer;
+
+
+
+
+
+
+
+{/**
+
+  import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Track } from './playerSlice'; // Importamos a interface Track do playerSlice
 
 // A interface para uma música favorita será a mesma Track,
@@ -51,3 +105,11 @@ const favoriteMusicSlice = createSlice({
 export const { addFavoriteMusic, removeFavoriteMusic, setFavoriteMusics } = favoriteMusicSlice.actions;
 
 export default favoriteMusicSlice.reducer;
+
+  
+  */}
+
+
+
+
+

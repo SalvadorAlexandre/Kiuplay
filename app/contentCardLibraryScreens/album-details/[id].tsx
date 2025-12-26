@@ -1,5 +1,5 @@
 // app/contentCardLibraryScreens/album-details/[id].tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,19 +10,19 @@ import {
   Alert,
   ImageBackground,
   Platform,
+  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice'; // Adicionado para favoritar EP/faixas
 import { Ionicons } from '@expo/vector-icons';
-import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+//import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Album, Single } from '@/src/types/contentType'; // Importado Single também
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-
 import { useTranslation } from '@/src/translations/useTranslation';
-
+import { getLibraryContentDetails } from '@/src/api/feedApi'; // Importa a tua nova API
 
 // Componente para renderizar cada item da faixa na FlatList
 const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent }: { // NOVO: Adicione isCurrent
@@ -35,14 +35,12 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
   const isConnected = useAppSelector((state) => state.network.isConnected)
   // NOVO: Obtenha o currentTrack do estado do player
 
-
   const getImageSource = () => {
     if (isConnected === false || !track.cover || track.cover.trim() === '') {
       return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     }
     return { uri: track.cover };
   };
-
   const imageSource = getImageSource();
 
   return (
@@ -56,7 +54,7 @@ const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent
       <Image
         source={imageSource}
         style={trackItemStyles.coverImage}
-        //resizeMode="cover"
+      //resizeMode="cover"
       />
       <View style={trackItemStyles.infoContainer}>
         <Text style={trackItemStyles.title} numberOfLines={1}>
@@ -114,60 +112,65 @@ const trackItemStyles = StyleSheet.create({
 export default function AlbumDetailsScreen() {
 
   const { t } = useTranslation()
-
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const AlbumData = MOCKED_CLOUD_FEED_DATA.find(
-    (item) => item.id === id && item.category === 'album'
-  ) as Album | undefined;
-
-  if (!id || !AlbumData) {
-    return (
-      <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
-        <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-       <Text style={styles.errorText}>{t('albumDetails.notFound')}</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>{t('albumDetails.backButton')}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-  const currentAlbum: Album = AlbumData;
-
   const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-  // Verifica se o EP em si é favoritado (se ExtendedPlayEP tiver um ID para favoritar)
-  // Ou se qualquer uma das músicas do EP é favoritada
   const { currentTrack } = useAppSelector((state) => state.player);
-  //Verifica se alguma faixa esta nos favoritos
-  //const isAnyTrackFavorited = currentEp.tracks?.some(track =>
-  //favoritedMusics.some(favTrack => favTrack.id === track.id)
-  //);
-
   const isConnected = useAppSelector((state) => state.network.isConnected);
 
+  // --- Estados para gerir a API ---
+  const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAlbum() {
+      if (!id) return;
+
+      setLoading(true);
+
+      const result = await getLibraryContentDetails(id as string);
+
+      if (result.success && result.data) {
+        setCurrentAlbum(result.data as Album);
+      } else {
+        setError(result.error || t('albumDetails.notFound'));
+      }
+
+      setLoading(false);
+    }
+
+    fetchAlbum();
+  }, [id, t]);
+
+
+
   const getDynamicCoverSource = () => {
-    if (isConnected === false || !currentAlbum.cover || currentAlbum.cover.trim() === '') {
+    if (!isConnected || !currentAlbum?.cover?.trim()) {
       return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
     }
     return { uri: currentAlbum.cover };
   };
-  const coverSource = getDynamicCoverSource();
 
   const getDynamicUserAvatar = () => {
-    if (isConnected === false || !currentAlbum.artistAvatar || currentAlbum.artistAvatar.trim() === '') {
+    if (!isConnected || !currentAlbum?.artistAvatar?.trim()) {
       return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
     }
     return { uri: currentAlbum.artistAvatar };
   };
-  const artistAvatarSrc = getDynamicUserAvatar();
 
-  const handlePlayEp = useCallback(() => {
-    if (!currentAlbum.tracks || currentAlbum.tracks.length === 0) {
-      Alert.alert("Erro", "Este EP não possui faixas para reproduzir.");
+
+  const artistAvatarSrc = getDynamicUserAvatar();
+  const coverSource = getDynamicCoverSource();
+
+  const handlePlayAlbum = useCallback(() => {
+    if (!currentAlbum || !currentAlbum.tracks || currentAlbum.tracks.length === 0) {
+      console.log("Erro", "Este EP não possui faixas para reproduzir.");
       return;
     }
+
     dispatch(setPlaylistAndPlayThunk({
       newPlaylist: currentAlbum.tracks,
       startIndex: 0,
@@ -176,33 +179,18 @@ export default function AlbumDetailsScreen() {
   }, [dispatch, currentAlbum]);
 
 
-  //Embaralha e inicia reproducao do EP
-  //const handleShufflePlayEp = useCallback(() => {
-  //  if (!currentEp.tracks || currentEp.tracks.length === 0) {
-  //    Alert.alert("Erro", "Este EP não possui faixas para reproduzir.");
-  //   return;
-  // }
-
-  // Embaralha a lista de faixas
-  // const shuffledTracks = [...currentEp.tracks].sort(() => Math.random() - 0.5);
-  // dispatch(setPlaylistAndPlayThunk({
-  //   newPlaylist: shuffledTracks,
-  //   startIndex: 0,
-  //   shouldPlay: true,
-  // }));
-  //}, [dispatch, currentEp]);
-
-
-
   //Inicia reproducao a partir de uma faixa clicada
   const handlePlayTrack = useCallback((track: Single) => {
+    if (!currentAlbum || !currentAlbum.tracks) return;
+
     if (!track.uri) {
-      Alert.alert("Erro", "URI da faixa não disponível para reprodução.");
+      console.log("Erro", "URI da faixa não disponível para reprodução.");
       return;
     }
+
     dispatch(setPlaylistAndPlayThunk({
-      newPlaylist: currentAlbum.tracks, // Toca a partir da lista completa do EP
-      startIndex: currentAlbum.tracks.findIndex(t => t.id === track.id), // Encontra o índice da faixa clicada
+      newPlaylist: currentAlbum.tracks,
+      startIndex: currentAlbum.tracks.findIndex(t => t.id === track.id),
       shouldPlay: true,
     }));
   }, [dispatch, currentAlbum]);
@@ -221,64 +209,90 @@ export default function AlbumDetailsScreen() {
   }, [dispatch, favoritedMusics]);
 
 
-  // NOVO: Componente/Função para o cabeçalho da FlatList
-  const ListHeaderComponent = useCallback(() => (
-    <View style={styles.headerContentContainer}> {/* Novo estilo para o conteúdo do cabeçalho */}
-      <ImageBackground
-        source={coverSource}
-        blurRadius={Platform.OS === 'android' ? 10 : 0}
-        style={styles.imageBackground} // Este estilo vai precisar de ajustes
-        
-      >
-        <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
 
-          {/* Header Bar (Voltar e Artista Info) */}
-          <View style={styles.headerBar}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={30} color="#fff" />
-            </TouchableOpacity>
-            <View style={styles.artistInfo}>
-              <Image source={artistAvatarSrc} style={styles.profileImage} />
-              <Text style={styles.artistMainName} numberOfLines={1}>
-                {currentAlbum.artist}
+  const ListHeaderComponent = useCallback(() => {
+    // Se o loading ainda estiver a correr, não renderizamos nada no Header
+    if (!currentAlbum) return null;
+
+    return (
+      <View style={styles.headerContentContainer}> {/* Novo estilo para o conteúdo do cabeçalho */}
+        <ImageBackground
+          source={coverSource}
+          blurRadius={Platform.OS === 'android' ? 10 : 0}
+          style={styles.imageBackground} // Este estilo vai precisar de ajustes
+
+        >
+          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
+
+            {/* Header Bar (Voltar e Artista Info) */}
+            <View style={styles.headerBar}>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={30} color="#fff" />
+              </TouchableOpacity>
+              <View style={styles.artistInfo}>
+                <Image source={artistAvatarSrc} style={styles.profileImage} />
+                <Text style={styles.artistMainName} numberOfLines={1}>
+                  {currentAlbum.artist}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.coverAndDetailsSection}> {/* Novo View para alinhar capa e textos */}
+              <Image source={coverSource} style={styles.coverImage} />
+
+              {/* Detalhes do EP (Título, Artista, Produtor, Feat, Ano, Gênero, Plays, Faixas) */}
+              <Text style={styles.title}>{currentAlbum.title}</Text>
+              <Text style={styles.artistName}>{currentAlbum.artist}</Text>
+
+              <Text style={styles.detailText}>
+                {`${currentAlbum.category.charAt(0).toUpperCase() + currentAlbum.category.slice(1)} • ${currentAlbum.releaseYear || t('albumDetails.unknownYear')} • ${t('albumDetails.tracksCount', { count: currentAlbum.tracks?.length || 0 })}`}
+              </Text>
+
+              <Text style={styles.detailText}>
+                {currentAlbum.mainGenre || t('albumDetails.unknownGenre')}
               </Text>
             </View>
-          </View>
 
-          <View style={styles.coverAndDetailsSection}> {/* Novo View para alinhar capa e textos */}
-            <Image source={coverSource} style={styles.coverImage} />
+            {/* *** ADICIONANDO O DEGRADÊ AQUI *** */}
+            <LinearGradient
+              colors={['transparent', styles.container.backgroundColor || '#191919']}
+              style={styles.fadeOverlay}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+            />
 
-            {/* Detalhes do EP (Título, Artista, Produtor, Feat, Ano, Gênero, Plays, Faixas) */}
-            <Text style={styles.title}>{currentAlbum.title}</Text>
-            <Text style={styles.artistName}>{currentAlbum.artist}</Text>
+            <View style={styles.playButtonContainer}> {/* Novo estilo para o botão de play */}
+              <TouchableOpacity onPress={handlePlayAlbum}>
+                <Ionicons name={'play-circle'} size={48} color="#fff" />
+              </TouchableOpacity>
+            </View>
 
-            <Text style={styles.detailText}>
-              {`${currentAlbum.category.charAt(0).toUpperCase() + currentAlbum.category.slice(1)} • ${currentAlbum.releaseYear || t('albumDetails.unknownYear')} • ${t('albumDetails.tracksCount', { count: currentAlbum.tracks?.length || 0 })}`}
-            </Text>
+          </BlurView>
+        </ImageBackground>
+      </View>
+    );
+  }, [currentAlbum, coverSource, artistAvatarSrc, handlePlayAlbum, router, isConnected]);
 
-            <Text style={styles.detailText}>
-              {currentAlbum.mainGenre || t('albumDetails.unknownGenre')}
-            </Text>
-          </View>
+  if (loading) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: '#000' }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
 
-          {/* *** ADICIONANDO O DEGRADÊ AQUI *** */}
-          <LinearGradient
-            colors={['transparent', styles.container.backgroundColor || '#191919']}
-            style={styles.fadeOverlay}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-          />
-
-          <View style={styles.playButtonContainer}> {/* Novo estilo para o botão de play */}
-            <TouchableOpacity onPress={handlePlayEp}>
-              <Ionicons name={'play-circle'} size={48} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-        </BlurView>
-      </ImageBackground>
-    </View>
-  ), [currentAlbum, coverSource, artistAvatarSrc, handlePlayEp, router, isConnected]); // Dependências do useCallback
+  if (error || !currentAlbum) {
+    return (
+      <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
+        <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
+        <Text style={styles.errorText}>{t('albumDetails.notFound')}</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>{t('albumDetails.backButton')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

@@ -12,8 +12,6 @@
     "language": "Language",
     "producer": "Producer"
   },
-
-
   "screens": {
     "beatStoreTitle": "Beat Store",
     "homeTitle": "Home",
@@ -64,9 +62,6 @@
       "postPromote": "Promote a post"
     }
   },
-
-
-  
   "auth": {
     "loginTitle": "Sign In to Kiuplay",
     "emailLabel": "Email",
@@ -476,7 +471,8 @@
     "success": "Success",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "delete": "Delete"
+    "delete": "Delete",
+    "retry": "Reloading"
   },
   "freeBeatdetails": {
     "notFound": "Beat not found.",
@@ -500,7 +496,8 @@
     "unknownYear": "Unknown Year",
     "tracksCount": "{{count}} tracks",
     "backButton": "Back",
-    "notFound": "EP not found."
+    "notFound": "EP not found.",
+    "errorTitle": "Content unavailable"
   },
   "artistProfile": {
     "notFound": "Artist not found.",

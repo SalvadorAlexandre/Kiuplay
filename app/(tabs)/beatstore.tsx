@@ -133,7 +133,7 @@ export default function BeatStoreScreen() {
 
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
-        // Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
+        //Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
         if (item.typeUse === 'free') {
             router.push(`/contentCardBeatStoreScreens/freeBeat-details/${item.id}`);
         } else if (item.typeUse === 'exclusive') {
@@ -142,6 +142,7 @@ export default function BeatStoreScreen() {
             console.warn('Tipo de item desconhecido ou não suportado para navegação...');
         }
     };
+
 
     const renderHeader = useCallback(() => (
         <BeatStoreHeader t={t} router={router} />

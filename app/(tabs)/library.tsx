@@ -1,19 +1,15 @@
 // app/(tabs)/library.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-    ScrollView,
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Image,
     FlatList,
     ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
-import { useSelectedMusic, TypeMusic } from '@/hooks/useSelectedMusic';
-import useSubTabSelectorLibrary, { TypeSubTab } from '@/hooks/useSubTabSelectorLibrary';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
 import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
@@ -21,8 +17,6 @@ import { LibraryFeedItem, } from '@/src/types/contentType';
 import { Ionicons } from '@expo/vector-icons';
 import { getLibraryFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
-import { setLocalTab, setCloudTab, setLibraryContent } from '@/src/redux/persistTabLibrery';
-
 
 
 const LibraryHeader = ({ t, router }: { t: any, router: any }) => {
@@ -46,7 +40,7 @@ const LibraryHeader = ({ t, router }: { t: any, router: any }) => {
 
             {/**BTN DE CURTIDOS*/}
             <TouchableOpacity
-                onPress={() => router.push('/searchScreens/searchLibrary')}
+                onPress={() => router.push('/favoriteScreens/libraryFavoritesScreens')}
                 style={headerStyles.buttonTopBar}
             >
                 <Ionicons name='heart-outline' size={26} color='#fff' />
@@ -94,7 +88,7 @@ export default function LibraryScreen() {
     const dispatch = useAppDispatch();
     const selectedLocalTab = useAppSelector(state => state.library.selectedLocalTab);
     const selectedCloudTab = useAppSelector(state => state.library.selectedCloudTab);
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    //const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
     const selectedLibraryContent = useAppSelector((state) => state.library.selectedLibraryContent);
 
@@ -105,50 +99,77 @@ export default function LibraryScreen() {
     const [page, setPage] = useState<number>(1);
     const [hasMore, setHasMore] = useState<boolean>(true);
 
-    const favoritedCloudTracks: Track[] = favoritedMusics.filter(
-        (music) =>
-            music.category === 'single' && (
-                music.source === 'library-cloud-feeds' ||
-                music.source === 'library-cloud-favorites' ||
-                music.source === 'library-local'
-            )
-    ) as Track[];
+   // const favoritedCloudTracks: Track[] = favoritedMusics.filter(
+    //    (music) =>
+    //        music.category === 'single' && (
+    //            music.source === 'library-cloud-feeds' ||
+    //            music.source === 'library-cloud-favorites' ||
+    //            music.source === 'library-local'
+    //        )
+   // ) as Track[];
 
     // ... (Funções de navegação permanecem inalteradas)
-    const handleCloudItemPress = (item: LibraryFeedItem) => {
-        if (item.category === 'single') {
-            router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
-        } else if (item.category === 'album') {
-            router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
-        } else if (item.category === 'ep') {
-            router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
-        } else if (item.category === 'artist') {
-            router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
+    //const handleCloudItemPress = (item: LibraryFeedItem) => {
+    //   if (item.category === 'single') {
+    //    router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
+    //  } else if (item.category === 'album') {
+    //      router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
+    //  } else if (item.category === 'ep') {
+    //      router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
+    //  } else if (item.category === 'artist') {
+    //      router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
+    //  }
+    //  else {
+    //    console.warn('Tipo de item desconhecido ou não suportado para navegação...', item.category);
+    //}
+    //  };
+
+    const handleCloudItemPress = useCallback((item: LibraryFeedItem) => {
+        // Mapeamento de rotas baseado na categoria que vem do Backend
+        const routes = {
+            single: `/contentCardLibraryScreens/single-details/${item.id}`,
+            album: `/contentCardLibraryScreens/album-details/${item.id}`,
+            ep: `/contentCardLibraryScreens/ep-details/${item.id}`,
+            artist: `/contentCardLibraryScreens/artist-profile/${item.id}`,
+        };
+
+        const targetRoute = routes[item.category as keyof typeof routes];
+
+        if (targetRoute) {
+            router.push(targetRoute as any);
+        } else {
+            console.warn(
+                `[Library] Categoria desconhecida: "${item.category}" para o item ID: ${item.id}. 
+            Verifique se o Backend está enviando 'single', 'album', 'ep' ou 'artist'.`
+            );
         }
-        else {
-            console.warn('Tipo de item desconhecido ou não suportado para navegação...', item.category);
-        }
-    };
+    }, [router]);
 
     const loadFeeds = async (pageToLoad = 1) => {
+        // Se já estiver a carregar ou se não houver mais páginas (e não for reset), paramos aqui
         if (isLoading || (!hasMore && pageToLoad !== 1)) return;
 
         try {
             setIsLoading(true);
+            setError(null); // Limpamos erros anteriores ao iniciar nova tentativa
+
             const response = await getLibraryFeed(pageToLoad, 20);
 
             if (response.success) {
+                // Se for página 1, substituímos. Se for página > 1, concatenamos.
                 setFeeds(prev => pageToLoad === 1 ? response.data : [...prev, ...response.data]);
 
-                // Trava de segurança definitiva
-                if (pageToLoad >= response.totalPages || response.data.length < 20) {
-                    setHasMore(false);
-                } else {
-                    setHasMore(true);
-                }
+                // Lógica de paginação baseada no total de páginas retornado pelo backend
+                const isLastPage = pageToLoad >= response.totalPages || response.data.length < 20;
+                setHasMore(!isLastPage);
+            } else {
+                // Se o backend responder success: false, capturamos a mensagem
+                setError(response.error || t('alerts.errorLoadingLibrary'));
+                setHasMore(false);
             }
         } catch (err) {
-            console.error("Erro:", err);
+            console.error("Erro crítico no loadFeeds:", err);
+            setError(t('alerts.connectionError'));
             setHasMore(false);
         } finally {
             setIsLoading(false);
@@ -156,15 +177,19 @@ export default function LibraryScreen() {
     };
 
     useEffect(() => {
-        // 1. Verificamos se já existem feeds carregados para evitar chamadas duplicadas
-        // 2. Verificamos se NÃO está ocorrendo um carregamento no momento
-        if (feeds.length === 0 && !isLoading) {
-            // Resetamos o estado de paginação para garantir consistência no primeiro load
-            setPage(1);
-            setHasMore(true);
+        // Dispara o carregamento inicial apenas se a lista estiver vazia
+        if (feeds.length === 0 && !isLoading && !error) {
             loadFeeds(1);
         }
-    }, []); // Array vazio garante que execute apenas na montagem inicial do componente
+    }, []);
+
+    const handleRetry = useCallback(() => {
+        setError(null);
+        setFeeds([]);
+        setPage(1);
+        setHasMore(true);
+        loadFeeds(1);
+    }, []);
 
 
     const renderHeader = useCallback(() => (
@@ -190,13 +215,33 @@ export default function LibraryScreen() {
                             onPress={handleCloudItemPress}
                         />
                     )}
-                    ListEmptyComponent={() => (
-                        <View style={{ marginTop: 100, alignItems: 'center' }}>
-                            <Text style={styles.emptyText}>
-                                {error ? error : t('alerts.noCloudFeedContent')}
-                            </Text>
-                        </View>
-                    )}
+                    ListEmptyComponent={() => {
+                        // Se estiver a carregar a primeira página, não mostramos a mensagem de vazio
+                        if (isLoading && page === 1) return null;
+                        return (
+                            <View style={styles.emptyContainer}>
+                                <Ionicons
+                                    name={error ? "cloud-offline-outline" : "search-outline"}
+                                    size={64}
+                                    color="rgba(255, 255, 255, 0.3)"
+                                />
+                                <Text style={styles.emptyText}>
+                                    {error ? t('alerts.noCloudFeedContent') : error}
+                                </Text>
+
+                                <TouchableOpacity
+                                    style={styles.retryButton}
+                                    onPress={handleRetry}
+                                    activeOpacity={0.7}
+                                >
+                                    <Ionicons name="refresh" size={18} color="#fff" style={{ marginRight: 8 }} />
+                                    <Text style={styles.retryButtonText}>
+                                        {t('common.retry')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    }}
                     onEndReached={() => {
                         if (hasMore && !isLoading) {
                             const nextPage = page + 1;
@@ -233,10 +278,33 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+
+    emptyContainer: {
+        marginTop: 100,
+        alignItems: 'center',
+        paddingHorizontal: 40,
+    },
     emptyText: {
-        color: '#aaa',
+        color: '#bbb',
+        fontSize: 16,
         textAlign: 'center',
-        marginTop: 50,
-        fontSize: 16
+        marginTop: 15,
+        marginBottom: 20,
+        lineHeight: 22,
+    },
+    retryButton: {
+        flexDirection: 'row',
+        backgroundColor: '#333', // Cor neutra para o modo escuro
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 25,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#444',
+    },
+    retryButtonText: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '600',
     },
 });

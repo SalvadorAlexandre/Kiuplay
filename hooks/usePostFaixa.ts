@@ -185,23 +185,29 @@ const usePostFaixa = () => {
         } as any);
       }
 
-      // 3. Chamada da API com progresso
+      // 3. Chamada da API
       const response = await uploadSingle(formData, (progress) => {
         setUploadProgress(progress);
-        // Opcional: Manter a mensagem dinâmica no modal
-        setUploadMessage(t('postFaixaScreen.uploadingProgress', { progress })); 
+        setUploadMessage(t('postFaixaScreen.uploadingProgress', { progress }));
       });
 
-      // 4. Sucesso
-      setUploadStatus('success');
-      setUploadMessage(t('postFaixaScreen.success'));
-      Vibration.vibrate(200);
+      // 4. VERIFICAÇÃO DE SUCESSO REAL
+      if (response.success) {
+        setUploadStatus('success');
+        setUploadMessage(t('postFaixaScreen.success'));
+        Vibration.vibrate(200);
+        // Opcional: Limpar formulário ou navegar para outra tela após 2 segundos
+      } else {
+        // AQUI é onde os erros do servidor (Prisma/Express) serão capturados
+        setUploadStatus('error');
+        // Se a API trouxe uma mensagem específica (ex: "Limite de upload atingido"), mostra ela
+        setUploadMessage(response.error || t('postFaixaScreen.uploadError'));
+      }
 
+      // O bloco catch agora só serve para erros fatais de código
     } catch (err: any) {
-      console.error(err);
-      // 5. Erro no Upload
       setUploadStatus('error');
-      setUploadMessage(t('postFaixaScreen.uploadError') || err.response?.data?.error );
+      setUploadMessage(t('postFaixaScreen.fatalError'));
     } finally {
       setUploadLoading(false);
     }

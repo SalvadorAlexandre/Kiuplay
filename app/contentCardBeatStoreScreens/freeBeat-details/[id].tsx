@@ -37,19 +37,27 @@ export default function feeBeatDetailsScreen() {
     const isConnected = useAppSelector((state) => state.network.isConnected);
 
     // 3. Efeito de Busca (useEffect)
+    // 3. Efeito de Busca (useEffect)
     useEffect(() => {
         const fetchBeat = async () => {
             if (!id) return;
-            try {
-                setLoading(true);
-                const data = await getBeatById(id as string);
-                setCurrentFreeBeat(data as FreeBeat);
-            } catch (error) {
-                console.error("Erro ao buscar beat:", error);
-            } finally {
-                setLoading(false);
+
+            setLoading(true);
+            // Não precisamos de try/catch aqui porque a tua getBeatById já trata os erros
+            const result = await getBeatById(id as string);
+
+            if (result.success && result.data) {
+                // AQUI ESTÁ A CORREÇÃO:
+                // Acedemos a result.data (que é o BeatStoreFeedItem) e convertemos para FreeBeat
+                setCurrentFreeBeat(result.data as unknown as FreeBeat);
+            } else {
+                // Opcional: Tratar erro visualmente
+                console.error("Erro na API:", result.error);
             }
+
+            setLoading(false);
         };
+
         fetchBeat();
     }, [id]);
 

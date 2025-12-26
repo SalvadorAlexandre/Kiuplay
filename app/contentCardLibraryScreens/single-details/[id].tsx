@@ -1,16 +1,16 @@
 // app/contentCardLibraryScreens/single-details/[id].tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Image,
   TouchableOpacity,
   Alert,
   ImageBackground,
   Platform,
   SafeAreaView,
+  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,41 +18,73 @@ import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
-import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
+//import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { Single } from '@/src/types/contentType';
 import { useTranslation } from '@/src/translations/useTranslation';
+import { getLibraryContentDetails } from '@/src/api/feedApi'; // Importa a tua nova API
 
 export default function SingleDetailsScreen() {
-
-  const { t } = useTranslation()
-
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const singleData = MOCKED_CLOUD_FEED_DATA.find(
-    (item) => item.id === id && item.category === 'single'
-  ) as Single | undefined;
+  // --- Estados para gerir a API ---
+  const [currentSingle, setSingleData] = useState<Single | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!id || !singleData) {
-    return (
-      <View style={styles.errorContainer}>
-        <Stack.Screen options={{ headerShown: false }} />
-        <Text style={styles.errorText}> {t("libraryContentCard.singleNotFound", { id })}</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>{t("libraryContentCard.backButton")}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const currentSingle: Single = singleData;
-
+  // 2. REDUX SELECTORS
+  const isConnected = useAppSelector((state) => state.network.isConnected);
   const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-  const isCurrentSingleFavorited = favoritedMusics.some((music) => music.id === currentSingle.id);
 
+  // Derivamos o estado de favorito do singleData atual
+  const isCurrentSingleFavorited = currentSingle
+    ? favoritedMusics.some((m) => m.id === currentSingle.id)
+    : false;
+
+  // --- Carregamento dos dados reais ---
+  useEffect(() => {
+    async function fetchSingle() {
+      if (!id) return;
+
+      setLoading(true);
+      const result = await getLibraryContentDetails(id as string);
+
+      if (result.success && result.data) {
+        // Como a rota pode retornar Single, EP, Album ou Artist,
+        // garantimos que os dados são de um Single aqui.
+        setSingleData(result.data as Single);
+      } else {
+        setError(result.error || t("libraryContentCard.singleNotFound", { id }));
+      }
+      setLoading(false);
+    }
+
+    fetchSingle();
+  }, [id, t]);
+
+  const getDynamicCoverSource = () => {
+    if (!isConnected || !currentSingle?.cover?.trim()) {
+      return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+    }
+    return { uri: currentSingle.cover };
+  };
+
+  const getDynamicUserAvatar = () => {
+    if (!isConnected || !currentSingle?.artistAvatar?.trim()) {
+      return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
+    }
+    return { uri: currentSingle.artistAvatar };
+  };
+
+  const artistAvatarSrc = getDynamicUserAvatar();
+  const coverSource = getDynamicCoverSource();
 
   const handleToggleFavorite = useCallback(() => {
+
+    if (!currentSingle) return
+
     if (isCurrentSingleFavorited) {
       dispatch(removeFavoriteMusic(currentSingle.id));
     } else {
@@ -61,8 +93,8 @@ export default function SingleDetailsScreen() {
   }, [dispatch, currentSingle, isCurrentSingleFavorited]);
 
   const handlePlaySingle = useCallback(async () => {
-    if (!currentSingle.uri) {
-      Alert.alert("Erro", "URI da música não disponível para reprodução.");
+    if (!currentSingle?.uri) {
+      console.log("Erro", "URI da música não disponível para reprodução.");
       return;
     }
     const singlePlaylist: Track[] = [currentSingle];
@@ -75,6 +107,9 @@ export default function SingleDetailsScreen() {
   }, [dispatch, currentSingle]);
 
   const handleOpenComments = useCallback(() => {
+
+    if (!currentSingle) return
+
     router.push({
       pathname: '/commentScreens/musics/[musicId]',
       params: {
@@ -90,7 +125,7 @@ export default function SingleDetailsScreen() {
 
   const handleShareSingle = useCallback(() => {
     if (!currentSingle) {
-      console.warn("Nenhuma música para compartilhar.");
+      console.log("Nenhuma música para compartilhar.");
       return;
     }
     router.push({
@@ -104,30 +139,37 @@ export default function SingleDetailsScreen() {
     });
   }, [router, currentSingle]);
 
-  const isConnected = useAppSelector((state) => state.network.isConnected);
 
-  const getDynamicCoverSource = () => {
-    if (isConnected === false || !currentSingle.cover || currentSingle.cover.trim() === '') {
-      return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-    }
-    return { uri: currentSingle.cover };
-  };
-  const coverSource = getDynamicCoverSource();
+  // --- Renderização de Loading ---
+  if (loading) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: '#000' }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
 
-  const getDynamicUserAvatar = () => {
-    if (isConnected === false || !currentSingle.artistAvatar || currentSingle.artistAvatar.trim() === '') {
-      return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
-    }
-    return { uri: currentSingle.artistAvatar };
-  };
-  const artistAvatarSrc = getDynamicUserAvatar();
+  // --- Renderização de Erro ---
+  if (error || !currentSingle) {
+    return (
+      <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Text style={styles.errorText}>{error || t("libraryContentCard.singleNotFound", { id })}</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>{t("libraryContentCard.backButton")}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
 
   return (
     <ImageBackground
       source={coverSource}
       blurRadius={Platform.OS === 'android' ? 10 : 0}
       style={styles.imageBackground}
-     
+
     >
       <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
         <SafeAreaView style={styles.safeArea}>
@@ -219,7 +261,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-     resizeMode: "cover"
+    resizeMode: "cover"
   },
   safeArea: {
     flex: 1,
