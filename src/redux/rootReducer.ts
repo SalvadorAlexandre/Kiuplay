@@ -10,9 +10,6 @@ import favoriteBeatsReducer from './favoriteBeatsSlice';
 import favoriteAlbumsReducer from './favoriteAlbumsSlice';
 import favoriteEpReducer from './favoriteEpSlice';
 
-
-
-
 import networkReducer from './networkSlice';
 import notificationsReducer from './notificationsSlice';
 import promotionsReducer from './promotionsSlice';

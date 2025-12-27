@@ -34,6 +34,21 @@ const favoriteSinglesSlice = createSlice({
       );
     },
 
+    // Adiciona várias singles (útil para EP/Album)
+    addFavoriteSingles: (state, action: PayloadAction<Single[]>) => {
+      action.payload.forEach(single => {
+        if (!state.items.find(s => s.id === single.id)) {
+          state.items.push(single);
+        }
+      });
+    },
+
+    // Remove várias singles de uma vez (útil para desfavoritar EP/Album)
+    removeFavoriteSingles: (state, action: PayloadAction<Single[]>) => {
+      const idsToRemove = action.payload.map(s => s.id);
+      state.items = state.items.filter(s => !idsToRemove.includes(s.id));
+    },
+
     // Carregamento inicial vindo do backend
     setFavoriteSingles: (state, action: PayloadAction<Single[]>) => {
       state.items = action.payload;
@@ -47,6 +62,8 @@ const favoriteSinglesSlice = createSlice({
 export const {
   toggleFavoriteSingle,
   removeFavoriteSingle,
+  addFavoriteSingles,
+  removeFavoriteSingles,
   setFavoriteSingles,
   clearFavoriteSingles,
 } = favoriteSinglesSlice.actions;

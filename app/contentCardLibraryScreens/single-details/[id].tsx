@@ -15,7 +15,12 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice';
+import {
+  toggleFavoriteSingle,
+  removeFavoriteSingle,
+  setFavoriteSingles,
+  clearFavoriteSingles
+} from '@/src/redux/favoriteSinglesSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 //import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
@@ -36,11 +41,11 @@ export default function SingleDetailsScreen() {
 
   // 2. REDUX SELECTORS
   const isConnected = useAppSelector((state) => state.network.isConnected);
-  const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+  const favoritedSingles = useAppSelector((state) => state.favoriteSingles.items);
 
-  // Derivamos o estado de favorito do singleData atual
+
   const isCurrentSingleFavorited = currentSingle
-    ? favoritedMusics.some((m) => m.id === currentSingle.id)
+    ? favoritedSingles.some((single) => single.id === currentSingle.id)
     : false;
 
   // --- Carregamento dos dados reais ---
@@ -82,15 +87,10 @@ export default function SingleDetailsScreen() {
   const coverSource = getDynamicCoverSource();
 
   const handleToggleFavorite = useCallback(() => {
+    if (!currentSingle) return;
 
-    if (!currentSingle) return
-
-    if (isCurrentSingleFavorited) {
-      dispatch(removeFavoriteMusic(currentSingle.id));
-    } else {
-      dispatch(addFavoriteMusic(currentSingle));
-    }
-  }, [dispatch, currentSingle, isCurrentSingleFavorited]);
+    dispatch(toggleFavoriteSingle(currentSingle));
+  }, [dispatch, currentSingle]);
 
   const handlePlaySingle = useCallback(async () => {
     if (!currentSingle?.uri) {
