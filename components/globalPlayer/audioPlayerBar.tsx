@@ -32,9 +32,9 @@ import { getAudioManager } from '@/src/utils/audioManager';
 import { AVPlaybackStatus } from 'expo-av';
 
 import {
-  addFavoriteMusic,
-  removeFavoriteMusic,
-} from '@/src/redux/favoriteMusicSlice';
+  toggleFavoriteSingle,
+  removeFavoriteSingle
+} from '@/src/redux/favoriteSinglesSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
 
 const audioManager = getAudioManager();
@@ -96,11 +96,10 @@ export default function AudioPlayerBar() {
     }
   }, [router, currentTrack]);
 
-  const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+  const favoritedSingles = useAppSelector((state) => state.favoriteSingles.items);
   const isCurrentTrackFavorited = currentTrack
-    ? favoritedMusics.some((music) => music.id === currentTrack.id)
+    ? favoritedSingles.some((single) => single.id === currentTrack.id)
     : false;
-
   // Throttle/compare playback status updates to avoid flooding dispatches
   const lastStatusRef = useRef<{ positionMillis?: number; durationMillis?: number; isPlaying?: boolean }>({});
 
@@ -192,6 +191,12 @@ export default function AudioPlayerBar() {
   }, [dispatch]);
 
   const handleToggleFavorite = useCallback(() => {
+    if (!currentTrack || currentTrack.category !== 'single') return;
+    dispatch(toggleFavoriteSingle(currentTrack));
+  }, [dispatch, currentTrack]);
+
+  {/**
+    const handleToggleFavorite = useCallback(() => {
     if (!currentTrack) return;
     if (isCurrentTrackFavorited) {
       dispatch(removeFavoriteMusic(currentTrack.id));
@@ -199,6 +204,8 @@ export default function AudioPlayerBar() {
       dispatch(addFavoriteMusic(currentTrack));
     }
   }, [dispatch, currentTrack, isCurrentTrackFavorited]);
+
+    */}
 
   const handleShareMusic = useCallback(() => {
     if (!currentTrack) {
@@ -230,15 +237,15 @@ export default function AudioPlayerBar() {
           backgroundColor: '#111',
           ...(isExpanded
             ? {
-                top: 0,
-                bottom: 0,
-                height: '100%',
-                width: '100%',
-              }
+              top: 0,
+              bottom: 0,
+              height: '100%',
+              width: '100%',
+            }
             : {
-                bottom: 60,
-                height: 68,
-              }),
+              bottom: 60,
+              height: 68,
+            }),
         },
       ]}
     >
@@ -285,7 +292,7 @@ export default function AudioPlayerBar() {
           source={coverImage}
           blurRadius={Platform.OS === 'android' ? 5 : 0}
           style={styles.imageBackground}
-          //resizeMode="cover"
+        //resizeMode="cover"
         >
           <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
             <ScrollView
@@ -310,7 +317,7 @@ export default function AudioPlayerBar() {
               <Image
                 source={coverImage}
                 style={styles.expandedCover}
-                //resizeMode="cover"
+              //resizeMode="cover"
               />
 
               <Text style={[styles.trackTitle, { fontSize: 20, marginTop: 16 }]} numberOfLines={1}>

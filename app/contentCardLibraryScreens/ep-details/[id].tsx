@@ -15,7 +15,7 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice'; // Adicionado para favoritar EP/faixas
+import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice'; // Adicionado para favoritar EP/faixas
 import { Ionicons } from '@expo/vector-icons';
 //import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
 import { ExtendedPlayEP, Single } from '@/src/types/contentType'; // Importado Single também

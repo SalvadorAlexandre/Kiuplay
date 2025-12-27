@@ -1,57 +1,57 @@
-// src/redux/favoriteMusicSlice.ts
+// src/redux/favoriteSinglesSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Single, ExtendedPlayEP, Album } from '../types/contentType';
+import { Single } from '@/src/types/contentType';
 
-export type FavoritedContent = Single | ExtendedPlayEP | Album;
-
-interface FavoriteMusicState {
-  items: FavoritedContent[];
+interface FavoriteSinglesState {
+  items: Single[];
 }
 
-const initialState: FavoriteMusicState = {
+const initialState: FavoriteSinglesState = {
   items: [],
 };
 
-const favoriteMusicSlice = createSlice({
-  name: 'favoriteMusic',
+const favoriteSinglesSlice = createSlice({
+  name: 'favoriteSingles',
   initialState,
   reducers: {
-    // 1. Toggle: Ideal para o botão de coração na lista de músicas/álbuns
-    toggleFavorite: (state, action: PayloadAction<FavoritedContent>) => {
-      const index = state.items.findIndex(item => item.id === action.payload.id);
+    // Toggle favorito (coração)
+    toggleFavoriteSingle: (state, action: PayloadAction<Single>) => {
+      const index = state.items.findIndex(
+        single => single.id === action.payload.id
+      );
+
       if (index !== -1) {
         state.items.splice(index, 1);
       } else {
         state.items.push(action.payload);
       }
     },
-    
-    // 2. Remove: Ideal para quando tens um botão "Remover da Biblioteca" (usa apenas ID)
-    removeFavorite: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+
+    // Remove explicitamente (por ID)
+    removeFavoriteSingle: (state, action: PayloadAction<string>) => {
+      state.items = state.items.filter(
+        single => single.id !== action.payload
+      );
     },
 
-    // 3. Set: Carregamento inicial vindo do teu Backend/Banco de dados
-    setFavorites: (state, action: PayloadAction<FavoritedContent[]>) => {
+    // Carregamento inicial vindo do backend
+    setFavoriteSingles: (state, action: PayloadAction<Single[]>) => {
       state.items = action.payload;
     },
 
-    // 4. Clear: Segurança de dados no Logout
-    clearFavorites: (state) => {
-      state.items = [];
-    }
+    // Limpeza no logout
+    clearFavoriteSingles: () => initialState,
   },
 });
 
-export const { 
-  toggleFavorite, 
-  removeFavorite, 
-  setFavorites, 
-  clearFavorites 
-} = favoriteMusicSlice.actions;
+export const {
+  toggleFavoriteSingle,
+  removeFavoriteSingle,
+  setFavoriteSingles,
+  clearFavoriteSingles,
+} = favoriteSinglesSlice.actions;
 
-export default favoriteMusicSlice.reducer;
-
+export default favoriteSinglesSlice.reducer;
 
 
 

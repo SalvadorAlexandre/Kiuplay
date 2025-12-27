@@ -11,12 +11,13 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/src/translations/useTranslation";
 import { useAppSelector } from "@/src/redux/hooks";
+import { useAuth } from '@/hooks/Auth/useAuth';
 
 export default function ProfileSettingsScreen() {
     const router = useRouter();
     const { t, setLanguage, language } = useTranslation();
     const appLanguage = useAppSelector((state) => state.users.appLanguage);
-
+    const { signIn, signOut } = useAuth();
     // 🔄 Troca o idioma de forma centralizada
     const handleChangeLanguage = async (lang: string) => {
         await setLanguage(lang);
@@ -85,13 +86,20 @@ export default function ProfileSettingsScreen() {
                     </View>
 
                     {/* Seção: Informação bancária */}
-                    <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <View style={{ flexDirection: "row", marginTop: 20, marginBottom: 10 }}>
                         <Image
                             source={require("@/assets/images/4/icons8_info_120px.png")}
                             style={styles.iconLeft}
                         />
                         <Text style={styles.userHandle}>{t("settings.bankInfo")}</Text>
                     </View>
+
+                    <TouchableOpacity
+                        style={styles.langButton}
+                        onPress={() => signOut()}
+                    >
+                        <Text style={styles.langText}>TERMINAR SESSÃO</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         </>

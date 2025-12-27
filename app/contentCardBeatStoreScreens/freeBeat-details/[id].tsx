@@ -15,7 +15,7 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteMusicSlice';
+import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 import { FreeBeat } from '@/src/types/contentType';

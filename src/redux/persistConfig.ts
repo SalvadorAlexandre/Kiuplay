@@ -1,5 +1,48 @@
 // src/redux/persistConfig.ts
+// src/redux/persistConfig.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persistReducer } from 'redux-persist';
+import rootReducer from './rootReducer';
+
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+  whitelist: [
+
+    'followedArtists',
+    'favoriteSingles',
+    'favoriteBeats',
+    'favoriteAlbums',
+    'favoriteEPs',
+
+    'network',
+    'notifications',
+    'promotions',
+    'purchases',
+    'beatStore',
+    'wallet',
+    'library',
+    'beatstore',
+    'profile',
+    'promoteTabs',
+    'drafts',
+  ],
+};
+
+export const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+
+
+
+
+
+
+
+
+
+
+{/**
+  import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux';
 
@@ -74,3 +117,5 @@ export type RootState = ReturnType<typeof rootReducer>;
 //export const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer)
+  */}
+

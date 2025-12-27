@@ -8,9 +8,6 @@ import { tokenStorage } from "@/src/utils/tokenStorage";
 import { authApi, userApi } from '@/src/api';
 // No topo do seu arquivo de Auth (AuthProvider.tsx ou similar)
 import { clearDrafts } from '@/src/redux/draftsSlice'; // Ajuste o caminho conforme necessário
-import { success } from 'zod';
-import { setLoading } from '@/src/redux/playerSlice';
-
 
 // =========================================================================
 // 1. DEFINIÇÃO DA INTERFACE DO CONTEXTO
@@ -65,29 +62,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ✅ Usa o hook de localização aqui
   const { countryCode, locale, currency, loading: locationLoading } = useUserLocation();
 
+
   const signIn = async (email: string, password: string) => {
     try {
-      // 1️⃣ Chama o login no backend
-      const { token } = await authApi.signIn({ email, password, });
+      const { token } = await authApi.signIn({ email, password });
 
-      // 2️⃣ Salva token localmente
       await tokenStorage.setToken(token);
 
-      // 3️⃣ Busca dados reais do usuário com token salvo
-      const user = await userApi.getMe();
+      // ❌ REMOVE getMe daqui
+      // ❌ REMOVE dispatch(setAuthSession)
+      // ❌ REMOVE dispatch(setUser)
 
-      // 4️⃣ Atualiza Redux com dados reais do usuário
-      dispatch(setAuthSession({
-        userId: user.id,
-        locale: user.locale || locale,//"en-US",
-        currencyCode: user.currencyCode || currency,//"USD",
-        accountRegion: user.accountRegion || countryCode, //"US",
-      }));
-      dispatch(setUser(user));
-
-      // 5️⃣ Atualiza estado local
       setIsLoggedIn(true);
-
     } catch (error) {
       console.error("Erro de login:", error);
       throw error;
@@ -98,16 +84,99 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 1. Lógica real: Remover token do AsyncStorage
     console.log("Usuário deslogado.");
     // await AsyncStorage.removeItem('userToken');
-
+    await tokenStorage.removeToken();
     // 2. 🛑 LIMPAR A SESSÃO E REDEFINIR MOEDA NO REDUX
     dispatch(logoutUser());
-
+    dispatch(clearDrafts())
     // 3. Definir o estado de login
     setIsLoggedIn(false);
   };
 
   // **EFEITO PARA CARREGAMENTO E VERIFICAÇÃO INICIAL**
   useEffect(() => {
+    const checkAuthStatus = async () => {
+      if (locationLoading) return;
+
+      try {
+        const token = await tokenStorage.getToken();
+
+        if (!token) {
+          setIsLoggedIn(false);
+          setIsLoading(false);
+          return;
+        }
+
+        const user = await userApi.getMe(); // 👈 ÚNICO getMe
+
+        dispatch(setAuthSession({
+          userId: user.id,
+          locale: user.locale || locale,
+          currencyCode: user.currencyCode || currency,
+          accountRegion: user.accountRegion || countryCode,
+        }));
+
+        dispatch(setUser(user));
+        setIsLoggedIn(true);
+      } catch (error) {
+        await tokenStorage.removeToken();
+        dispatch(logoutUser());
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, [locationLoading]);
+
+  const value = useMemo(() => ({
+    isLoggedIn,
+    isLoading,
+    signIn,
+    signOut
+  }), [isLoggedIn, isLoading]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+
+{/**
+  const signIn = async (email: string, password: string) => {
+  try {
+    // 1️⃣ Chama o login no backend
+    const { token } = await authApi.signIn({ email, password, });
+
+    // 2️⃣ Salva token localmente
+    await tokenStorage.setToken(token);
+
+    // 3️⃣ Busca dados reais do usuário com token salvo
+    const user = await userApi.getMe();
+
+    // 4️⃣ Atualiza Redux com dados reais do usuário
+    dispatch(setAuthSession({
+      userId: user.id,
+      locale: user.locale || locale,//"en-US",
+      currencyCode: user.currencyCode || currency,//"USD",
+      accountRegion: user.accountRegion || countryCode, //"US",
+    }));
+    dispatch(setUser(user));
+
+    // 5️⃣ Atualiza estado local
+    setIsLoggedIn(true);
+
+  } catch (error) {
+    console.error("Erro de login:", error);
+    throw error;
+  }
+};
+
+
+
+ useEffect(() => {
     const checkAuthStatus = async () => {
       if (locationLoading) return;
 
@@ -145,17 +214,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     checkAuthStatus();
   }, [locationLoading]);
+  */}
 
-  const value = useMemo(() => ({
-    isLoggedIn,
-    isLoading,
-    signIn,
-    signOut
-  }), [isLoggedIn, isLoading]);
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
