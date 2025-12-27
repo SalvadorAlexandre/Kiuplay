@@ -4,22 +4,17 @@ import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { selectCurrentUserId, selectUserById, setUser } from '@/src/redux/userSessionAndCurrencySlice';
-import SingleCard from '@/components/cardsItems/TabProfileSingleItem/SingleCard';
-import EpCard from '@/components/cardsItems/TabProfileEpItem/EpCard';
-import AlbumCard from '@/components/cardsItems/TabProfileAlbumItem/AlbumCard';
-import ExclusiveBeatCard from '@/components/cardsItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
-import FreeBeatCard from '@/components/cardsItems/TabProfileFreeBeatItem/FreeBeatCard';
 import BottomModal from '@/components/profileModal'; // caminho ajusta conforme tua pasta
 import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
-// NOVO IMPORT: Importa o tipo ExclusiveBeat
-import { ExclusiveBeat } from '@/src/types/contentType';
+
 import { setProfileActiveTab, ProfileTabKey } from '@/src/redux/persistTabProfile';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
 import { userApi } from '@/src/api';
-
+import { profileStyles as styles } from '@/components/navigation/styles/ProfileStyle';
+import { ProfileHeader } from '@/components/navigation/ProfileHeader';
 import {
   ScrollView,
   View,
@@ -32,6 +27,24 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import {
+  SingleCard,
+  AlbumCard,
+  EpCard,
+  ArtistCard,
+  ExclusiveBeatCard,
+  FreeBeatCard
+} from '@/components/cardsItems';
+import {
+  Single,
+  Album,
+  ExtendedPlayEP,
+  ArtistProfile,
+  ProfileItem,
+  ExclusiveBeat,
+  PurchasedBeat,
+  FreeBeat
+} from '@/src/types/contentType';
 
 
 export default function ProfileScreen() {
@@ -90,7 +103,7 @@ export default function ProfileScreen() {
   };
 
   const avatarUser = getDynamicAvatarSource()
-  
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -137,267 +150,156 @@ export default function ProfileScreen() {
       startIndex: 0,
       shouldPlay: true,
     }));
-  }, [dispatch, activeTab, userProfile, exclusiveBeatsForSale]); // Dependência atualizada
+  }, [dispatch, activeTab, userProfile, exclusiveBeatsForSale]);
 
+  const getActiveData = () => {
+    // Garantimos que trabalhamos com arrays, mesmo que nulos
+    switch (activeTab) {
+      case 'single':
+        return (userProfile as ArtistProfile).singles || [];
+      case 'extendedPlay':
+        return (userProfile as ArtistProfile).eps || [];
+      case 'album':
+        return (userProfile as ArtistProfile).albums || [];
+
+      // Beats comprados vêm da lista geral do UserProfile (qualquer um pode comprar)
+      case 'purchasedBeats':
+        return userProfile.purchasedBeats || [];
+
+      // Beats à venda e Gratuitos costumam vir apenas se for Perfil de Artista
+      case 'exclusiveBeatsForSale':
+        return (userProfile as ArtistProfile).exclusiveBeats || [];
+      case 'freeBeats':
+        return (userProfile as ArtistProfile).freeBeats || [];
+
+      default:
+        return [];
+    }
+  };
+
+  const renderDynamicItem = ({ item }: { item: ProfileItem }) => {
+    switch (activeTab) {
+      case 'single':
+        // Usamos 'as Single' para assegurar que este item possui as propriedades de Single
+        const singleItem = item as Single;
+        return (
+          <SingleCard
+            item={singleItem}
+            onPress={(selected) =>
+              router.push({
+                pathname: '/',
+                params: { id: selected.id },
+              })
+            }
+          />
+        );
+
+      case 'extendedPlay':
+        const epItem = item as ExtendedPlayEP;
+        return (
+          <EpCard
+            item={epItem}
+            onPress={(selected) =>
+              router.push({
+                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+                params: { id: selected.id },
+              })
+            }
+          />
+        );
+
+      case 'album':
+        const albumItem = item as Album;
+        return (
+          <AlbumCard
+            item={albumItem}
+            onPress={(selected) =>
+             router.push({
+                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+                params: { id: selected.id },
+              })
+            }
+          />
+        );
+
+      case 'purchasedBeats':
+        const purchasedItem = item as PurchasedBeat;
+        return (
+          <ExclusiveBeatCard
+            item={purchasedItem}
+            onPress={(selected) =>
+              router.push({
+                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+                params: { id: selected.id },
+              })
+            }
+          />
+        );
+
+      case 'exclusiveBeatsForSale':
+        const exclusiveItem = item as ExclusiveBeat;
+        return (
+          <ExclusiveBeatCard
+            item={exclusiveItem}
+            onPress={(selected) =>
+              router.push({
+                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+                params: { id: selected.id },
+              })
+            }
+          />
+        );
+
+      case 'freeBeats':
+        const freeItem = item as FreeBeat;
+        return (
+          <FreeBeatCard
+            item={freeItem}
+            onPress={(selected) =>
+              router.push({
+                pathname: '/TabProfileBeatScreens/FreeBeat/[id]',
+                params: { id: selected.id },
+              })
+            }
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
       <View style={{ flex: 1, backgroundColor: '#191919' }}>
-        {/* ... (containerTopBar e ScrollView de configuração) */}
-
-        <View style={styles.containerTopBar}>
-          <Text style={styles.titleTopBar}>{t('screens.profileTitle')}</Text>
-          <View style={{ flexDirection: 'row', gap: 10, }}>
-            <TouchableOpacity
-              onPress={onRefresh}
-              disabled={refreshing}
-              style={styles.buttonTopBar}
-            >
-              {refreshing ? (
-                <ActivityIndicator size="small" color="#007AFF" />
-              ) : (
-                <Ionicons name="refresh" size={25} color="#fff" />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push('/notificationsScreens/notifications')}
-              style={styles.buttonTopBar}
-            >
-              <Ionicons name="notifications" size={24} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push('/searchScreens/searchProfile')}
-              style={styles.buttonTopBar}
-            >
-              <Ionicons name="search-outline" size={25} color="#fff" />
-            </TouchableOpacity>
-            {/* --- NOVO BOTÃO DE MENU/CONFIGURAÇÕES --- */}
-            <TouchableOpacity
-              onPress={openProfileModal} // Chama a função para abrir o modal
-              style={styles.buttonTopBar}
-            >
-              {/* Ícone de menu ou três pontos (ellipsis-vertical) */}
-              <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <ScrollView
-          horizontal={false}
-          style={styles.scroll}
-          contentContainerStyle={styles.container}
-          showsHorizontalScrollIndicator={false}
-        >
-          {/* ... (Perfil e Stats) ... */}
-          <View style={styles.profileContainer}>
-            <View style={{ alignItems: 'center' }}>
-              <View style={styles.imageContainer}>
-                <Image source={avatarUser} style={styles.profileImage} />
-              </View>
-              <Text style={styles.userName}>{userProfile.name}</Text>
-              <Text style={styles.userHandle}>{userProfile.username}</Text>
-              <Text style={styles.userHandle}>{userProfile.bio}</Text>
+        <FlatList
+          data={getActiveData()}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderDynamicItem} // Função que escolhe o Card (SingleCard, EpCard, etc)
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          key={activeTab} // Essencial para mudar o layout de grid
+          ListHeaderComponent={
+            <ProfileHeader
+              userProfile={userProfile}
+              avatarUser={avatarUser}
+              activeTab={activeTab}
+              tabs={tabs}
+              onTabPress={(key) => dispatch(setProfileActiveTab(key))}
+              t={t}
+              // Passando as funções para o Header
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              openProfileModal={openProfileModal}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.texto}>{t(`profile.empty${activeTab}`)}</Text>
             </View>
-
-            <View style={styles.statsRow}>
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>{userProfile.followingCount}</Text>
-                <Text style={styles.statLabel}>{t('stats.following')}</Text>
-              </View>
-
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>{userProfile.followersCount}</Text>
-                <Text style={styles.statLabel}>{t('stats.followers')}</Text>
-              </View>
-
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>{userProfile.singlesCount}</Text>
-                <Text style={styles.statLabel}>{t('stats.singles')}</Text>
-              </View>
-
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>{userProfile.epsCount}</Text>
-                <Text style={styles.statLabel}>{t('stats.eps')}</Text>
-              </View>
-
-              <View style={styles.statBox}>
-                <Text style={styles.statValue}>{userProfile.albumsCount}</Text>
-                <Text style={styles.statLabel}>{t('stats.albums')}</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* --- ABA DE NAVEGAÇÃO --- */}
-          <View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.tabsContainer}
-            >
-              {tabs.map((tab) => (
-                <TouchableOpacity
-                  key={tab.key}
-                  style={[styles.tabButton, activeTab === tab.key && styles.activeTabButton]}
-                  onPress={() => dispatch(setProfileActiveTab(tab.key))}
-                >
-                  <Text
-                    style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}
-                  >
-                    {tab.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* --- CONTEÚDO DA ABA ATIVA --- */}
-          <View style={{ flex: 1, marginTop: 5 }}>
-            {activeTab === 'single' && (
-              // ... (FlatList de Singles)
-              <FlatList
-                data={userProfile.singles}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                  <SingleCard
-                    item={item}
-                    onPress={(selected) =>
-                      router.push(`/contentCardLibraryScreens/single-details/${selected.id}`)
-                    }
-                  />
-                )}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.texto}>{t('profile.emptySingle')}</Text>
-                  </View>
-                )}
-              />
-            )}
-
-            {activeTab === 'extendedPlay' && (
-              // ... (FlatList de EPs)
-              <FlatList
-                data={userProfile.eps}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                  <EpCard
-                    item={item}
-                    onPress={(selected) =>
-                      router.push(`/contentCardLibraryScreens/ep-details/${selected.id}`)
-                    }
-                  />
-                )}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.texto}>{t('profile.emptyEP')}</Text>
-                  </View>
-                )}
-              />
-            )}
-
-            {activeTab === 'album' && (
-              // ... (FlatList de Álbums)
-              <FlatList
-                data={userProfile.albums}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                  <AlbumCard
-                    item={item}
-                    onPress={(selected) =>
-                      router.push(`/contentCardLibraryScreens/album-details/${selected.id}`)
-                    }
-                  />
-                )}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.texto}>{t('profile.emptyAlbum')}</Text>
-                  </View>
-                )}
-              />
-            )}
-
-            {/* 🎧 NOVO CONTEÚDO DA ABA: BEATS COMPRADOS */}
-            {activeTab === 'purchasedBeats' && (
-              <FlatList
-                data={purchasedBeats} // 🛑 Dados do purchasesSlice
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                  <ExclusiveBeatCard // Usamos o ExclusiveBeatCard para renderizar
-                    item={item}
-                    onPress={(selected) =>
-                      // Navega para a tela de detalhes (agora com o botão Baixar)
-                      router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${selected.id}`)
-                    }
-                  />
-                )}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.texto}>{t('profile.emptyPurchasedBeats')}</Text>
-                  </View>
-                )}
-              />
-            )}
-
-            {/* 💰 CONTEÚDO DA ABA: BEATS A VENDA (Ex-exclusiveBeats) */}
-            {activeTab === 'exclusiveBeatsForSale' && (
-              <FlatList
-                data={exclusiveBeatsForSale}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                  <ExclusiveBeatCard
-                    item={item}
-                    onPress={(selected) =>
-                      router.push({
-                        pathname: '/TabProfileBeatScreens/ExclusiveBeatForSale/[id]',
-                        params: { id: selected.id },
-                      })
-                    }
-                  />
-                )}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.texto}>{t('profile.emptyExclusiveBeats')}</Text>
-                  </View>
-                )}
-              />
-            )}
-
-            {activeTab === 'freeBeats' && (
-              <FlatList
-                data={userProfile.freeBeats}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                  <FreeBeatCard
-                    item={item}
-                    onPress={(selected) =>
-                      router.push({
-                        pathname: '/TabProfileBeatScreens/FreeBeat/[id]',
-                        params: { id: selected.id },
-                      })
-                    }
-                  />
-                )}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.texto}>{t('profile.emptyFreeBeats')}</Text>
-                  </View>
-                )}
-              />
-            )}
-          </View>
-
-        </ScrollView>
+          }
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
       </View>
 
       <BottomModal visible={isProfileModalVisible} onClose={closeProfileModal}>
@@ -473,184 +375,3 @@ export default function ProfileScreen() {
     </>
   );
 }
-
-// ... (seus estilos omitidos para brevidade)
-
-{/* Estilos dos componentes (mantidos inalterados) */ }
-const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    backgroundColor: '#191919',
-  },
-  container: {
-    flexGrow: 1,
-  },
-  content: {
-    flexDirection: 'row',
-  },
-  box: {
-    width: 200,
-    height: 200,
-    marginRight: 20,
-    backgroundColor: '#1e1e1e',
-    color: '#fff',
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    lineHeight: 200,
-    borderRadius: 10
-  },
-  profileText: {
-    color: '#fff',
-    alignSelf: 'flex-start',
-    marginBottom: 10,
-  },
-  imageContainer: {
-    flex: 1
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 75,
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: '#1E90FF',
-    resizeMode: 'stretch'
-  },
-  statsTable: {
-    marginTop: 10,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    //marginBottom: 1,
-  },
-  statBox: {
-    flex: 1,
-    alignItems: 'center',
-    borderColor: '#0083D0',
-    paddingVertical: 10,
-    marginHorizontal: 5,
-    padding: 10,
-    margin: 10,
-  },
-  statValue: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  statLabel: {
-    color: '#aaa',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  userName: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    flexShrink: 1,
-    flexWrap: 'wrap',
-    marginLeft: 15,
-    textAlign: 'center',
-  },
-  userHandle: {
-    color: '#aaa',
-    fontSize: 13,
-    marginTop: 2,
-    marginLeft: 15,
-    textAlign: 'center',
-  },
-  profileContainer: {
-    paddingHorizontal: 15,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  workButton: {
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#222',
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  texto: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  buttonContainer: {
-    //marginBottom: 5,
-    //width: '100%',
-    //backgroundColor: '#fff',
-    overflow: 'hidden',
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-  },
-  iconLeft: {
-    width: 26,
-    height: 26,
-    marginRight: 10,
-  },
-  buttonText: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 16,
-  },
-
-  tabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    //backgroundColor: '#fff',
-    padding: 10
-    //height: 20,        // 🔹 altura fixa suficiente para os botões
-  },
-
-  tabButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 15,
-    backgroundColor: '#222',
-    marginRight: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 34,   // altura fixa dos botões
-    flexShrink: 0,
-  },
-  activeTabButton: {
-    backgroundColor: '#1e90ff',
-  },
-  tabText: {
-    color: '#aaa',
-    fontSize: 14,
-  },
-  activeTabText: {
-    color: '#fff',
-  },
-
-  containerTopBar: {
-    paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-    paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-    flexDirection: 'row',            // Organiza os itens em linha (horizontal)
-    alignItems: 'center',            // Alinha verticalmente ao centro
-    justifyContent: 'space-between',
-  },
-  buttonTopBar: {
-    padding: 6,  // Espaçamento interno do botão
-  },
-  titleTopBar: {
-    color: '#fff',
-    fontSize: 20,
-    //flex: 1,
-    //textAlign: 'center',
-  },
-  columnWrapper: {
-    justifyContent: 'space-between',
-  },
-});

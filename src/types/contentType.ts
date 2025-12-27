@@ -308,5 +308,7 @@ export type FavoritesAlbumEpItem = ExtendedPlayEP | Album
 
 export type BeatStoreFeedItem = ExclusiveBeat | FreeBeat;
 
+export type ProfileItem = ExclusiveBeat | FreeBeat | PurchasedBeat | Single | ExtendedPlayEP | Album;
+
 // União de tipos que o player pode reproduzir (mantenha como está se estiver correto para seu player)
 export type PlayableContent = Single | ExclusiveBeat | FreeBeat;
