@@ -13,7 +13,7 @@ export default function LinkWalletGlobal() {
     const [publishableKey, setPublishableKey] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    {/**
     useEffect(() => {
         async function fetchSetup() {
             try {
@@ -26,6 +26,28 @@ export default function LinkWalletGlobal() {
             } finally {
                 setIsLoading(false);
             }
+        }
+        fetchSetup();
+    }, []);
+    
+    */}
+
+    useEffect(() => {
+        async function fetchSetup() {
+            setIsLoading(true);
+            setError(null);
+
+            const response = await stripeApi.fetchGlobalCardSetup();
+
+            if (response.success) {
+                setClientSecret(response.clientSecret || null);
+                setPublishableKey(response.publishableKey || null);
+            } else {
+                // Usa o erro amigável que já vem da sua API
+                setError(response.error || "Não foi possível carregar o formulário de pagamento.");
+            }
+
+            setIsLoading(false);
         }
         fetchSetup();
     }, []);

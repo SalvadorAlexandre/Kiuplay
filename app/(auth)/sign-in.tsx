@@ -24,18 +24,20 @@ export default function SignInScreen() {
   const { signIn } = useAuth();
   const router = useRouter();
 
+  // =========================================================================
+  // 🛑 LÓGICA DE LOGIN COM INFORMAÇÕES DE MOEDA
+  // =========================================================================
+  // LoginScreen.tsx
+
   const handleLogin = async () => {
     console.log('Attempting login with:', email, password);
 
-    // =========================================================================
-    // 🛑 LÓGICA DE LOGIN COM INFORMAÇÕES DE MOEDA
-    // =========================================================================
     try {
       // 1. CHAME SUA API DE LOGIN AQUI
       await signIn(email, password);
 
       // 4. Redireciona para a home e remove login da pilha
-      router.replace('/beatstore');
+      router.replace('/(tabs)/beatstore');
 
     } catch (error) {
       console.error("Login failed:", error);
@@ -43,6 +45,7 @@ export default function SignInScreen() {
       alert("Falha no login. Verifique suas credenciais.");
     }
   };
+
   // =========================================================================
 
   return (

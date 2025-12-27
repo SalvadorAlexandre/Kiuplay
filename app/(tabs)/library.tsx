@@ -144,8 +144,8 @@ export default function LibraryScreen() {
             );
         }
     }, [router]);
-
-    const loadFeeds = async (pageToLoad = 1) => {
+    {/**
+         const loadFeeds = async (pageToLoad = 1) => {
         // Se já estiver a carregar ou se não houver mais páginas (e não for reset), paramos aqui
         if (isLoading || (!hasMore && pageToLoad !== 1)) return;
 
@@ -174,6 +174,32 @@ export default function LibraryScreen() {
         } finally {
             setIsLoading(false);
         }
+    };
+        */}
+    const loadFeeds = async (pageToLoad = 1) => {
+        // 1. Guardas de execução
+        if (isLoading || (!hasMore && pageToLoad !== 1)) return;
+
+        setIsLoading(true);
+        setError(null);
+
+        // 2. Chamada direta (A API já garante o retorno do objeto, mesmo em erro)
+        const response = await getLibraryFeed(pageToLoad, 20);
+
+        if (response.success) {
+            // Sucesso: Atualiza lista
+            setFeeds(prev => pageToLoad === 1 ? response.data : [...prev, ...response.data]);
+
+            // Lógica de paginação
+            const isLastPage = pageToLoad >= response.totalPages || response.data.length === 0;
+            setHasMore(!isLastPage);
+        } else {
+            // Erro Amigável: A API já nos dá o texto do erro ou usamos o padrão do i18n
+            setError(t('alerts.errorLoadingLibrary'));
+            setHasMore(false);
+        }
+
+        setIsLoading(false);
     };
 
     useEffect(() => {

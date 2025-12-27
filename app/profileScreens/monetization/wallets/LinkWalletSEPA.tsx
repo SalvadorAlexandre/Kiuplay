@@ -15,20 +15,46 @@ export default function LinkWalletEUR() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  
+  {/**
+
   useEffect(() => {
     async function fetchSetupSecret() {
       try {
         //const token = await tokenStorage.getToken();
         //console.log("Token de autenticação:", token); // Verifica se o token está presente
         const data = await createSepaSetupIntent(); // Usa o API centralizado
-        setClientSecret(data.clientSecret);
-        setPublishableKey(data.publishableKey);
+        setClientSecret(data.clientSecret ||null);
+        setPublishableKey(data.publishableKey || null);
       } catch (err: any) {
         console.error("Erro ao buscar SetupIntent para SEPA:", err);
         setError("Não foi possível carregar o formulário SEPA.");
       } finally {
         setIsLoading(false);
       }
+    }
+    fetchSetupSecret();
+  }, []);
+
+   */}
+
+
+  useEffect(() => {
+    async function fetchSetupSecret() {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await createSepaSetupIntent();
+
+      if (response.success) {
+        setClientSecret(response.clientSecret || null);
+        setPublishableKey(response.publishableKey || null);
+      } else {
+        // Se a API falhar, o erro amigável é injetado aqui
+        setError(response.error || "Não foi possível carregar o formulário SEPA.");
+      }
+
+      setIsLoading(false);
     }
     fetchSetupSecret();
   }, []);

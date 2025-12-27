@@ -1,3 +1,31 @@
+//hooks/useCheckDraft.ts
+
+import { useAppSelector } from '@/src/redux/hooks';
+
+export const useCheckDrafts = () => {
+    const hasEPDraft = useAppSelector(
+        state => state.drafts.hasEPDraft
+    );
+
+    const hasAlbumDraft = useAppSelector(
+        state => state.drafts.hasAlbumDraft
+    );
+
+    return {
+        hasEPDraft,
+        hasAlbumDraft,
+    };
+};
+
+//usar quando utilizador faz logout
+//dispatch(clearDrafts());
+
+
+
+
+
+{/**
+    import { useAppSelector } from '@/src/redux/hooks';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
@@ -6,6 +34,9 @@ import {
 } from '@/src/api/uploadContentApi';
 
 export const useCheckDrafts = () => {
+
+    //const { hasEPDraft, hasAlbumDraft } = useAppSelector(state => state.drafts);
+
     const [hasEPDraft, setHasEPDraft] = useState(false);
     const [hasAlbumDraft, setHasAlbumDraft] = useState(false);
     const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
@@ -41,3 +72,6 @@ export const useCheckDrafts = () => {
 
     return { hasEPDraft, hasAlbumDraft, isLoadingDrafts };
 };
+    
+    */}
+

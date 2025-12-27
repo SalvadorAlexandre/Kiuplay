@@ -6,6 +6,10 @@ import { setAuthSession, logoutUser, setUser } from '@/src/redux/userSessionAndC
 import { useUserLocation } from '@/hooks/localization/useUserLocalization'; // IMPORTA O HOOK
 import { tokenStorage } from "@/src/utils/tokenStorage";
 import { authApi, userApi } from '@/src/api';
+// No topo do seu arquivo de Auth (AuthProvider.tsx ou similar)
+import { clearDrafts } from '@/src/redux/draftsSlice'; // Ajuste o caminho conforme necessário
+import { success } from 'zod';
+import { setLoading } from '@/src/redux/playerSlice';
 
 
 // =========================================================================
@@ -61,14 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ✅ Usa o hook de localização aqui
   const { countryCode, locale, currency, loading: locationLoading } = useUserLocation();
 
-
-  // **FUNÇÕES DE AUTENTICAÇÃO**
-
-  // 🛑 CORREÇÃO 3: O parâmetro 'userData' agora é do tipo AuthUserData
   const signIn = async (email: string, password: string) => {
     try {
       // 1️⃣ Chama o login no backend
-      const { token } = await authApi.signIn({ email, password,});
+      const { token } = await authApi.signIn({ email, password, });
 
       // 2️⃣ Salva token localmente
       await tokenStorage.setToken(token);
@@ -79,8 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 4️⃣ Atualiza Redux com dados reais do usuário
       dispatch(setAuthSession({
         userId: user.id,
-        locale: user.locale || locale ,//"en-US",
-        currencyCode: user.currencyCode || currency ,//"USD",
+        locale: user.locale || locale,//"en-US",
+        currencyCode: user.currencyCode || currency,//"USD",
         accountRegion: user.accountRegion || countryCode, //"US",
       }));
       dispatch(setUser(user));
@@ -145,7 +145,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     checkAuthStatus();
   }, [locationLoading]);
-
 
   const value = useMemo(() => ({
     isLoggedIn,

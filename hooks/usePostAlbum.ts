@@ -10,10 +10,12 @@ import {
   getPendingAlbum,    // Alterado para Album
   abortAlbum,         // Alterado para Album
 } from '@/src/api/uploadContentApi';
+import { useAppDispatch } from '@/src/redux/hooks';
+import { setDraftStatus } from '@/src/redux/draftsSlice';
 
 const usePostAlbum = () => {
   const { t } = useTranslation();
-
+  const dispatch = useAppDispatch();
   // --- 1. ESTADOS DO ÁLBUM (RASCUNHO) ---
   const [albumData, setAlbumData] = useState<any>(null); // Guardará o retorno do backend
   const [capaAlbum, setCapaAlbum] = useState<any>(null);
@@ -258,7 +260,9 @@ const usePostAlbum = () => {
       // De acordo com a tua API: return { success: true, data: response.data };
       // Ajustamos para ler de response.data.album (ou apenas response.data dependendo do teu backend)
       setAlbumData(response.data.album || response.data);
+      dispatch(setDraftStatus({ hasAlbumDraft: true }))
       showModal('success', t('postAlbum.success.draftCreated'));
+
     } else {
       // Usa o erro amigável vindo da API
       showModal('error', t('postAlbum.errors.saveDraftError'));
@@ -289,7 +293,7 @@ const usePostAlbum = () => {
 
         // 4. Define o número total de faixas esperado
         setNumFaixas(album.totalTracks);
-
+        dispatch(setDraftStatus({ hasAlbumDraft: true }))
         // 5. Atualiza o contador de faixas já enviadas
         if (album.tracks && Array.isArray(album.tracks)) {
           setPostedFaixa(album.tracks.length);
@@ -531,6 +535,7 @@ const usePostAlbum = () => {
     const response = await finalizeAlbum(albumData.id);
 
     if (response.success) {
+      dispatch(setDraftStatus({ hasAlbumDraft: false }))
       showModal('success', t('postAlbum.success.published'));
 
       // RESET TOTAL DOS ESTADOS
@@ -546,6 +551,7 @@ const usePostAlbum = () => {
       setProducerFaixa('');
       setParticipantNames([]);
       handleNoParticipants();
+
     } else {
       // Exibe o erro específico que você definiu na API
       showModal('error', t('postAlbum.errors.finalizeError'));
@@ -580,7 +586,7 @@ const usePostAlbum = () => {
       setAudioFaixa(null);
       setParticipantNames([]);
       handleNoParticipants();
-
+      dispatch(setDraftStatus({ hasAlbumDraft: false }))
       showModal('success', t('postAlbum.success.deleted'));
     } else {
       showModal('error', response.error || t('postAlbum.errors.deleteDraftError'));

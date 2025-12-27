@@ -43,19 +43,20 @@ export default function SignUpScreen() {
 
     const onSubmit = async (data: SignUpFormData) => {
         try {
-           const response = await authApi.signUp({
+            const response = await authApi.signUp({
                 name: data.name,
                 username: data.username,
                 email: data.email,
                 password: data.password
             });
-             console.log('Resposta da api', response)
+            console.log('Resposta da api', response)
             router.replace("/verify");
         } catch (error: any) {
             console.error("Erro no cadastro:", error);
             alert(error.message || "Falha no cadastro.");
         }
     };
+
 
     return (
         <SafeAreaView style={styles.safeArea}>

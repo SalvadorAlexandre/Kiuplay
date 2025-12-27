@@ -35,6 +35,7 @@ export default function ForgotPasswordScreen() {
         }
     };
 
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <Stack.Screen options={{ headerShown: false }} />

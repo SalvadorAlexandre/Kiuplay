@@ -90,8 +90,7 @@ export default function ProfileScreen() {
   };
 
   const avatarUser = getDynamicAvatarSource()
-
-  // Função de atualização
+  
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {

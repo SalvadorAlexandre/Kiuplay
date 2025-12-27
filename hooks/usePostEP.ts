@@ -10,11 +10,13 @@ import {
   getPendingEP,
   abortEP,
 } from '@/src/api/uploadContentApi';
+import { useAppDispatch } from '@/src/redux/hooks';
+import { setDraftStatus } from '@/src/redux/draftsSlice';
 
 const usePostExtendedPlay = () => {
 
   const { t } = useTranslation();
-
+  const dispatch = useAppDispatch();
   // --- 1. ESTADOS DO EP (RASCUNHO) ---
   const [epData, setEpData] = useState<any>(null); // Guardará o retorno do backend
   const [capaEP, setCapaEP] = useState<any>(null);
@@ -202,6 +204,7 @@ const usePostExtendedPlay = () => {
     if (response.success) {
       // Ajuste: O dado real costuma vir em response.data.ep ou response.data
       setEpData(response.data?.ep || response.data);
+      dispatch(setDraftStatus({ hasEPDraft: true }))
       showModal('success', t('postEP.success.draftCreated'));
     } else {
       showModal('error', t('postEP.errors.saveDraftError'));
@@ -257,7 +260,7 @@ const usePostExtendedPlay = () => {
         setGeneroPrincipal(ep.mainGenre);
         setCapaEP({ uri: ep.cover });
         setNumFaixas(ep.totalTracks);
-
+        dispatch(setDraftStatus({ hasEPDraft: true }))
         if (ep.tracks) {
           setPostedFaixa(ep.tracks.length);
         }
@@ -440,6 +443,7 @@ const usePostExtendedPlay = () => {
     const response = await finalizeEP(epData.id);
 
     if (response.success) {
+      dispatch(setDraftStatus({ hasEPDraft: false }))
       showModal('success', t('postEP.success.published'));
       setEpData(null); setCapaEP(null); setTituloEP('');
       setGeneroPrincipal(''); setNumFaixas(null); setPostedFaixa(0);
@@ -504,6 +508,7 @@ const usePostExtendedPlay = () => {
     if (response.success) {
       setEpData(null); setCapaEP(null); setTituloEP('');
       setGeneroPrincipal(''); setNumFaixas(null); setPostedFaixa(0);
+      dispatch(setDraftStatus({ hasEPDraft: false }))
       showModal('success', t('postEP.success.deleted'));
     } else {
       showModal('error', response.error || t('postEP.errors.deleteDraftError'));

@@ -34,8 +34,6 @@ export default function VerifyScreen() {
         }
     };
 
-
-
     return (
         <SafeAreaView style={styles.safeArea}>
             <Stack.Screen options={{ headerShown: false }} />

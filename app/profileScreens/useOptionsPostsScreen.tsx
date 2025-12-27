@@ -19,7 +19,7 @@ import { useCheckDrafts } from '@/hooks/useCheckDraft';
 export default function OptionsListPostScreen() {
 
     const { t } = useTranslation()
-    const { hasEPDraft, hasAlbumDraft, isLoadingDrafts } = useCheckDrafts();
+    const { hasEPDraft, hasAlbumDraft } = useCheckDrafts();
     //hooks para o btn postar single----------------------------------------------
     const [scaleValuePostSingle] = useState(new Animated.Value(1))
     const handlePressInPostSingle = () => { Animated.spring(scaleValuePostSingle, { toValue: 0.96, useNativeDriver: true, }).start() }
