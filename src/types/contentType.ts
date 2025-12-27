@@ -304,7 +304,7 @@ export interface Comment {
 // Tipo de União para qualquer item que possa aparecer no feed da Library Cloud
 export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album | Promotion| ExclusiveBeat | FreeBeat; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
 
-export type LibraryFavoritesFeedItem = Single | ExtendedPlayEP | Album 
+export type FavoritesAlbumEpItem = ExtendedPlayEP | Album 
 
 export type BeatStoreFeedItem = ExclusiveBeat | FreeBeat;
 

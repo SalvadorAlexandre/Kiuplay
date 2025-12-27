@@ -1,13 +1,22 @@
 // app/contentCardLibraryScreens/ep-details/[id].tsx
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { View, FlatList, ActivityIndicator, Text } from 'react-native';
+import {
+  View,
+  FlatList,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+  TouchableOpacity
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
+import { Ionicons } from '@expo/vector-icons';
 
-// IMPORTAÇÕES DOS NOVOS COMPONENTES
+// IMPORTAÇÕES DOS COMPONENTES MODULARIZADOS
 import { TrackListItem } from '@/components/TrackListItem';
-import { EpHeader } from '@/components/EpHeader';
+import { AlbumEpHeader } from '@/components/AlbumEpHeader';
 
+// REDUX E API
 import { setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
 import { toggleFavoriteEPWithSingles } from '@/src/redux/favoriteEpSlice';
 import { toggleFavoriteSingle } from '@/src/redux/favoriteSinglesSlice';
@@ -21,56 +30,103 @@ export default function EpDetailsScreen() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
+  // SELETORES REDUX
   const favoritedMusics = useAppSelector((state) => state.favoriteSingles.items);
   const favoriteEPs = useAppSelector((state) => state.favoriteEPs.items);
   const { currentTrack } = useAppSelector((state) => state.player);
 
+  // ESTADOS LOCAIS
   const [currentEp, setCurrentEp] = useState<ExtendedPlayEP | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Reatividade do Coração (Calculado a cada render do Redux)
-  const isCurrentEPFavorited = useMemo(() => 
-    favoriteEPs.some(ep => String(ep.id) === String(id)), 
-  [favoriteEPs, id]);
+  // Reatividade do Coração do EP
+  const isCurrentEPFavorited = useMemo(() =>
+    favoriteEPs.some(ep => String(ep.id) === String(id)),
+    [favoriteEPs, id]);
 
   useEffect(() => {
     async function fetchEp() {
       if (!id) return;
+      setLoading(true);
       const result = await getLibraryContentDetails(id as string);
+
       if (result.success && result.data) {
         const rawData = result.data as any;
-        setCurrentEp({
-          ...rawData,
-          tracks: rawData.tracks.map((it: any) => ({ ...it.track, source: 'library-artist' })),
-          category: 'ep'
-        });
+        if (rawData.tracks && Array.isArray(rawData.tracks)) {
+          setCurrentEp({
+            ...rawData,
+            tracks: rawData.tracks.map((it: any) => ({
+              ...it.track,
+              source: 'library-artistProfile'
+            })),
+            category: 'ep'
+          } as ExtendedPlayEP);
+        } else {
+          setError(t('epDetails.notFound'));
+        }
+      } else {
+        setError(result.error || t('epDetails.notFound'));
       }
       setLoading(false);
     }
     fetchEp();
-  }, [id]);
+  }, [id, t]);
 
   const handlePlayEp = useCallback(() => {
-    if (currentEp) dispatch(setPlaylistAndPlayThunk({ newPlaylist: currentEp.tracks, startIndex: 0, shouldPlay: true }));
-  }, [currentEp]);
+    if (currentEp) {
+      dispatch(setPlaylistAndPlayThunk({
+        newPlaylist: currentEp.tracks,
+        startIndex: 0,
+        shouldPlay: true
+      }));
+    }
+  }, [currentEp, dispatch]);
 
   const handleToggleFavoriteEP = useCallback(() => {
     if (currentEp) dispatch(toggleFavoriteEPWithSingles(currentEp));
-  }, [currentEp]);
+  }, [currentEp, dispatch]);
 
-  if (loading) return <View style={{flex:1, backgroundColor:'#000', justifyContent:'center'}}><ActivityIndicator size="large" color="#fff" /></View>;
+  // RENDERIZAÇÃO DE LOADING
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  // RENDERIZAÇÃO DE ERRO
+  if (error || !currentEp) {
+    return (
+      <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={styles.errorIconCircle}>
+          <Ionicons name="musical-notes-outline" size={80} color="rgba(255, 255, 255, 0.2)" />
+          <Ionicons name="alert-circle" size={30} color="#FF3D00" style={styles.errorAlertBadge} />
+        </View>
+        <Text style={styles.errorTitle}>{t('epDetails.errorTitle') || 'Ops!'}</Text>
+        <Text style={styles.errorText}>{t('epDetails.notFound')}</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={20} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.backButtonText}>{t('epDetails.backButton')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#191919' }}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      
+
       <FlatList
-        data={currentEp?.tracks}
+        data={currentEp.tracks}
         keyExtractor={(item) => item.id}
         extraData={{ isCurrentEPFavorited, currentTrack, favoritedMusics }}
         ListHeaderComponent={() => (
-          <EpHeader 
-            currentEp={currentEp!} 
+          <AlbumEpHeader
+            currentAlbumEp={currentEp}
             isFavorited={isCurrentEPFavorited}
             onToggleFavorite={handleToggleFavoriteEP}
             onPlayEp={handlePlayEp}
@@ -81,16 +137,90 @@ export default function EpDetailsScreen() {
         renderItem={({ item }) => (
           <TrackListItem
             track={item}
-            onPlay={(track) => dispatch(setPlaylistAndPlayThunk({ newPlaylist: currentEp!.tracks, startIndex: currentEp!.tracks.findIndex(tx => tx.id === track.id), shouldPlay: true }))}
+            onPlay={(track) => dispatch(setPlaylistAndPlayThunk({
+              newPlaylist: currentEp.tracks,
+              startIndex: currentEp.tracks.findIndex(tx => tx.id === track.id),
+              shouldPlay: true
+            }))}
             isFavorited={favoritedMusics.some(fav => fav.id === item.id)}
             onToggleFavorite={(track) => dispatch(toggleFavoriteSingle(track))}
             isCurrent={currentTrack?.id === item.id}
           />
         )}
+        ListEmptyComponent={<Text style={styles.emptyText}>{t('epDetails.emptyList')}</Text>}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#191919',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: '#191919',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorIconCircle: {
+    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorAlertBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  },
+  errorTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#bbb',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#333',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  emptyText: {
+    color: '#bbb',
+    textAlign: 'center',
+    marginTop: 40,
+  }
+});
+
+
+
+
+
+
+
+
+
 
 
 

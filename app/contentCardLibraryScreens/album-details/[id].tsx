@@ -1,293 +1,117 @@
 // app/contentCardLibraryScreens/album-details/[id].tsx
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import {
   View,
+  FlatList,
+  ActivityIndicator,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
-  FlatList,
-  Alert,
-  ImageBackground,
-  Platform,
-  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice'; // Adicionado para favoritar EP/faixas
 import { Ionicons } from '@expo/vector-icons';
-//import { MOCKED_CLOUD_FEED_DATA } from '@/src/types/contentServer';
-import { Album, Single } from '@/src/types/contentType'; // Importado Single também
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
+
+// IMPORTAÇÕES DOS COMPONENTES REUTILIZÁVEIS
+import { TrackListItem } from '@/components/TrackListItem';
+import { AlbumEpHeader } from '@/components/AlbumEpHeader';
+
+// REDUX E API
+import { setPlaylistAndPlayThunk } from '@/src/redux/playerSlice';
+// Importação correta do Slice de Álbuns e Singles
+import { toggleFavoriteAlbumWithSingles } from '@/src/redux/favoriteAlbumsSlice';
+import { toggleFavoriteSingle } from '@/src/redux/favoriteSinglesSlice';
+import { getLibraryContentDetails } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
-import { getLibraryContentDetails } from '@/src/api/feedApi'; // Importa a tua nova API
-
-// Componente para renderizar cada item da faixa na FlatList
-const TrackListItem = ({ track, onPlay, isFavorited, onToggleFavorite, isCurrent }: { // NOVO: Adicione isCurrent
-  track: Single;
-  onPlay: (track: Single) => void;
-  isFavorited: boolean;
-  onToggleFavorite: (track: Single) => void;
-  isCurrent: boolean; // NOVO: Tipo para isCurrent
-}) => {
-  const isConnected = useAppSelector((state) => state.network.isConnected)
-  // NOVO: Obtenha o currentTrack do estado do player
-
-  const getImageSource = () => {
-    if (isConnected === false || !track.cover || track.cover.trim() === '') {
-      return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-    }
-    return { uri: track.cover };
-  };
-  const imageSource = getImageSource();
-
-  return (
-    <TouchableOpacity
-      style={[
-        trackItemStyles.container,
-        isCurrent && trackItemStyles.currentTrackItem,
-      ]}
-      onPress={() => onPlay(track)}
-    >
-      <Image
-        source={imageSource}
-        style={trackItemStyles.coverImage}
-      //resizeMode="cover"
-      />
-      <View style={trackItemStyles.infoContainer}>
-        <Text style={trackItemStyles.title} numberOfLines={1}>
-          {isCurrent ? '▶ ' : ''}{track.title}
-        </Text>
-        <Text style={trackItemStyles.artist} numberOfLines={1}>{track.artist}</Text>
-      </View>
-      <TouchableOpacity onPress={() => onToggleFavorite(track)} style={trackItemStyles.favoriteButton}>
-        <Ionicons name={isFavorited ? 'heart' : 'heart-outline'} size={24} color={isFavorited ? '#FF3D00' : '#bbb'} />
-      </TouchableOpacity>
-      {/* Você pode adicionar um ícone de menu ou mais opções aqui */}
-    </TouchableOpacity>
-  );
-};
-// Estilos para os itens da FlatList
-const trackItemStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-  },
-  currentTrackItem: { // NOVO: Estilo para a faixa atual
-    //backgroundColor: 'rgba(30, 144, 255, 0.2)', // Exemplo: um fundo azul claro transparente
-    borderRadius: 8, // Opcional: bordas arredondadas para o destaque
-  },
-  infoContainer: {
-    flex: 1,
-    marginRight: 10,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  artist: {
-    color: '#bbb',
-    fontSize: 13,
-    marginTop: 2,
-  },
-  favoriteButton: {
-    padding: 5,
-  },
-  coverImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 12,
-    backgroundColor: '#333',
-    resizeMode: "cover"
-  },
-});
-
+import { Album, Single, ExtendedPlayEP } from '@/src/types/contentType';
 
 export default function AlbumDetailsScreen() {
-
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+  // SELETORES REDUX
+  // Nota: Verifique se no seu store o nome é 'favoriteSingles' ou 'favoriteMusic'
+  const favoritedMusics = useAppSelector((state) => state.favoriteSingles.items);
+  const favoriteAlbums = useAppSelector((state) => state.favoriteAlbums.items);
   const { currentTrack } = useAppSelector((state) => state.player);
-  const isConnected = useAppSelector((state) => state.network.isConnected);
 
-  // --- Estados para gerir a API ---
+  // ESTADOS LOCAIS
   const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // --- REATIVIDADE DO CORAÇÃO DO ÁLBUM ---
+  const isCurrentAlbumFavorited = useMemo(() =>
+    favoriteAlbums.some(album => String(album.id) === String(id)),
+    [favoriteAlbums, id]);
+
   useEffect(() => {
     async function fetchAlbum() {
       if (!id) return;
-
       setLoading(true);
-
       const result = await getLibraryContentDetails(id as string);
 
       if (result.success && result.data) {
-        setCurrentAlbum(result.data as Album);
+        // Mapeamento para garantir consistência (seguindo o padrão do seu EP)
+        const rawData = result.data as any;
+        setCurrentAlbum({
+          ...rawData,
+          tracks: rawData.tracks.map((it: any) => ({
+            ...(it.track || it), // Ajuste dependendo de como a API retorna a track
+            source: 'library-albumDetail'
+          })),
+          category: 'album'
+        } as Album);
       } else {
         setError(result.error || t('albumDetails.notFound'));
       }
-
       setLoading(false);
     }
-
     fetchAlbum();
   }, [id, t]);
 
-
-
-  const getDynamicCoverSource = () => {
-    if (!isConnected || !currentAlbum?.cover?.trim()) {
-      return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
-    }
-    return { uri: currentAlbum.cover };
-  };
-
-  const getDynamicUserAvatar = () => {
-    if (!isConnected || !currentAlbum?.artistAvatar?.trim()) {
-      return require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
-    }
-    return { uri: currentAlbum.artistAvatar };
-  };
-
-
-  const artistAvatarSrc = getDynamicUserAvatar();
-  const coverSource = getDynamicCoverSource();
-
   const handlePlayAlbum = useCallback(() => {
-    if (!currentAlbum || !currentAlbum.tracks || currentAlbum.tracks.length === 0) {
-      console.log("Erro", "Este EP não possui faixas para reproduzir.");
-      return;
+    if (currentAlbum?.tracks) {
+      dispatch(setPlaylistAndPlayThunk({
+        newPlaylist: currentAlbum.tracks,
+        startIndex: 0,
+        shouldPlay: true
+      }));
     }
+  }, [currentAlbum, dispatch]);
 
-    dispatch(setPlaylistAndPlayThunk({
-      newPlaylist: currentAlbum.tracks,
-      startIndex: 0,
-      shouldPlay: true,
-    }));
-  }, [dispatch, currentAlbum]);
-
-
-  //Inicia reproducao a partir de uma faixa clicada
-  const handlePlayTrack = useCallback((track: Single) => {
-    if (!currentAlbum || !currentAlbum.tracks) return;
-
-    if (!track.uri) {
-      console.log("Erro", "URI da faixa não disponível para reprodução.");
-      return;
+  // --- LÓGICA DE FAVORITAR ÁLBUM ---
+  const handleToggleFavoriteAlbum = useCallback(() => {
+    if (currentAlbum) {
+      dispatch(toggleFavoriteAlbumWithSingles(currentAlbum));
     }
+  }, [currentAlbum, dispatch]);
 
-    dispatch(setPlaylistAndPlayThunk({
-      newPlaylist: currentAlbum.tracks,
-      startIndex: currentAlbum.tracks.findIndex(t => t.id === track.id),
-      shouldPlay: true,
-    }));
-  }, [dispatch, currentAlbum]);
-
-
-  //Adiciona ou remove uma faixa dos favoritos
-  const handleToggleFavoriteTrack = useCallback((track: Single) => {
-    const isCurrentlyFavorited = favoritedMusics.some(favTrack => favTrack.id === track.id);
-    if (isCurrentlyFavorited) {
-      dispatch(removeFavoriteMusic(track.id));
-      Alert.alert("Removido", `"${track.title}" removida dos favoritos.`);
-    } else {
-      dispatch(addFavoriteMusic(track));
-      Alert.alert("Adicionado", `"${track.title}" adicionada aos favoritos.`);
-    }
-  }, [dispatch, favoritedMusics]);
-
-
-
-  const ListHeaderComponent = useCallback(() => {
-    // Se o loading ainda estiver a correr, não renderizamos nada no Header
-    if (!currentAlbum) return null;
-
-    return (
-      <View style={styles.headerContentContainer}> {/* Novo estilo para o conteúdo do cabeçalho */}
-        <ImageBackground
-          source={coverSource}
-          blurRadius={Platform.OS === 'android' ? 10 : 0}
-          style={styles.imageBackground} // Este estilo vai precisar de ajustes
-
-        >
-          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
-
-            {/* Header Bar (Voltar e Artista Info) */}
-            <View style={styles.headerBar}>
-              <TouchableOpacity onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={30} color="#fff" />
-              </TouchableOpacity>
-              <View style={styles.artistInfo}>
-                <Image source={artistAvatarSrc} style={styles.profileImage} />
-                <Text style={styles.artistMainName} numberOfLines={1}>
-                  {currentAlbum.artist}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.coverAndDetailsSection}> {/* Novo View para alinhar capa e textos */}
-              <Image source={coverSource} style={styles.coverImage} />
-
-              {/* Detalhes do EP (Título, Artista, Produtor, Feat, Ano, Gênero, Plays, Faixas) */}
-              <Text style={styles.title}>{currentAlbum.title}</Text>
-              <Text style={styles.artistName}>{currentAlbum.artist}</Text>
-
-              <Text style={styles.detailText}>
-                {`${currentAlbum.category.charAt(0).toUpperCase() + currentAlbum.category.slice(1)} • ${currentAlbum.releaseYear || t('albumDetails.unknownYear')} • ${t('albumDetails.tracksCount', { count: currentAlbum.tracks?.length || 0 })}`}
-              </Text>
-
-              <Text style={styles.detailText}>
-                {currentAlbum.mainGenre || t('albumDetails.unknownGenre')}
-              </Text>
-            </View>
-
-            {/* *** ADICIONANDO O DEGRADÊ AQUI *** */}
-            <LinearGradient
-              colors={['transparent', styles.container.backgroundColor || '#191919']}
-              style={styles.fadeOverlay}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-            />
-
-            <View style={styles.playButtonContainer}> {/* Novo estilo para o botão de play */}
-              <TouchableOpacity onPress={handlePlayAlbum}>
-                <Ionicons name={'play-circle'} size={48} color="#fff" />
-              </TouchableOpacity>
-            </View>
-
-          </BlurView>
-        </ImageBackground>
-      </View>
-    );
-  }, [currentAlbum, coverSource, artistAvatarSrc, handlePlayAlbum, router, isConnected]);
-
+  // RENDERIZAÇÃO DE LOADING
   if (loading) {
     return (
-      <View style={[styles.errorContainer, { backgroundColor: '#000' }]}>
+      <View style={styles.loadingContainer}>
         <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator size="large" color="#fff" />
       </View>
     );
   }
 
+  // RENDERIZAÇÃO DE ERRO
   if (error || !currentAlbum) {
     return (
-      <View style={styles.errorContainer}> {/* Alterado para errorContainer para consistência */}
-        <Stack.Screen options={{ headerShown: false }} /> {/* Esconde o cabeçalho padrão */}
-        <Text style={styles.errorText}>{t('albumDetails.notFound')}</Text>
+      <View style={styles.errorContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={styles.errorIconCircle}>
+          <Ionicons name="disc-outline" size={80} color="rgba(255, 255, 255, 0.2)" />
+          <Ionicons name="alert-circle" size={30} color="#FF3D00" style={styles.errorAlertBadge} />
+        </View>
+        <Text style={styles.errorTitle}>{t('albumDetails.errorTitle') || 'Ops!'}</Text>
+        <Text style={styles.errorText}>{error || t('albumDetails.notFound')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={20} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.backButtonText}>{t('albumDetails.backButton')}</Text>
         </TouchableOpacity>
       </View>
@@ -298,152 +122,50 @@ export default function AlbumDetailsScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* A FlatList agora é o componente principal de rolagem */}
       <FlatList
         data={currentAlbum.tracks}
         keyExtractor={(item) => item.id}
+        extraData={{ isCurrentAlbumFavorited, currentTrack, favoritedMusics }}
+        ListHeaderComponent={() => (
+          <AlbumEpHeader
+            // Fazemos o cast para ExtendedPlayEP apenas para o componente aceitar, 
+            // já que as propriedades visuais são as mesmas
+            currentAlbumEp={currentAlbum}
+            isFavorited={isCurrentAlbumFavorited}
+            onToggleFavorite={handleToggleFavoriteAlbum}
+            onPlayEp={handlePlayAlbum}
+            router={router}
+            t={t}
+          />
+        )}
         renderItem={({ item }) => (
           <TrackListItem
             track={item}
-            onPlay={handlePlayTrack}
-            isFavorited={favoritedMusics.some(favTrack => favTrack.id === item.id)}
-            onToggleFavorite={handleToggleFavoriteTrack}
+            onPlay={(track) => dispatch(setPlaylistAndPlayThunk({
+              newPlaylist: currentAlbum.tracks,
+              startIndex: currentAlbum.tracks.findIndex(tx => tx.id === track.id),
+              shouldPlay: true
+            }))}
+            isFavorited={favoritedMusics.some(fav => fav.id === item.id)}
+            onToggleFavorite={(track) => dispatch(toggleFavoriteSingle(track))}
             isCurrent={currentTrack?.id === item.id}
           />
         )}
-        ListHeaderComponent={ListHeaderComponent}
-        contentContainerStyle={styles.trackListContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyListText}>{t('albumDetails.emptyList')}</Text>
-        }
+        ListEmptyComponent={<Text style={styles.emptyText}>{t('albumDetails.emptyList')}</Text>}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#191919', // Fundo escuro geral
-  },
-  // NOVO: Estilo para o container do cabeçalho da FlatList
-  headerContentContainer: {
-    width: '100%',
-    // Sem height fixo aqui, pois o ImageBackground e seu conteúdo definirão a altura
-    // O flex: 1 no ImageBackground vai fazer com que ele preencha o espaço disponível
-    // dentro de ListHeaderComponent, mas precisamos garantir que ele tenha um tamanho.
-    // Vamos definir uma altura mínima para ImageBackground.
-  },
-  imageBackground: {
-    width: '100%',
-    height: 450, // Ajuste esta altura conforme o desejado para a seção da capa
-    justifyContent: 'flex-start', // Alinha o conteúdo ao topo
-    paddingHorizontal: 15, // Adicionado padding para o conteúdo interno
-    resizeMode: "cover"
-  },
-  headerBar: {
-    marginTop: 40,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  artistInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-    marginLeft: 19,
-  },
-  profileImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    resizeMode: 'cover',
-  },
-  artistMainName: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    flexShrink: 1,
-  },
-  coverAndDetailsSection: { // NOVO: Container para a capa e textos do EP
-    alignItems: 'center', // Centraliza a capa e os textos
-    marginTop: 20, // Espaço após o headerBar
-  },
-  coverImage: {
-    width: 140,
-    height: 140,
-    borderRadius: 12, // Adicionado de volta para bordas arredondadas
-    resizeMode: 'cover',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    marginBottom: 15, // Espaço entre a capa e o título
-  },
-  title: {
-    fontSize: 24, // Aumentei um pouco para destaque
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 3,
-    textAlign: 'center', // Centraliza o título
-  },
-  artistName: {
-    fontSize: 16,
-    color: '#aaa',
-    textAlign: 'center', // Centraliza o nome do artista
-    marginBottom: 4,
-  },
-  detailText: {
-    fontSize: 14,
-    color: '#bbb',
-    textAlign: 'center', // Centraliza os detalhes
-  },
-  playButtonContainer: { // NOVO: Container para o botão de play
-    alignSelf: 'flex-end', // Alinha o botão de play à direita
-    marginTop: 'auto', // Empurra para o final do ImageBackground
-    marginBottom: 20, // Espaço antes do fim do ImageBackground
-    paddingHorizontal: 20,
-  },
-  errorContainer: {
-    flex: 1,
-    backgroundColor: '#191919',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  backButton: {
-    marginTop: 20,
-    padding: 10,
-  },
-  backButtonText: {
-    color: '#1E90FF',
-    fontSize: 16,
-  },
-  trackListContent: {
-    paddingBottom: 100, // Mantido, para espaço no fundo
-  },
-  emptyListText: {
-    color: '#bbb',
-    textAlign: 'center',
-    marginTop: 50,
-    fontSize: 16,
-  },
-  fadeOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 160, // Ajuste a altura conforme necessário para o efeito desejado
-  },
+  container: { flex: 1, backgroundColor: '#191919' },
+  loadingContainer: { flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' },
+  errorContainer: { flex: 1, backgroundColor: '#191919', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  errorIconCircle: { marginBottom: 20, justifyContent: 'center', alignItems: 'center' },
+  errorAlertBadge: { position: 'absolute', bottom: 0, right: 0 },
+  errorTitle: { color: '#fff', fontSize: 22, fontWeight: 'bold', marginBottom: 8 },
+  errorText: { color: '#bbb', fontSize: 16, textAlign: 'center', marginBottom: 24 },
+  backButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#333', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 25 },
+  backButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  emptyText: { color: '#bbb', textAlign: 'center', marginTop: 40 }
 });
