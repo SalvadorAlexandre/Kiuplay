@@ -12,8 +12,24 @@ import { useRouter } from 'expo-router';
 import { RootState } from '@/src/redux/store';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
 import { Track } from '@/src/redux/playerSlice';
-import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
-import { LibraryFeedItem, } from '@/src/types/contentType';
+import {
+    SingleCard,
+    AlbumCard,
+    EpCard,
+    ArtistCard,
+    FreeBeatCard,
+    ExclusiveBeatCard
+} from '@/components/cardsItems';
+import {
+    Single,
+    Album,
+    ExtendedPlayEP,
+    ArtistProfile,
+    FreeBeat,
+    ExclusiveBeat,
+    LibraryFeedItem
+} from '@/src/types/contentType';
+
 import { Ionicons } from '@expo/vector-icons';
 import { getLibraryFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
@@ -86,11 +102,11 @@ export default function LibraryScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    const selectedLocalTab = useAppSelector(state => state.library.selectedLocalTab);
-    const selectedCloudTab = useAppSelector(state => state.library.selectedCloudTab);
+    //const selectedLocalTab = useAppSelector(state => state.library.selectedLocalTab);
+    //const selectedCloudTab = useAppSelector(state => state.library.selectedCloudTab);
     //const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
-    const selectedLibraryContent = useAppSelector((state) => state.library.selectedLibraryContent);
+    //const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
+   // const selectedLibraryContent = useAppSelector((state) => state.library.selectedLibraryContent);
 
     // 1. Estados para armazenar os dados e o status da conexão
     const [feeds, setFeeds] = useState<LibraryFeedItem[]>([]);
@@ -98,31 +114,6 @@ export default function LibraryScreen() {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState<number>(1);
     const [hasMore, setHasMore] = useState<boolean>(true);
-
-    // const favoritedCloudTracks: Track[] = favoritedMusics.filter(
-    //    (music) =>
-    //        music.category === 'single' && (
-    //            music.source === 'library-cloud-feeds' ||
-    //            music.source === 'library-cloud-favorites' ||
-    //            music.source === 'library-local'
-    //        )
-    // ) as Track[];
-
-    // ... (Funções de navegação permanecem inalteradas)
-    //const handleCloudItemPress = (item: LibraryFeedItem) => {
-    //   if (item.category === 'single') {
-    //    router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
-    //  } else if (item.category === 'album') {
-    //      router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
-    //  } else if (item.category === 'ep') {
-    //      router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
-    //  } else if (item.category === 'artist') {
-    //      router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
-    //  }
-    //  else {
-    //    console.warn('Tipo de item desconhecido ou não suportado para navegação...', item.category);
-    //}
-    //  };
 
     const handleCloudItemPress = useCallback((item: LibraryFeedItem) => {
         // Mapeamento de rotas baseado na categoria que vem do Backend
@@ -144,38 +135,7 @@ export default function LibraryScreen() {
             );
         }
     }, [router]);
-    {/**
-         const loadFeeds = async (pageToLoad = 1) => {
-        // Se já estiver a carregar ou se não houver mais páginas (e não for reset), paramos aqui
-        if (isLoading || (!hasMore && pageToLoad !== 1)) return;
 
-        try {
-            setIsLoading(true);
-            setError(null); // Limpamos erros anteriores ao iniciar nova tentativa
-
-            const response = await getLibraryFeed(pageToLoad, 20);
-
-            if (response.success) {
-                // Se for página 1, substituímos. Se for página > 1, concatenamos.
-                setFeeds(prev => pageToLoad === 1 ? response.data : [...prev, ...response.data]);
-
-                // Lógica de paginação baseada no total de páginas retornado pelo backend
-                const isLastPage = pageToLoad >= response.totalPages || response.data.length < 20;
-                setHasMore(!isLastPage);
-            } else {
-                // Se o backend responder success: false, capturamos a mensagem
-                setError(response.error || t('alerts.errorLoadingLibrary'));
-                setHasMore(false);
-            }
-        } catch (err) {
-            console.error("Erro crítico no loadFeeds:", err);
-            setError(t('alerts.connectionError'));
-            setHasMore(false);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-        */}
     const loadFeeds = async (pageToLoad = 1) => {
         // 1. Guardas de execução
         if (isLoading || (!hasMore && pageToLoad !== 1)) return;
@@ -236,12 +196,26 @@ export default function LibraryScreen() {
                     ListHeaderComponent={renderHeader}
                     stickyHeaderIndices={[0]} // Opcional: mantém o header fixo no topo
                     showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <LibraryContentCard
-                            item={item}
-                            onPress={handleCloudItemPress}
-                        />
-                    )}
+                    // RENDERIZAÇÃO DINÂMICA
+                    renderItem={({ item }: { item: LibraryFeedItem }) => {
+                        switch (item.category) {
+                            case 'single':
+                                return <SingleCard item={item as Single} onPress={handleCloudItemPress} />;
+
+                            case 'album':
+                                return <AlbumCard item={item as Album} onPress={handleCloudItemPress} />;
+
+                            case 'ep':
+                                return <EpCard item={item as ExtendedPlayEP} onPress={handleCloudItemPress} />;
+
+                            case 'artist':
+                                return <ArtistCard item={item as ArtistProfile} onPress={handleCloudItemPress} />;
+
+                            default:
+                                // Fallback para caso surja um tipo novo não mapeado
+                                return null;
+                        }
+                    }}
                     ListEmptyComponent={() => {
                         // Se estiver a carregar a primeira página, não mostramos a mensagem de vazio
                         if (isLoading && page === 1) return null;
@@ -253,7 +227,7 @@ export default function LibraryScreen() {
                                     color="rgba(255, 255, 255, 0.3)"
                                 />
                                 <Text style={styles.emptyText}>
-                                    {error ? t('alerts.noCloudFeedContent') : error}
+                                    {error ? t('alerts.noCloudFeedContent') : t('alerts.noResultsFound')}
                                 </Text>
 
                                 <TouchableOpacity

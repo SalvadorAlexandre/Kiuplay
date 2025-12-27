@@ -11,11 +11,21 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppSelector } from '@/src/redux/hooks';
-import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem';
+import BeatStoreMusicItem from '@/components/cardsItems/beatStoreItem/BeatStoreMusicItem';
 import { BeatStoreFeedItem } from '@/src/types/contentType';
 import { Ionicons } from '@expo/vector-icons';
 import { getBeatStoreFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
+import {
+    FreeBeatCard,
+    ExclusiveBeatCard
+} from '@/components/cardsItems';
+import {
+    FreeBeat,
+    ExclusiveBeat,
+    LibraryFeedItem
+} from '@/src/types/contentType';
+
 
 
 const BeatStoreHeader = ({ t, router }: { t: any, router: any }) => {

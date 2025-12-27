@@ -195,7 +195,7 @@ export interface ExclusiveBeat {
 
     typeUse: 'exclusive' // Tipo de uso
     duration?: number;
-    category: 'beat'; // Categoria específica
+    category: 'exclusivebeat'; // Categoria específica
     releaseYear: string;
     createdAt: string;
     source: 'beatstore-feeds' | 'beatstore-favorites' | 'user-profile';
@@ -220,7 +220,7 @@ export interface FreeBeat {
     isFree: true; // É sempre gratuito
     typeUse: 'free' // Tipo de uso
     duration?: number;
-    category: 'beat'; // Categoria específica
+    category: 'freebeat'; // Categoria específica
     releaseYear: string;
     createdAt: string;
     viewsCount?: number;

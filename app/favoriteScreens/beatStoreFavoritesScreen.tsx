@@ -5,7 +5,7 @@ import { Stack, useRouter, Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '@/src/redux/hooks';
-import BeatStoreMusicItem from '@/components/musicItems/beatStoreItem/BeatStoreMusicItem'; 
+import BeatStoreMusicItem from '@/components/cardsItems/beatStoreItem/BeatStoreMusicItem'; 
 import { BeatStoreFeedItem } from '@/src/types/contentType';
 
 export default function BeatStoreFavoritesScreen() {

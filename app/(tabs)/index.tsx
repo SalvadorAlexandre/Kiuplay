@@ -4,11 +4,11 @@ import React, { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { selectCurrentUserId, selectUserById, setUser } from '@/src/redux/userSessionAndCurrencySlice';
-import SingleCard from '@/components/musicItems/TabProfileSingleItem/SingleCard';
-import EpCard from '@/components/musicItems/TabProfileEpItem/EpCard';
-import AlbumCard from '@/components/musicItems/TabProfileAlbumItem/AlbumCard';
-import ExclusiveBeatCard from '@/components/musicItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
-import FreeBeatCard from '@/components/musicItems/TabProfileFreeBeatItem/FreeBeatCard';
+import SingleCard from '@/components/cardsItems/TabProfileSingleItem/SingleCard';
+import EpCard from '@/components/cardsItems/TabProfileEpItem/EpCard';
+import AlbumCard from '@/components/cardsItems/TabProfileAlbumItem/AlbumCard';
+import ExclusiveBeatCard from '@/components/cardsItems/TabProfileExclusiveBeatItem/ExclusiveBeatCard';
+import FreeBeatCard from '@/components/cardsItems/TabProfileFreeBeatItem/FreeBeatCard';
 import BottomModal from '@/components/profileModal'; // caminho ajusta conforme tua pasta
 import { useAppSelector, useAppDispatch } from "@/src/redux/hooks";
 import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';

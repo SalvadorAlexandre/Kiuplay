@@ -6,7 +6,7 @@ import { Stack, useRouter, Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import LibraryContentCard from '@/components/musicItems/LibraryItem/LibraryContentCard';
+import LibraryContentCard from '@/components/cardsItems/LibraryItem/LibraryContentCard';
 import { LibraryFavoritesFeedItem } from '@/src/types/contentType'; // Usando a nova União
 
 export default function LibraryFavoritesScreen() {
