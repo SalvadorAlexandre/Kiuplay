@@ -5,7 +5,7 @@ export { default as AlbumCard } from './AlbumCard';
 export { default as EpCard } from './EpCard';
 export { default as FreeBeatCard } from './FreeBeatCard';
 export { default as ExclusiveBeatCard } from './ExclusiveBeatCard';
-export { default as ArtistCard } from './artistCard';
+export { default as ArtistCard } from './ArtistCard';
 
 // Se você quiser exportar os estilos também para uso externo:
 export * from './styles/cardStyles';

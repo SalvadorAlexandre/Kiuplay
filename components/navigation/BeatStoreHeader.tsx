@@ -1,40 +1,34 @@
-//components/navigation/LibraryHeader
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { headerLibraryBeatStoreStyles as styles } from './styles/headerLibraryBeatStoreStyles';
 
 
-interface LibraryHeaderProps {
+
+interface BeatStoreHeaderProps {
     t: (key: string) => string;
     router: any;
 }
 
-const LibraryHeader = ({ t, router }: LibraryHeaderProps) => {
+const BeatStoreHeader = ({ t, router }: BeatStoreHeaderProps) => {
     return (
         <View style={styles.containerTopBar}>
             <Text style={styles.titleTopBar} numberOfLines={1}>
-                {t('screens.libraryTitle')}
+                {t('screens.beatStoreTitle')}
             </Text>
 
+            {/** BTN DE CURTIDOS */}
             <TouchableOpacity
-                onPress={() => router.push('/audioLocalComponent/useMusicLocalList')}
-                style={styles.buttonTopBar}
-                activeOpacity={0.7}
-            >
-                <Ionicons name='menu' size={26} color='#fff' />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                onPress={() => router.push('/favoriteScreens/libraryFavoritesScreens')}
+                onPress={() => router.push('/favoriteScreens/beatStoreFavoritesScreen')}
                 style={styles.buttonTopBar}
                 activeOpacity={0.7}
             >
                 <Ionicons name='heart-outline' size={26} color='#fff' />
             </TouchableOpacity>
 
+            {/** BTN DE PESQUISA */}
             <TouchableOpacity
-                onPress={() => router.push('/searchScreens/searchLibrary')}
+                onPress={() => router.push(`/searchScreens/searchBeatStore`)}
                 style={styles.buttonTopBar}
                 activeOpacity={0.7}
             >
@@ -44,5 +38,4 @@ const LibraryHeader = ({ t, router }: LibraryHeaderProps) => {
     );
 };
 
-
-export default LibraryHeader;
+export default BeatStoreHeader;

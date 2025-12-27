@@ -17,96 +17,25 @@ import {
     AlbumCard,
     EpCard,
     ArtistCard,
-    FreeBeatCard,
-    ExclusiveBeatCard
 } from '@/components/cardsItems';
 import {
     Single,
     Album,
     ExtendedPlayEP,
     ArtistProfile,
-    FreeBeat,
-    ExclusiveBeat,
     LibraryFeedItem
 } from '@/src/types/contentType';
-
+import { LibraryHeader } from '@/components/navigation'
 import { Ionicons } from '@expo/vector-icons';
 import { getLibraryFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
-
-
-const LibraryHeader = ({ t, router }: { t: any, router: any }) => {
-    return (
-        <View style={headerStyles.containerTopBar}>
-
-            <Text
-                style={headerStyles.titleTopBar}
-                numberOfLines={1}
-            >
-                {t('screens.libraryTitle')}
-            </Text>
-
-            {/**BTN DE PLAYLIST*/}
-            <TouchableOpacity
-                onPress={() => router.push('/audioLocalComponent/useMusicLocalList')}
-                style={headerStyles.buttonTopBar}
-            >
-                <Ionicons name='menu' size={26} color='#fff' />
-            </TouchableOpacity>
-
-            {/**BTN DE CURTIDOS*/}
-            <TouchableOpacity
-                onPress={() => router.push('/favoriteScreens/libraryFavoritesScreens')}
-                style={headerStyles.buttonTopBar}
-            >
-                <Ionicons name='heart-outline' size={26} color='#fff' />
-            </TouchableOpacity>
-
-            {/**BTN DE PESQUISAR*/}
-            <TouchableOpacity
-                onPress={() => router.push('/searchScreens/searchLibrary')}
-                style={headerStyles.buttonTopBar}
-            >
-                <Ionicons name='search-outline' size={26} color='#fff' />
-            </TouchableOpacity>
-        </View>
-    );
-};
-
-// Estilos para os itens da FlatList
-const headerStyles = StyleSheet.create({
-    containerTopBar: {
-        backgroundColor: '#191919',      // Cor de fundo escura
-        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-        borderBottomWidth: 1,            // Borda inferior com 1 pixel
-        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
-        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
-        gap: 10,
-    },
-    titleTopBar: {
-        color: '#fff',
-        fontSize: 20,
-        //marginBottom: 8,
-        flex: 1,
-        //textAlign: 'center',
-    },
-    buttonTopBar: {
-        padding: 6,  // Espaçamento interno do botão
-    },
-
-});
+import { feedStyles as styles } from '@/components/navigation';
 
 export default function LibraryScreen() {
 
     const router = useRouter();
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    //const selectedLocalTab = useAppSelector(state => state.library.selectedLocalTab);
-    //const selectedCloudTab = useAppSelector(state => state.library.selectedCloudTab);
-    //const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
-    //const followedArtists = useAppSelector((state: RootState) => state.followedArtists.artists);
-   // const selectedLibraryContent = useAppSelector((state) => state.library.selectedLibraryContent);
 
     // 1. Estados para armazenar os dados e o status da conexão
     const [feeds, setFeeds] = useState<LibraryFeedItem[]>([]);
@@ -118,10 +47,10 @@ export default function LibraryScreen() {
     const handleCloudItemPress = useCallback((item: LibraryFeedItem) => {
         // Mapeamento de rotas baseado na categoria que vem do Backend
         const routes = {
-            single: `/contentCardLibraryScreens/single-details/${item.id}`,
-            album: `/contentCardLibraryScreens/album-details/${item.id}`,
-            ep: `/contentCardLibraryScreens/ep-details/${item.id}`,
-            artist: `/contentCardLibraryScreens/artist-profile/${item.id}`,
+            single: `/detailsLibraryScreens/single-details/${item.id}`,
+            album: `/detailsLibraryScreens/album-details/${item.id}`,
+            ep: `/detailsLibraryScreens/ep-details/${item.id}`,
+            artist: `/detailsLibraryScreens/artist-profile/${item.id}`,
         };
 
         const targetRoute = routes[item.category as keyof typeof routes];
@@ -264,48 +193,3 @@ export default function LibraryScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        backgroundColor: '#191919',
-    },
-    flatlistColumn: {
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-    },
-    centerLoader: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    emptyContainer: {
-        marginTop: 100,
-        alignItems: 'center',
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        color: '#bbb',
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 15,
-        marginBottom: 20,
-        lineHeight: 22,
-    },
-    retryButton: {
-        flexDirection: 'row',
-        backgroundColor: '#333', // Cor neutra para o modo escuro
-        paddingVertical: 12,
-        paddingHorizontal: 25,
-        borderRadius: 25,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#444',
-    },
-    retryButtonText: {
-        color: '#fff',
-        fontSize: 15,
-        fontWeight: '600',
-    },
-});

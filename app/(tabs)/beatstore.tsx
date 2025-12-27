@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppSelector } from '@/src/redux/hooks';
-import BeatStoreMusicItem from '@/components/cardsItems/beatStoreItem/BeatStoreMusicItem';
-import { BeatStoreFeedItem } from '@/src/types/contentType';
+import { } from '@/src/types/contentType';
+import { BeatStoreHeader } from '@/components/navigation'
 import { Ionicons } from '@expo/vector-icons';
 import { getBeatStoreFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
+import { feedStyles as styles } from '@/components/navigation';
 import {
     FreeBeatCard,
     ExclusiveBeatCard
@@ -23,65 +24,8 @@ import {
 import {
     FreeBeat,
     ExclusiveBeat,
-    LibraryFeedItem
+    BeatStoreFeedItem
 } from '@/src/types/contentType';
-
-
-
-const BeatStoreHeader = ({ t, router }: { t: any, router: any }) => {
-    return (
-        <View style={headerStyles.containerTopBar}>
-
-            <Text
-                style={headerStyles.titleTopBar}
-                numberOfLines={1}
-            >
-                {t('screens.beatStoreTitle')}
-            </Text>
-
-            {/**BTN DE CURTIDOS*/}
-            <TouchableOpacity
-                onPress={() => router.push('/favoriteScreens/beatStoreFavoritesScreen')}
-                style={headerStyles.buttonTopBar}
-            >
-                <Ionicons name='heart-outline' size={26} color='#fff' />
-            </TouchableOpacity>
-
-            {/* Botão de pesquisa */}
-            <TouchableOpacity
-                onPress={() => router.push(`/searchScreens/searchBeatStore`)}
-                style={headerStyles.buttonTopBar}>
-                <Ionicons
-                    name='search-outline'
-                    size={26}
-                    color='#fff'
-                />
-            </TouchableOpacity>
-        </View>
-    );
-};
-
-// Estilos para os itens da FlatList
-const headerStyles = StyleSheet.create({
-    containerTopBar: {
-        backgroundColor: '#191919',      // Cor de fundo escura
-        paddingVertical: 20,             // Espaçamento vertical (topo e baixo)
-        paddingHorizontal: 16,           // Espaçamento lateral (esquerda e direita)
-        borderBottomWidth: 1,            // Borda inferior com 1 pixel
-        borderColor: '#191919',             // Cor da borda inferior (cinza escuro)
-        flexDirection: 'row',            // Organiza os itens em linha (horizontal)
-        gap: 10,
-    },
-    titleTopBar: {
-        color: '#fff',
-        fontSize: 20,
-        flex: 1,
-    },
-    buttonTopBar: {
-        padding: 6,  // Espaçamento interno do botão
-    },
-
-});
 
 
 export default function BeatStoreScreen() {
@@ -141,13 +85,20 @@ export default function BeatStoreScreen() {
         }
     }, []); // Executa apenas na montagem
 
+    const handleRetry = useCallback(() => {
+        setError(null);
+        setFeedData([]);
+        setPage(1);
+        setHasMore(true);
+        loadFeeds(1);
+    }, []);
 
     const handleBeatStoreItemPress = (item: BeatStoreFeedItem) => {
         //Certifica-se de que a música a ser reproduzida é do tipo Track, que é o que o playerSlice espera
         if (item.typeUse === 'free') {
-            router.push(`/contentCardBeatStoreScreens/freeBeat-details/${item.id}`);
+            router.push(`/detailsBeatStoreScreens/freeBeat-details/${item.id}`);
         } else if (item.typeUse === 'exclusive') {
-            router.push(`/contentCardBeatStoreScreens/exclusiveBeat-details/${item.id}`);
+            router.push(`/detailsBeatStoreScreens/exclusiveBeat-details/${item.id}`);
         } else {
             console.warn('Tipo de item desconhecido ou não suportado para navegação...');
         }
@@ -174,19 +125,50 @@ export default function BeatStoreScreen() {
                     ListHeaderComponent={renderHeader}
                     stickyHeaderIndices={[0]}
                     showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <BeatStoreMusicItem
-                            item={item}
-                            onPress={handleBeatStoreItemPress}
-                        />
-                    )}
-                    ListEmptyComponent={() => (
-                        <View style={{ marginTop: 100, alignItems: 'center' }}>
-                            <Text style={styles.emptyText}>
-                                {error ? error : t('alerts.noBeatsInFeed')}
-                            </Text>
-                        </View>
-                    )}
+                    renderItem={({ item }: { item: BeatStoreFeedItem }) => {
+                        switch (item.category) {
+
+                            case 'freebeat':
+                                return <FreeBeatCard item={item as FreeBeat} onPress={handleBeatStoreItemPress} />;
+
+                            case 'exclusivebeat':
+                                return <ExclusiveBeatCard item={item as ExclusiveBeat} onPress={handleBeatStoreItemPress} />;
+
+                            default:
+                                // Fallback para caso surja um tipo novo não mapeado
+                                return null;
+                        }
+                    }}
+
+                    ListEmptyComponent={() => {
+                        // Se estiver carregando a primeira página, não mostramos nada (deixa o centerLoader agir)
+                        if (isLoading && page === 1) return null;
+
+                        return (
+                            <View style={styles.emptyContainer}>
+                                <Ionicons
+                                    name={error ? "cloud-offline-outline" : "search-outline"}
+                                    size={64}
+                                    color="rgba(255, 255, 255, 0.3)"
+                                />
+                                <Text style={styles.emptyText}>
+                                    {error ? error : t('alerts.noBeatsInFeed')}
+                                </Text>
+
+                                <TouchableOpacity
+                                    style={styles.retryButton}
+                                    onPress={handleRetry}
+                                    activeOpacity={0.7}
+                                >
+                                    <Ionicons name="refresh" size={18} color="#fff" style={{ marginRight: 8 }} />
+                                    <Text style={styles.retryButtonText}>
+                                        {t('common.retry')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    }}
+                    
                     onEndReached={() => {
                         // Mantendo a lógica de paginação segura
                         if (hasMore && !isLoading && feedData.length >= 20) {
@@ -224,40 +206,3 @@ export default function BeatStoreScreen() {
         </View >
     );
 }
-
-const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        backgroundColor: '#191919',
-    },
-    floatingButton: {
-        position: 'absolute',
-        bottom: 110,
-        right: 25,
-        width: 60,
-        height: 60,
-        backgroundColor: '#1565C0',
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-    },
-    flatlistColumn: {
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-    },
-    centerLoader: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyText: {
-        color: '#aaa',
-        textAlign: 'center',
-        fontSize: 16,
-    },
-});
