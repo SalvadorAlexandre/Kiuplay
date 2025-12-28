@@ -8,6 +8,7 @@ import { tokenStorage } from "@/src/utils/tokenStorage";
 import { authApi, userApi } from '@/src/api';
 // No topo do seu arquivo de Auth (AuthProvider.tsx ou similar)
 import { clearDrafts } from '@/src/redux/draftsSlice'; // Ajuste o caminho conforme necessário
+import { clearFollowedArtists } from '@/src/redux/followedArtistsSlice';
 
 // =========================================================================
 // 1. DEFINIÇÃO DA INTERFACE DO CONTEXTO
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 2. 🛑 LIMPAR A SESSÃO E REDEFINIR MOEDA NO REDUX
     dispatch(logoutUser());
     dispatch(clearDrafts())
+    dispatch(clearFollowedArtists())
     // 3. Definir o estado de login
     setIsLoggedIn(false);
   };

@@ -1,4 +1,5 @@
-// app/contentCardBeatStoreScreens/exclusiveBeat-details/[id].tsx
+// app/detailsBeatStoreScreens/exclusiveBeat-details/[id].tsx
+// app/detailsBeatStoreScreens/exclusiveBeat-details/[id].tsx
 import React, { useCallback, useState, useEffect } from 'react';
 import {
     View,
@@ -6,7 +7,6 @@ import {
     StyleSheet,
     Image,
     TouchableOpacity,
-    Alert,
     ImageBackground,
     Platform,
     SafeAreaView,
@@ -15,62 +15,66 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice';
+
+// Redux Actions
+import { toggleFavoriteExclusiveBeat } from '@/src/redux/favoriteExclusiveBeatsSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
+
 import { BlurView } from 'expo-blur';
 import { ExclusiveBeat } from '@/src/types/contentType';
-import { getBeatById } from '@/src/api'; // Certifique-core que este import está correto
+import { getBeatById } from '@/src/api/feedApi'; 
 import { useTranslation } from '@/src/translations/useTranslation';
 import { formatBeatPrice } from '@/hooks/useFormatBeatPrice';
-import { processBeatPurchaseThunk } from '@/src/redux/beatPurchaseThunks';
 
-export default function exclusiveBeatDetailsScreen() {
+export default function ExclusiveBeatDetailsScreen() {
     const { t } = useTranslation();
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    // 1. Seletores Redux (Devem estar no topo)
-    const purchasedBeats = useAppSelector((state) => state.purchases.items);
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    // Seletores Redux
+    const favoriteExclusiveBeats = useAppSelector((state) => state.favoriteExclusiveBeats.items);
     const isConnected = useAppSelector((state) => state.network.isConnected);
 
-    // 2. Estados (Devem estar no topo)
+    // Estados
     const [currentExclusiveBeat, setCurrentExclusiveBeat] = useState<ExclusiveBeat | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // 3. Efeito de Busca (useEffect)
+    // Busca de Dados
     useEffect(() => {
         const fetchBeat = async () => {
             if (!id) return;
-
             setLoading(true);
-            // Chamamos a API blindada
             const response = await getBeatById(id as string);
-
-            // 1. Verificamos se a chamada foi um sucesso e se temos dados
             if (response.success && response.data) {
-                // 2. Extraímos apenas o conteúdo (.data) para o estado
-                // Usamos 'unknown' como ponte para o TypeScript não reclamar da conversão
                 setCurrentExclusiveBeat(response.data as unknown as ExclusiveBeat);
-            } else {
-                // 3. Tratamento amigável de erro
-                console.error("Erro ao carregar beat exclusivo:", response.error);
-                // Aqui podias setar um estado de erro para mostrar ao utilizador
             }
-
             setLoading(false);
         };
-
         fetchBeat();
     }, [id]);
 
-    // 4. Lógica derivada (Memoização e Variáveis de apoio)
-    // Nota: Precisamos de verificações de segurança aqui porque o beat pode ser null inicialmente
-    const isCurrentSingleFavorited = currentExclusiveBeat
-        ? favoritedMusics.some(music => music.id === currentExclusiveBeat.id)
+    // Lógica de Favoritos
+    const isCurrentBeatFavorited = currentExclusiveBeat
+        ? favoriteExclusiveBeats.some(beat => beat.id === currentExclusiveBeat.id)
         : false;
 
+    const handleToggleFavorite = useCallback(() => {
+        if (!currentExclusiveBeat) return;
+        dispatch(toggleFavoriteExclusiveBeat(currentExclusiveBeat));
+    }, [dispatch, currentExclusiveBeat]);
+
+    // Lógica de Play
+    const handlePlaySingle = useCallback(() => {
+        if (!currentExclusiveBeat?.uri) return;
+        dispatch(setPlaylistAndPlayThunk({
+            newPlaylist: [currentExclusiveBeat as unknown as Track],
+            startIndex: 0,
+            shouldPlay: true,
+        }));
+    }, [dispatch, currentExclusiveBeat]);
+
+    // Formatação de Preço
     const formattedPrice = currentExclusiveBeat
         ? formatBeatPrice(
             currentExclusiveBeat.price,
@@ -79,67 +83,12 @@ export default function exclusiveBeatDetailsScreen() {
         )
         : "";
 
-    // 5. Handlers (useCallback deve estar ANTES dos returns condicionais)
-    const handleToggleFavorite = useCallback(() => {
-        if (!currentExclusiveBeat) return;
-        if (isCurrentSingleFavorited) {
-            dispatch(removeFavoriteMusic(currentExclusiveBeat.id));
-        } else {
-            dispatch(addFavoriteMusic(currentExclusiveBeat));
-        }
-    }, [dispatch, currentExclusiveBeat, isCurrentSingleFavorited]);
-
-    const handlePlaySingle = useCallback(async () => {
-        if (!currentExclusiveBeat?.uri) {
-            Alert.alert(t('common.error'), t('exclusiveBeatDetails.errorPlay'));
-            return;
-        }
-        dispatch(setPlaylistAndPlayThunk({
-            newPlaylist: [currentExclusiveBeat as unknown as Track],
-            startIndex: 0,
-            shouldPlay: true,
-        }));
-    }, [dispatch, currentExclusiveBeat, t]);
-
-    const handlePurchase = useCallback(() => {
-        if (!currentExclusiveBeat) return;
-
-        const performPurchase = () => {
-            dispatch(processBeatPurchaseThunk(currentExclusiveBeat))
-                .unwrap()
-                .then(() => Alert.alert(t('exclusiveBeatDetails.purchaseSuccessTitle'), t('exclusiveBeatDetails.purchaseSuccessMessage')))
-                .catch(() => Alert.alert("Falha na Compra", "Tente novamente."));
-        };
-
-        Alert.alert(
-            t("exclusiveBeatDetails.purchaseConfirmTitle"),
-            t('exclusiveBeatDetails.confirmPurchaseMessage', {
-                title: currentExclusiveBeat.title,
-                price: formattedPrice,
-            }),
-            [
-                { text: t('exclusiveBeatDetails.cancel'), style: 'cancel' },
-                { text: t('exclusiveBeatDetails.confirm'), onPress: performPurchase },
-            ]
-        );
-    }, [dispatch, currentExclusiveBeat, formattedPrice, t]);
-
-    // 6. AGORA SIM: Verificações condicionais de renderização (Fim da lista de Hooks)
     if (loading) {
         return (
-            <View style={[styles.errorContainer, { backgroundColor: '#1e1e1e', justifyContent: 'center', alignItems: 'center' }]}>
+            <View style={[styles.errorContainer, { backgroundColor: '#1e1e1e' }]}>
                 <Stack.Screen options={{ headerShown: false }} />
-
-                {/* O Spinner/ActivityIndicator */}
-                <ActivityIndicator
-                    size="large"
-                    color="#fff" // Ou a cor principal da tua App (ex: #FFD700 para Gold)
-                    style={{ marginBottom: 15 }}
-                />
-
-                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '500' }}>
-                    {t('exclusiveBeatDetails.loadingBeats')}
-                </Text>
+                <ActivityIndicator size="large" color="#fff" />
+                <Text style={styles.loadingText}>{t('exclusiveBeatDetails.loadingBeats')}</Text>
             </View>
         );
     }
@@ -156,9 +105,6 @@ export default function exclusiveBeatDetailsScreen() {
         );
     }
 
-    // 7. Preparação de Assets (O beat já existe aqui)
-    const isBoughtByCurrentUser = purchasedBeats.some(beat => beat.id === currentExclusiveBeat.id);
-
     const coverSource = (isConnected && currentExclusiveBeat.cover)
         ? { uri: currentExclusiveBeat.cover }
         : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
@@ -167,21 +113,21 @@ export default function exclusiveBeatDetailsScreen() {
         ? { uri: currentExclusiveBeat.artistAvatar }
         : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
-
     return (
         <ImageBackground source={coverSource} blurRadius={Platform.OS === 'android' ? 10 : 0} style={styles.imageBackground}>
             <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill}>
                 <SafeAreaView style={styles.safeArea}>
                     <Stack.Screen options={{ headerShown: false }} />
 
-                    {/* Header */}
                     <View style={styles.headerBar}>
                         <TouchableOpacity onPress={() => router.back()}>
                             <Ionicons name="chevron-back" size={30} color="#fff" />
                         </TouchableOpacity>
                         <View style={styles.artistInfo}>
                             <Image source={artistAvatarSrc} style={styles.profileImage} />
-                            <Text style={styles.artistMainName} numberOfLines={1}>{currentExclusiveBeat.artist}</Text>
+                            <Text style={styles.artistMainName} numberOfLines={1}>
+                                {currentExclusiveBeat.artist}
+                            </Text>
                         </View>
                     </View>
 
@@ -194,43 +140,42 @@ export default function exclusiveBeatDetailsScreen() {
                             <View style={styles.detailsContainer}>
                                 <Text style={styles.title}>{currentExclusiveBeat.title}</Text>
                                 <Text style={styles.artistName}>{currentExclusiveBeat.artist}</Text>
-                                <Text style={styles.detailText}>{currentExclusiveBeat.typeUse} • {currentExclusiveBeat.bpm} BPM</Text>
                                 <Text style={styles.detailText}>
-                                    {currentExclusiveBeat.category} • {currentExclusiveBeat.createdAt || t('exclusiveBeatDetails.unknownYear')}
+                                    {currentExclusiveBeat.typeUse} • {currentExclusiveBeat.bpm} BPM
+                                </Text>
+                                <Text style={styles.detailText}>
+                                    {currentExclusiveBeat.category} • {currentExclusiveBeat.releaseYear || t('exclusiveBeatDetails.unknownYear')}
                                 </Text>
                             </View>
                         </TouchableOpacity>
 
-                        {/* Botões de Ação */}
                         <View style={styles.containerBtnActionsRow}>
-                            {isBoughtByCurrentUser ? (
-                                <TouchableOpacity
-                                    style={[styles.buttonBuy, styles.buttonDownload]}
-                                    onPress={() => Alert.alert("Download", "Iniciando...")}
-                                >
-                                    <Ionicons name="download" size={20} color="#fff" style={{ marginRight: 8 }} />
-                                    <Text style={styles.textBuy}>{t('exclusiveBeatDetails.downloadButton')}</Text>
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity style={styles.buttonBuy} onPress={handlePurchase}>
-                                    <Text style={styles.textBuy}>
-                                        {t('exclusiveBeatDetails.buyButton', { price: formattedPrice })}
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
+                            <TouchableOpacity 
+                                style={[
+                                    styles.buttonBuy, 
+                                    !currentExclusiveBeat.isAvailableForSale && { backgroundColor: '#444' }
+                                ]} 
+                                disabled={!currentExclusiveBeat.isAvailableForSale}
+                            >
+                                <Text style={styles.textBuy}>
+                                    {currentExclusiveBeat.isAvailableForSale 
+                                        ? t('exclusiveBeatDetails.buyButton', { price: formattedPrice })
+                                        : t('exclusiveBeatDetails.soldStatus')}
+                                </Text>
+                            </TouchableOpacity>
 
-                            {!isBoughtByCurrentUser && (
-                                <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
-                                    <Ionicons
-                                        name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
-                                        size={24}
-                                        color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
-                                    />
-                                    {currentExclusiveBeat.favoritesCount !== undefined && (
-                                        <Text style={styles.btnActionCountText}>{currentExclusiveBeat.favoritesCount.toLocaleString()}</Text>
-                                    )}
-                                </TouchableOpacity>
-                            )}
+                            <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
+                                <Ionicons
+                                    name={isCurrentBeatFavorited ? 'heart' : 'heart-outline'}
+                                    size={28}
+                                    color={isCurrentBeatFavorited ? '#FF3D00' : '#fff'}
+                                />
+                                {currentExclusiveBeat.favoritesCount !== undefined && (
+                                    <Text style={styles.btnActionCountText}>
+                                        {currentExclusiveBeat.favoritesCount.toLocaleString()}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </SafeAreaView>
@@ -255,6 +200,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+    },
+    loadingText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
+        marginTop: 15,
     },
     errorText: {
         color: 'red',
@@ -291,50 +242,52 @@ const styles = StyleSheet.create({
     },
     viewContent: {
         marginTop: 40,
-        alignItems: 'center', // Centraliza o conteúdo principal
+        alignItems: 'center',
     },
     coverContainer: {
         width: '100%',
-        alignItems: 'center', // Centraliza a imagem da capa
+        alignItems: 'center',
         marginBottom: 20,
     },
     coverImage: {
-        width: 200,
-        height: 200,
+        width: 220,
+        height: 220,
         borderRadius: 12,
         resizeMode: 'stretch',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
         elevation: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 5 },
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
         shadowOpacity: 0.5,
         shadowRadius: 10,
     },
-    // NOVO: Container para as informações textuais
     detailsContainer: {
-        width: '100%', // Ocupa a largura total
-        alignItems: 'center', // Alinha o texto à esquerda
+        width: '100%',
+        alignItems: 'center',
         marginBottom: 20,
-        paddingHorizontal: 10, // Um pouco de padding lateral para o texto
+        paddingHorizontal: 10,
     },
     title: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: 'bold',
         color: '#fff',
-        textAlign: 'left', // Alinhado à esquerda
+        textAlign: 'center',
         marginBottom: 5,
     },
     artistName: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#aaa',
-        textAlign: 'left', // Alinhado à esquerda
+        textAlign: 'center',
         marginBottom: 3,
     },
     detailText: {
         fontSize: 15,
         color: '#bbb',
-        textAlign: 'left', // Alinhado à esquerda
+        textAlign: 'center',
         marginBottom: 3,
     },
     actionButtonsRow: {
@@ -343,32 +296,28 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonBuy: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 25,
         marginHorizontal: 10,
         backgroundColor: '#1565C0',
     },
     textBuy: {
         color: '#fff',
-        fontSize: 19,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 17,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '600',
     },
     containerBtnActionsRow: {
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 5,
-        gap: 10,
+        paddingVertical: 10,
+        gap: 15,
     },
     btnActionCountText: {
         color: '#fff',
-        fontSize: 15,
+        fontSize: 16,
         marginLeft: 6,
     },
     backButton: {
@@ -378,12 +327,5 @@ const styles = StyleSheet.create({
     backButtonText: {
         color: '#fff',
         fontSize: 16,
-    },
-    buttonDownload: {
-        backgroundColor: '#4CAF50', // Por exemplo, verde para download
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        //flex: 1, // Para que ele preencha o espaço quando o botão Curtir estiver oculto
     },
 });

@@ -11,18 +11,21 @@ const persistConfig = {
 
     'followedArtists',
     'favoriteSingles',
-    'favoriteBeats',
-    'favoriteAlbums',
     'favoriteEPs',
+    'favoriteAlbums',
+
+    'favoriteExclusiveBeats',
+    'favoriteFreeBeats',
+    'purchasesExclusiveBeats',
+
 
     'network',
     'notifications',
     'promotions',
-    'purchases',
-    'beatStore',
+
+   
     'wallet',
     'library',
-    'beatstore',
     'profile',
     'promoteTabs',
     'drafts',

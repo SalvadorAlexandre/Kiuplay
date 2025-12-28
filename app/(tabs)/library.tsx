@@ -30,6 +30,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getLibraryFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
 import { feedStyles as styles } from '@/components/navigation';
+import { EmptyState } from '@/components/ListEmptyComponent';
 
 export default function LibraryScreen() {
 
@@ -149,27 +150,12 @@ export default function LibraryScreen() {
                         // Se estiver a carregar a primeira página, não mostramos a mensagem de vazio
                         if (isLoading && page === 1) return null;
                         return (
-                            <View style={styles.emptyContainer}>
-                                <Ionicons
-                                    name={error ? "cloud-offline-outline" : "search-outline"}
-                                    size={64}
-                                    color="rgba(255, 255, 255, 0.3)"
-                                />
-                                <Text style={styles.emptyText}>
-                                    {error ? t('alerts.noCloudFeedContent') : t('alerts.noResultsFound')}
-                                </Text>
-
-                                <TouchableOpacity
-                                    style={styles.retryButton}
-                                    onPress={handleRetry}
-                                    activeOpacity={0.7}
-                                >
-                                    <Ionicons name="refresh" size={18} color="#fff" style={{ marginRight: 8 }} />
-                                    <Text style={styles.retryButtonText}>
-                                        {t('common.retry')}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
+                            <EmptyState
+                                icon={error ? 'file-tray-outline' : 'search-outline'}
+                                message={error ? error : t('alerts.noBeatsInFeed')}
+                                onRetry={error ? handleRetry : undefined}
+                                retryLabel={t('common.retry')}
+                            />
                         );
                     }}
                     onEndReached={() => {

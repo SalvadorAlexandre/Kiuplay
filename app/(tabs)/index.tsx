@@ -1,6 +1,6 @@
 // app/(tabs)/profile.tsx
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { selectCurrentUserId, selectUserById, setUser } from '@/src/redux/userSessionAndCurrencySlice';
@@ -10,53 +10,30 @@ import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
 
+import { EmptyState } from '@/components/ListEmptyComponent';
+import { userApi, getMyContentPaginated } from '@/src/api';
+
 import { setProfileActiveTab, ProfileTabKey } from '@/src/redux/persistTabProfile';
 import { useMonetizationFlow } from '@/hooks/useMonetizationFlow'; //Hook do kiuplay wallet
-import { userApi } from '@/src/api';
 import { profileStyles as styles } from '@/components/navigation/styles/ProfileStyle';
 import { ProfileHeader } from '@/components/navigation/ProfileHeader';
 import {
-  ScrollView,
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Animated,
-  FlatList,
-  Alert,
-  ActivityIndicator,
+  View, Text, Image, TouchableOpacity, Animated, FlatList, ActivityIndicator,
 } from 'react-native';
 import {
-  SingleCard,
-  AlbumCard,
-  EpCard,
-  ArtistCard,
-  ExclusiveBeatCard,
-  FreeBeatCard
+  SingleCard, AlbumCard, EpCard, ArtistCard, ExclusiveBeatCard, FreeBeatCard
 } from '@/components/cardsItems';
 import {
-  Single,
-  Album,
-  ExtendedPlayEP,
-  ArtistProfile,
-  ProfileItem,
-  ExclusiveBeat,
-  PurchasedBeat,
-  FreeBeat
+  Single, Album, ExtendedPlayEP, ArtistProfile, ProfileItem, ExclusiveBeat, PurchasedBeat, FreeBeat
 } from '@/src/types/contentType';
 
 
 export default function ProfileScreen() {
 
-  interface Beat {
-    id: string;
-  }
-
   // Estado que controla o carregamento visual
   const [refreshing, setRefreshing] = useState(false);
   const { handleWalletAccess } = useMonetizationFlow();
-  const isConnected = useAppSelector((state) => state.network.isConnected);
+
   const { t, } = useTranslation();
   const dispatch = useAppDispatch();
   const { isPlaying, isLoading, } = useAppSelector((state) => state.player);
@@ -64,13 +41,22 @@ export default function ProfileScreen() {
   const [isProfileModalVisible, setProfileModalVisible] = React.useState(false);
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
+
+  const isConnected = useAppSelector((state) => state.network.isConnected);
   const currentUserId = useAppSelector(selectCurrentUserId);
   const userProfile = useAppSelector(selectUserById(currentUserId!));
-  const purchasedBeats = useAppSelector((state) => state.purchases.items);
-  const soldBeatIds: string[] = useAppSelector((state) => state.purchases.items.map(beat => beat.id));
-  // Garante que 'userProfile.exclusiveBeats' seja um array antes de chamar '.filter'
-  const exclusiveBeatsForSale = (userProfile.exclusiveBeats ?? [])
-    .filter((beat: Beat) => !soldBeatIds.includes(beat.id));
+  // 1. Onde vamos guardar os itens acumulados (paginados)
+  const [items, setItems] = useState<any[]>([]);
+
+  // 2. Controle de página e carregamento
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Defina um limite fixo por página
+  const LIMIT = 10;
+
 
   // Hooks para os botões de animação (mantidos do seu código original)
   const [scaleValueConfig] = useState(new Animated.Value(1));
@@ -94,6 +80,72 @@ export default function ProfileScreen() {
     { key: 'exclusiveBeatsForSale', label: t('tabs.exclusiveBeatsForSale') },
     { key: 'freeBeats', label: t('tabs.freeBeats') },
   ];
+
+  const getBackendType = (tab: ProfileTabKey) => {
+    switch (tab) {
+      case 'single': return 'singles';
+      case 'extendedPlay': return 'eps';
+      case 'album': return 'albums';
+      case 'purchasedBeats': return 'purchasedBeats';
+      case 'exclusiveBeatsForSale': return 'exclusiveBeats';
+      case 'freeBeats': return 'freeBeats';
+      default: return 'singles';
+    }
+  };
+
+  const fetchData = useCallback(async (pageToLoad: number) => {
+    // 1. Prepara os estados antes de começar
+    if (pageToLoad === 1) {
+      setRefreshing(true);
+    } else {
+      setIsLoadingMore(true);
+    }
+    setError(null);
+
+    try {
+      // 2. Chama a API (usa o helper que criamos no passo anterior para o type)
+      const backendType = getBackendType(activeTab);
+      const response = await getMyContentPaginated(backendType, pageToLoad, LIMIT);
+
+      if (response.success) {
+        // 3. Se for a página 1, substituímos tudo. Se for página 2+, concatenamos.
+        setItems(prev => (pageToLoad === 1 ? response.data : [...prev, ...response.data]));
+
+        // 4. Atualizamos se ainda existem mais páginas no servidor
+        setHasMore(pageToLoad < response.totalPages);
+        setPage(pageToLoad);
+      } else {
+        setError(response.error || "Erro ao carregar conteúdo.");
+      }
+    } catch (err) {
+      setError("Não foi possível conectar ao servidor.");
+      console.error(err);
+    } finally {
+      setRefreshing(false);
+      setIsLoadingMore(false);
+    }
+  }, [activeTab]); // Depende apenas da aba ativa
+
+  // 1. Efeito para carregar a página 1 sempre que a aba mudar
+  useEffect(() => {
+    fetchData(1);
+  }, [activeTab, fetchData]);
+
+
+
+  // 3. Função para o Infinite Scroll (quando chegar ao fim da lista)
+  const handleLoadMore = () => {
+    // Só carrega mais se: não estiver carregando, houver mais páginas e não houver erro
+    if (!isLoadingMore && hasMore && !error) {
+      fetchData(page + 1);
+    }
+  };
+
+  // 4. Função para tentar novamente em caso de erro (passada para o EmptyState)
+  const handleRetry = () => {
+    fetchData(page);
+  };
+
 
   const getDynamicAvatarSource = () => {
     if (isConnected === false || !userProfile.avatar || userProfile.avatar.trim() === "") {
@@ -122,35 +174,6 @@ export default function ProfileScreen() {
     }
   }, [dispatch]);
 
-  //Logica para carrar lista de audio no player baseando se na aba ativa
-  const getTracksForActiveTab = () => {
-    switch (activeTab) {
-      case "single":
-        return userProfile.singles;
-      case "exclusiveBeatsForSale": // 🛑 Novo case para a aba A VENDA
-        return exclusiveBeatsForSale;
-      case "freeBeats":
-        return userProfile.freeBeats;
-      default:
-        // Se o utilizador estiver noutra aba → usa Singles como padrão
-        return userProfile.singles;
-    }
-  };
-
-  const handlePlayFromTab = useCallback(() => {
-    const tracks = getTracksForActiveTab() as ExclusiveBeat[] | any; // Tipo corrigido
-
-    if (!tracks || tracks.length === 0) {
-      Alert.alert("Erro", "Não há faixas disponíveis nesta aba.");
-      return;
-    }
-
-    dispatch(setPlaylistAndPlayThunk({
-      newPlaylist: tracks,
-      startIndex: 0,
-      shouldPlay: true,
-    }));
-  }, [dispatch, activeTab, userProfile, exclusiveBeatsForSale]);
 
   const getActiveData = () => {
     // Garantimos que trabalhamos com arrays, mesmo que nulos
@@ -187,7 +210,7 @@ export default function ProfileScreen() {
             item={singleItem}
             onPress={(selected) =>
               router.push({
-                pathname: '/',
+                pathname: '/detailsProfileScreens/single-details/[id]',
                 params: { id: selected.id },
               })
             }
@@ -201,7 +224,7 @@ export default function ProfileScreen() {
             item={epItem}
             onPress={(selected) =>
               router.push({
-                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+                pathname: '/detailsProfileScreens/ep-details/[id]',
                 params: { id: selected.id },
               })
             }
@@ -214,8 +237,8 @@ export default function ProfileScreen() {
           <AlbumCard
             item={albumItem}
             onPress={(selected) =>
-             router.push({
-                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+              router.push({
+                pathname: '/detailsProfileScreens/album-details/[id]',
                 params: { id: selected.id },
               })
             }
@@ -243,7 +266,7 @@ export default function ProfileScreen() {
             item={exclusiveItem}
             onPress={(selected) =>
               router.push({
-                pathname: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]',
+                pathname: '/detailsProfileScreens/exclusiveBeatForSale-details/[id]',
                 params: { id: selected.id },
               })
             }
@@ -257,7 +280,7 @@ export default function ProfileScreen() {
             item={freeItem}
             onPress={(selected) =>
               router.push({
-                pathname: '/TabProfileBeatScreens/FreeBeat/[id]',
+                pathname: '/detailsProfileScreens/freeBeat-details/[id]',
                 params: { id: selected.id },
               })
             }
@@ -273,8 +296,8 @@ export default function ProfileScreen() {
     <>
       <View style={{ flex: 1, backgroundColor: '#191919' }}>
         <FlatList
-          data={getActiveData()}
-          keyExtractor={(item) => item.id.toString()}
+          data={items}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={renderDynamicItem} // Função que escolhe o Card (SingleCard, EpCard, etc)
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
@@ -293,11 +316,29 @@ export default function ProfileScreen() {
               openProfileModal={openProfileModal}
             />
           }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.texto}>{t(`profile.empty${activeTab}`)}</Text>
-            </View>
-          }
+          ListEmptyComponent={() => {
+            if (refreshing && page === 1) return null;
+            return (
+              <EmptyState
+                icon={error ? 'file-tray-outline' : 'search-outline'}
+                message={error ? error : t('alerts.noBeatsInFeed')}
+                onRetry={error ? handleRetry : undefined}
+                retryLabel={t('common.retry')}
+              />
+            )
+          }}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          removeClippedSubviews={true}
+          stickyHeaderIndices={[0]}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={() => (
+            isLoadingMore ? (
+              <View style={{ paddingVertical: 20 }}>
+                <ActivityIndicator size="small" color="#FFF" />
+              </View>
+            ) : <View style={{ height: 40 }} /> // Espaçamento extra no fim
+          )}
           contentContainerStyle={{ paddingBottom: 20 }}
         />
       </View>

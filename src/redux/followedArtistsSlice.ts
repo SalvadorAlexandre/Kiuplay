@@ -38,9 +38,13 @@ const followedArtistsSlice = createSlice({
         setFollowedArtists: (state, action: PayloadAction<FollowedArtist[]>) => {
             state.artists = action.payload;
         },
+        clearFollowedArtists: () => initialState,
     },
 });
 
-export const { addFollowedArtist, removeFollowedArtist, setFollowedArtists } = followedArtistsSlice.actions;
+export const { addFollowedArtist, removeFollowedArtist, setFollowedArtists, clearFollowedArtists} = followedArtistsSlice.actions;
 
 export default followedArtistsSlice.reducer;
+
+
+

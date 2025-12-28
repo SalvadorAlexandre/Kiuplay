@@ -1,4 +1,4 @@
-// app/contentCardBeatStoreScreens/freeBeat-details/[id].tsx
+// app/detailsBeatStoreScreens/freeBeat-details/[id].tsx
 import React, { useCallback, useState, useEffect } from 'react';
 import {
     View,
@@ -15,7 +15,7 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice';
+import { toggleFavoriteFreeBeat } from '@/src/redux/favoriteFreeBeatsSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 import { FreeBeat } from '@/src/types/contentType';
@@ -33,7 +33,9 @@ export default function feeBeatDetailsScreen() {
     const [loading, setLoading] = useState(true);
 
     // 2. Seletores Redux (Devem estar no topo)
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    // Altere de:
+
+    const favoriteFreeBeats = useAppSelector((state) => state.favoriteFreeBeats.items);
     const isConnected = useAppSelector((state) => state.network.isConnected);
 
     // 3. Efeito de Busca (useEffect)
@@ -63,18 +65,13 @@ export default function feeBeatDetailsScreen() {
 
     // 4. Lógica derivada
     const isCurrentSingleFavorited = currentFreeBeat
-        ? favoritedMusics.some((music) => music.id === currentFreeBeat.id)
-        : false;
-
-    // 5. Handlers (useCallback - ANTES dos returns)
+    
+    // Handler atualizado
     const handleToggleFavorite = useCallback(() => {
         if (!currentFreeBeat) return;
-        if (isCurrentSingleFavorited) {
-            dispatch(removeFavoriteMusic(currentFreeBeat.id));
-        } else {
-            dispatch(addFavoriteMusic(currentFreeBeat));
-        }
-    }, [dispatch, currentFreeBeat, isCurrentSingleFavorited]);
+        // O toggle resolve tudo: se existe remove, se não existe adiciona
+        dispatch(toggleFavoriteFreeBeat(currentFreeBeat));
+    }, [dispatch, currentFreeBeat]);
 
     const handlePlaySingle = useCallback(async () => {
         if (!currentFreeBeat?.uri) {

@@ -15,14 +15,12 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 import { ExclusiveBeat } from '@/src/types/contentType';
 import { getBeatById } from '@/src/api'; // Certifique-core que este import está correto
 import { useTranslation } from '@/src/translations/useTranslation';
 import { formatBeatPrice } from '@/hooks/useFormatBeatPrice';
-import { processBeatPurchaseThunk } from '@/src/redux/beatPurchaseThunks';
 
 export default function exclusiveBeatDetailsScreen() {
     const { t } = useTranslation();
@@ -31,8 +29,6 @@ export default function exclusiveBeatDetailsScreen() {
     const dispatch = useAppDispatch();
 
     // 1. Seletores Redux (Devem estar no topo)
-    const purchasedBeats = useAppSelector((state) => state.purchases.items);
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
     const isConnected = useAppSelector((state) => state.network.isConnected);
 
     // 2. Estados (Devem estar no topo)
@@ -65,11 +61,7 @@ export default function exclusiveBeatDetailsScreen() {
         fetchBeat();
     }, [id]);
 
-    // 4. Lógica derivada (Memoização e Variáveis de apoio)
-    // Nota: Precisamos de verificações de segurança aqui porque o beat pode ser null inicialmente
-    const isCurrentSingleFavorited = currentExclusiveBeat
-        ? favoritedMusics.some(music => music.id === currentExclusiveBeat.id)
-        : false;
+   
 
     const formattedPrice = currentExclusiveBeat
         ? formatBeatPrice(
@@ -78,16 +70,6 @@ export default function exclusiveBeatDetailsScreen() {
             currentExclusiveBeat.currency || 'USD'
         )
         : "";
-
-    // 5. Handlers (useCallback deve estar ANTES dos returns condicionais)
-    const handleToggleFavorite = useCallback(() => {
-        if (!currentExclusiveBeat) return;
-        if (isCurrentSingleFavorited) {
-            dispatch(removeFavoriteMusic(currentExclusiveBeat.id));
-        } else {
-            dispatch(addFavoriteMusic(currentExclusiveBeat));
-        }
-    }, [dispatch, currentExclusiveBeat, isCurrentSingleFavorited]);
 
     const handlePlaySingle = useCallback(async () => {
         if (!currentExclusiveBeat?.uri) {
@@ -101,29 +83,7 @@ export default function exclusiveBeatDetailsScreen() {
         }));
     }, [dispatch, currentExclusiveBeat, t]);
 
-    const handlePurchase = useCallback(() => {
-        if (!currentExclusiveBeat) return;
-
-        const performPurchase = () => {
-            dispatch(processBeatPurchaseThunk(currentExclusiveBeat))
-                .unwrap()
-                .then(() => Alert.alert(t('exclusiveBeatDetails.purchaseSuccessTitle'), t('exclusiveBeatDetails.purchaseSuccessMessage')))
-                .catch(() => Alert.alert("Falha na Compra", "Tente novamente."));
-        };
-
-        Alert.alert(
-            t("exclusiveBeatDetails.purchaseConfirmTitle"),
-            t('exclusiveBeatDetails.confirmPurchaseMessage', {
-                title: currentExclusiveBeat.title,
-                price: formattedPrice,
-            }),
-            [
-                { text: t('exclusiveBeatDetails.cancel'), style: 'cancel' },
-                { text: t('exclusiveBeatDetails.confirm'), onPress: performPurchase },
-            ]
-        );
-    }, [dispatch, currentExclusiveBeat, formattedPrice, t]);
-
+   
     // 6. AGORA SIM: Verificações condicionais de renderização (Fim da lista de Hooks)
     if (loading) {
         return (
@@ -156,9 +116,7 @@ export default function exclusiveBeatDetailsScreen() {
         );
     }
 
-    // 7. Preparação de Assets (O beat já existe aqui)
-    const isBoughtByCurrentUser = purchasedBeats.some(beat => beat.id === currentExclusiveBeat.id);
-
+  
     const coverSource = (isConnected && currentExclusiveBeat.cover)
         ? { uri: currentExclusiveBeat.cover }
         : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
@@ -203,34 +161,34 @@ export default function exclusiveBeatDetailsScreen() {
 
                         {/* Botões de Ação */}
                         <View style={styles.containerBtnActionsRow}>
-                            {isBoughtByCurrentUser ? (
-                                <TouchableOpacity
-                                    style={[styles.buttonBuy, styles.buttonDownload]}
-                                    onPress={() => Alert.alert("Download", "Iniciando...")}
-                                >
-                                    <Ionicons name="download" size={20} color="#fff" style={{ marginRight: 8 }} />
-                                    <Text style={styles.textBuy}>{t('exclusiveBeatDetails.downloadButton')}</Text>
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity style={styles.buttonBuy} onPress={handlePurchase}>
-                                    <Text style={styles.textBuy}>
-                                        {t('exclusiveBeatDetails.buyButton', { price: formattedPrice })}
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
 
-                            {!isBoughtByCurrentUser && (
-                                <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
+                            <TouchableOpacity
+                                style={[styles.buttonBuy, styles.buttonDownload]}
+                                onPress={() => Alert.alert("Download", "Iniciando...")}
+                            >
+                                <Ionicons name="download" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                <Text style={styles.textBuy}>{t('exclusiveBeatDetails.downloadButton')}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.buttonBuy} >
+                                <Text style={styles.textBuy}>
+                                    {t('exclusiveBeatDetails.buyButton', { price: formattedPrice })}
+                                </Text>
+                            </TouchableOpacity>
+
+
+                        
+                                <TouchableOpacity style={styles.actionButtonsRow} >
                                     <Ionicons
-                                        name={isCurrentSingleFavorited ? 'heart' : 'heart-outline'}
+                                        name={ 'heart' }
                                         size={24}
-                                        color={isCurrentSingleFavorited ? '#FF3D00' : '#fff'}
+                                        color={ '#FF3D00' }
                                     />
                                     {currentExclusiveBeat.favoritesCount !== undefined && (
                                         <Text style={styles.btnActionCountText}>{currentExclusiveBeat.favoritesCount.toLocaleString()}</Text>
                                     )}
                                 </TouchableOpacity>
-                            )}
+                       
                         </View>
                     </View>
                 </SafeAreaView>

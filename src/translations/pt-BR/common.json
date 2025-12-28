@@ -110,7 +110,7 @@
     "alerts": {
         "error": "Erro",
         "noTracksAvailable": "Nenhuma faixa disponível nesta aba.",
-        "noBeatsInFeed": "Nenhum beat nos feeds da Loja.",
+        "noBeatsInFeed": "Algo deu errado ao tentar carregar o conteúdo.",
         "noLikedBeats": "Nenhum beat curtido ainda na Loja.",
         "noFollowedArtists": "Você ainda não segue nenhum artista.",
         "foldersUnavailable": "Pastas indisponíveis...",

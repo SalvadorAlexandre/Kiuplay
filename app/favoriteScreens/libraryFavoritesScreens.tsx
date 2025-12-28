@@ -1,138 +1,145 @@
 //app/favoriteScreens/libraryFavoritesScreens
+import React, { useState, useMemo } from 'react';
+import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { useRouter, Stack } from 'expo-router';
+import { useAppSelector } from '@/src/redux/hooks';
+import { useTranslation } from '@/src/translations/useTranslation';
 
-import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Stack, useRouter, Href } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import LibraryContentCard from '@/components/cardsItems/LibraryItem/LibraryContentCard';
-import { LibraryFavoritesFeedItem } from '@/src/types/contentType'; // Usando a nova União
+// Componentes
+import { LibraryFavoritesHeader } from '@/components/favoritesLibraryBeatHeaders/libraryFavoritesHeader';
+import { SingleCard, AlbumCard, EpCard, ArtistCard } from '@/components/cardsItems';
+
+// Tipos
+import { Single, Album, ExtendedPlayEP, ArtistProfile } from '@/src/types/contentType';
 
 export default function LibraryFavoritesScreen() {
-    const router = useRouter();
     const { t } = useTranslation();
+    const router = useRouter();
 
-    // 1. Ajustado para 'items' conforme o novo favoriteMusicSlice
-    const favoritedItems = useAppSelector((state) => state.favoriteMusic.items);
+    // 1. Definição das Abas (IDs técnicos para facilitar o switch)
+    const tabs = [
+        t('favorites.tabs.artists'),
+        t('favorites.tabs.singles'),
+        t('favorites.tabs.eps'),
+        t('favorites.tabs.albums'),
+    ];
 
-    const [activeFilter, setActiveFilter] = useState<'all' | 'single' | 'album' | 'ep'>('all');
+    const [activeTab, setActiveTab] = useState(tabs[0]);
 
-    // 2. Filtragem dinâmica com a tipagem correta
-    // O operador '|| []' garante que se favoritedItems for undefined, o código não quebra
-    const filteredData = (favoritedItems || []).filter(item => {
-        // Adicionamos também uma verificação no 'item' para evitar erros de leitura de propriedade
-        if (!item) return false;
-        return activeFilter === 'all' ? true : item.category === activeFilter;
-    });
+    // 2. Seleção de dados do Redux (Ajuste os caminhos conforme seu store)
 
-    const handleItemPress = useCallback((item: LibraryFavoritesFeedItem) => {
-        const pathnames: Record<LibraryFavoritesFeedItem['category'], string> = {
-            single: "/contentCardLibraryScreens/single-details/[id]",
-            album: "/contentCardLibraryScreens/album-details/[id]",
-            ep: "/contentCardLibraryScreens/ep-details/[id]",
-        };
 
-        const targetPath = pathnames[item.category];
+    // 2. Seleção de dados do Redux ajustada aos seus Slices
+    const followedArtists = useAppSelector((state) => state.followedArtists.artists); 
+    const favoriteSingles = useAppSelector((state) => state.favoriteSingles.items);  
+    const favoriteEps = useAppSelector((state) => state.favoriteEPs.items);      
+    const favoriteAlbums = useAppSelector((state) => state.favoriteAlbums.items); 
 
-        if (targetPath) {
-            // Criamos o objeto de navegação
-            const route = {
-                pathname: targetPath,
-                params: { id: item.id }
-            };
 
-            // Forçamos o push a aceitar o objeto como um Href genérico
-            router.push(route as any);
+    // 3. Filtragem de dados baseada na aba ativa
+    const activeData = useMemo(() => {
+        if (activeTab === tabs[0]) return followedArtists;
+        if (activeTab === tabs[1]) return favoriteSingles;
+        if (activeTab === tabs[2]) return favoriteEps;
+        if (activeTab === tabs[3]) return favoriteAlbums;
+        return [];
+    }, [activeTab, followedArtists, favoriteSingles, favoriteEps, favoriteAlbums]);
+
+    // 4. Renderização Dinâmica com Type Casting
+    const renderItem = ({ item }: { item: any }) => {
+        if(!item) return null;
+        
+        if (activeTab === tabs[0]) {
+            return (
+                <ArtistCard
+                    item={item as ArtistProfile}
+                    onPress={(id) => router.push(`/detailsLibraryScreens/artist-profile/${id}`)}
+                />
+            );
         }
-    }, [router]);
 
-    const FilterButton = ({ type, label }: { type: typeof activeFilter, label: string }) => (
-        <TouchableOpacity
-            style={[styles.filterBtn, activeFilter === type && styles.filterBtnActive]}
-            onPress={() => setActiveFilter(type)}
-            activeOpacity={0.8}
-        >
-            <Text style={[styles.filterText, activeFilter === type && styles.filterTextActive]}>
-                {label}
-            </Text>
-        </TouchableOpacity>
-    );
+        if (activeTab === tabs[1]) {
+            return (
+                <SingleCard
+                    item={item as Single}
+                    onPress={(s) => router.push(`/detailsLibraryScreens/single-details/${s.id}`)}
+                />
+            );
+        }
+
+        if (activeTab === tabs[2]) {
+            return (
+                <EpCard
+                    item={item as ExtendedPlayEP}
+                    onPress={(e) => router.push(`/detailsLibraryScreens/ep-details/${e.id}`)}
+                />
+            );
+        }
+
+        if (activeTab === tabs[3]) {
+            return (
+                <AlbumCard
+                    item={item as Album}
+                    onPress={(a) => router.push(`/detailsLibraryScreens/album-details/${a.id}`)}
+                />
+            );
+        }
+
+        return null;
+    };
+
 
     return (
         <View style={styles.container}>
-            <Stack.Screen
-                options={{
-                    title: t('favorites.title'),
-                    headerShown: true,
-                    headerTintColor: '#fff',
-                    headerStyle: { backgroundColor: '#000' },
-                    headerBackTitle: t('common.back'),
-                }}
-            />
-
-            <View style={styles.filterBar}>
-                <FilterButton type="all" label={t('common.all')} />
-                <FilterButton type="single" label="Singles" />
-                <FilterButton type="ep" label="EPs" />
-                <FilterButton type="album" label="Álbuns" />
-            </View>
+            <Stack.Screen options={{ headerShown: false }} />
 
             <FlatList
-                data={filteredData}
-                keyExtractor={(item) => `${item.category}-${item.id}`} // Chave composta para segurança
+                data={activeData}
+                keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                //keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
                 numColumns={2}
                 columnWrapperStyle={styles.columnWrapper}
-                renderItem={({ item }) => (
-                    <LibraryContentCard
-                        item={item as any} // Cast temporário para o componente aceitar a União
-                        onPress={() => handleItemPress(item)}
+                // Usamos a aba como key para resetar o layout da FlatList ao trocar de categoria
+                key={activeTab}
+                ListHeaderComponent={
+                    <LibraryFavoritesHeader
+                        title={t('favorites.libraryTitle')}
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        onTabPress={setActiveTab}
+                        onBack={() => router.back()}
                     />
-                )}
-                ListEmptyComponent={() => (
+                }
+                ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <Ionicons name="heart-outline" size={80} color="rgba(255,255,255,0.1)" />
-                        <Text style={styles.emptyText}>
-                            {activeFilter === 'all'
-                                ? t('alerts.noFavoritesYet')
-                                : t('alerts.noFavoritesCategory', { category: activeFilter.toUpperCase() })}
-                        </Text>
-                        <TouchableOpacity style={styles.exploreBtn} onPress={() => router.replace('/(tabs)/library')}>
-                            <Text style={styles.exploreBtnText}>{t('common.explore')}</Text>
-                        </TouchableOpacity>
+                        <Text style={styles.emptyText}>{t('favorites.emptyMessage')}</Text>
                     </View>
-                )}
-                contentContainerStyle={styles.listContent}
-                removeClippedSubviews={Platform.OS === 'android'}
+                }
+                contentContainerStyle={{ paddingBottom: 30 }}
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#000' },
-    filterBar: {
-        flexDirection: 'row',
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        backgroundColor: '#000',
+    container: {
+        flex: 1,
+        backgroundColor: '#191919',
     },
-    filterBtn: {
-        paddingHorizontal: 18,
-        paddingVertical: 8,
-        borderRadius: 20,
-        marginRight: 10,
-        backgroundColor: '#1A1A1A',
-        borderWidth: 1,
-        borderColor: '#333'
+    columnWrapper: {
+        justifyContent: 'space-between',
+        paddingHorizontal: 15,
+        marginTop: 15,
     },
-    filterBtnActive: { backgroundColor: '#fff', borderColor: '#fff' },
-    filterText: { color: '#AAA', fontSize: 13, fontWeight: '700' },
-    filterTextActive: { color: '#000' },
-    columnWrapper: { justifyContent: 'space-between', paddingHorizontal: 12 },
-    listContent: { paddingBottom: 120, paddingTop: 10 },
-    emptyContainer: { flex: 1, marginTop: 150, alignItems: 'center', paddingHorizontal: 50 },
-    emptyText: { color: '#666', textAlign: 'center', marginTop: 20, fontSize: 16, lineHeight: 24 },
-    exploreBtn: { marginTop: 30, backgroundColor: '#fff', paddingVertical: 14, paddingHorizontal: 40, borderRadius: 30 },
-    exploreBtnText: { color: '#000', fontWeight: '800', fontSize: 14 }
+    emptyContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 100,
+    },
+    emptyText: {
+        color: '#666',
+        fontSize: 16,
+    },
 });

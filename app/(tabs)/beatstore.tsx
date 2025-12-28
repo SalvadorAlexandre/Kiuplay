@@ -17,16 +17,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { getBeatStoreFeed } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
 import { feedStyles as styles } from '@/components/navigation';
-import {
-    FreeBeatCard,
-    ExclusiveBeatCard
-} from '@/components/cardsItems';
-import {
-    FreeBeat,
-    ExclusiveBeat,
-    BeatStoreFeedItem
-} from '@/src/types/contentType';
-
+import { FreeBeatCard, ExclusiveBeatCard } from '@/components/cardsItems';
+import { FreeBeat, ExclusiveBeat, BeatStoreFeedItem } from '@/src/types/contentType';
+import { EmptyState } from '@/components/ListEmptyComponent';
 
 export default function BeatStoreScreen() {
 
@@ -126,12 +119,12 @@ export default function BeatStoreScreen() {
                     stickyHeaderIndices={[0]}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }: { item: BeatStoreFeedItem }) => {
-                        switch (item.category) {
+                        switch (item.typeUse) {
 
-                            case 'freebeat':
+                            case 'free':
                                 return <FreeBeatCard item={item as FreeBeat} onPress={handleBeatStoreItemPress} />;
 
-                            case 'exclusivebeat':
+                            case 'exclusive':
                                 return <ExclusiveBeatCard item={item as ExclusiveBeat} onPress={handleBeatStoreItemPress} />;
 
                             default:
@@ -139,36 +132,18 @@ export default function BeatStoreScreen() {
                                 return null;
                         }
                     }}
-
                     ListEmptyComponent={() => {
                         // Se estiver carregando a primeira página, não mostramos nada (deixa o centerLoader agir)
                         if (isLoading && page === 1) return null;
-
                         return (
-                            <View style={styles.emptyContainer}>
-                                <Ionicons
-                                    name={error ? "cloud-offline-outline" : "search-outline"}
-                                    size={64}
-                                    color="rgba(255, 255, 255, 0.3)"
-                                />
-                                <Text style={styles.emptyText}>
-                                    {error ? error : t('alerts.noBeatsInFeed')}
-                                </Text>
-
-                                <TouchableOpacity
-                                    style={styles.retryButton}
-                                    onPress={handleRetry}
-                                    activeOpacity={0.7}
-                                >
-                                    <Ionicons name="refresh" size={18} color="#fff" style={{ marginRight: 8 }} />
-                                    <Text style={styles.retryButtonText}>
-                                        {t('common.retry')}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
+                            <EmptyState
+                                icon={error ? 'file-tray-outline' : 'search-outline'}
+                                message={error ? error : t('alerts.noBeatsInFeed')}
+                                onRetry={error ? handleRetry : undefined}
+                                retryLabel={t('common.retry')}
+                            />
                         );
                     }}
-                    
                     onEndReached={() => {
                         // Mantendo a lógica de paginação segura
                         if (hasMore && !isLoading && feedData.length >= 20) {

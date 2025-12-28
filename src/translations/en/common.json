@@ -106,7 +106,7 @@
   "alerts": {
     "error": "Error",
     "noTracksAvailable": "No tracks available in this tab.",
-    "noBeatsInFeed": "No beats in the Beat Store feeds.",
+    "noBeatsInFeed": "It looks like there was an error loading the content.",
     "noLikedBeats": "No liked beats yet in the Beat Store.",
     "noFollowedArtists": "You're not following any artist yet.",
     "foldersUnavailable": "Folders Unavailable...",

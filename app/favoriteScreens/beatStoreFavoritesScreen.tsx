@@ -1,105 +1,112 @@
 //app/favoriteScreens/beatStoreFavoritesScreen
-import React, { useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Stack, useRouter, Href } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+
+import React, { useState, useMemo } from 'react';
+import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { useRouter, Stack } from 'expo-router';
 import { useAppSelector } from '@/src/redux/hooks';
-import BeatStoreMusicItem from '@/components/cardsItems/beatStoreItem/BeatStoreMusicItem'; 
-import { BeatStoreFeedItem } from '@/src/types/contentType';
+import { useTranslation } from '@/src/translations/useTranslation';
 
-export default function BeatStoreFavoritesScreen() {
-  const router = useRouter();
+// Componentes
+import { BeatFavoritesHeader } from '@/components/favoritesLibraryBeatHeaders/BeatFavoritesHeader';
+import { FreeBeatCard, ExclusiveBeatCard } from '@/components/cardsItems';
+
+// Tipos
+import { FreeBeat, ExclusiveBeat } from '@/src/types/contentType';
+
+type BeatTab = 'free' | 'exclusive';
+
+export default function BeatFavoritesScreen() {
   const { t } = useTranslation();
-  
-  // Melhoria: Usamos uma seleção segura para evitar re-renders desnecessários
-  const favoritedBeats = useAppSelector((state) => state.favoriteBeats?.items ?? []);
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<BeatTab>('free');
 
-  const handleBeatPress = useCallback((item: BeatStoreFeedItem) => {
-    router.push({
-      pathname: "/beatStoreScreens/beat-details/[id]" as Href,
-      params: { id: item.id }
-    } as any);
-  }, [router]);
+  // 1. Seletores do Redux (Ajuste os nomes conforme seu store.ts)
+  const favoriteFreeBeats = useAppSelector((state) => state.favoriteFreeBeats?.items || []);
+  const favoriteExclusiveBeats = useAppSelector((state) => state.favoriteExclusiveBeats?.items || []);
 
-  // Melhoria de Performance: Memoizar o renderItem
-  const renderBeatItem = useCallback(({ item }: { item: BeatStoreFeedItem }) => (
-    <BeatStoreMusicItem
-      item={item} 
-      onPress={() => handleBeatPress(item)} 
-    />
-  ), [handleBeatPress]);
+  // 2. Filtra os dados com base na aba ativa e limpa dados nulos/inválidos
+  const activeData = useMemo(() => {
+    const data = activeTab === 'free' ? favoriteFreeBeats : favoriteExclusiveBeats;
+    return data.filter((item: any) => item !== null && item !== undefined);
+  }, [activeTab, favoriteFreeBeats, favoriteExclusiveBeats]);
+
+  // 3. Renderização dos Cards
+  const renderItem = ({ item }: { item: any }) => {
+    if (activeTab === 'free') {
+      return (
+        <FreeBeatCard
+          item={item as FreeBeat}
+          onPress={(b) => router.push(`/detailsBeatStoreScreens/freeBeat-details/${b.id}`)}
+        />
+      );
+    }
+
+    return (
+      <ExclusiveBeatCard
+        item={item as ExclusiveBeat}
+        onPress={(b) => router.push(`/detailsBeatStoreScreens/exclusiveBeat-details/${b.id}`)}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
-        options={{ 
-          title: t('favorites.beats_title') || 'Meus Favoritos', // Titulo corrigido
-          headerTintColor: '#fff',
-          headerStyle: { backgroundColor: '#000' },
-          headerShadowVisible: false, // UI mais limpa (sem linha no header)
-        }} 
-      />
-
+      <Stack.Screen options={{ headerShown: false }} />
+      
       <FlatList
-        data={favoritedBeats}
-        keyExtractor={(item) => `beat-${item.id}`}
-        renderItem={renderBeatItem}
-        // Otimização para Android: melhora o scroll
-        removeClippedSubviews={Platform.OS === 'android'}
-        ListEmptyComponent={() => (
+        data={activeData}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        // A key garante que o layout das colunas seja recalculado se as abas mudarem
+        key={activeTab}
+        ListHeaderComponent={
+          <BeatFavoritesHeader
+            activeTab={activeTab}
+            onTabPress={setActiveTab}
+            t={t}
+          />
+        }
+        ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <View style={styles.iconCircle}>
-                <Ionicons name="musical-notes-outline" size={50} color="#555" />
-            </View>
             <Text style={styles.emptyText}>
-              {t('alerts.noFavoriteBeats') || 'A tua lista de desejos está vazia.'}
+              {activeTab === 'free' 
+                ? t('favorites.empty.freeBeats') 
+                : t('favorites.empty.exclusiveBeats')}
             </Text>
-            <TouchableOpacity 
-              style={styles.exploreBtn} 
-              onPress={() => router.replace('/(tabs)/beatstore')}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.exploreBtnText}>{t('common.browse_beats') || 'Explorar Batidas'}</Text>
-            </TouchableOpacity>
           </View>
-        )}
-        contentContainerStyle={favoritedBeats.length === 0 ? { flex: 1 } : styles.listPadding}
+        }
+        contentContainerStyle={styles.listContent}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  listPadding: { paddingHorizontal: 15, paddingTop: 10, paddingBottom: 100 },
-  emptyContainer: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    paddingHorizontal: 40 
+  container: {
+    flex: 1,
+    backgroundColor: '#191919',
   },
-  iconCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#111',
-    justifyContent: 'center',
+  listContent: {
+    paddingBottom: 40,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    marginTop: 15,
+  },
+  emptyContainer: {
+    flex: 1,
     alignItems: 'center',
-    marginBottom: 20
+    justifyContent: 'center',
+    marginTop: 100,
+    paddingHorizontal: 40,
   },
-  emptyText: { 
-    color: '#888', 
-    textAlign: 'center', 
+  emptyText: {
+    color: '#666',
     fontSize: 16,
-    lineHeight: 22 
+    textAlign: 'center',
+    lineHeight: 22,
   },
-  exploreBtn: { 
-    marginTop: 25, 
-    backgroundColor: '#fff', // Branco destaca-se mais no preto que o verde
-    paddingVertical: 15, 
-    paddingHorizontal: 35, 
-    borderRadius: 30 
-  },
-  exploreBtnText: { color: '#000', fontWeight: 'bold', fontSize: 15 }
 });
