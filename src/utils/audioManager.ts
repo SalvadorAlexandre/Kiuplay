@@ -8,6 +8,7 @@ class AudioManager {
   private sound: Audio.Sound | null;
   private currentLoadedTrack: Track | null; // Adicionado para rastrear a música atualmente carregada
   private playbackStatusUpdateCallback: PlaybackStatusCallback | null;
+  private isCurrentlyLoading: boolean = false;
   // private isSeeking: boolean; // Removido: gerenciado pelo Redux
 
   constructor() {
@@ -25,7 +26,7 @@ class AudioManager {
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
         shouldDuckAndroid: true,
-       // interruptionModeAndroid: Audio.InterruptioNModeAndroid.DoNotDuck,
+        // interruptionModeAndroid: Audio.InterruptioNModeAndroid.DoNotDuck,
         //interruptionModeIOS: Audio.InterruptioNModeIOS.DoNotMixWithOthers,
         playThroughEarpieceAndroid: false,
       });
@@ -91,67 +92,67 @@ class AudioManager {
    * @param shouldPlay Se true, a música será reproduzida imediatamente após o carregamento.
    * @throws Um erro se o track ou URI forem inválidos.
    */
-  public async loadAndPlay(track: Track, shouldPlay: boolean = true): Promise<void> {
-    if (!track || !track.uri) {
-      throw new Error("Track ou URI inválidos para carregar.");
-    }
 
-    // CRÍTICO: Se a mesma música já está carregada e não está em um estado de erro,
-    // apenas ajusta o play/pause sem recarregar.
+
+
+  public async loadAndPlay(track: Track, shouldPlay: boolean = true): Promise<void> {
+    if (!track || !track.uri) throw new Error("Track ou URI inválidos.");
+
+    // 1. Evita recarregar se for a mesma música já pronta
     if (this.currentLoadedTrack && this.currentLoadedTrack.id === track.id) {
       const status = await this.sound?.getStatusAsync();
-      if (status && 'isLoaded' in status && status.isLoaded) {
-        console.log(`AudioManager: Música '${track.title}' já carregada. Apenas ajustando play/pause.`);
-        if (shouldPlay && !status.isPlaying) {
-          await this.sound?.playAsync();
-        } else if (!shouldPlay && status.isPlaying) {
-          await this.sound?.pauseAsync();
-        }
-        return; // Sai da função, não precisa recarregar
-      }
-      // Se não está carregada apesar de ser a mesma ID, procede para recarregar
-    }
-
-    // Se houver um som carregado (e não é a mesma música que acabou de passar na verificação acima), descarregue-o primeiro
-    if (this.sound) {
-      try {
-        console.log("AudioManager: Descarregando áudio anterior...");
-        await this.sound.stopAsync(); // Parar antes de descarregar
-        await this.sound.unloadAsync();
-        this.sound.setOnPlaybackStatusUpdate(null); // Remove o listener do som anterior
-        this.sound = null; // Garante que a referência seja limpa
-        this.currentLoadedTrack = null; // Garante que a track carregada seja limpa
-      } catch (error) {
-        console.warn("AudioManager: Erro ao descarregar áudio anterior, mas prosseguindo com novo carregamento:", error);
+      if (status?.isLoaded) {
+        if (shouldPlay && !status.isPlaying) await this.sound?.playAsync();
+        return;
       }
     }
 
-    //console.log(`AudioManager: Carregando ${track.title || track.title || 'música desconhecida'} (${track.uri})`);
+    // 2. Trava de Segurança: Se já está carregando algo, interrompa.
+    // Em PWAs, é vital garantir que o sound anterior seja descarregado ANTES de criar o novo
+    this.isCurrentlyLoading = true;
+
     try {
+      if (this.sound) {
+        console.log("AudioManager: Limpando rastro do áudio anterior...");
+        // Forçamos o silêncio imediato
+        await this.sound.stopAsync().catch(() => { });
+        await this.sound.unloadAsync().catch(() => { });
+        this.sound.setOnPlaybackStatusUpdate(null);
+        this.sound = null;
+      }
+
+      console.log(`AudioManager: Iniciando carga de '${track.title}'`);
+
+      // 3. Criar o som
       const { sound: newSound } = await Audio.Sound.createAsync(
         typeof track.uri === 'string' ? { uri: track.uri } : track.uri,
         { shouldPlay: shouldPlay, progressUpdateIntervalMillis: 500 },
         this._onPlaybackStatusUpdate
       );
-      this.sound = newSound;
-      this.currentLoadedTrack = track; // Define a música carregada
-      console.log(`AudioManager: Música '${track.title}' carregada com sucesso.`);
 
-      if (shouldPlay) {
-        await this.sound.playAsync();
+      // 4. VERIFICAÇÃO DE ATROPELAMENTO (RACE CONDITION)
+      // Se enquanto carregava, o trackId mudou (clique duplo rápido), descarte este áudio.
+      if (this.currentLoadedTrack && this.currentLoadedTrack.id !== track.id && this.sound !== null) {
+        console.log("AudioManager: Detectado atropelamento de carga. Cancelando áudio antigo.");
+        await newSound.unloadAsync();
+        return;
       }
+
+      this.sound = newSound;
+      this.currentLoadedTrack = track;
+
     } catch (error) {
-      console.error("AudioManager: Erro ao carregar e tocar som:", error);
-      // Em caso de erro, garante que o player esteja limpo
-      if (this.sound) {
-        await this.sound.unloadAsync().catch(() => {}); // Tenta descarregar mesmo com erro
-        this.sound.setOnPlaybackStatusUpdate(null);
-      }
-      this.sound = null;
-      this.currentLoadedTrack = null;
-      throw error; // Re-lança o erro para ser tratado pelo Redux
+      console.error("AudioManager: Falha no carregamento:", error);
+      this.isCurrentlyLoading = false;
+      throw error;
+    } finally {
+      this.isCurrentlyLoading = false;
     }
   }
+
+
+
+
 
   /**
    * Inicia a reprodução do som atual se ele estiver carregado e pausado.
@@ -186,17 +187,24 @@ class AudioManager {
    */
   public async stop(): Promise<void> {
     if (this.sound) {
-      const status = await this.sound.getStatusAsync();
-      if ('isLoaded' in status && status.isLoaded) {
-        console.log("AudioManager: Parando e descarregando áudio.");
-        await this.sound.stopAsync();
-        await this.sound.unloadAsync();
+      try {
+        // 1. Primeiro removemos o callback para o Redux parar de ouvir imediatamente
+        this.sound.setOnPlaybackStatusUpdate(null);
+
+        const status = await this.sound.getStatusAsync();
+        if (status.isLoaded) {
+          await this.sound.stopAsync();
+          await this.sound.unloadAsync();
+        }
+      } catch (e) {
+        console.warn("Erro ao parar:", e);
+      } finally {
+        this.sound = null;
+        this.currentLoadedTrack = null;
       }
-      this.sound.setOnPlaybackStatusUpdate(null); // Remove o listener
-      this.sound = null; // Limpa a referência ao som
-      this.currentLoadedTrack = null; // Limpa a track carregada
     }
   }
+
 
   /**
    * Alterna entre reproduzir e pausar o som atual.
@@ -276,3 +284,91 @@ export const getAudioManager = (): AudioManager => {
   }
   return audioManagerInstance;
 };
+
+
+
+{/**
+    public async stop(): Promise<void> {
+    if (this.sound) {
+      const status = await this.sound.getStatusAsync();
+      if ('isLoaded' in status && status.isLoaded) {
+        console.log("AudioManager: Parando e descarregando áudio.");
+        await this.sound.stopAsync();
+        await this.sound.unloadAsync();
+      }
+      this.sound.setOnPlaybackStatusUpdate(null); // Remove o listener
+      this.sound = null; // Limpa a referência ao som
+      this.currentLoadedTrack = null; // Limpa a track carregada
+    }
+  }
+
+    
+    */}
+
+
+
+
+
+{/**
+     public async loadAndPlay(track: Track, shouldPlay: boolean = true): Promise<void> {
+    if (!track || !track.uri) {
+      throw new Error("Track ou URI inválidos para carregar.");
+    }
+
+    // CRÍTICO: Se a mesma música já está carregada e não está em um estado de erro,
+    // apenas ajusta o play/pause sem recarregar.
+    if (this.currentLoadedTrack && this.currentLoadedTrack.id === track.id) {
+      const status = await this.sound?.getStatusAsync();
+      if (status && 'isLoaded' in status && status.isLoaded) {
+        console.log(`AudioManager: Música '${track.title}' já carregada. Apenas ajustando play/pause.`);
+        if (shouldPlay && !status.isPlaying) {
+          await this.sound?.playAsync();
+        } else if (!shouldPlay && status.isPlaying) {
+          await this.sound?.pauseAsync();
+        }
+        return; // Sai da função, não precisa recarregar
+      }
+      // Se não está carregada apesar de ser a mesma ID, procede para recarregar
+    }
+
+    // Se houver um som carregado (e não é a mesma música que acabou de passar na verificação acima), descarregue-o primeiro
+    if (this.sound) {
+      try {
+        console.log("AudioManager: Descarregando áudio anterior...");
+        await this.sound.stopAsync(); // Parar antes de descarregar
+        await this.sound.unloadAsync();
+        this.sound.setOnPlaybackStatusUpdate(null); // Remove o listener do som anterior
+        this.sound = null; // Garante que a referência seja limpa
+        this.currentLoadedTrack = null; // Garante que a track carregada seja limpa
+      } catch (error) {
+        console.warn("AudioManager: Erro ao descarregar áudio anterior, mas prosseguindo com novo carregamento:", error);
+      }
+    }
+
+    //console.log(`AudioManager: Carregando ${track.title || track.title || 'música desconhecida'} (${track.uri})`);
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        typeof track.uri === 'string' ? { uri: track.uri } : track.uri,
+        { shouldPlay: shouldPlay, progressUpdateIntervalMillis: 500 },
+        this._onPlaybackStatusUpdate
+      );
+      this.sound = newSound;
+      this.currentLoadedTrack = track; // Define a música carregada
+      console.log(`AudioManager: Música '${track.title}' carregada com sucesso.`);
+
+      if (shouldPlay) {
+        await this.sound.playAsync();
+      }
+    } catch (error) {
+      console.error("AudioManager: Erro ao carregar e tocar som:", error);
+      // Em caso de erro, garante que o player esteja limpo
+      if (this.sound) {
+        await this.sound.unloadAsync().catch(() => {}); // Tenta descarregar mesmo com erro
+        this.sound.setOnPlaybackStatusUpdate(null);
+      }
+      this.sound = null;
+      this.currentLoadedTrack = null;
+      throw error; // Re-lança o erro para ser tratado pelo Redux
+    }
+  }
+     */}

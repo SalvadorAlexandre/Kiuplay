@@ -1,5 +1,5 @@
 // components/globalPlayer/audioPlayerBar.tsx
-import React, { useEffect, useCallback, useState, useRef } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,252 +10,203 @@ import {
   ActivityIndicator,
   Platform,
   ScrollView,
+
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import {
-  togglePlayPauseThunk,
-  playNextThunk,
-  playPreviousThunk,
-  seekToThunk,
-  updatePlaybackStatus,
-  setError,
-  toggleExpanded,
-  setSeeking,
-  toggleShuffle,
-  toggleRepeat,
-} from '@/src/redux/playerSlice';
-import { getAudioManager } from '@/src/utils/audioManager';
-import { AVPlaybackStatus } from 'expo-av';
-
-import {
-  toggleFavoriteSingle,
-  removeFavoriteSingle
-} from '@/src/redux/favoriteSinglesSlice';
+import Animated, { useSharedValue, useAnimatedStyle, } from 'react-native-reanimated';
+import { playerStyles as styles } from './playerStyles';
+// ZUSTAND
+import { usePlayerStore } from '@/src/zustand/usePlayerStore';
+import { AudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { toggleFavoriteSingle } from '@/src/redux/favoriteSinglesSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
-
-const audioManager = getAudioManager();
-
-function safeText(value: any): string {
-  if (value === undefined || value === null) return '';
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return '';
-  }
-}
-
+// Zustand State & Actions
 export default function AudioPlayerBar() {
-  const { t } = useTranslation();
 
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
+
   const {
+    player,
     currentTrack,
     isPlaying,
-    positionMillis,
-    durationMillis,
     isExpanded,
-    isLoading,
-    isSeeking,
-    error,
     isShuffle,
-    isRepeat,
-  } = useAppSelector((state) => state.player);
+    repeatMode,
+    togglePlay,
+    playNext,
+    playPrevious,
+    toggleShuffle,
+    setRepeatMode,
+    toggleExpanded,
+    seekTo
+  } = usePlayerStore();
 
-  // Normalize currentTrack fields locally to ensure strings are passed to Text
-  const title = currentTrack ? safeText(currentTrack.title) : '';
-  const artist = currentTrack ? safeText(currentTrack.artist) : '';
-  const genre = currentTrack ? safeText(currentTrack.genre) : '';
+  // 1. CHAME TODOS OS HOOKS NO TOPO (Sempre, sem exceção)
+  //if (!player) return null
+  const status = useAudioPlayerStatus(player!);
+  const progressShared = useSharedValue(0);
+  const favoritedSingles = useAppSelector((state) => state.favoriteSingles.items ?? []);
+
+  // 2. TRATE OS DADOS (Use o status do hook, não do store para a UI imediata)
+  //const positionMillis = status?.currentTime ?? 0;
+  //const durationMillis = status?.duration ?? 0;
+  //const isActuallyPlaying = status?.playing ?? false; // Use isso para o ícone
+  //const isLoading = status?.isBuffering || false;
+
+  const trackId = currentTrack?.id ?? null;
+
+  const positionMillis = status?.currentTime ?? 0;
+  const durationMillis = status?.duration ?? 0;
+  const isActuallyPlaying = status?.playing ?? false;
+  const isLoading = status?.isBuffering ?? false;
+
+  const animatedProgressStyle = useAnimatedStyle(() => {
+    return {
+      width: `${progressShared.value * 100}%`,
+    };
+  });
+
+  /* =========================================================
+   * 3. EFFECTS
+   * ======================================================= */
+  useEffect(() => {
+    if (durationMillis > 0) {
+      progressShared.value = positionMillis / durationMillis;
+    }
+  }, [positionMillis, durationMillis]);
+
+  /* =========================================================
+   * 4. DERIVED STATE
+   * ======================================================= */
+  const isCurrentTrackFavorited =
+    trackId !== null &&
+    favoritedSingles.some((single) => single?.id === trackId);
+
+  /* =========================================================
+   * 5. GUARD – SÓ DEPOIS DOS HOOKS
+   * ======================================================= */
+  if (!currentTrack || !player) {
+    return null;
+  }
+
+  /* =========================================================
+   * 6. HELPERS
+   * ======================================================= */
+  function safeText(value: any): string {
+    if (value === undefined || value === null) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return '';
+    }
+  }
+
+  const title = safeText(currentTrack.title);
+  const artist = safeText(currentTrack.artist);
+  const genre = safeText(currentTrack.genre);
+
   const coverImage =
-    currentTrack && typeof currentTrack.cover === 'string' && currentTrack.cover.trim() !== ''
+    typeof currentTrack.cover === 'string' && currentTrack.cover.trim() !== ''
       ? { uri: currentTrack.cover }
       : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+
   const artistAvatarSrc =
-    currentTrack && typeof currentTrack.artistAvatar === 'string' && currentTrack.artistAvatar.trim() !== ''
+    typeof currentTrack.artistAvatar === 'string' && currentTrack.artistAvatar.trim() !== ''
       ? { uri: currentTrack.artistAvatar }
       : require('@/assets/images/Default_Profile_Icon/unknown_artist.png');
 
+  /* =========================================================
+   * 7. CALLBACKS
+   * ======================================================= */
   const handleOpenComments = useCallback(() => {
-    if (currentTrack) {
-      router.push({
-        pathname: '/commentScreens/musics/[musicId]',
-        params: {
-          musicId: currentTrack.id,
-          musicTitle: currentTrack.title,
-          artistName: currentTrack.artist,
-          albumArtUrl: currentTrack.cover || '',
-          commentCount: '',
-        },
-      });
-    }
-  }, [router, currentTrack]);
-
-  const favoritedSingles = useAppSelector((state) => state.favoriteSingles.items);
-  const isCurrentTrackFavorited = currentTrack
-    ? favoritedSingles.some((single) => single.id === currentTrack.id)
-    : false;
-  // Throttle/compare playback status updates to avoid flooding dispatches
-  const lastStatusRef = useRef<{ positionMillis?: number; durationMillis?: number; isPlaying?: boolean }>({});
-
-  useEffect(() => {
-    const handlePlaybackStatusUpdate = (status: AVPlaybackStatus | any) => {
-      // Extract some values safely
-      const pos = typeof status?.positionMillis === 'number' ? status.positionMillis : null;
-      const dur = typeof status?.durationMillis === 'number' ? status.durationMillis : null;
-      const playing = typeof status?.isPlaying === 'boolean' ? status.isPlaying : null;
-      const didJustFinish = 'didJustFinish' in status ? status.didJustFinish : false;
-
-      let shouldDispatch = false;
-
-      // If the track just finished - always dispatch so next track can be handled
-      if (didJustFinish) {
-        shouldDispatch = true;
-      } else {
-        // Significant change in position (> 500ms)
-        if (pos !== null && typeof lastStatusRef.current.positionMillis === 'number') {
-          if (Math.abs(pos - (lastStatusRef.current.positionMillis || 0)) > 500) shouldDispatch = true;
-        } else if (pos !== null && lastStatusRef.current.positionMillis === undefined) {
-          shouldDispatch = true;
-        }
-
-        // Duration changed
-        if (dur !== null && dur !== lastStatusRef.current.durationMillis) shouldDispatch = true;
-
-        // Playing state changed
-        if (playing !== null && playing !== lastStatusRef.current.isPlaying) shouldDispatch = true;
-      }
-
-      if (shouldDispatch) {
-        // Update ref snapshot
-        if (pos !== null) lastStatusRef.current.positionMillis = pos;
-        if (dur !== null) lastStatusRef.current.durationMillis = dur;
-        if (playing !== null) lastStatusRef.current.isPlaying = playing;
-
-        dispatch(updatePlaybackStatus(status));
-        if (didJustFinish) {
-          dispatch(playNextThunk());
-        }
-      }
-    };
-
-    audioManager.setPlaybackStatusUpdateCallback(handlePlaybackStatusUpdate);
-    return () => {
-      audioManager.setPlaybackStatusUpdateCallback(null);
-    };
-  }, [dispatch]);
+    router.push({
+      pathname: '/commentScreens/musics/[musicId]',
+      params: {
+        musicId: trackId!,
+        musicTitle: currentTrack.title,
+        artistName: currentTrack.artist,
+        albumArtUrl: currentTrack.cover || '',
+        commentCount: '',
+      },
+    });
+  }, [router, trackId, currentTrack]);
 
   const handleTogglePlayPause = useCallback(() => {
-    dispatch(togglePlayPauseThunk());
-  }, [dispatch]);
+    togglePlay();
+  }, [togglePlay]);
 
   const handleToggleExpanded = useCallback(() => {
-    dispatch(toggleExpanded());
-  }, [dispatch]);
+    toggleExpanded();
+  }, [toggleExpanded]);
 
   const handleSeekTo = useCallback((v: number) => {
-    // Ensure value is a number
-    const val = typeof v === 'number' && !isNaN(v) ? v : 0;
-    dispatch(seekToThunk(val));
-  }, [dispatch]);
+    seekTo(v);
+  }, [seekTo]);
 
-  const formatTime = (millis: number | undefined | null): string => {
-    if (!millis || typeof millis !== 'number' || isNaN(millis)) return '0:00';
-    const totalSeconds = Math.floor(millis / 1000);
+  const formatTime = (value?: number | null): string => {
+    if (!value || isNaN(value)) return '0:00';
+
+    const totalMillis =
+      value < 10000 && durationMillis < 10000 ? value * 1000 : value;
+
+    const totalSeconds = Math.floor(totalMillis / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
+
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const [sliderValue, setSliderValue] = useState<number>(positionMillis || 0);
-  useEffect(() => {
-    if (!isSeeking && sliderValue !== positionMillis) {
-      setSliderValue(positionMillis || 0);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [positionMillis, isSeeking]);
-
-  const progress = durationMillis > 0 ? (positionMillis / durationMillis) : 0;
-
   const handleToggleShuffle = useCallback(() => {
-    dispatch(toggleShuffle());
-  }, [dispatch]);
+    toggleShuffle();
+  }, [toggleShuffle]);
 
   const handleToggleRepeat = useCallback(() => {
-    dispatch(toggleRepeat());
-  }, [dispatch]);
+    const modes: ('off' | 'track' | 'all')[] = ['off', 'track', 'all'];
+    const currentIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
+  }, [repeatMode, setRepeatMode]);
 
   const handleToggleFavorite = useCallback(() => {
-    if (!currentTrack || currentTrack.category !== 'single') return;
+    if (currentTrack.category !== 'single') return;
     dispatch(toggleFavoriteSingle(currentTrack));
   }, [dispatch, currentTrack]);
 
-  {/**
-    const handleToggleFavorite = useCallback(() => {
-    if (!currentTrack) return;
-    if (isCurrentTrackFavorited) {
-      dispatch(removeFavoriteMusic(currentTrack.id));
-    } else {
-      dispatch(addFavoriteMusic(currentTrack));
-    }
-  }, [dispatch, currentTrack, isCurrentTrackFavorited]);
+  const getRepeatIcon = () =>
+    repeatMode === 'off' ? 'repeat-outline' : 'repeat';
 
-    */}
+  const getRepeatColor = () =>
+    repeatMode === 'off' ? '#fff' : '#1E90FF';
 
   const handleShareMusic = useCallback(() => {
-    if (!currentTrack) {
-      console.warn(t('audioPlayerBar.noMusicPlaying.'));
-      return;
-    }
     router.push({
       pathname: '/shareScreens/music/[musicId]',
       params: {
-        musicId: currentTrack.id,
+        musicId: trackId!,
         musicTitle: currentTrack.title,
         artistName: currentTrack.artist,
         albumArtUrl: currentTrack.cover || '',
       },
     });
-  }, [router, currentTrack, t]);
+  }, [router, trackId, currentTrack]);
 
   // If there's no currentTrack show nothing
-  if (!currentTrack) return null;
+  //if (!currentTrack || !player) return null;
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          backgroundColor: '#111',
-          ...(isExpanded
-            ? {
-              top: 0,
-              bottom: 0,
-              height: '100%',
-              width: '100%',
-            }
-            : {
-              bottom: 60,
-              height: 68,
-            }),
-        },
-      ]}
-    >
-      {/* MODO MINIMIZADO */}
-      {!isExpanded && (
+    <View style={[styles.container, isExpanded ? styles.expandedContainer : styles.minimizedContainer]}>
+
+      {!isExpanded ? ( //MODO MINIMIZADO
         <>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            style={styles.minimizedBar}
-            onPress={handleToggleExpanded}
+          <TouchableOpacity activeOpacity={0.9} style={styles.minimizedBar} onPress={handleToggleExpanded}
           >
             <View style={styles.minimizedLeft}>
               <Image source={coverImage} style={styles.minimizedCover} />
@@ -264,30 +215,19 @@ export default function AudioPlayerBar() {
                 <Text style={styles.artistName} numberOfLines={1}>{safeText(artist)}</Text>
               </View>
             </View>
-
             <TouchableOpacity onPress={handleTogglePlayPause} style={{ padding: 10 }}>
               {isLoading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Ionicons
-                  name={isPlaying ? 'pause' : 'play'}
-                  size={28}
-                  color="#fff"
-                />
+                <Ionicons name={isActuallyPlaying ? 'pause' : 'play'} size={28} color="#fff" />
               )}
             </TouchableOpacity>
           </TouchableOpacity>
-
           <View style={styles.progressContainer}>
-            <View
-              style={[styles.progressBar, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]}
-            />
+            <Animated.View style={[styles.progressBar, animatedProgressStyle]} />
           </View>
         </>
-      )}
-
-      {/* MODO MAXIMIZADO */}
-      {isExpanded && (
+      ) : (  //MODO MAXIMIZADO
         <ImageBackground
           source={coverImage}
           blurRadius={Platform.OS === 'android' ? 5 : 0}
@@ -330,13 +270,10 @@ export default function AudioPlayerBar() {
                 style={styles.slider}
                 minimumValue={0}
                 maximumValue={durationMillis > 0 ? durationMillis : 1}
-                value={isSeeking ? sliderValue : (positionMillis || 0)}
-                onValueChange={(v) => setSliderValue(typeof v === 'number' ? v : 0)}
-                onSlidingStart={() => dispatch(setSeeking(true))}
-                onSlidingComplete={(v) => {
-                  dispatch(setSeeking(false));
-                  handleSeekTo(typeof v === 'number' ? v : 0);
-                }}
+                value={positionMillis}
+                //onValueChange={(v) => setSliderValue(typeof v === 'number' ? v : 0)}
+                //onSlidingStart={() => dispatch(setSeeking(true))}
+                onSlidingComplete={handleSeekTo}
                 minimumTrackTintColor="#1E90FF"
                 maximumTrackTintColor="#444"
                 thumbTintColor="#fff"
@@ -357,7 +294,7 @@ export default function AudioPlayerBar() {
                   />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => dispatch(playPreviousThunk())}>
+                <TouchableOpacity onPress={playPrevious}>
                   <Ionicons name="play-skip-back" size={28} color="#fff" />
                 </TouchableOpacity>
 
@@ -366,23 +303,31 @@ export default function AudioPlayerBar() {
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
                     <Ionicons
-                      name={isPlaying ? 'pause-circle' : 'play-circle'}
+                      name={isActuallyPlaying ? 'pause-circle' : 'play-circle'}
                       size={48}
                       color="#fff"
                     />
                   )}
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => dispatch(playNextThunk())}>
+                <TouchableOpacity onPress={playNext}>
                   <Ionicons name="play-skip-forward" size={28} color="#fff" />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={handleToggleRepeat}>
-                  <Ionicons
-                    name={isRepeat ? 'repeat-outline' : 'repeat'}
-                    size={28}
-                    color={isRepeat ? '#1E90FF' : '#fff'}
-                  />
+                <TouchableOpacity onPress={handleToggleRepeat} style={{ padding: 5 }}>
+                  <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons
+                      name={getRepeatIcon()}
+                      size={28}
+                      color={getRepeatColor()}
+                    />
+                    {/* Se estiver no modo 'track', renderiza um "1" pequeno sobre o ícone */}
+                    {repeatMode === 'track' && (
+                      <View style={styles.repeatBadge}>
+                        <Text style={styles.repeatBadgeText}>1</Text>
+                      </View>
+                    )}
+                  </View>
                 </TouchableOpacity>
               </View>
 
@@ -410,151 +355,6 @@ export default function AudioPlayerBar() {
           </BlurView>
         </ImageBackground>
       )}
-
-      {typeof error === 'string' && error.trim() !== '' && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{safeText(error)}</Text>
-          <TouchableOpacity onPress={() => dispatch(setError(null))}>
-            <Ionicons name="close-circle" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    width: '100%',
-    backgroundColor: '#111',
-    borderTopWidth: 1,
-    borderTopColor: '#222',
-    zIndex: 99,
-    elevation: 10,
-  },
-  minimizedBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    height: 68,
-  },
-  minimizedLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  minimizedCover: {
-    width: 48,
-    height: 48,
-    borderRadius: 4,
-  },
-  progressContainer: {
-    height: 1,
-    backgroundColor: '#333',
-    width: '100%',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#1E90FF',
-  },
-  expandedContent: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  expandedHeader: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 10,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  expandedCover: {
-    width: '94%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    backgroundColor: '#222',
-    resizeMode: 'stretch'
-  },
-  slider: {
-    width: '100%',
-    marginTop: 20,
-  },
-  timeContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 4,
-  },
-  timeText: {
-    color: '#aaa',
-    fontSize: 12,
-  },
-  trackTitle: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  artistName: {
-    color: '#ccc',
-    fontSize: 12,
-  },
-  artistMainName: {
-    color: '#fff',
-    fontSize: 16,
-    flex: 1,
-  },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '80%',
-    marginTop: 1,
-  },
-  errorContainer: {
-    backgroundColor: 'rgba(255,0,0,0.8)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 18,
-  },
-  errorText: {
-    color: '#fff',
-    fontSize: 14,
-    flex: 1,
-  },
-  imageBackground: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-start',
-    resizeMode: "cover"
-  },
-  expandedScrollView: {
-    flex: 1,
-  },
-  expandedScrollContent: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  profileImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 25,
-    resizeMode: 'cover',
-  },
-  iconActions: {
-    width: 25,
-    height: 25,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20,
-    padding: 30,
-  },
-});

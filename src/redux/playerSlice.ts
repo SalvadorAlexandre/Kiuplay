@@ -30,6 +30,8 @@ export type Track = PlayableContent & {
   // Adicione outras propriedades específicas do player se houver (ex: `isPlaying`, `progress`, etc. - mas essas geralmente vão para o estado do slice, não na Track interface em si)
 }
 
+export type RepeatMode = 'off' | 'track' | 'all';
+
 // --- Define a estrutura do estado global do player ---
 export interface PlayerState {
   currentTrack: Track | null; // Agora usa a interface Track
@@ -43,7 +45,7 @@ export interface PlayerState {
   isLoading: boolean;
   error: string | null;
   isExpanded: boolean;
-  isRepeat: boolean;
+  repeatMode: RepeatMode;
   isSeeking: boolean;
   //coverImage: string | null;
 }
@@ -60,7 +62,7 @@ const initialState: PlayerState = {
   isLoading: false,
   error: null,
   isExpanded: false,
-  isRepeat: false,
+  repeatMode: 'off',
   isSeeking: false,
   //coverImage: null,
 };
@@ -74,7 +76,9 @@ interface SetPlaylistAndPlayPayload {
 // --- THUNKS ASSÍNCRONAS ---
 
 // Thunk para definir a playlist e começar a reproduzir uma música
-export const setPlaylistAndPlayThunk = createAsyncThunk<
+
+{/**
+  export const setPlaylistAndPlayThunk = createAsyncThunk<
   void,
   SetPlaylistAndPlayPayload,
   { dispatch: AppDispatch; state: RootState; rejectValue: string }
@@ -113,6 +117,69 @@ export const setPlaylistAndPlayThunk = createAsyncThunk<
     }
   }
 );
+
+  */}
+export const setPlaylistAndPlayThunk = createAsyncThunk<
+  void,
+  SetPlaylistAndPlayPayload,
+  { dispatch: AppDispatch; state: RootState; rejectValue: string }
+>(
+  'player/setPlaylistAndPlay',
+  async ({ newPlaylist, startIndex = 0, shouldPlay = true }, { dispatch, rejectWithValue }) => {
+
+    // 1. BLOQUEIO IMEDIATO (Síncrono)
+    // Ligamos o loading antes de qualquer 'await' para que os botões na UI 
+    // fiquem desabilitados e o usuário não consiga clicar em outra música.
+    dispatch(setLoading(true));
+    dispatch(setError(null));
+
+    // 2. VALIDAÇÃO BÁSICA
+    if (!Array.isArray(newPlaylist) || newPlaylist.length === 0) {
+      const msg = 'Playlist vazia ou inválida.';
+      dispatch(setError(msg));
+      dispatch(setLoading(false));
+      return rejectWithValue(msg);
+    }
+
+    const trackToPlay = newPlaylist[startIndex];
+    if (!trackToPlay) {
+      const msg = 'Música inicial não encontrada.';
+      dispatch(setError(msg));
+      dispatch(setLoading(false));
+      return rejectWithValue(msg);
+    }
+
+    try {
+      // 3. LIMPEZA RADICAL (Obrigatório para PWA)
+      // Paramos o motor de áudio antes de carregar a nova para garantir 
+      // que o canal de áudio do browser/PC esteja livre.
+      await audioManager.stop();
+
+      // Resetamos o estado atual (opcional, dependendo se você quer que 
+      // o player suma da tela enquanto carrega a nova playlist)
+      dispatch(resetPlayerState());
+
+      // 4. CARREGAMENTO DO NOVO ÁUDIO
+      // O AudioManager (com as travas que fizemos) garantirá que apenas esta ID toque.
+      await audioManager.loadAndPlay(trackToPlay, shouldPlay);
+
+      // 5. ATUALIZAÇÃO DO REDUX SÓ APÓS O SUCESSO
+      // Evitamos poluir a playlist se o áudio falhar ao carregar (ex: 404 ou sem internet)
+      dispatch(_setPlaylist({ newPlaylist, startIndex }));
+
+    } catch (error: any) {
+      console.error("Erro no Fluxo de Playback:", error);
+      const errorMessage = error.message || 'Erro ao carregar áudio.';
+      dispatch(setError(errorMessage));
+      return rejectWithValue(errorMessage);
+    } finally {
+      // 6. LIBERAÇÃO DA UI
+      dispatch(setLoading(false));
+    }
+  }
+);
+
+
 
 // --- NOVA THUNK: playTrackThunk ---
 // Usada para tocar uma música específica da playlist (ou definir uma nova playlist e tocar)
@@ -221,7 +288,7 @@ export const togglePlayPauseThunk = createAsyncThunk<
   }
 );
 
-
+//=======================================================================================================================
 // Thunk para tocar a próxima música na playlist
 // src/redux/playerSlice.ts
 
@@ -234,6 +301,8 @@ export const playNextThunk = createAsyncThunk<
   async (_, { dispatch, getState, rejectWithValue }) => {
     const state = getState().player;
 
+    // BLOQUEIO: Se já está carregando, ignore cliques subsequentes para evitar atropelo
+    //if (state.isLoading) return;
     // Determina qual playlist usar com base no estado do shuffle
     const currentActivePlaylist = state.isShuffle ? state.shuffledPlaylist : state.playlist;
 
@@ -264,9 +333,32 @@ export const playNextThunk = createAsyncThunk<
     }
 
 
-    let nextTrackIndexInActivePlaylist = currentTrackIndexInActivePlaylist + 1;
 
     // Lógica para o final da playlist: repetição ou parada
+    // Dentro do playNextThunk...
+    let nextTrackIndexInActivePlaylist = currentTrackIndexInActivePlaylist + 1;
+    // Lógica para o final da playlist
+    if (nextTrackIndexInActivePlaylist >= currentActivePlaylist.length) {
+      // Se estiver no modo 'all', volta para o início
+      if (state.repeatMode === 'all') {
+        nextTrackIndexInActivePlaylist = 0;
+
+        if (state.isShuffle) {
+          const newShuffledPlaylist = shuffleArray(state.playlist);
+          dispatch(_setShuffledPlaylist(newShuffledPlaylist));
+        }
+      }
+      // Se estiver em 'off' ou 'track' (e chegou ao fim da lista via botão Next), paramos
+      else {
+        dispatch(stopPlayerThunk());
+        return;
+      }
+    }
+
+    {/** 
+
+      logica antiga
+  let nextTrackIndexInActivePlaylist = currentTrackIndexInActivePlaylist + 1;
     if (nextTrackIndexInActivePlaylist >= currentActivePlaylist.length) {
       if (state.isRepeat) {
         nextTrackIndexInActivePlaylist = 0; // Volta para o início da playlist ATIVA
@@ -285,6 +377,8 @@ export const playNextThunk = createAsyncThunk<
         return;
       }
     }
+  
+  */}
 
     const nextTrackToPlay = currentActivePlaylist[nextTrackIndexInActivePlaylist];
 
@@ -305,6 +399,56 @@ export const playNextThunk = createAsyncThunk<
   }
 );
 
+
+{/**
+  export const playPreviousThunk = createAsyncThunk<
+  void,
+  void,
+  { dispatch: AppDispatch; state: RootState; rejectValue: string }
+>(
+  'player/playPrevious',
+  async (_, { dispatch, getState, rejectWithValue }) => {
+    const state = getState().player;
+    // BLOQUEIO: Se já está carregando, ignore cliques subsequentes para evitar atropelo
+    if (state.isLoading) return;
+
+    if (state.playlist.length === 0 || state.currentIndex === -1) {
+      dispatch(setError("Nenhuma playlist ou música selecionada para retroceder."));
+      return;
+    }
+
+    // Dentro do playPreviousThunk...
+    let prevIndex = state.currentIndex - 1;
+
+    if (prevIndex < 0) {
+      // Se o modo for 'all' ou 'track', ao clicar em voltar na primeira música, 
+      // ele vai para a última da lista.
+      if (state.repeatMode !== 'off') {
+        prevIndex = state.playlist.length - 1;
+      } else {
+        dispatch(stopPlayerThunk());
+        return;
+      }
+    }
+    // Se isRepeat estiver ativado, volta para o final da playlist
+    {/**
+    //logica antiga
+    //let prevIndex = state.currentIndex - 1;
+    //if (prevIndex < 0) {
+   //   if (state.isRepeat) {
+    //    prevIndex = state.playlist.length - 1;
+    //  } else {
+        // Se não houver repetição e for a primeira música, parar
+    //    dispatch(stopPlayerThunk());
+     //   return;
+      }
+    }
+    // Usa a nova thunk para tocar a música anterior
+    dispatch(playTrackThunk(prevIndex));
+  }
+);
+*/}
+
 // Thunk para tocar a música anterior na playlist
 export const playPreviousThunk = createAsyncThunk<
   void,
@@ -315,25 +459,80 @@ export const playPreviousThunk = createAsyncThunk<
   async (_, { dispatch, getState, rejectWithValue }) => {
     const state = getState().player;
 
-    if (state.playlist.length === 0 || state.currentIndex === -1) {
-      dispatch(setError("Nenhuma playlist ou música selecionada para retroceder."));
+    // BLOQUEIO: evita cliques múltiplos durante carregamento
+    //if (state.isLoading) return;
+
+    // Segurança básica
+    if (
+      state.playlist.length === 0 ||
+      state.currentIndex === -1 ||
+      !state.currentTrack
+    ) {
+      dispatch(setError('Nenhuma playlist ou música selecionada para retroceder.'));
       return;
     }
 
-    let prevIndex = state.currentIndex - 1;
-    // Se isRepeat estiver ativado, volta para o final da playlist
-    if (prevIndex < 0) {
-      if (state.isRepeat) {
-        prevIndex = state.playlist.length - 1;
+    // 1️⃣ Determina a playlist ATIVA (igual ao playNext)
+    const currentActivePlaylist = state.isShuffle
+      ? state.shuffledPlaylist
+      : state.playlist;
+
+    if (currentActivePlaylist.length === 0) {
+      dispatch(setError('Playlist ativa vazia.'));
+      return;
+    }
+
+    // 2️⃣ Descobre o índice REAL da música atual na playlist ativa
+    const currentTrackId = state.currentTrack.id;
+
+    let currentTrackIndexInActivePlaylist =
+      currentActivePlaylist.findIndex(track => track.id === currentTrackId);
+
+    // Fallback de segurança (ex: toggle de shuffle no meio da música)
+    if (currentTrackIndexInActivePlaylist === -1) {
+      currentTrackIndexInActivePlaylist = state.currentIndex;
+
+      if (currentTrackIndexInActivePlaylist >= currentActivePlaylist.length) {
+        currentTrackIndexInActivePlaylist =
+          currentActivePlaylist.length - 1;
+      }
+    }
+
+    // 3️⃣ Calcula o índice da música anterior
+    let prevTrackIndexInActivePlaylist =
+      currentTrackIndexInActivePlaylist - 1;
+
+    // 4️⃣ Lógica para início da playlist
+    if (prevTrackIndexInActivePlaylist < 0) {
+      if (state.repeatMode === 'all' || state.repeatMode === 'track') {
+        prevTrackIndexInActivePlaylist =
+          currentActivePlaylist.length - 1;
       } else {
-        // Se não houver repetição e for a primeira música, parar
         dispatch(stopPlayerThunk());
         return;
       }
     }
 
-    // Usa a nova thunk para tocar a música anterior
-    dispatch(playTrackThunk(prevIndex));
+    // 5️⃣ Obtém a música anterior da playlist ativa
+    const prevTrackToPlay =
+      currentActivePlaylist[prevTrackIndexInActivePlaylist];
+
+    if (!prevTrackToPlay) {
+      dispatch(setError('Não foi possível determinar a música anterior.'));
+      return rejectWithValue('Música anterior indefinida.');
+    }
+
+    // 6️⃣ Reconcilia com a playlist ORIGINAL (obrigatório)
+    const originalIndex = state.playlist.findIndex(
+      track => track.id === prevTrackToPlay.id
+    );
+
+    if (originalIndex !== -1) {
+      dispatch(playTrackThunk(originalIndex));
+    } else {
+      dispatch(setError('Erro: Música não encontrada na playlist original.'));
+      return rejectWithValue('Música não encontrada na playlist original.');
+    }
   }
 );
 
@@ -365,6 +564,7 @@ export const seekToThunk = createAsyncThunk<
     }
   }
 );
+
 
 // Thunk para parar o player completamente (mantida)
 export const stopPlayerThunk = createAsyncThunk<
@@ -404,6 +604,9 @@ export const setVolumeThunk = createAsyncThunk<
   }
 );
 
+
+
+//============================================================================================================
 
 // --- SLICE PRINCIPAL DO PLAYER ---
 const playerSlice = createSlice({
@@ -538,8 +741,18 @@ const playerSlice = createSlice({
     toggleExpanded: (state) => {
       state.isExpanded = !state.isExpanded;
     },
+    //toggleRepeat: (state) => {
+    //  state.isRepeat = !state.isRepeat;
+    //},
     toggleRepeat: (state) => {
-      state.isRepeat = !state.isRepeat;
+      // Ciclo: off -> track -> all -> off
+      if (state.repeatMode === 'off') {
+        state.repeatMode = 'track';
+      } else if (state.repeatMode === 'track') {
+        state.repeatMode = 'all';
+      } else {
+        state.repeatMode = 'off';
+      }
     },
     resetPlayerState: () => initialState,
   },

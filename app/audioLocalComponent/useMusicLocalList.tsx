@@ -10,6 +10,246 @@ import {
 } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 import { parseBlob } from 'music-metadata';
+import { Stack } from 'expo-router';
+
+// ZUSTAND: Importação do store e do tipo Track
+import { usePlayerStore, Track } from '@/src/zustand/usePlayerStore';
+import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader';
+import { useTranslation } from '@/src/translations/useTranslation';
+
+interface MusicItemProps {
+    music: Track;
+    isCurrent: boolean;
+    onPress: () => void;
+    index: number;
+}
+
+const MusicItem = ({ music, isCurrent, onPress, index }: MusicItemProps) => {
+    const { t } = useTranslation();
+    const imageSource = music.cover
+        ? { uri: music.cover }
+        : require('@/assets/images/Default_Profile_Icon/unknown_track.png');
+
+    return (
+        <TouchableOpacity
+            style={[styles.musicItemContainer, isCurrent && styles.currentMusicItem]}
+            onPress={onPress}
+            activeOpacity={0.7}
+        >
+            <View style={styles.row}>
+                <Image source={imageSource} style={styles.coverImage} />
+                <View style={styles.musicTextContainer}>
+                    <Text numberOfLines={1} style={[styles.musicName, isCurrent && { color: '#fff' }]}>
+                        {isCurrent ? '▶ ' : ''}{music.title}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.artistName}>
+                        {music.artist || t("screens.localMusic.unknownArtist")}
+                    </Text>
+                    <Text style={styles.musicSize}>
+                        {music.size
+                            ? `${(music.size / (1024 * 1024)).toFixed(2)} MB`
+                            : t("screens.localMusic.unknownSize")}
+                    </Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
+
+export default function LocalMusicScreen() {
+    const { t } = useTranslation();
+
+    // ZUSTAND: Seletores para estado e ações
+    const queue = usePlayerStore((state) => state.queue);
+    const currentIndex = usePlayerStore((state) => state.currentIndex);
+    const loadQueue = usePlayerStore((state) => state.loadQueue);
+    const loadTrack = usePlayerStore((state) => state.loadTrack);
+
+    const { musics: selectedLocalFiles, pickMusics } = useLocalMusicPicker();
+
+    useEffect(() => {
+        if (selectedLocalFiles && selectedLocalFiles.length > 0) {
+            const processFiles = async () => {
+                const processedTracks: Track[] = [];
+
+                for (const file of selectedLocalFiles) {
+                    try {
+                        const response = await fetch(file.uri);
+                        const blob = await response.blob();
+                        const metadata = await parseBlob(blob);
+
+                        const title = metadata.common.title || file.name.split('.').slice(0, -1).join('.') || t("screens.localMusic.unknownTitle");
+                        const artist = metadata.common.artist || t("screens.localMusic.unknownArtist");
+
+                        let coverUri = '';
+                        if (metadata.common.picture && metadata.common.picture.length > 0) {
+                            const picture = metadata.common.picture[0];
+
+                            // Solução: Criar uma cópia do buffer para garantir compatibilidade com BlobPart
+                            // Isso resolve a incompatibilidade entre SharedArrayBuffer e ArrayBuffer
+                            const bufferCopy = new Uint8Array(picture.data).buffer;
+
+                            const coverBlob = new Blob([bufferCopy], { type: picture.format });
+                            coverUri = URL.createObjectURL(coverBlob);
+                        }
+
+
+                        processedTracks.push({
+                            id: uuidv4(),
+                            uri: String(file.uri),
+                            title,
+                            artist,
+                            cover: coverUri,
+                            size: file.size,
+                            mimeType: file.mimeType || 'audio/mpeg',
+                            duration: metadata.format.duration
+                                ? Math.round(metadata.format.duration * 1000)
+                                : undefined,
+                            //source: 'library-local',
+                            category: "single",
+                            releaseYear: new Date().getFullYear().toString(),
+                            genre: metadata.common.genre?.[0] || t("screens.localMusic.unknownGenre"),
+                        });
+                    } catch (err) {
+                        console.error("Erro ao processar metadados:", err);
+                    }
+                }
+
+                // ZUSTAND: Carrega a lista no store e inicia o primeiro item
+                if (processedTracks.length > 0) {
+                    loadQueue(processedTracks, 0);
+                }
+            };
+            processFiles();
+        }
+    }, [selectedLocalFiles]);
+
+    return (
+        <>
+            <Stack.Screen
+                options={{
+                    title: t('screens.localMusic.playlist'),
+                    headerStyle: { backgroundColor: '#191919' },
+                    headerTintColor: '#fff',
+                    headerShown: true,
+                }}
+            />
+            <View style={styles.container}>
+                <TouchableOpacity
+                    onPress={pickMusics}
+                    style={styles.button}
+                >
+                    <Text style={styles.buttonText}>{t("screens.localMusic.selectMusicButton")}</Text>
+                </TouchableOpacity>
+
+                {queue.length === 0 ? (
+                    <Text style={styles.empty}>{t("screens.localMusic.emptyPlaylist")}</Text>
+                ) : (
+                    <FlatList
+                        data={queue}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item, index }) => (
+                            <MusicItem
+                                music={item}
+                                index={index}
+                                isCurrent={index === currentIndex}
+                                onPress={() => loadTrack(index)} // ZUSTAND: Ação de carregar track pelo índice
+                            />
+                        )}
+                        contentContainerStyle={{ paddingBottom: 100 }}
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
+            </View>
+        </>
+    );
+}
+
+
+// Estilos visuais (inalterados)
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 12,
+        backgroundColor: '#191919'
+    },
+    button: {
+        backgroundColor: '#1e90ff',
+        paddingVertical: 12,
+        borderRadius: 10,
+        marginBottom: 20,
+        marginTop: 20,
+    },
+    buttonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    empty: {
+        color: '#888',
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 16,
+    },
+    musicItemContainer: {
+        //backgroundColor: '#1f1f1f',
+        padding: 10,
+        marginBottom: 5,
+        borderRadius: 8,
+        borderColor: '#1e90ff',
+        //borderWidth: 1,
+    },
+    currentMusicItem: {
+        borderColor: '#1e90ff',
+        backgroundColor: '#2a2a2a',
+    },
+    musicName: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 16,
+    },
+    musicSize: {
+        color: '#aaa',
+        fontSize: 13,
+        marginTop: 4,
+    },
+    artistName: {
+        color: '#ccc',
+        fontSize: 12,
+    },
+    coverImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        marginRight: 12,
+        backgroundColor: '#333',
+        resizeMode: "cover"
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    musicTextContainer: {
+        flex: 1,
+    },
+});
+
+
+
+
+{/**
+    import React, { useEffect } from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    FlatList,
+    Image,
+} from 'react-native';
+import { v4 as uuidv4 } from 'uuid';
+import { parseBlob } from 'music-metadata';
 import { Stack } from 'expo-router'
 // Importe Track e as thunks do seu playerSlice
 import {
@@ -196,71 +436,4 @@ export default function LocalMusicScreen() {
         </>
     );
 }
-
-// Estilos visuais (inalterados)
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 12,
-    },
-    button: {
-        //backgroundColor: '#1e90ff',
-        paddingVertical: 12,
-        borderRadius: 10,
-        marginBottom: 20,
-        marginTop: 20,
-    },
-    buttonText: {
-        color: 'white',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    empty: {
-        color: '#888',
-        textAlign: 'center',
-        marginTop: 20,
-        fontSize: 16,
-    },
-    musicItemContainer: {
-        //backgroundColor: '#1f1f1f',
-        padding: 10,
-        marginBottom: 5,
-        borderRadius: 8,
-        borderColor: '#1e90ff',
-        //borderWidth: 1,
-    },
-    currentMusicItem: {
-        borderColor: '#1e90ff',
-        backgroundColor: '#2a2a2a',
-    },
-    musicName: {
-        color: 'white',
-        fontWeight: '600',
-        fontSize: 16,
-    },
-    musicSize: {
-        color: '#aaa',
-        fontSize: 13,
-        marginTop: 4,
-    },
-    artistName: {
-        color: '#ccc',
-        fontSize: 12,
-    },
-    coverImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 8,
-        marginRight: 12,
-        backgroundColor: '#333',
-        resizeMode: "cover"
-    },
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    musicTextContainer: {
-        flex: 1,
-    },
-});
+    */}

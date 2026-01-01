@@ -10,6 +10,8 @@ import { setPlaylistAndPlayThunk, } from '@/src/redux/playerSlice';
 import { togglePlayPauseThunk, } from '@/src/redux/playerSlice';
 import { useTranslation } from '@/src/translations/useTranslation';
 
+import { useSharedValue } from 'react-native-reanimated';
+
 import { EmptyState } from '@/components/ListEmptyComponent';
 import { userApi, getMyContentPaginated } from '@/src/api';
 

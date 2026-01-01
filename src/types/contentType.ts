@@ -117,7 +117,7 @@ export interface Single {
     genre: string; // NOVO: Adicionado para o gênero
     releaseYear: string; // Propriedade para ano de lançamento
     category: 'single'; // Categoria específica
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-server';
+    //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-server';
 
     comments?: Comment[]
 }
@@ -138,7 +138,7 @@ export interface ExtendedPlayEP {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile';
+    //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile';
 }
 
 // Interface para um Álbum
@@ -157,7 +157,7 @@ export interface Album {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
-    source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'library-artistProfile';
+    //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'library-artistProfile';
 }
 
 // Beat comprado (derivado de ExclusiveBeat)
@@ -198,11 +198,11 @@ export interface ExclusiveBeat {
     category: 'exclusivebeat'; // Categoria específica
     releaseYear: string;
     createdAt: string;
-    source: 'beatstore-feeds' | 'beatstore-favorites' | 'user-profile';
     viewsCount?: number;
     favoritesCount?: number;
     commentCount?: number;
     shareCount?: number;
+    //source: 'beatstore-feeds' | 'beatstore-favorites' | 'user-profile';
 }
 // Interface para um Beat Gratuito (da BeatStore)
 export interface FreeBeat {
@@ -228,7 +228,7 @@ export interface FreeBeat {
     commentCount?: number
     shareCount?: number
     downloadCount?: number
-    source: 'beatstore-feeds' | 'beatstore-favorites';
+    //source: 'beatstore-feeds' | 'beatstore-favorites';
 
     comments?: Comment[]
 }
