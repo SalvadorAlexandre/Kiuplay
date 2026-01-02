@@ -204,7 +204,7 @@ export function AudioPlayerContent({ player }: Props ) {
   }, [router, trackId, currentTrack]);
 
   // If there's no currentTrack show nothing
-  //if (!currentTrack) return null;
+  if (!currentTrack) return null;
 
   return (
     <View style={[styles.container, isExpanded ? styles.expandedContainer : styles.minimizedContainer]}>

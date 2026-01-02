@@ -134,7 +134,6 @@ export default function ProfileScreen() {
   }, [activeTab, fetchData]);
 
 
-
   // 3. Função para o Infinite Scroll (quando chegar ao fim da lista)
   const handleLoadMore = () => {
     // Só carrega mais se: não estiver carregando, houver mais páginas e não houver erro

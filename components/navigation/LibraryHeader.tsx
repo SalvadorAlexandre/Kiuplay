@@ -22,7 +22,7 @@ const LibraryHeader = ({ t, router }: LibraryHeaderProps) => {
                 style={styles.buttonTopBar}
                 activeOpacity={0.7}
             >
-                <Ionicons name='menu' size={26} color='#fff' />
+                <Ionicons name='menu-outline' size={26} color='#fff' />
             </TouchableOpacity>
 
             <TouchableOpacity

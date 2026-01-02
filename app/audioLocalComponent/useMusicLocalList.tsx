@@ -7,6 +7,7 @@ import {
     StyleSheet,
     FlatList,
     Image,
+    ActivityIndicator
 } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 import { parseBlob } from 'music-metadata';
@@ -16,6 +17,7 @@ import { Stack } from 'expo-router';
 import { usePlayerStore, Track } from '@/src/zustand/usePlayerStore';
 import useLocalMusicPicker from '@/hooks/audioPlayerHooks/useLocalMusicLoader';
 import { useTranslation } from '@/src/translations/useTranslation';
+
 
 interface MusicItemProps {
     music: Track;
@@ -66,10 +68,12 @@ export default function LocalMusicScreen() {
     const loadTrack = usePlayerStore((state) => state.loadTrack);
 
     const { musics: selectedLocalFiles, pickMusics } = useLocalMusicPicker();
+    const { currentTrack } = usePlayerStore();
 
     useEffect(() => {
         if (selectedLocalFiles && selectedLocalFiles.length > 0) {
             const processFiles = async () => {
+                usePlayerStore.getState().setLoading(true)
                 const processedTracks: Track[] = [];
 
                 for (const file of selectedLocalFiles) {
@@ -119,10 +123,37 @@ export default function LocalMusicScreen() {
                 if (processedTracks.length > 0) {
                     loadQueue(processedTracks, 0);
                 }
+                usePlayerStore.getState().setLoading(false);
             };
+           
             processFiles();
         }
     }, [selectedLocalFiles]);
+
+    const isLoading = usePlayerStore((state) => state.isLoading);
+
+    if (isLoading) {
+        return (
+            <>
+                <Stack.Screen
+                    options={{
+                        title: t('screens.localMusic.playlist'),
+                        headerStyle: { backgroundColor: '#191919' },
+                        headerTintColor: '#fff',
+                        headerShown: true,
+                    }}
+                />
+                <View style={styles.loadingContainer}>
+                    <View style = {{marginTop: 20}}>
+                        <ActivityIndicator size="large" />
+                    </View>
+                </View>
+            </>
+
+        );
+    }
+
+    //if (!currentTrack) return null;
 
     return (
         <>
@@ -172,6 +203,10 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 12,
         backgroundColor: '#191919'
+    },
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: '#191919',
     },
     button: {
         backgroundColor: '#1e90ff',

@@ -14,6 +14,7 @@ interface PlayerState {
     originalQueue: Track[];  // Backup da ordem original
     currentIndex: number;
     isPlaying: boolean;
+    isLoading: boolean;
     isExpanded: boolean;
     isShuffle: boolean;
     repeatMode: 'off' | 'track' | 'all';
@@ -28,6 +29,7 @@ interface PlayerState {
     setRepeatMode: (mode: 'off' | 'track' | 'all') => void;
     toggleExpanded: () => void;
     seekTo: (millis: number) => void;
+    setLoading: (loading: boolean) => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -39,7 +41,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     isPlaying: false,
     isExpanded: false,
     isShuffle: false,
+    isLoading: false,
     repeatMode: 'off',
+
+    setLoading: (loading: boolean) => set({isLoading: loading}),
 
     loadQueue: (tracks: Track[], startIndex = 0) => {
         set({
@@ -56,7 +61,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         const track = queue[index];
 
         if (!track) return;
-
+        
         if (oldPlayer) {
             oldPlayer.pause();
             //oldPlayer.release()
