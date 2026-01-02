@@ -22,7 +22,7 @@ import { playerStyles as styles } from './playerStyles';
 import { usePlayerStore } from '@/src/zustand/usePlayerStore';
 import { AudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { toggleFavoriteSingle } from '@/src/redux/favoriteSinglesSlice';
-import { useTranslation } from '@/src/translations/useTranslation';
+//import { useTranslation } from '@/src/translations/useTranslation';
 
 type Props = {
   player: AudioPlayer;
@@ -31,7 +31,7 @@ type Props = {
  * 1. COMPONENTE FILHO (Onde a mágica acontece)
  * Recebe o 'player' como prop obrigatória (garantido pelo pai)
  */
-export function AudioPlayerContent({ player }: Props ) {
+export function AudioPlayerContent({ player }: Props) {
   //const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -39,7 +39,6 @@ export function AudioPlayerContent({ player }: Props ) {
   const {
     //player,
     currentTrack,
-    isPlaying,
     isExpanded,
     isShuffle,
     repeatMode,
@@ -53,7 +52,6 @@ export function AudioPlayerContent({ player }: Props ) {
   } = usePlayerStore();
 
   // 1. CHAME TODOS OS HOOKS NO TOPO (Sempre, sem exceção)
-  //if (!player) return null
   const status = useAudioPlayerStatus(player);
   const progressShared = useSharedValue(0);
   const favoritedSingles = useAppSelector((state) => state.favoriteSingles.items ?? []);
@@ -85,6 +83,27 @@ export function AudioPlayerContent({ player }: Props ) {
       progressShared.value = positionMillis / durationMillis;
     }
   }, [positionMillis, durationMillis]);
+
+
+  /* =========================================================
+   * MONITOR DE FIM DE MÚSICA
+   * ======================================================= */
+  useEffect(() => {
+    // Verificamos se o status existe e se a música acabou de terminar
+    if (status?.didJustFinish) {
+      console.log("[DEBUG] didJustFinish detectado via Hook no Componente");
+
+      if (repeatMode === 'track') {
+        // Se for para repetir a mesma, resetamos o tempo
+        player.seekTo(0);
+        player.play();
+      } else {
+        // Caso contrário, manda o Zustand carregar a próxima
+        playNext();
+      }
+    }
+  }, [status?.didJustFinish, repeatMode, playNext, player]);
+
 
   /* =========================================================
    * 4. DERIVED STATE
@@ -174,11 +193,15 @@ export function AudioPlayerContent({ player }: Props ) {
   }, [toggleShuffle]);
 
   const handleToggleRepeat = useCallback(() => {
-    const modes: ('off' | 'track' | 'all')[] = ['off', 'track', 'all'];
+    // O 'as const' diz ao TS que este array só contém estes 3 valores exatos
+    const modes = ['off', 'track', 'all'] as const;
     const currentIndex = modes.indexOf(repeatMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
+
+    // Agora o TS sabe que nextMode é 'off' | 'track' | 'all'
     setRepeatMode(nextMode);
   }, [repeatMode, setRepeatMode]);
+
 
   const handleToggleFavorite = useCallback(() => {
     if (currentTrack.category !== 'single') return;
@@ -361,5 +384,5 @@ export function AudioPlayerContent({ player }: Props ) {
         </ImageBackground>
       )}
     </View>
-  );  
+  );
 }

@@ -4,23 +4,21 @@ import { createAudioPlayer, AudioPlayer } from 'expo-audio';
 import { shuffleArray } from '@/src/utils/arrayUtils';
 import { PlayableContent } from '@/src/types/contentType';
 
-// Definição do tipo Track conforme solicitado
 export type Track = PlayableContent;
 
 interface PlayerState {
     player: AudioPlayer | null;
-    currentTrack: Track | null;
-    queue: Track[];          // Fila que está sendo lida no momento
-    originalQueue: Track[];  // Backup da ordem original
+    queue: Track[];
+    originalQueue: Track[];
     currentIndex: number;
-    isPlaying: boolean;
-    isLoading: boolean;
+    currentTrack: Track | null;
     isExpanded: boolean;
     isShuffle: boolean;
     repeatMode: 'off' | 'track' | 'all';
+    isLoading: boolean;
 
     // Actions
-    loadQueue: (tracks: Track[], startIndex: number) => void;
+    loadQueue: (tracks: Track[], startIndex?: number) => void;
     loadTrack: (index: number) => void;
     togglePlay: () => void;
     playNext: () => void;
@@ -28,69 +26,189 @@ interface PlayerState {
     toggleShuffle: () => void;
     setRepeatMode: (mode: 'off' | 'track' | 'all') => void;
     toggleExpanded: () => void;
-    seekTo: (millis: number) => void;
-    setLoading: (loading: boolean) => void;
+    seekTo: (seconds: number) => void;
+    releasePlayer: () => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
     player: null,
-    currentTrack: null,
     queue: [],
     originalQueue: [],
     currentIndex: -1,
-    isPlaying: false,
+    currentTrack: null,
     isExpanded: false,
     isShuffle: false,
-    isLoading: false,
     repeatMode: 'off',
+    isLoading: false,
 
-    setLoading: (loading: boolean) => set({isLoading: loading}),
+    setLoading: (loading: boolean) => set({ isLoading: loading }),
 
-    loadQueue: (tracks: Track[], startIndex = 0) => {
+
+    loadQueue: (tracks, startIndex = 0) => {
         set({
-            originalQueue: [...tracks],
             queue: [...tracks],
+            originalQueue: [...tracks],
             currentIndex: startIndex,
-            isShuffle: false
+            isShuffle: false,
         });
         get().loadTrack(startIndex);
     },
 
-    loadTrack: (index: number) => {
-        const { queue, player: oldPlayer } = get();
-        const track = queue[index];
+    loadTrack: (index) => {
+        const status = get();
+        const track = status.queue[index];
 
-        if (!track) return;
-        
-        if (oldPlayer) {
-            oldPlayer.pause();
-            //oldPlayer.release()
-            //oldPlayer.removeListener('playbackStatusUpdate', (status))
-            // No SDK 53+, listeners são limpos automaticamente ao substituir o player,
-            // mas pausar evita sobreposição de áudio em transições rápidas.
-        }
+        if (!track || !track.uri) return;
 
-        // Supondo que PlayableContent utilize 'uri' ou 'url' para o arquivo
-        const trackSource = track.uri;
-        if (!trackSource) {
-            console.error("Track sem fonte de áudio válida");
+        // Se já existe um player, apenas trocamos a fonte e o loop
+        if (status.player) {
+            console.log("[DEBUG] Reutilizando player e mantendo listener ativo");
+            status.player.pause();
+            status.player.replace(track.uri);
+            status.player.loop = status.repeatMode === 'track'; // Aplica loop nativo
+
+            set({ currentTrack: track, currentIndex: index });
+            status.player.play();
             return;
         }
 
-        const newPlayer = createAudioPlayer(trackSource);
+        // --- CRIAÇÃO INICIAL (Apenas uma vez) ---
+        const newPlayer = createAudioPlayer(track.uri);
 
-        newPlayer.addListener('playbackStatusUpdate', (status) => {
-            const { repeatMode, playNext } = get();
+        set({
+            player: newPlayer,
+            currentTrack: track,
+            currentIndex: index,
+        });
 
-            // Sincroniza o estado de reprodução global
-            set({ isPlaying: status.playing });
+        newPlayer.loop = status.repeatMode === 'track';
+        newPlayer.play();
+    },
 
-            if (status.playbackState === 'finished') {
-                if (repeatMode === 'track') {
+    togglePlay: () => {
+        const { player } = get();
+        if (!player) return;
+        // 'playing' é uma propriedade booleana nativa do AudioPlayer
+        player.playing ? player.pause() : player.play();
+    },
+
+    playNext: () => {
+        const { currentIndex, queue, repeatMode, releasePlayer } = get();
+        const nextIndex = currentIndex + 1;
+
+        if (nextIndex < queue.length) {
+            get().loadTrack(nextIndex);
+        } else if (repeatMode === 'all') {
+            get().loadTrack(0);
+        } else {
+            console.log('Fim da playlist')
+            releasePlayer()
+        }
+    },
+
+    playPrevious: () => {
+        const { player, currentIndex } = get();
+        // A documentação diz que currentTime é em segundos (number)
+        if (player && player.currentTime > 3) {
+            player.seekTo(0);
+        } else if (currentIndex > 0) {
+            get().loadTrack(currentIndex - 1);
+        }
+    },
+
+    seekTo: (seconds) => {
+        get().player?.seekTo(seconds);
+    },
+
+    toggleShuffle: () => {
+        const { isShuffle, originalQueue, currentTrack } = get();
+        if (!isShuffle) {
+            let shuffled = shuffleArray(originalQueue);
+            if (currentTrack) {
+                shuffled = [currentTrack, ...shuffled.filter(t => t.id !== currentTrack.id)];
+            }
+            set({ isShuffle: true, queue: shuffled, currentIndex: 0 });
+        } else {
+            const index = originalQueue.findIndex(t => t.id === currentTrack?.id);
+            set({ isShuffle: false, queue: [...originalQueue], currentIndex: index >= 0 ? index : 0 });
+        }
+    },
+
+    setRepeatMode: (mode) => {
+        const { player } = get();
+        set({ repeatMode: mode });
+        // Se quiser usar o loop nativo do hardware para uma única música:
+        if (player) player.loop = (mode === 'track');
+    },
+
+    releasePlayer: () => {
+        const { player } = get();
+        player?.remove(); // Limpa da memória
+        set({ player: null, currentTrack: null });
+    },
+
+    toggleExpanded: () => set(state => ({ isExpanded: !state.isExpanded })),
+}));
+
+
+
+
+
+
+{/**
+    
+    loadTrack: (index) => {
+        const status = get(); // Pegando o estado atual completo
+        const existingPlayer = status.player;
+        const track = status.queue[index];
+
+        existingPlayer?.loop == true
+
+        console.log(`[DEBUG] Tentando carregar faixa no índice: ${index}`);
+        console.log(`[DEBUG] Player existente:`, existingPlayer ? "SIM (ID: " + existingPlayer.id + ")" : "NÃO (null)");
+
+        if (!track || !track.uri) {
+            console.error("[DEBUG] Erro: Track inválida ou sem URI", track);
+            return;
+        }
+
+        // --- LÓGICA DE SUBSTITUIÇÃO (REPLACE) ---
+        if (existingPlayer) {
+            console.log("[DEBUG] Ação: Executando .replace() para:", track.title);
+
+            // Segurança extrema para Web: Pausa antes de trocar
+            existingPlayer.pause();
+
+            try {
+                existingPlayer.replace(track.uri);
+
+                set({
+                    currentTrack: track,
+                    currentIndex: index
+                });
+
+                existingPlayer.play();
+                console.log("[DEBUG] Sucesso: Replace executado e play() chamado.");
+                return;
+            } catch (error) {
+                console.error("[DEBUG] Falha no replace, tentando recriar player:", error);
+                existingPlayer.remove();
+            }
+        }
+
+        // --- LÓGICA DE CRIAÇÃO (APENAS SE NÃO HOUVER PLAYER) ---
+        console.log("[DEBUG] Ação: Criando nova instância para:", track.title);
+        const newPlayer = createAudioPlayer(track.uri);
+
+        newPlayer.addListener('playbackStatusUpdate', (s) => {
+            if (s.playbackState === 'finished') {
+                console.log("[DEBUG] Evento: Música finalizada.");
+                const currentState = get();
+                if (currentState.repeatMode === 'track') {
                     newPlayer.seekTo(0);
                     newPlayer.play();
                 } else {
-                    playNext();
+                    currentState.playNext();
                 }
             }
         });
@@ -99,80 +217,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
             player: newPlayer,
             currentTrack: track,
             currentIndex: index,
-            isPlaying: true
         });
 
         newPlayer.play();
     },
 
-    toggleShuffle: () => {
-        const { isShuffle, originalQueue, currentTrack } = get();
-        const nextShuffleState = !isShuffle;
 
-        if (nextShuffleState) {
-            // Ativando Shuffle
-            let shuffled = shuffleArray(originalQueue);
-
-            // Mantém a track atual no topo da nova lista
-            if (currentTrack) {
-                shuffled = [
-                    currentTrack,
-                    ...shuffled.filter(t => t.id !== currentTrack.id)
-                ];
-            }
-
-            set({
-                isShuffle: true,
-                queue: shuffled,
-                currentIndex: 0
-            });
-        } else {
-            // Desativando Shuffle: restaura ordem original
-            const originalIndex = originalQueue.findIndex(t => t.id === currentTrack?.id);
-
-            set({
-                isShuffle: false,
-                queue: [...originalQueue],
-                currentIndex: originalIndex !== -1 ? originalIndex : 0
-            });
-        }
-    },
-
-    playNext: () => {
-        const { currentIndex, queue, repeatMode } = get();
-        const nextIndex = currentIndex + 1;
-
-        if (nextIndex < queue.length) {
-            get().loadTrack(nextIndex);
-        } else if (repeatMode === 'all' && queue.length > 0) {
-            get().loadTrack(0);
-        }
-    },
-
-    playPrevious: () => {
-        const { currentIndex, player } = get();
-
-        // Se a música passou de 3s, apenas reinicia ela
-        if (player && (player.currentTime > 3000)) {
-            player.seekTo(0);
-        } else if (currentIndex > 0) {
-            get().loadTrack(currentIndex - 1);
-        }
-    },
-
-    togglePlay: () => {
-        const { player } = get();
-        if (!player) return;
-        player.playing ? player.pause() : player.play();
-    },
-
-
-    setRepeatMode: (mode) => set({ repeatMode: mode }),
-
-    toggleExpanded: () => set((state) => ({ isExpanded: !state.isExpanded })),
-
-    seekTo: (millis: number) => {
-        const { player } = get();
-        player?.seekTo(millis);
-    }
-}));
+    */}
