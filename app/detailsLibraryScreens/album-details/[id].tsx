@@ -46,7 +46,7 @@ export default function AlbumDetailsScreen() {
   const isCurrentAlbumFavorited = useMemo(() =>
     favoriteAlbums.some(album => String(album.id) === String(id)),
     [favoriteAlbums, id]);
-
+ 
   useEffect(() => {
     async function fetchAlbum() {
       if (!id) return;

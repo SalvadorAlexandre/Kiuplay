@@ -148,7 +148,6 @@ export default function exclusiveBeatDetailsScreen() {
                             <View style={styles.coverContainer}>
                                 <Image source={coverSource} style={styles.coverImage} />
                             </View>
-
                             <View style={styles.detailsContainer}>
                                 <Text style={styles.title}>{currentExclusiveBeat.title}</Text>
                                 <Text style={styles.artistName}>{currentExclusiveBeat.artist}</Text>
@@ -175,8 +174,6 @@ export default function exclusiveBeatDetailsScreen() {
                                     {t('exclusiveBeatDetails.buyButton', { price: formattedPrice })}
                                 </Text>
                             </TouchableOpacity>
-
-
                         
                                 <TouchableOpacity style={styles.actionButtonsRow} >
                                     <Ionicons

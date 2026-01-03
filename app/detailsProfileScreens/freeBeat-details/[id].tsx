@@ -15,28 +15,33 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-import { addFavoriteMusic, removeFavoriteMusic } from '@/src/redux/favoriteSinglesSlice';
+import { toggleFavoriteFreeBeat } from '@/src/redux/favoriteFreeBeatsSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
 import { BlurView } from 'expo-blur';
 import { FreeBeat } from '@/src/types/contentType';
 import { getBeatById } from '@/src/api';
 import { useTranslation } from '@/src/translations/useTranslation';
+import { useUserLocation } from '@/hooks/localization/useUserLocalization';
+import { formatDate } from '@/hooks/useFormateDateTime';
+import { undefined } from 'zod/v3';
+
 
 export default function feeBeatDetailsScreen() {
     const { t } = useTranslation();
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
-
+    const { locale } = useUserLocation();
     // 1. Estados (Devem estar no topo)
     const [currentFreeBeat, setCurrentFreeBeat] = useState<FreeBeat | null>(null);
     const [loading, setLoading] = useState(true);
 
     // 2. Seletores Redux (Devem estar no topo)
-    const favoritedMusics = useAppSelector((state) => state.favoriteMusic.musics);
+    // Altere de:
+
+    const favoriteFreeBeats = useAppSelector((state) => state.favoriteFreeBeats.items);
     const isConnected = useAppSelector((state) => state.network.isConnected);
 
-    // 3. Efeito de Busca (useEffect)
     // 3. Efeito de Busca (useEffect)
     useEffect(() => {
         const fetchBeat = async () => {
@@ -63,18 +68,13 @@ export default function feeBeatDetailsScreen() {
 
     // 4. Lógica derivada
     const isCurrentSingleFavorited = currentFreeBeat
-        ? favoritedMusics.some((music) => music.id === currentFreeBeat.id)
-        : false;
 
-    // 5. Handlers (useCallback - ANTES dos returns)
+    // Handler atualizado
     const handleToggleFavorite = useCallback(() => {
         if (!currentFreeBeat) return;
-        if (isCurrentSingleFavorited) {
-            dispatch(removeFavoriteMusic(currentFreeBeat.id));
-        } else {
-            dispatch(addFavoriteMusic(currentFreeBeat));
-        }
-    }, [dispatch, currentFreeBeat, isCurrentSingleFavorited]);
+        // O toggle resolve tudo: se existe remove, se não existe adiciona
+        dispatch(toggleFavoriteFreeBeat(currentFreeBeat));
+    }, [dispatch, currentFreeBeat]);
 
     const handlePlaySingle = useCallback(async () => {
         if (!currentFreeBeat?.uri) {
@@ -187,46 +187,20 @@ export default function feeBeatDetailsScreen() {
                             <View style={styles.coverContainer}>
                                 <Image source={coverSource} style={styles.coverImage} />
                             </View>
-
                             {/* LAYOUT DE DETALHES DA MÚSICA */}
                             <View style={styles.detailsContainer}>
-                                {/* Título e Artista (Geralmente obrigatórios, mas com fallback por segurança) */}
-                                <Text style={styles.title}>{currentFreeBeat.title || t('freeBeatdetails.unknownTitle')}</Text>
-                                <Text style={styles.artistName}>{currentFreeBeat.artist || t('freeBeatdetails.unknownArtist')}</Text>
-
-                                {/* Produtor - Renderização Condicional */}
-                                {currentFreeBeat.producer && (
-                                    <Text style={styles.detailText}>
-                                        {t('freeBeatdetails.producerLabel')} {currentFreeBeat.producer}
-                                    </Text>
-                                )}
-
-                                {/* Tipo de Uso e BPM - Protegendo o toString() */}
+                                <Text style={styles.title}>{currentFreeBeat.title}</Text>
+                                <Text style={styles.artistName}>{currentFreeBeat.artist}</Text>
+                                <Text style={styles.detailText}>{`Producer - ${currentFreeBeat.producer}`}</Text>
+                                <Text style={styles.detailText}>{`Genre - ${currentFreeBeat.genre}`}</Text>
                                 <Text style={styles.detailText}>
-                                    {(currentFreeBeat.typeUse || 'Free')} • {(currentFreeBeat.bpm || 0).toString()} BPM
+                                    {`Since - ${formatDate(currentFreeBeat.createdAt, { locale })}`}
                                 </Text>
-
-                                {/* Categoria/Gênero com Capitalização Segura */}
-                                <Text style={styles.detailText}>
-                                    {(() => {
-                                        // Tentamos pegar o campo que existir no banco
-                                        const categoryText = currentFreeBeat.genre || currentFreeBeat.category || "";
-                                        if (!categoryText) return t('freeBeatdetails.unknownGenre');
-
-                                        // Fazemos o charAt com segurança
-                                        return categoryText.charAt(0).toUpperCase() + categoryText.slice(1);
-                                    })()}
-                                    {' • '}
-                                    {currentFreeBeat.createdAt || t('freeBeatdetails.unknownYear')}
-                                </Text>
-
-                                {/* Estatísticas e Gênero Secundário */}
-                                <Text style={styles.detailText}>
-                                    {(currentFreeBeat.viewsCount || 0).toLocaleString()} Plays • {currentFreeBeat.genre || t('freeBeatdetails.unknownGenre')}
-                                </Text>
+                                <Text style={styles.detailText}>{`${currentFreeBeat.bpm} BPM`}</Text>
+                                <Text style={styles.detailText}>{`${currentFreeBeat.viewsCount} Plays`}</Text>
                             </View>
                         </TouchableOpacity>
-                        {/* FIM DO LAYOUT */}
+                        {/* FIM DO LAYOUT formatDate(currentFreeBeat.createdAt, { locale }) */}
 
                         <View style={styles.containerBtnActionsRow}>
                             <TouchableOpacity style={styles.actionButtonsRow} onPress={handleToggleFavorite}>
@@ -268,7 +242,6 @@ export default function feeBeatDetailsScreen() {
         </ImageBackground>
     );
 }
-
 const styles = StyleSheet.create({
     imageBackground: {
         flex: 1,

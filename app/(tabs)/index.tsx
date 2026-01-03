@@ -200,6 +200,9 @@ export default function ProfileScreen() {
   };
 
   const renderDynamicItem = ({ item }: { item: ProfileItem }) => {
+
+    if(!item || !item.id) return null;
+
     switch (activeTab) {
       case 'single':
         // Usamos 'as Single' para assegurar que este item possui as propriedades de Single

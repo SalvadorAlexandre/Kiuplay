@@ -15,22 +15,24 @@ import {
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/src/redux/hooks';
-
 // Redux Actions
 import { toggleFavoriteExclusiveBeat } from '@/src/redux/favoriteExclusiveBeatsSlice';
 import { setPlaylistAndPlayThunk, Track } from '@/src/redux/playerSlice';
-
 import { BlurView } from 'expo-blur';
 import { ExclusiveBeat } from '@/src/types/contentType';
-import { getBeatById } from '@/src/api/feedApi'; 
+import { getBeatById } from '@/src/api/feedApi';
 import { useTranslation } from '@/src/translations/useTranslation';
 import { formatBeatPrice } from '@/hooks/useFormatBeatPrice';
+import { useUserLocation } from '@/hooks/localization/useUserLocalization';
+import { formatDate } from '@/hooks/useFormateDateTime';
+
 
 export default function ExclusiveBeatDetailsScreen() {
     const { t } = useTranslation();
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const { locale } = useUserLocation();
 
     // Seletores Redux
     const favoriteExclusiveBeats = useAppSelector((state) => state.favoriteExclusiveBeats.items);
@@ -82,6 +84,7 @@ export default function ExclusiveBeatDetailsScreen() {
             currentExclusiveBeat.currency || 'USD'
         )
         : "";
+
 
     if (loading) {
         return (
@@ -140,25 +143,23 @@ export default function ExclusiveBeatDetailsScreen() {
                             <View style={styles.detailsContainer}>
                                 <Text style={styles.title}>{currentExclusiveBeat.title}</Text>
                                 <Text style={styles.artistName}>{currentExclusiveBeat.artist}</Text>
-                                <Text style={styles.detailText}>
-                                    {currentExclusiveBeat.typeUse} • {currentExclusiveBeat.bpm} BPM
-                                </Text>
-                                <Text style={styles.detailText}>
-                                    {currentExclusiveBeat.category} • {currentExclusiveBeat.releaseYear || t('exclusiveBeatDetails.unknownYear')}
-                                </Text>
+                                <Text style={styles.detailText}>{`Producer - ${currentExclusiveBeat.producer}`}</Text>
+                                <Text style={styles.detailText}>{`Genre - ${currentExclusiveBeat.genre}`}</Text>
+                                <Text style={styles.detailText}>{`Since - ${formatDate(currentExclusiveBeat.createdAt, { locale })}`}</Text>
+                                 <Text style={styles.detailText}>{`${currentExclusiveBeat.bpm} BPM`}</Text>
                             </View>
                         </TouchableOpacity>
 
                         <View style={styles.containerBtnActionsRow}>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={[
-                                    styles.buttonBuy, 
+                                    styles.buttonBuy,
                                     !currentExclusiveBeat.isAvailableForSale && { backgroundColor: '#444' }
-                                ]} 
+                                ]}
                                 disabled={!currentExclusiveBeat.isAvailableForSale}
                             >
                                 <Text style={styles.textBuy}>
-                                    {currentExclusiveBeat.isAvailableForSale 
+                                    {currentExclusiveBeat.isAvailableForSale
                                         ? t('exclusiveBeatDetails.buyButton', { price: formattedPrice })
                                         : t('exclusiveBeatDetails.soldStatus')}
                                 </Text>

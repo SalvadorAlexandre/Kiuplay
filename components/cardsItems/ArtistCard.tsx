@@ -26,7 +26,7 @@ interface ArtistProfileCardProps {
 export default function ArtistProfileCard({ item, onPress }: ArtistProfileCardProps) {
     const isConnected = useAppSelector((state) => state.network.isConnected);
     const { t } = useTranslation();
-    const { countryCode, locale, currency, loading: locationLoading } = useUserLocation();
+    const { locale } = useUserLocation();
 
     // Definição da imagem de capa com fallback
     const getDynamicCoverSource = () => {
@@ -51,7 +51,7 @@ export default function ArtistProfileCard({ item, onPress }: ArtistProfileCardPr
                         <CardContent
                             item={item}
                             coverSource={coverSource}
-                            locale={locale ?? undefined}
+                            locale={locale}
                         />
                     </BlurView>
                 ) : (
@@ -60,7 +60,7 @@ export default function ArtistProfileCard({ item, onPress }: ArtistProfileCardPr
                         <CardContent
                             item={item}
                             coverSource={coverSource}
-                            locale={locale ?? undefined}
+                            locale={locale}
                         />
                     </View>
                 )}
@@ -87,7 +87,6 @@ const CardContent = ({
         <View style={styles.musicDetails}>
             <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
             <Text style={styles.cardSubtitle} numberOfLines={1}>
-                {/* Agora o locale está acessível aqui */}
                 {formatDate(item.createdAt, { locale })}
             </Text>
             <View style={styles.infoRow}>

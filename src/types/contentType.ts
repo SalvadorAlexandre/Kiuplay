@@ -114,8 +114,8 @@ export interface Single {
     size?: number;
     favoritesCount?: number
     commentCount?: number
-    shareCount?: number
-    viewsCount?: number;
+    shares?: number
+    views?: number;
     mimeType?: string;
     genre: string; // NOVO: Adicionado para o gênero
     releaseYear: string; // Propriedade para ano de lançamento
@@ -136,10 +136,10 @@ export interface ExtendedPlayEP {
     category: 'ep'; // Tipo de conteúdo
     tracks: Single[]; // IDs das faixas que compõem a EP
     mainGenre: string; // NOVO: Adicionado para o gênero
-    viewsCount?: number;
+    views?: number;
     favoritesCount?: number
     commentCount?: number
-    shareCount?: number
+    shares?: number
     releaseYear: string;
     createdAt: string;
     //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile';
@@ -156,16 +156,15 @@ export interface Album {
     category: 'album'; // Tipo de conteúdo;
     tracks: Single[]; // IDs das faixas que compõem o álbum
     mainGenre: string; // NOVO: Adicionado para o gênero
-    viewsCount?: number;
+    views?: number;
     favoritesCount?: number
     commentCount?: number
-    shareCount?: number
+    shares?: number
     releaseYear: string;
     createdAt: string;
     //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'library-artistProfile';
 }
 
-// Beat comprado (derivado de ExclusiveBeat)
 // Beat comprado (derivado de ExclusiveBeat)
 export interface PurchasedBeat extends ExclusiveBeat {
     // Todos os campos de ExclusiveBeat
@@ -251,7 +250,7 @@ export interface Promotion {
     startDate: string; // Início da campanha de promoção (ISO date)
     endDate: string; // Fim da campanha
     targetAudience?: 'followers' | 'all'; // Público alvo
-    createdAt: string;
+    createdAt: string | null;
     category: 'promotion';
     notify: boolean
 }

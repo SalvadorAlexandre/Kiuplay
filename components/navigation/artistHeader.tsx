@@ -35,7 +35,7 @@ export const ArtistHeader = ({
         {t('artistProfile.genreLine', {
           category: artist.category || '',
           genres: artist.genres?.join(', ') || '',
-          year: artist.releaseYear || ''
+          year: artist.createdAt || ''
         })}
       </Text>
 

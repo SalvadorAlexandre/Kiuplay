@@ -6,9 +6,9 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FavoritesAlbumEpItem } from '@/src/types/contentType'; // Importe ambos para a união
 import { useAppSelector } from '@/src/redux/hooks';
+import { useUserLocation } from '@/hooks/localization/useUserLocalization';
+import { formatDate } from '@/hooks/useFormateDateTime';
 
-// Definindo a União de Tipos
-//export type FavoritesAlbumEpItem = ExtendedPlayEP | Album;
 
 interface AlbumEpHeaderProps {
     currentAlbumEp: FavoritesAlbumEpItem; // Nome atualizado
@@ -19,16 +19,16 @@ interface AlbumEpHeaderProps {
     t: any;
 }
 
-export const AlbumEpHeader = ({ 
-    currentAlbumEp, 
-    isFavorited, 
-    onToggleFavorite, 
-    onPlayEp, 
-    router, 
-    t 
+export const AlbumEpHeader = ({
+    currentAlbumEp,
+    isFavorited,
+    onToggleFavorite,
+    onPlayEp,
+    router,
+    t
 }: AlbumEpHeaderProps) => {
     const isConnected = useAppSelector((state) => state.network.isConnected);
-
+    const { locale } = useUserLocation();
     const getDynamicCoverSource = () => {
         if (!isConnected || !currentAlbumEp?.cover?.trim()) {
             return require('@/assets/images/Default_Profile_Icon/unknown_track.png');
@@ -67,9 +67,10 @@ export const AlbumEpHeader = ({
                         <Image source={coverSource} style={styles.coverImage} />
                         <Text style={styles.title}>{currentAlbumEp.title}</Text>
                         <Text style={styles.artistName}>{currentAlbumEp.artist}</Text>
-                        <Text style={styles.detailText}>
-                            {`${currentAlbumEp.category.toUpperCase()} • ${currentAlbumEp.releaseYear} • ${currentAlbumEp.tracks.length} Faixas`}
-                        </Text>
+                        <Text style={styles.artistName}>{`Main genre - ${currentAlbumEp.mainGenre}`}</Text>
+                        <Text style={styles.artistName}>{`${currentAlbumEp.category} • ${currentAlbumEp.tracks.length} tracks`}</Text>
+                        <Text style={styles.detailText}> {`Since - ${formatDate(currentAlbumEp.createdAt, {locale})}`}</Text>
+                        <Text style={styles.detailText}> {`${currentAlbumEp.views} Plays`}</Text>
                     </View>
 
                     <LinearGradient colors={['transparent', '#191919']} style={styles.fadeOverlay} />

@@ -4,20 +4,16 @@ import * as Localization from 'expo-localization';
 import { getCurrencyFromRegion } from '@/src/utils/getCurrencyFromRegion';
 
 interface UserLocation {
-  countryCode: string | null;
-  locale: string | null;
-  currency: string | null;
+  countryCode?: string;
+  locale?: string;
+  currency?: string;
   loading: boolean;
-  error: string | null;
+  error?: string;
 }
 
 export function useUserLocation(): UserLocation {
   const [location, setLocation] = useState<UserLocation>({
-    countryCode: null,
-    locale: null,
-    currency: null,
     loading: true,
-    error: null,
   });
 
   useEffect(() => {
@@ -38,11 +34,10 @@ export function useUserLocation(): UserLocation {
           const data = await res.json();
 
           setLocation({
-            countryCode: data.country_code || 'GL',
-            locale: locale || 'en-US',
-            currency: data.currency || 'USD',
+            countryCode: data.country_code ?? 'GL',
+            locale: locale ?? 'en-US',
+            currency: data.currency ?? 'USD',
             loading: false,
-            error: null,
           });
           return;
         }
@@ -53,7 +48,6 @@ export function useUserLocation(): UserLocation {
           locale,
           currency,
           loading: false,
-          error: null,
         });
       } catch (err) {
         console.error('Erro ao obter localização:', err);
