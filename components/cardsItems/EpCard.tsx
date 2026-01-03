@@ -68,12 +68,10 @@ const CardContent = ({ item, coverSource }: { item: ExtendedPlayEP, coverSource:
       <Text style={styles.cardSubtitle} numberOfLines={1}>{item.artist}</Text>
 
       <View style={styles.infoRow}>
-        {item.releaseYear && <Text style={styles.cardDetailText}>{item.releaseYear}</Text>}
-        {item.releaseYear && item.mainGenre && <Text style={styles.dotSeparator}> • </Text>}
-        {item.mainGenre && <Text style={styles.cardDetailText} numberOfLines={1}>{item.mainGenre}</Text>}
+        <Text style={styles.cardDetailText} numberOfLines={1}>{item.mainGenre}</Text>
       </View>
 
-      <Text style={styles.cardTypeLabelText}>SINGLE</Text>
+      <Text style={styles.cardTypeLabelText}>{item.category}</Text>
     </View>
   </View>
 );

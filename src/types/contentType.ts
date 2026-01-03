@@ -3,27 +3,27 @@ import { LinkedWallet } from "./walletType";
 
 export interface MonetizationInfo {
     // 🛑 CRUCIAL para o Stripe: O ID do Cliente no Stripe (pode ser nulo se não houver)
-    stripeCustomerId: string | null; 
-    
+    stripeCustomerId: string | null;
+
     // O código da moeda que o usuário usa para ver preços (ex: 'USD', 'EUR', 'AOA', 'BRL')
-    currencyCode: string; 
-    
+    currencyCode: string;
+
     // O código do país/região que o usuário definiu como sua região principal de conta
     // (US, BR, PT, AO, MZ, etc. - Usado para a lógica LinkWalletAccountScreen)
-    accountRegion: string; 
+    accountRegion: string;
 
     // Se a carteira de recebimento está vinculada (SetupIntent concluído)
-    isWalletLinked: boolean; 
-    
+    isWalletLinked: boolean;
+
     // Novo campo para monetização (já existia no UserProfile, movido para cá)
-    hasMonetizationEnabled: boolean; 
+    hasMonetizationEnabled: boolean;
 
     // Opcional: Histórico de payouts, saldo, etc.
 }
 
 export interface UserSettings {
     // Configurações de idioma (ex: 'pt-PT', 'en-US')
-    locale: string; 
+    locale: string;
     // Outras configurações (notificações, privacidade, etc.)
 }
 
@@ -48,6 +48,7 @@ export interface UserProfile {
     isArtist?: boolean; // Se o usuário tem um perfil de artista
     releaseYear: string;
     genres?: string[];
+    createdAt: string;
 
     // 🛑 NOVO: Adicione as informações de monetização e configurações aqui
     monetizationInfo?: MonetizationInfo; // OBRIGATÓRIO
@@ -55,7 +56,7 @@ export interface UserProfile {
     // -------------------------------------------------------------
     // Lista de beats comprados
     purchasedBeats?: PurchasedBeat[];
-    wallets?: LinkedWallet[]; 
+    wallets?: LinkedWallet[];
 }
 
 // ArtistProfile herda de UserProfile e, portanto, também terá `purchasedBeats`.
@@ -88,6 +89,8 @@ export interface ArtistProfile extends UserProfile {
     exclusiveBeats?: ExclusiveBeat[];
     followers?: ProfileReference[];
     following?: ProfileReference[];
+
+    createdAt: string;
 }
 
 export interface ProfileReference {
@@ -118,7 +121,7 @@ export interface Single {
     releaseYear: string; // Propriedade para ano de lançamento
     category: 'single'; // Categoria específica
     //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-server';
-
+    createdAt: string;
     comments?: Comment[]
 }
 
@@ -138,6 +141,7 @@ export interface ExtendedPlayEP {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
+    createdAt: string;
     //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-favorites' | 'library-artistProfile';
 }
 
@@ -157,6 +161,7 @@ export interface Album {
     commentCount?: number
     shareCount?: number
     releaseYear: string;
+    createdAt: string;
     //source: 'library-local' | 'library-cloud-feeds' | 'library-cloud-curtidas' | 'library-cloud-seguindo' | 'library-artistProfile';
 }
 
@@ -283,6 +288,7 @@ export interface Notification {
     avatarUrl?: string; // Avatar do usuário que gerou a notificação
     category: NotificationCategory; // 'notification' | 'transaction'
     extraData?: Record<string, any>; // Informações adicionais (ex: valor, link, etc.)
+    createdAt: string;
 }
 
 // NOVO: Interface para um Usuário simplificado em um comentário
@@ -302,9 +308,9 @@ export interface Comment {
 
 
 // Tipo de União para qualquer item que possa aparecer no feed da Library Cloud
-export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album ; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
+export type LibraryFeedItem = ArtistProfile | Single | ExtendedPlayEP | Album; // <-- Adicione ExclusiveBeat e FreeBeat aqui!
 
-export type FavoritesAlbumEpItem = ExtendedPlayEP | Album 
+export type FavoritesAlbumEpItem = ExtendedPlayEP | Album
 
 export type BeatStoreFeedItem = ExclusiveBeat | FreeBeat;
 

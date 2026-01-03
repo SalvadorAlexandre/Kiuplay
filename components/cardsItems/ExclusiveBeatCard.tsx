@@ -13,6 +13,7 @@ import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
 import { useTranslation } from '@/src/translations/useTranslation';
 import { cardStyles as styles } from './styles/cardStyles';
+import { formatBeatPrice } from '@/hooks/useFormatBeatPrice';
 
 interface ExclusiveBeatCardProps {
     item: ExclusiveBeat;
@@ -64,15 +65,16 @@ const CardContent = ({ item, coverSource }: { item: ExclusiveBeat, coverSource: 
         <Image source={coverSource} style={styles.cardCoverImage} />
         <View style={styles.musicDetails}>
             <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-            <Text style={styles.cardSubtitle} numberOfLines={1}>{item.artist}</Text>
+            <Text style={styles.cardSubtitle} numberOfLines={1}>{item.genre}</Text>
 
             <View style={styles.infoRow}>
-                {item.releaseYear && <Text style={styles.cardDetailText}>{item.releaseYear}</Text>}
-                {item.releaseYear && item.genre && <Text style={styles.dotSeparator}> • </Text>}
-                {item.genre && <Text style={styles.cardDetailText} numberOfLines={1}>{item.genre}</Text>}
+                <Text style={styles.cardDetailText} numberOfLines={1}>{item.typeUse}</Text>
+                <Text style={styles.cardDetailText}>{`${item.bpm} BPM`}</Text>
             </View>
 
-            <Text style={styles.cardTypeLabelText}>SINGLE</Text>
+            <Text style={styles.cardTypeLabelText}>
+                {formatBeatPrice(item.price, item.region, item.currency)}
+            </Text>
         </View>
     </View>
 );

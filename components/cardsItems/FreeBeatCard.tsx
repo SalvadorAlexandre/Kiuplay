@@ -65,15 +65,14 @@ const CardContent = ({ item, coverSource }: { item: FreeBeat, coverSource: any }
         <Image source={coverSource} style={styles.cardCoverImage} />
         <View style={styles.musicDetails}>
             <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-            <Text style={styles.cardSubtitle} numberOfLines={1}>{item.artist}</Text>
+            <Text style={styles.cardSubtitle} numberOfLines={1}>{item.genre}</Text>
 
             <View style={styles.infoRow}>
-                {item.releaseYear && <Text style={styles.cardDetailText}>{item.releaseYear}</Text>}
-                {item.releaseYear && item.genre && <Text style={styles.dotSeparator}> • </Text>}
-                {item.genre && <Text style={styles.cardDetailText} numberOfLines={1}>{item.genre}</Text>}
+                <Text style={styles.cardDetailText}>{item.typeUse}</Text>
+                <Text style={styles.cardDetailText}>{`${item.bpm} BPM`}</Text>
             </View>
 
-            <Text style={styles.cardTypeLabelText}>SINGLE</Text>
+            <Text style={styles.cardTypeLabelText}>{item.typeUse}</Text>
         </View>
     </View>
 );

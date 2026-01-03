@@ -110,11 +110,11 @@ export default function ProfileSearch() {
     // Lógica de roteamento: mais concisa e robusta
     if (item.type === "Single" || item.type === "EP" || item.type === "Álbum") {
       const category = item.type.toLowerCase().replace("á", "a"); // "Álbum" -> "album"
-      routePath = `/contentCardLibraryScreens/${category}-details/${item.id}`;
+      routePath = `/detailsLibraryScreens/${category}-details/${item.id}`;
     } else if (item.type === "Exclusive Beat") {
-      routePath = `/contentCardBeatStoreScreens/exclusiveBeat-details/${item.id}`;
+      routePath = `/detailsBeatStoreScreens/exclusiveBeat-details/${item.id}`;
     } else if (item.type === "Free Beat") {
-      routePath = `/contentCardBeatStoreScreens/freeBeat-details/${item.id}`;
+      routePath = `/detailsBeatStoreScreens/freeBeat-details/${item.id}`;
     }
 
     return (

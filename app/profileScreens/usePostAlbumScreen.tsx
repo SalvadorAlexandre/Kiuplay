@@ -195,7 +195,7 @@ export default function PostAlbumScreen() {
                             {/* TEXTO DE DATA PENDENTE */}
                             {albumData.createdAt && (
                                 <Text style={styles.pendingText}>
-                                    {t('postAlbum.pendingSince')}: {formatDate(albumData.createdAt)}
+                                    {t('postAlbum.pendingSince')}:{formatDate(albumData.createdAt)}
                                 </Text>
                             )}
 

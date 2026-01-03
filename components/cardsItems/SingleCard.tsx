@@ -67,12 +67,10 @@ const CardContent = ({ item, coverSource }: { item: Single, coverSource: any }) 
       <Text style={styles.cardSubtitle} numberOfLines={1}>{item.artist}</Text>
 
       <View style={styles.infoRow}>
-        {item.releaseYear && <Text style={styles.cardDetailText}>{item.releaseYear}</Text>}
-        {item.releaseYear && item.genre && <Text style={styles.dotSeparator}> • </Text>}
-        {item.genre && <Text style={styles.cardDetailText} numberOfLines={1}>{item.genre}</Text>}
+       <Text style={styles.cardDetailText} numberOfLines={1}>{item.genre}</Text>
       </View>
 
-      <Text style={styles.cardTypeLabelText}>SINGLE</Text>
+      <Text style={styles.cardTypeLabelText}>{item.category}</Text>
     </View>
   </View>
 );

@@ -95,12 +95,12 @@ function NotificationCard({
     if (!notification.contentType || !notification.contentId) return;
 
     const routeMap = {
-      freebeat: '/contentCardBeatStoreScreens/freeBeat-details/[id]' as const,
-      exclusive_beat: '/contentCardBeatStoreScreens/exclusiveBeat-details/[id]' as const,
-      single: '/contentCardLibraryScreens/single-details/[id]' as const,
-      ep: '/contentCardLibraryScreens/ep-details/[id]' as const,
-      album: '/contentCardLibraryScreens/album-details/[id]' as const,
-      artist: '/contentCardLibraryScreens/artist-profile/[id]' as const,
+      freebeat: '/detailsBeatStoreScreens/freeBeat-details/[id]' as const,
+      exclusive_beat: '/detailsBeatStoreScreens/exclusiveBeat-details/[id]' as const,
+      single: '/detailsLibraryScreens/single-details/[id]' as const,
+      ep: '/detailsLibraryScreens/ep-details/[id]' as const,
+      album: '/detailsLibraryScreens/album-details/[id]' as const,
+      artist: '/detailsLibraryScreens/artist-profile/[id]' as const,
       promotion: '/profileScreens/usePostPromoteScreen' as const,
       message: '/ChatDetail/[id]' as const,
     };

@@ -71,13 +71,13 @@ export default function LibrarySearch() {
 
     const handleSearchItemPress = (item: ContentItem) => {
         if (item.category === "single") {
-            router.push(`/contentCardLibraryScreens/single-details/${item.id}`);
+            router.push(`/detailsLibraryScreens/single-details/${item.id}`);
         } else if (item.category === "album") {
-            router.push(`/contentCardLibraryScreens/album-details/${item.id}`);
+            router.push(`/detailsLibraryScreens/album-details/${item.id}`);
         } else if (item.category === "ep") {
-            router.push(`/contentCardLibraryScreens/ep-details/${item.id}`);
+            router.push(`/detailsLibraryScreens/ep-details/${item.id}`);
         } else if (item.category === "artist" || !item.category) {
-            router.push(`/contentCardLibraryScreens/artist-profile/${item.id}`);
+            router.push(`/detailsLibraryScreens/artist-profile/${item.id}`);
         } else {
             console.warn(t('search_library.unknown_item_type', { category: item.category }));
         }

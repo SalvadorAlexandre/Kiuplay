@@ -1,4 +1,4 @@
-// app/contentCardLibraryScreens/single-details/[id].tsx
+// app/detailsLibraryScreens/single-details/[id].tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,

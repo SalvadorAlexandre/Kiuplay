@@ -13,15 +13,20 @@ import { useAppSelector } from '@/src/redux/hooks';
 import { BlurView } from 'expo-blur';
 import { useTranslation } from '@/src/translations/useTranslation';
 import { cardStyles as styles } from './styles/cardStyles';
+import { useUserLocation } from '@/hooks/localization/useUserLocalization';
+import { formatDate } from '@/hooks/useFormateDateTime';
+
 
 interface ArtistProfileCardProps {
     item: ArtistProfile;
     onPress: (item: ArtistProfile) => void;
+    locale?: string;
 }
 
 export default function ArtistProfileCard({ item, onPress }: ArtistProfileCardProps) {
     const isConnected = useAppSelector((state) => state.network.isConnected);
     const { t } = useTranslation();
+    const { countryCode, locale, currency, loading: locationLoading } = useUserLocation();
 
     // Definição da imagem de capa com fallback
     const getDynamicCoverSource = () => {
@@ -43,12 +48,20 @@ export default function ArtistProfileCard({ item, onPress }: ArtistProfileCardPr
                 {Platform.OS !== 'web' ? (
                     <BlurView intensity={80} tint="dark" style={styles.blurLayer}>
                         <View style={styles.overlay} />
-                        <CardContent item={item} coverSource={coverSource} />
+                        <CardContent
+                            item={item}
+                            coverSource={coverSource}
+                            locale={locale ?? undefined}
+                        />
                     </BlurView>
                 ) : (
                     <View style={[styles.blurLayer, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
                         <View style={styles.overlay} />
-                        <CardContent item={item} coverSource={coverSource} />
+                        <CardContent
+                            item={item}
+                            coverSource={coverSource}
+                            locale={locale ?? undefined}
+                        />
                     </View>
                 )}
             </ImageBackground>
@@ -59,19 +72,27 @@ export default function ArtistProfileCard({ item, onPress }: ArtistProfileCardPr
 /**
  * Sub-componente interno para evitar repetição de código entre BlurView e View (Web)
  */
-const CardContent = ({ item, coverSource }: { item: ArtistProfile, coverSource: any }) => (
+
+const CardContent = ({
+    item,
+    coverSource,
+    locale
+}: {
+    item: ArtistProfile,
+    coverSource: any,
+    locale: string | undefined
+}) => (
     <View style={styles.mainContentWrapper}>
         <Image source={coverSource} style={styles.cardCoverImage} />
         <View style={styles.musicDetails}>
             <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
-            <Text style={styles.cardSubtitle} numberOfLines={1}>{item.name}</Text>
-
+            <Text style={styles.cardSubtitle} numberOfLines={1}>
+                {/* Agora o locale está acessível aqui */}
+                {formatDate(item.createdAt, { locale })}
+            </Text>
             <View style={styles.infoRow}>
-                {item.releaseYear && <Text style={styles.cardDetailText}>{item.releaseYear}</Text>}
-                {item.releaseYear && item.releaseYear && <Text style={styles.dotSeparator}> • </Text>}
-                {item.releaseYear && <Text style={styles.cardDetailText} numberOfLines={1}>{item.releaseYear}</Text>}
+                <Text style={styles.cardDetailText}>{item.genres}</Text>
             </View>
-
             <Text style={styles.cardTypeLabelText}>{item.category}</Text>
         </View>
     </View>

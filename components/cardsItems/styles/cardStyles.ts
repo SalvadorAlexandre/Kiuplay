@@ -58,7 +58,7 @@ export const cardStyles = StyleSheet.create({
     textAlign: 'center',
   },
   infoRow: {
-    flexDirection: 'row',
+    //flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
   },
@@ -71,8 +71,8 @@ export const cardStyles = StyleSheet.create({
     fontSize: 11,
   },
   cardTypeLabelText: {
-    color: '#FF3D00', // Destaque para o tipo de conteúdo
-    fontSize: 10,
+    color: '#1E90FF', // Destaque para o tipo de conteúdo
+    fontSize: 14,
     fontWeight: 'bold',
     marginTop: 4,
     letterSpacing: 1,

@@ -183,10 +183,10 @@ function AppStack() {
       />
       {/* Suas telas de detalhes existentes (continuarão a ter o cabeçalho Stack) */}
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="contentCardLibraryScreens/single-details/[id]" options={{ title: "Detalhes do Single" }} />
-      <Stack.Screen name="contentCardLibraryScreens/album-details/[id]" options={{ title: "Detalhes do Álbum" }} />
-      <Stack.Screen name="contentCardLibraryScreens/ep-details/[id]" options={{ title: "Detalhes do EP" }} />
-      <Stack.Screen name="contentCardLibraryScreens/artist-profile/[id]" options={{ title: "Perfil do Artista" }} />
+      <Stack.Screen name="detailsLibraryScreens/single-details/[id]" options={{ title: "Detalhes do Single" }} />
+      <Stack.Screen name="detailsLibraryScreens/album-details/[id]" options={{ title: "Detalhes do Álbum" }} />
+      <Stack.Screen name="detailsLibraryScreens/ep-details/[id]" options={{ title: "Detalhes do EP" }} />
+      <Stack.Screen name="detailsLibraryScreens/artist-profile/[id]" options={{ title: "Perfil do Artista" }} />
       {/* Tela Not Found (erro 404) */}
       <Stack.Screen name="+not-found" />
     </Stack>
